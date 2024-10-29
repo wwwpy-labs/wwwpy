@@ -80,4 +80,4 @@ async def send_alert_to_all(message: str) -> str:
     return 'done'
 ```
 
-There is the plan to handle server code and scheduled server events (that work with hot-reload): see this [issue](https://github.com/www-py/wwwpy/issues/7).
+There is the plan to handle server code and scheduled server events (that work with hot-reload): see this [issue](https://github.com/wwwpy-labs/wwwpy/issues/7).

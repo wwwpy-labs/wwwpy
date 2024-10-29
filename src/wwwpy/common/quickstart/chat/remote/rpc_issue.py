@@ -10,7 +10,7 @@ class RpcIssueAlert(wpc.Component):
 <h2>Server.rpc issue:
 The package server.rpc is not completely supported by the hot-reload yet.
 It is necessary to refresh the browser. <br>
-<a href='https://github.com/www-py/wwwpy/issues/6' target='_blank'>See and vote the github issue</a>
+<a href='https://github.com/wwwpy-labs/wwwpy/issues/6' target='_blank'>See and vote the github issue</a>
 <br>
 <button data-name="button1" style='transform: scale(2.0,2.0); margin: 2em 4em'>Refresh page</button>
 </h2>

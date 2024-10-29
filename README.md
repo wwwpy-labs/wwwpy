@@ -2,7 +2,7 @@
 
 [python_versions]: https://img.shields.io/pypi/pyversions/wwwpy.svg?logo=python&logoColor=white
 
-[![Test suite](https://github.com/www-py/wwwpy/actions/workflows/ci.yml/badge.svg)](https://github.com/www-py/wwwpy/actions/workflows/ci.yml)
+[![Test suite](https://github.com/wwwpy-labs/wwwpy/actions/workflows/ci.yml/badge.svg)](https://github.com/wwwpy-labs/wwwpy/actions/workflows/ci.yml)
 ![PyPI](https://img.shields.io/pypi/v/wwwpy)
 [![Python Versions][python_versions]](https://pypi.org/project/wwwpy/)
 
@@ -56,9 +56,9 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - Documentation and tutorial about keybindings (hotkey and shortcuts)
 - PyCharm and VS Code plugin
 - Implement a simple layout system to easily place components
-- Execute/Schedule server-side code [see issue](https://github.com/www-py/wwwpy/issues/7)
+- Execute/Schedule server-side code [see issue](https://github.com/wwwpy-labs/wwwpy/issues/3)
 - Support IDE Python completion for shoelace property (through Python stubs .pyi)
-- Support server.rpc function signature hot-reload (now if you change the parameters of a function, the hot-reload will not pick it up)
+- Support server.rpc function signature hot-reload (now if you change the parameters of a function, the hot-reload will not pick it up) [see issue](https://github.com/wwwpy-labs/wwwpy/issues/2) 
 - Improve the serialization mechanism of RPC
 - Change the default event handler code from 'console.log' to 'logger.debug' to use the Python API. As a side effect, all the logging is sent to the server console (only in dev-mode)
 - Improve and clean the Component API that handle the shadow DOM

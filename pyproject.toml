@@ -20,8 +20,8 @@ classifiers = [
 
 
 [project.urls]
-Homepage = "https://github.com/www-py/wwwpy"
-Issues = "https://github.com/www-py/wwwpy/issues"
+Homepage = "https://github.com/wwwpy-labs/wwwpy"
+Issues = "https://github.com/wwwpy-labs/wwwpy/issues"
 
 [build-system]
 requires = ["setuptools", "wheel"]
