@@ -1,19 +1,19 @@
-# Introduction 
+# Introduction
 
-To set up a typical development environment with **wwwpy**, follow these steps:
+Set up your **wwwpy** development environment with these steps:
 
-1. **Set up a Python virtual environment** and run `pip install wwwpy`.
+1. **Create a Python virtual environment:** Open a terminal in your project directory and run `pip install wwwpy`.
 2. **Create an empty folder** and open it in your preferred IDE.
 3. **Open a shell** within your IDE (this allows the console output to link directly to file sources) and start **`wwwpy dev`**. This command opens a browser window displaying your developing web app.
 4. **Arrange your IDE and browser side by side** so you can view your app's code in the IDE and the app interface in the browser simultaneously.
 
-**Note:** wwwpy logs to the console in a way that makes certain entries clickable in the IDE shell, allowing quick navigation to the relevant lines in your source code. For instance, when you create a new button event handler, wwwpy will log the file and line number where the handler is defined; clicking the log entry focuses on that line in the IDE. The same applies to exceptions.
+**Note:** In the IDE shell, **wwwpy** logs clickable file paths and line numbers, enabling direct navigation to relevant code. When creating event handlers or encountering exceptions, click the log entries to jump to the specified lines.
 
 ## A wwwpy Project Structure
 
 In a typical **wwwpy** project structure, you'll encounter these three main folders:
 
-- **common:** This folder contains **Python code and resources** that can be shared and executed in both the server and browser environments. Code here should avoid using any server- or browser-specific APIs to ensure compatibility across both. Think of it as a shared library that both environments can access for seamless, environment-neutral functionality.
+- **common:** The **common** folder holds environment-neutral Python code and resources that run on both server and browser. Avoid server- or browser-specific APIs here to maintain compatibility.
 
 - **remote:** This folder houses **browser-specific Python code** and resources. At startup, **wwwpy** transfers the contents of both the “common” and “remote” folders to the browser, allowing the code to execute on the client side.
 
@@ -21,25 +21,24 @@ In a typical **wwwpy** project structure, you'll encounter these three main fold
 
 This structure creates a clear separation of responsibilities, ensuring you can easily distinguish code that should run in the browser from code meant only for the server, while maintaining a flexible shared layer in the **common** folder.
 
-Here’s a draft for the "Quickstart in Dev Mode" section:
-
 ## Quickstart in Dev Mode
 
 When running **`wwwpy dev`** in an *empty* directory, the browser will display a **quickstart selector**. This selector allows you to choose from various starter templates to kick off your project, giving you a functional foundation to build upon.
 
 Each template is pre-configured to demonstrate core features, offering a practical way to explore how things are structured and implemented in **wwwpy**. Selecting a template not only helps you get started quickly but also allows you to examine the source code directly in your IDE to understand how specific components and functionality are set up. This makes it easy to dive deeper, modify, and extend the initial setup as needed, all while learning from established patterns and best practices.
+
+
+> **Note:** The folder must be truly *empty* for the **quickstart selector** to appear. Some IDEs automatically add starter files when opening a blank project, which can interfere with this feature. If you don’t see the quickstart selector, check your folder and remove any auto-generated files before running **`wwwpy dev`** again.
+
 ## Navigating Code with Console Logs
 
-When using **wwwpy** in development mode, the tool generates console logs designed to streamline navigation within your IDE, enabling you to jump directly to relevant lines in your code. This feature allows for rapid location and editing of source files as you work. Here’s how it works:
+### Streamlined Debugging with Interactive Logs
 
-- **Clickable Logs:** wwwpy logs file paths and line numbers associated with specific actions or errors in your code. These entries are clickable in many IDE shells, allowing you to open the exact line in your source code with a single click.
+**wwwpy**'s interactive logs simplify debugging by enabling quick navigation within your IDE:
 
-- **Event Handler Tracking:** For instance, when you create a new button with an event handler, wwwpy logs the file and line number where the handler is defined. Clicking the log entry in the console will instantly shift your IDE’s focus to that line, eliminating the need to search manually.
-
-- **Error Navigation:** Similarly, if an error occurs, wwwpy logs details like the file, function, and line number of the exception. Clicking on this log entry takes you directly to the problematic code, enabling quicker troubleshooting.
-
-This interactive logging approach significantly speeds up debugging and development, making it easy to track and edit your code as your app evolves.
-Here's the updated section with the additional detail:
+- **Clickable Logs:** Click log entries in the IDE shell to jump directly to the relevant code line.
+- **Event Handler Tracking:** Instantly locate new event handlers by clicking the logged file and line number.
+- **Error Navigation:** Jump to errors directly by clicking on the log entry, expediting troubleshooting.
 
 ### Forwarded Browser Logs
 
@@ -48,4 +47,4 @@ When running in development mode, **wwwpy** also forwards browser logs generated
 - **Monitor Browser Logs and Exceptions in Real-Time:** Instead of switching back and forth between the browser’s developer console and your IDE, you can view browser log messages and exceptions directly in your IDE shell.
 - **Simplify Debugging and Development:** With both server and client logs, as well as any errors, centralized in one place, you can more easily track issues, test functionality, and make adjustments without unnecessary navigation.
 
-This consolidated logging setup improves the efficiency of your development workflow, enabling a faster feedback loop as you develop and debug your web app.
+Centralized logging across both client and server improves workflow efficiency, allowing you to focus on development without switching between tools.
