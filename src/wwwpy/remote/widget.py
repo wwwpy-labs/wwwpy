@@ -128,7 +128,11 @@ class HolderWidget(Widget):
 
         self._remove(widget)
         self.stack.append(widget)
-        widget.append_to(c)
+        from wwwpy.remote.component import Component
+        if isinstance(widget, Component):
+            c.append(widget.element)
+        else:
+            widget.append_to(c)
         self.on_show(widget)
 
     def close(self, widget: Widget):
