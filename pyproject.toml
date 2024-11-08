@@ -1,7 +1,8 @@
 # https://packaging.python.org/en/latest/tutorials/packaging-projects/
 [project]
 name = "wwwpy"
-version = "0.1.38"
+version = "0.1.39"
+
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
 dependencies = ["tornado==6.4.1", "watchdog==4.0.1", "webtypy"]
 requires-python = ">=3.9"
