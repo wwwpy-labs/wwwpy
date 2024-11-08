@@ -1,7 +1,8 @@
 try:
-    from importlib.metadata import version
+    from . import _build_meta
 
-    __version__ = version(__name__)
-    del version
+    __version__ = _build_meta.__version__
 except:
     __version__ = 'unknown'
+
+__all__ = ['__version__']
