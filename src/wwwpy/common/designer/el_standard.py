@@ -161,8 +161,66 @@ def _standard_elements_def() -> List[ElementDef]:
             ],
             events=[
                 EventDef('click', Help('The progress bar was clicked.', '')),
-                ])
-
+                ]
+        ),
+        ElementDef(
+            'select', 'js.HTMLSelectElement',
+            help=Help(
+                'A control that provides a menu of options.',
+                'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select'
+            ),
+            attributes=[
+                AttributeDef(
+                    'name',
+                    Help('Name of the control, useful for form submission.', '')
+                ),
+                AttributeDef(
+                    'disabled',
+                    Help('Whether the control is disabled.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'multiple',
+                    Help('Whether multiple options can be selected.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'required',
+                    Help('Whether the control is required for form submission.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'size',
+                    Help('Number of visible options.', ''),
+                    default_value='1'
+                ),
+                AttributeDef(
+                    'autofocus',
+                    Help('Whether the control should have input focus when the page loads.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'form',
+                    Help('The form element that the select is associated with (its id).', '')
+                ),
+            ],
+            events=[
+                EventDef(
+                    'change',
+                    Help(
+                        'The change event is fired when a change to the element\'s value is committed by the user.',
+                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'
+                    )
+                ),
+                EventDef(
+                    'input',
+                    Help(
+                        'The input event fires when the value of the element has been changed as a direct result of a user action.',
+                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'
+                    )
+                ),
+            ],
+        )
 
     ]
 
@@ -175,18 +233,24 @@ def _standard_elements_def() -> List[ElementDef]:
 def _generateHtml(element_def: ElementDef, name: str) -> str:
     tag_name = element_def.tag_name
 
-    def _def(placeHolder=False, add=''):
-        def inner():
+    def _def(placeHolder=False, add='', inner=''):
+        def inner_func():
             pl = '' if not placeHolder else f' placeholder="{name}"'
             add1 = '' if not add else f' {add}'
-            return f'<{tag_name} data-name="{name}"{pl}{add1}>{name}</{tag_name}>'
-        return inner
+            content = name if not inner else inner
+            return f'<{tag_name} data-name="{name}"{pl}{add1}>{content}</{tag_name}>'
+        return inner_func
 
     func = {
         'button': _def(),
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
         'textarea': _def(placeHolder=True),
+        'select': _def(inner='''
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+        '''),
     }
     gen_html = func.get(tag_name, None)
     html = '\n' + gen_html() if gen_html else '' + ElementDef.default_gen_html(element_def, name)
