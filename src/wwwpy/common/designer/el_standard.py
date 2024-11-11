@@ -54,6 +54,99 @@ def _standard_elements_def() -> List[ElementDef]:
             ]
         ),
         ElementDef(
+            'textarea', 'js.HTMLTextAreaElement',
+            help=Help(
+                'A multi-line text input control.',
+                'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea'
+            ),
+            attributes=[
+                AttributeDef(
+                    'cols',
+                    Help('The visible width of the text control, in average character widths.', ''),
+                    default_value='20'
+                ),
+                AttributeDef(
+                    'rows',
+                    Help('The number of visible text lines for the control.', ''),
+                    default_value='2'
+                ),
+                AttributeDef(
+                    'disabled',
+                    Help('Whether the control is disabled.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'readonly',
+                    Help('Whether the control is read-only.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'required',
+                    Help('Whether the control is required for form submission.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'placeholder',
+                    Help('A hint to the user of what can be entered in the field.', '')
+                ),
+                AttributeDef(
+                    'autofocus',
+                    Help('Whether the control should have input focus when the page loads.', ''),
+                    boolean=True
+                ),
+                AttributeDef(
+                    'maxlength',
+                    Help('The maximum number of characters that the user can enter.', '')
+                ),
+                AttributeDef(
+                    'minlength',
+                    Help('The minimum number of characters that the user can enter.', '')
+                ),
+                AttributeDef(
+                    'wrap',
+                    Help('How the control wraps text.', ''),
+                    values=['soft', 'hard', 'off'],
+                    default_value='soft'
+                ),
+                AttributeDef(
+                    'autocomplete',
+                    Help('Whether the control has autocomplete enabled.', ''),
+                    values=['on', 'off'],
+                    default_value='on'
+                ),
+                AttributeDef(
+                    'spellcheck',
+                    Help('Whether spell checking is enabled for the control.', ''),
+                    values=['true', 'false'],
+                    default_value='true'
+                ),
+                AttributeDef(
+                    'form',
+                    Help('The form element that the textarea is associated with (its id).', '')
+                ),
+                AttributeDef(
+                    'name',
+                    Help('Name of the control, useful for form submission.', '')
+                ),
+            ],
+            events=[
+                EventDef(
+                    'input',
+                    Help(
+                        'The input event fires when the value of the element has been changed as a direct result of a user action.',
+                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'
+                    )
+                ),
+                EventDef(
+                    'change',
+                    Help(
+                        'The change event is fired when a change to the element\'s value is committed by the user.',
+                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'
+                    )
+                ),
+            ],
+        ),
+        ElementDef(
             'div', 'js.HTMLDivElement',
             help=Help('A generic container element.',
                       'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div')
@@ -87,13 +180,13 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
             pl = '' if not placeHolder else f' placeholder="{name}"'
             add1 = '' if not add else f' {add}'
             return f'<{tag_name} data-name="{name}"{pl}{add1}>{name}</{tag_name}>'
-
         return inner
 
     func = {
         'button': _def(),
-        'input': lambda: f"""<input data-name="{name}" placeholder="{name}">""",
-        'progress': lambda: f"""<progress data-name="{name}" value="70" max="100">70 %</progress>""",
+        'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
+        'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
+        'textarea': _def(placeHolder=True),
     }
     gen_html = func.get(tag_name, None)
     html = '\n' + gen_html() if gen_html else '' + ElementDef.default_gen_html(element_def, name)
