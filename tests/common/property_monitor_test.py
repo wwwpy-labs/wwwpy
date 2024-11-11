@@ -71,7 +71,7 @@ def test_double_monitor__should_raise_exception():
     with pytest.raises(Exception):
         monitor_changes(obj, lambda change: None)
 
-
+# todo add test to verify that an exception is thrown when trying to group on an unmonitored object
 def test_group_changes():
     events: List[List[PropertyChanged]] = []
 
