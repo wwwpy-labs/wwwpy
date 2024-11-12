@@ -50,12 +50,12 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 
 - Add support for [Plotly](https://plotly.com/javascript/)
 - Add support for [AG Grid](https://ag-grid.com) 
-- Add support for Ionic custom web components
-  Add support for ASGI. This will enable wwwpy to be used as an add-on to e.g., Django
+- Easy integration with Django, FastAPI and other Python web frameworks (add support for ASGI)
 - Create a database quickstart with vanilla SQLite (or SQLAlchemy)
+- Implement a simple layout system to easily place components
+- Add support for Ionic custom web components
 - Documentation and tutorial about keybindings (hotkey and shortcuts)
 - PyCharm and VS Code plugin
-- Implement a simple layout system to easily place components
 - Execute/Schedule server-side code [see issue](https://github.com/wwwpy-labs/wwwpy/issues/3)
 - Support IDE Python completion for shoelace property (through Python stubs .pyi)
 - Support server.rpc function signature hot-reload (now if you change the parameters of a function, the hot-reload will not pick it up) [see issue](https://github.com/wwwpy-labs/wwwpy/issues/2) 
@@ -63,6 +63,7 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - Change the default event handler code from 'console.log' to 'logger.debug' to use the Python API. As a side effect, all the logging is sent to the server console (only in dev-mode)
 - Improve and clean the Component API that handle the shadow DOM
 - Add a cute loader instead of the plain `<h1>Loading...</h1>`
+- Other ideas? Please, chime in and let us know.
 
 
 ### Toolbox improvements:
