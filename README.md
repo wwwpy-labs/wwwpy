@@ -70,6 +70,7 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - Improve the selection mechanism; it should be smarter and 'do the right thing' given the context
 - Implement the deletion of an element
 - Give better visibility to "Create new Component" and "Explore local filesystem"; now they are at the bottom of the item list
+- "Create new Component" should ask for the name of the component and additional information
 - Develop a 'manual' element selection for those element not easily selected with the mouse
 - Implement the rename of an element
 - Dynamically include the user custom Components in the palette so they can be dropped and used
