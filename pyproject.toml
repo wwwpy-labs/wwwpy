@@ -1,7 +1,8 @@
 # https://packaging.python.org/en/latest/tutorials/packaging-projects/
 [project]
 name = "wwwpy"
-version = "0.1.41"
+version = "0.1.42"
+
 description = "Build Powerful Web Applications with wwwpy: Simple, Scalable, and Fully Customizable"
 
 
