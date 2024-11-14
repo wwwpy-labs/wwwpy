@@ -13,12 +13,12 @@ class Arguments(NamedTuple):
 
 def parse_arguments(args: Optional[Sequence[str]] = None) -> Arguments:
     parser = argparse.ArgumentParser(prog='wwwpy')
-    parser.add_argument('--directory', '-d', default=os.getcwd(),
-                        help='Specify alternative directory [default: current directory]')
-    parser.add_argument('--port', type=int, default=8000,
-                        help='Specify alternate port [default: 8000]')
     parser.add_argument('dev', nargs='?', const=True, default=False,
                         help="Run in development mode")
+    parser.add_argument('--directory', '-d', default=os.getcwd(),
+                        help='set the root path for the project (default: current directory)')
+    parser.add_argument('--port', type=int, default=8000,
+                        help='bind to this port (default: 8000)')
 
     parsed_args = parser.parse_args(args)
     return Arguments(
