@@ -1,6 +1,6 @@
 from typing import List
 
-from wwwpy.common.designer.element_library import ElementDef, Help, EventDef, AttributeDef
+from wwwpy.common.designer.element_library import ElementDef, Help, EventDef, AttributeDef, NamedListMap
 
 
 def _standard_elements_def() -> List[ElementDef]:
@@ -161,7 +161,7 @@ def _standard_elements_def() -> List[ElementDef]:
             ],
             events=[
                 EventDef('click', Help('The progress bar was clicked.', '')),
-                ]
+            ]
         ),
         ElementDef(
             'select', 'js.HTMLSelectElement',
@@ -220,10 +220,32 @@ def _standard_elements_def() -> List[ElementDef]:
                     )
                 ),
             ],
+
+        ),
+        ElementDef(
+            'meter', 'js.HTMLMeterElement',
+            help=Help(
+                'A scalar measurement within a known range (e.g., disk usage, battery level).',
+                'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meter'
+            ),
+            attributes=NamedListMap([
+                AttributeDef('value', Help('The current numeric value.', '')),
+                AttributeDef('min', Help('The lower numeric bound of the measured range. Default is 0.', '')),
+                AttributeDef('max', Help('The upper numeric bound of the measured range. Default is 1.', '')),
+                AttributeDef('low', Help('The upper numeric bound of the low end of the measured range.', '')),
+                AttributeDef('high', Help('The lower numeric bound of the high end of the measured range.', '')),
+                AttributeDef('optimum', Help('The optimal numeric value.', '')),
+                AttributeDef('form', Help('Associates the meter with a form element.', '')), ]
+            ),
+            events=NamedListMap([
+                EventDef('click',
+                         Help('The meter was clicked.',
+                              'https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event')
+                         ),
+            ]),
         )
 
     ]
-
 
     for r in res:
         r.gen_html = _generateHtml
@@ -239,6 +261,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
             add1 = '' if not add else f' {add}'
             content = name if not inner else inner
             return f'<{tag_name} data-name="{name}"{pl}{add1}>{content}</{tag_name}>'
+
         return inner_func
 
     func = {
@@ -251,6 +274,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
             <option value="option2">Option 2</option>
             <option value="option3">Option 3</option>
         '''),
+        'meter': _def(add='value="0.85" min="0" max="1" low="0.3" high="0.7" optimum="0.8"')
     }
     gen_html = func.get(tag_name, None)
     html = '\n' + gen_html() if gen_html else '' + ElementDef.default_gen_html(element_def, name)
