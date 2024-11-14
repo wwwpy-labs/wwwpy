@@ -3,7 +3,7 @@
 name = "wwwpy"
 version = "0.1.42"
 
-description = "Build Powerful Web Applications with wwwpy: Simple, Scalable, and Fully Customizable"
+description = "Build Powerful Web Applications: Simple, Scalable, and Fully Customizable"
 
 
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
