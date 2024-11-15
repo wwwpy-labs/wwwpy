@@ -143,6 +143,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
                 res = await _drop_zone_start_selection_async(_on_hover, whole=False)
                 logger.debug(f'_start_drop_for_comp res={res}')
                 if res:
+                    self.property_editor.set_state_selection_active()
                     await self._process_dropzone(res, element_def)
                 else:
                     await self._canceled()
@@ -225,6 +226,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
         res = await _drop_zone_start_selection_async(_on_hover, whole=True)
         if res:
+            self.property_editor.set_state_selection_active()
             self._toolbox_state.selected_element_path = element_path.element_path(res.element)
         else:
             await self._canceled()
@@ -266,11 +268,13 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
             if not element_path.valid():
                 element_path = None
 
-        self.property_editor.selected_element_path = element_path
         if element_path:
-            self._select_clear_btn.removeAttribute('disabled')
+            self._select_clear_btn.style.visibility = 'visible'
         else:
-            self._select_clear_btn.setAttribute('disabled', '')
+            self._select_clear_btn.style.visibility = 'hidden'
+
+        self.property_editor.selected_element_path = element_path
+
 
     async def _canceled(self):
         self.property_editor.message1div.innerHTML = 'Operation canceled'

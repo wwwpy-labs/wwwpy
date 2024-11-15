@@ -87,11 +87,10 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             self.state.mode = mode
             self._render()
 
-        self._tabs.tabs = [
-            Tab('palette', on_selected=lambda tab: set_state_render(PropertyEditorMode.palette)),
-            Tab('events', on_selected=lambda tab: set_state_render(PropertyEditorMode.events)),
-            Tab('attributes', on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes)),
-        ]
+        self._tab_palette = Tab('palette', on_selected=lambda tab: set_state_render(PropertyEditorMode.palette))
+        self._tab_events = Tab('events', on_selected=lambda tab: set_state_render(PropertyEditorMode.events))
+        self._tab_attributes = Tab('attributes', on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes))
+        self._tabs.tabs = [self._tab_palette, self._tab_events, self._tab_attributes, ]
 
         for lbl in ['data-name', 'name', 'type', 'value', 'form']:
             row1 = PropertyEditorRowAttribute2()
@@ -102,6 +101,10 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             if lbl == 'type':
                 row1.value.value = 'text'
 
+    def set_state_selection_active(self):
+        if self.state.mode == PropertyEditorMode.palette:
+            self.state.mode = PropertyEditorMode.events
+
     def add_row(self, row: wpc.Component):
         row.element.classList.add('wwwpy-property-editor-row')
         self.row_container.appendChild(row.element)
@@ -111,7 +114,11 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         self.message1div.innerHTML = '' if ep is None else f'Selection: {_element_path_lbl(ep)}'
 
         self.row_container.innerHTML = ''
+        visible = 'hidden' if ep is None else 'visible'
+        self._tab_events.root_element().style.visibility = visible
+        self._tab_attributes.root_element().style.visibility = visible
         if not ep:
+            self._tab_palette.selected = True
             return
         lib = element_library.element_library()
         element_def = lib.by_tag_name(ep.tag_name)
@@ -132,8 +139,12 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         self.row_container.innerHTML = ''
         if self.state.mode == PropertyEditorMode.attributes:
             self._render_attribute_editor(element_def, ep)
+            self._tab_attributes.selected = True
         elif self.state.mode == PropertyEditorMode.events:
             self._render_event_editor(element_def, ep)
+            self._tab_events.selected = True
+        else:
+            self._tab_palette.selected = True
 
     def _set_title(self, lbl, value):
         pe_title = PropertyEditorTitleRow()
