@@ -135,7 +135,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
                     # msg += f' at {drop_zone.position.name} of {drop_zone.element.tagName}'
                     msg += f' {pos} {drop_zone.element.tagName}'
                 else:
-                    msg += ' ... select a dropzone.'
+                    msg += ' ... select a dropzone on the page.'
                 self.property_editor.message1div.innerHTML = msg
 
             async def _start_drop_for_comp(event):
@@ -145,7 +145,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
                 if res:
                     await self._process_dropzone(res, element_def)
                 else:
-                    self.property_editor.message1div.innerHTML = 'canceled'
+                    await self._canceled()
 
             element_html = f'<span style="cursor: pointer">{element_def.tag_name}</span> {_help_button(element_def)}'
             add_p(MenuMeta(element_def.tag_name, element_html), _start_drop_for_comp)
@@ -213,7 +213,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         self._restore_selected_element_path()
 
     async def _select_element_btn__click(self, e: Event):
-        no_comp = 'Click an element...'
+        no_comp = 'Select an element on the page to be inspected and edited...'
         self.property_editor.message1div.innerHTML = no_comp
 
         def _on_hover(drop_zone: DropZone | None):
@@ -224,7 +224,10 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
             console.log(f'pointed dropzone: {drop_zone}')
 
         res = await _drop_zone_start_selection_async(_on_hover, whole=True)
-        self._toolbox_state.selected_element_path = element_path.element_path(res.element) if res else None
+        if res:
+            self._toolbox_state.selected_element_path = element_path.element_path(res.element)
+        else:
+            await self._canceled()
         self._restore_selected_element_path()
 
     @menu(components_marker)
@@ -269,6 +272,11 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         else:
             self._select_clear_btn.setAttribute('disabled', '')
 
+    async def _canceled(self):
+        self.property_editor.message1div.innerHTML = 'Operation canceled'
+        await asyncio.sleep(2)
+        self.property_editor.message1div.innerHTML = ''
+
 
 def is_inside_toolbar(element: HTMLElement | None):
     if not element:
@@ -287,9 +295,12 @@ def is_inside_toolbar(element: HTMLElement | None):
 
 
 def _default_drop_zone_accept(drop_zone: DropZone):
-    name = drop_zone.element.tagName.lower()
+    element = drop_zone.element
+    name = element.tagName.lower()
     from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
-    accept = not (name == 'body' or name == 'html' or name == DevModeComponent.component_metadata.tag_name)
+    root_elements = name == 'body' or name == 'html'
+    wwwpy_elements = name == DevModeComponent.component_metadata.tag_name or is_inside_toolbar(element)
+    accept = not (root_elements or wwwpy_elements)
     return accept
 
 
@@ -300,14 +311,11 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
     result = []
 
     def intercept_ended(ev: InterceptorEvent):
-        selected = drop_zone_selector.stop()
-        if is_inside_toolbar(ev.target):
-            ev.uninstall()
-            event.set()
-            return
+        console.log('intercept_ended', ev.target)
         ev.preventAndStop()
+        selected = drop_zone_selector.stop()
+        ev.uninstall()
         if selected:
-            ev.uninstall()
             console.log(
                 f'selection accepted position {selected.position.name} target: ', selected.element,
                 'parent: ', selected.element.parentElement,
@@ -315,7 +323,9 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
                 'composedPath: ', ev.event.composedPath(),
             )
             result.append(selected)
-            event.set()
+        else:
+            console.log('intercept_ended - canceled')
+        event.set()
 
     GlobalInterceptor(intercept_ended, 'pointerdown').install()
 
@@ -323,8 +333,11 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
     click_inter.install()
     drop_zone_selector.start_selector(on_hover, _default_drop_zone_accept, whole=whole)
     await event.wait()
-    await asyncio.sleep(0.5)
-    click_inter.uninstall()
+    console.log('drop_zone_selector event ended')
+    async def _click_inter_uninstall():
+        await asyncio.sleep(0.5)
+        click_inter.uninstall()
+    asyncio.ensure_future(_click_inter_uninstall())
 
     if len(result) == 0:
         return None
