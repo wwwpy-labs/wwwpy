@@ -15,6 +15,9 @@ class DropZone:
     element: HTMLElement
     position: Position
 
+class DropZoneHover(Protocol):
+    """The protocol for the callback function that will be called when the user hovers in/out of a drop zone."""
+    def __call__(self, event: DropZone | None) -> None: ...
 
 def _default_extract_target(event: MouseEvent) -> HTMLElement:
     return event.target
@@ -34,13 +37,13 @@ class _DropZoneSelector:
     def __init__(self, ):
         self._last_zone: DropZone | None = None
         self._accept = None
-        self._callback: SelectorProtocol | None = None
+        self._callback: DropZoneHover | None = None
         self._mousemove_proxy = create_proxy(self._mousemove)
         # todo not under test
         self._whole = False
         self._extract_target = None
 
-    def start_selector(self, callback: SelectorProtocol = None,
+    def start_selector(self, callback: DropZoneHover = None,
                        accept: Callable[[DropZone], bool] = None,
                        whole=False,
                        extract_target: Callable[[MouseEvent], HTMLElement] = _extract_first_with_data_name):
@@ -102,10 +105,6 @@ drop_zone_selector = _DropZoneSelector()
 _beforebegin_css_class = 'drop-zone-beforebegin'
 _afterend_css_class = 'drop-zone-afterend'
 _whole_css_class = 'drop-zone-whole'
-
-
-class SelectorProtocol(Protocol):
-    def __call__(self, event: DropZone) -> None: ...
 
 
 def _remove_class(target: HTMLElement, class_name: str):

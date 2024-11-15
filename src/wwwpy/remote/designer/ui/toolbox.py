@@ -19,7 +19,7 @@ from wwwpy.common.designer.html_locator import path_to_index
 import asyncio
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
-from wwwpy.remote.designer.drop_zone import DropZone
+from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
 from wwwpy.remote.designer.global_interceptor import GlobalInterceptor, InterceptorEvent
 from wwwpy.remote.designer.ui.draggable_component import DraggableComponent
 from wwwpy.server.designer import rpc
@@ -127,7 +127,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
         def add_comp(element_def: ElementDef):
 
-            def _on_pointed(drop_zone: DropZone | None):
+            def _on_hover(drop_zone: DropZone | None):
                 console.log(f'pointed dropzone: {drop_zone}')
                 msg = (f'Insert new {element_def.tag_name}')
                 if drop_zone:
@@ -139,8 +139,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
                 self.property_editor.message1div.innerHTML = msg
 
             async def _start_drop_for_comp(event):
-                _on_pointed(None)
-                res = await _drop_zone_start_selection_async(_on_pointed)
+                _on_hover(None)
+                res = await _drop_zone_start_selection_async(_on_hover, whole=False)
                 logger.debug(f'_start_drop_for_comp res={res}')
                 if res:
                     await self._process_dropzone(res, element_def)
@@ -179,7 +179,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
         if add_result:
             logger.debug(f'write_module_file len={len(add_result.html)} el_path={el_path}')
-            new_element_path = ElementPath(el_path.class_module, el_path.class_name, add_result.node_path, el_path.origin)
+            new_element_path = ElementPath(el_path.class_module, el_path.class_name, add_result.node_path,
+                                           el_path.origin)
             self._toolbox_state.selected_element_path = new_element_path
             write_res = await rpc.write_module_file(el_path.class_module, add_result.html)
             logger.debug(f'write_module_file res={write_res}')
@@ -215,14 +216,14 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         no_comp = 'Click an element...'
         self.property_editor.message1div.innerHTML = no_comp
 
-        def _on_pointed(drop_zone: DropZone | None):
+        def _on_hover(drop_zone: DropZone | None):
             msg = no_comp
             if drop_zone:
                 msg = 'Click to select ' + _element_lbl(drop_zone.element)
             self.property_editor.message1div.innerHTML = msg
             console.log(f'pointed dropzone: {drop_zone}')
 
-        res = await _drop_zone_start_selection_async(_on_pointed, whole=True)
+        res = await _drop_zone_start_selection_async(_on_hover, whole=True)
         self._toolbox_state.selected_element_path = element_path.element_path(res.element) if res else None
         self._restore_selected_element_path()
 
@@ -292,7 +293,7 @@ def _default_drop_zone_accept(drop_zone: DropZone):
     return accept
 
 
-async def _drop_zone_start_selection_async(on_pointed, whole=False) -> Optional[DropZone]:
+async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool) -> Optional[DropZone]:
     from wwwpy.remote.designer.drop_zone import drop_zone_selector
 
     event = asyncio.Event()
@@ -320,7 +321,7 @@ async def _drop_zone_start_selection_async(on_pointed, whole=False) -> Optional[
 
     click_inter = GlobalInterceptor(lambda ev: ev.preventAndStop(), 'click')
     click_inter.install()
-    drop_zone_selector.start_selector(on_pointed, _default_drop_zone_accept, whole=whole)
+    drop_zone_selector.start_selector(on_hover, _default_drop_zone_accept, whole=whole)
     await event.wait()
     await asyncio.sleep(0.5)
     click_inter.uninstall()
