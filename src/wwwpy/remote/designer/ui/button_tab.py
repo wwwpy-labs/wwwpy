@@ -4,10 +4,11 @@ from typing import List, Union, Callable
 
 import wwwpy.remote.component as wpc
 import js
-from js import console
 from wwwpy.remote import dict_to_js
 from pyodide.ffi import create_proxy
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ButtonTab(wpc.Component, tag_name='wwwpy-button-tab'):
     _root: js.HTMLElement = wpc.element()
@@ -50,12 +51,15 @@ class ButtonTab(wpc.Component, tag_name='wwwpy-button-tab'):
         style.width = '100%'
 
         self._tabs = []
+        self._updating = False
 
     def _tab_selected(self, tab: Tab):
+        if self._updating:
+            return
+        self._updating = True
         for t in self._tabs:
-            if t != tab:
-                t.selected = False
-
+            t.selected = t == tab
+        self._updating = False
 
 _selected_default = lambda tab: None
 
@@ -87,8 +91,6 @@ class Tab:
     @selected.setter
     def selected(self, value: bool):
         current = self.selected
-        if current == value:
-            return
         class_list = self.root_element().classList
         if value:
             class_list.add('selected')

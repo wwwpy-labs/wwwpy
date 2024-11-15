@@ -1,7 +1,12 @@
 import os
-
+import logging
 
 async def main(rootpath, invocation_dir, args):
+    from wwwpy.common.designer import log_emit
+    log_emit.add_once(print)
+    log_emit.warning_to_log()
+    logging.getLogger('wwwpy').setLevel(logging.DEBUG)
+
     from js import console
     console.log(f'main({rootpath}, {invocation_dir}, {args})')
     from wwwpy.common.tree import print_tree

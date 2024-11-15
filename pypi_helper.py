@@ -31,8 +31,8 @@ git_hash = "{subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().stri
 class Pyproject:
     def __init__(self, content: str | None = None):
         if content is None:
-            with open('pyproject.toml', 'r') as f:
-                content = f.read()
+            pyp_toml = Path(__file__).parent / 'pyproject.toml'
+            content = pyp_toml.read_text()
         self.content = content
 
     @property
