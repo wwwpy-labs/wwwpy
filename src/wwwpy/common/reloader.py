@@ -3,6 +3,9 @@ from __future__ import annotations
 import inspect
 import sys
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def reload(module):
     import importlib
@@ -21,5 +24,5 @@ def unload_path(path: str):
     names = [name for name, module in sys.modules.items() if accept(module)]
 
     for name in names:
-        print(f'reloader - Deleting module {name}...')
+        logger.debug(f'hot-reload: unload module {name}...')
         del (sys.modules[name])
