@@ -57,8 +57,6 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
             services.remote_stub_resources(),
             from_directory(directory / 'remote', relative_to=directory),
             from_directory(directory / 'common', relative_to=directory),
-            from_file(directory / 'common.py', relative_to=directory),  # remove .py support
-            from_file(directory / 'remote.py', relative_to=directory),  # remove .py support
         ],
         # language=python
         python=f'from wwwpy.remote.browser_main import entry_point; await entry_point(dev_mode={dev_mode})'

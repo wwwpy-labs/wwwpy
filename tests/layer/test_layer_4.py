@@ -12,11 +12,6 @@ file_parent = Path(__file__).parent
 
 
 @for_all_webservers()
-def test_server_convention_a(page: Page, webserver: Webserver, restore_sys_path):
-    _test_convention('convention_a', page, webserver)
-
-
-@for_all_webservers()
 def test_server_convention_b(page: Page, webserver: Webserver, restore_sys_path):
     _test_convention('convention_b', page, webserver)
 
@@ -47,6 +42,7 @@ def test_empty__folder__error_message(page: Page, webserver: Webserver, restore_
     page.goto(webserver.localhost_url())
     from wwwpy.common import _no_remote_infrastructure_found_text
     expect(page.locator("body")).to_contain_text(_no_remote_infrastructure_found_text)
+
 
 def _test_convention(directory, page, webserver):
     configure.convention(file_parent / 'layer_4_support' / directory, webserver)
