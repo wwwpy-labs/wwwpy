@@ -112,12 +112,12 @@ def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
     websocket_pool.on_after_change.append(pool_before_change)
 
 
-def _print_events(events: List[Event], root_dir: Path, package: str, blackisted_count: int):
-    def accept(e: Event) -> bool:
+def _print_events(events: List[sync.Event], root_dir: Path, package: str, blackisted_count: int):
+    def accept(e: sync.Event) -> bool:
         bad = e.is_directory and e.event_type == 'modified'
         return not bad
 
-    def to_str(e: Event) -> str:
+    def to_str(e: sync.Event) -> str:
         def rel(path: str) -> str:
             return str(Path(path).relative_to(root_dir))
 
