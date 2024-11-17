@@ -37,11 +37,13 @@ websocket_pool: WebsocketPool = None
 def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
     print(f'applying convention to working_dir: {directory}')
     server_rpc_packages = ['server.rpc']
-    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
+    # todo fix imprecision: for each of the packages, we conceptually apply a remote_proxy_transform
+    # we specify also, e.g., 'remote' to transform it but it could end up in an empty string and not a proxy
+    # we also should parametrize the transform to make it explicit
+    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}  #
     if dev_mode:
         server_rpc_packages.append('wwwpy.server.designer.rpc')
-        remote_rpc_packages.add('wwwpy.remote.designer')
-        remote_rpc_packages.add('wwwpy.remote.designer.rpc')
+        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
         log_emit.add_once(print)
         from wwwpy.common import quickstart
         quickstart._make_hotreload_work(directory)
@@ -67,7 +69,6 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         dm._hotreload_remote(['common', 'remote'], websocket_pool)
         dm._hotreload_server(['common', 'server'])
         dm._warning_on_multiple_clients(websocket_pool)
-
 
     if webserver is not None:
         webserver.set_http_route(*routes)
