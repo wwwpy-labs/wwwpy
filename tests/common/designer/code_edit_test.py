@@ -1,10 +1,12 @@
 from wwwpy.common.designer.code_edit import Attribute, add_component, ElementDef, add_method, \
-    ensure_imports
+    ensure_imports, AddComponentExceptionReport, AddFailed
 from wwwpy.common.designer.code_edit import Attribute, add_property, add_component, add_method
 from wwwpy.common.designer.code_info import info
-from wwwpy.common.designer.element_library import ElementDef
+from wwwpy.common.designer.element_library import ElementDef, element_library
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import Node
+from wwwpy.common.files import str_ungzip_base64
+from wwwpy.common.rpc import serializer, serialization
 
 
 def test_add_property():
@@ -263,3 +265,14 @@ class TestEnsureImports:
         original_source = 'import js # noqa'
         modified_source = self.assert_imports_ok(original_source)
         assert original_source in modified_source
+
+
+def placeholder_test_error_reporter():
+    err = "some-base64-error-report"
+    err1 = str_ungzip_base64(err)
+    exc = serialization.from_json(err1, AddComponentExceptionReport)
+    print(f'exc: {exc}')
+    ed = element_library().by_tag_name(exc.tag_name)
+    result = add_component(exc.source_code_orig, exc.class_name, ed, exc.index_path, exc.position)
+    if isinstance(result, AddFailed):
+        raise result.exception
