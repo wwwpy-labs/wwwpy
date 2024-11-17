@@ -17,12 +17,16 @@ def restore_sys_path():
 
 @pytest.fixture
 def dyn_sys_path(tmp_path: Path):
+    sys_path = sys.path.copy()
+    sys_meta_path = sys.meta_path.copy()
     sys.path.insert(0, str(tmp_path))
     pu = DynSysPath(tmp_path)
     try:
         yield pu
     finally:
-        sys.path.remove(str(tmp_path))
+        sys.path = sys_path
+        sys.meta_path = sys_meta_path
+
         import wwwpy.common.reloader as r
         r.unload_path(str(tmp_path))
 
