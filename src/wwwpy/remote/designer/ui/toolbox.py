@@ -11,8 +11,8 @@ from js import document, console, Event, HTMLElement, window
 from pyodide.ffi import create_proxy
 from wwwpy.common import state, modlib
 from wwwpy.common.designer import element_library, new_component
-from wwwpy.common.designer.code_edit import add_component, ElementDef
-from wwwpy.common.designer.element_library import Help
+from wwwpy.common.designer.code_edit import add_component, AddResult, AddFailed
+from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
@@ -178,13 +178,16 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         path_index = path_to_index(el_path.path)
         add_result = add_component(old_source, el_path.class_name, element_def, path_index, drop_zone.position)
 
-        if add_result:
-            logger.debug(f'write_module_file len={len(add_result.html)} el_path={el_path}')
+        if isinstance(add_result, AddResult):
+            logger.debug(f'write_module_file len={len(add_result.source_code)} el_path={el_path}')
             new_element_path = ElementPath(el_path.class_module, el_path.class_name, add_result.node_path,
                                            el_path.origin)
             self._toolbox_state.selected_element_path = new_element_path
-            write_res = await rpc.write_module_file(el_path.class_module, add_result.html)
+            write_res = await rpc.write_module_file(el_path.class_module, add_result.source_code)
             logger.debug(f'write_module_file res={write_res}')
+        elif isinstance(add_result, AddFailed):
+            js.alert('Sorry, an error occurred while adding the component.')
+
 
     def _manage_toolbox_state(self):
         self._toolbox_state = state._restore(ToolboxState)
@@ -275,7 +278,6 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
         self.property_editor.selected_element_path = element_path
 
-
     async def _canceled(self):
         self.property_editor.message1div.innerHTML = 'Operation canceled'
         await asyncio.sleep(2)
@@ -338,9 +340,11 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
     drop_zone_selector.start_selector(on_hover, _default_drop_zone_accept, whole=whole)
     await event.wait()
     console.log('drop_zone_selector event ended')
+
     async def _click_inter_uninstall():
         await asyncio.sleep(0.5)
         click_inter.uninstall()
+
     asyncio.ensure_future(_click_inter_uninstall())
 
     if len(result) == 0:

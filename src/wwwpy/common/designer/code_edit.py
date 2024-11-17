@@ -28,9 +28,14 @@ def add_property(source_code: str, class_name: str, attr_info: Attribute):
 
 @dataclass
 class AddResult:
-    # todo rename, this is actually python code with some html inside
-    html: str
+    source_code: str
     node_path: NodePath
+
+@dataclass
+class AddFailed:
+    exception: Exception
+    exception_report_b64: str
+
 
 @dataclass
 class AddComponentExceptionReport:
@@ -38,11 +43,12 @@ class AddComponentExceptionReport:
     source_code_orig: str
     class_name: str
     tag_name: str
-    node_path: NodePath
+    index_path: IndexPath
     position: Position
 
+
 def add_component(source_code: str, class_name: str, comp_def: ElementDef, index_path: IndexPath,
-                  position: Position) -> AddResult | None:
+                  position: Position) -> AddResult | AddFailed:
     source_code_orig = source_code
     try:
         source_code = ensure_imports(source_code)
@@ -70,6 +76,7 @@ def add_component(source_code: str, class_name: str, comp_def: ElementDef, index
         import traceback
         from wwwpy.common.rpc import serialization
         logger.error(f'Error adding component: {e}')
+        logger.exception('Full exception report')
 
         exception_report = AddComponentExceptionReport(traceback.format_exc(), source_code_orig, class_name,
                                                        comp_def.tag_name, index_path, position)
@@ -78,8 +85,8 @@ def add_component(source_code: str, class_name: str, comp_def: ElementDef, index
         from wwwpy.common.files import str_gzip_base64
         exception_report_b64 = str_gzip_base64(exception_report_str)
         logger.error(f'Exception report b64:\n{"=" * 20}\n{exception_report_b64}\n{"=" * 20}')
-
-        return None
+        e.exception_report_b64 = exception_report_b64
+        return AddFailed(e, exception_report_b64)
     return result
 
 

@@ -131,7 +131,7 @@ class MyElement(wpc.Component):
     component_def = ElementDef('btn', 'js.Some')
     add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert add_result.html == expected_source
+    assert add_result.source_code == expected_source
 
 
 def test_add_component_gen_html():
@@ -158,7 +158,7 @@ class MyElement(wpc.Component):
     component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
     add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert add_result.html == expected_source
+    assert add_result.source_code == expected_source
 
 
 def test_add_component_node_path__afterend():
