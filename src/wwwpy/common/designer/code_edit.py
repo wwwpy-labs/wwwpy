@@ -31,9 +31,11 @@ class AddResult:
     source_code: str
     node_path: NodePath
 
+
 @dataclass
 class AddFailed:
     exception: Exception
+    exception_report_str: str
     exception_report_b64: str
 
 
@@ -86,7 +88,7 @@ def add_component(source_code: str, class_name: str, comp_def: ElementDef, index
         exception_report_b64 = str_gzip_base64(exception_report_str)
         logger.error(f'Exception report b64:\n{"=" * 20}\n{exception_report_b64}\n{"=" * 20}')
         e.exception_report_b64 = exception_report_b64
-        return AddFailed(e, exception_report_b64)
+        return AddFailed(e, exception_report_str, exception_report_b64)
     return result
 
 

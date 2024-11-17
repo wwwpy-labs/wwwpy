@@ -16,6 +16,7 @@ from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
+from wwwpy.remote.designer.ui.draggable_component import new_window
 import asyncio
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
@@ -29,6 +30,9 @@ from wwwpy.remote.designer.ui.property_editor import PropertyEditor
 from . import filesystem_tree
 from .help_icon import HelpIcon  # noqa
 import logging
+
+from .mailto_component import MailtoComponent
+from ...component import element
 
 logger = logging.getLogger(__name__)
 
@@ -187,8 +191,13 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
             logger.debug(f'write_module_file res={write_res}')
         elif isinstance(add_result, AddFailed):
             js.alert('Sorry, an error occurred while adding the component.')
-
-
+            _open_error_reporter_window(
+                'Error report data:\n\n' + add_result.exception_report_b64,
+                title='Error report add_component - wwwpy'
+            )
+            # pre1: js.HTMLElement = js.document.createElement('pre')
+            # pre1.innerText = self.path.read_text()
+            # win.element.append(pre1)
 
     def _manage_toolbox_state(self):
         self._toolbox_state = state._restore(ToolboxState)
@@ -235,6 +244,10 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         else:
             await self._canceled()
         self._restore_selected_element_path()
+
+    # @menu(Help("Open errore reporter", ''))
+    # async def _open_error_reporter(self, e: Event):
+    #     _open_error_reporter_window('test error report body')
 
     @menu(components_marker)
     def _drop_zone_start(self, e: Event):
@@ -353,3 +366,26 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
         return None
 
     return result[0]
+
+
+def _open_error_reporter_window(body: str, title='Error reporter - wwwpy'):
+    win = new_window(title, closable=True)
+    mailto_component = MailtoComponent()
+    mailto_component.subject = title
+    mailto_component.recipient = 'simone.giacomelli@gmail.com'
+    mailto_component.body = body
+    mailto_component.text_content = 'Click here to send an email with the error report'
+    mailto_component.element.style.display = 'block'
+    mailto_component.element.style.textAlign = 'center'
+    div: js.HTMLElement = js.document.createElement('div')
+
+    action = '<h3>Please, help us improve wwwpy by sending this error report</h3>'
+    div.insertAdjacentHTML('beforeend', action)
+    div.append(mailto_component.element)
+    div.style.margin = '15px'
+    win.element.append(div)
+    div.insertAdjacentHTML('beforeend', '<br>')
+    js.document.body.append(win.element)
+
+    from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+    DevModeComponent.instance.root_element().append(win.element)
