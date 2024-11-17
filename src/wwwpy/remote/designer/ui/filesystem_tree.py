@@ -8,10 +8,10 @@ from typing import List
 import js
 from js import console
 
-from wwwpy.common.files import zip_in_memory
-from wwwpy.remote.designer.ui.draggable_component import DraggableComponent, new_window
-from wwwpy.remote.files import download_bytes
 import wwwpy.remote.component as wpc
+from wwwpy.common.files import zip_in_memory
+from wwwpy.remote.designer.ui.draggable_component import new_window
+from wwwpy.remote.files import download_bytes
 
 
 class FilesystemTree(wpc.Component):
@@ -104,12 +104,9 @@ class FilesystemTree(wpc.Component):
         win.element.append(pre1)
 
 
-def show_explorer():
-    import js
-
+def show_explorer(parent: js.HTMLElement = js.document.body):
     component = new_window('Browse local filesystem')
     tree = FilesystemTree()
     tree.show_path('/')
     component.element.append(tree.element)
-    # todo use DevModeComponent.instance
-    js.document.body.append(component.element)
+    parent.append(component.element)

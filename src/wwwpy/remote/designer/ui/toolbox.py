@@ -189,6 +189,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
             js.alert('Sorry, an error occurred while adding the component.')
 
 
+
     def _manage_toolbox_state(self):
         self._toolbox_state = state._restore(ToolboxState)
         self.inputSearch.value = self._toolbox_state.toolbox_search
@@ -247,7 +248,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
     @menu(Help("Explore local filesystem", _help_url('remote_filesystem')))
     async def _browse_local_filesystem(self, e: Event):
-        filesystem_tree.show_explorer()
+        from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+        filesystem_tree.show_explorer(DevModeComponent.instance.root_element())
 
     # @menu('handle global click')
     def _handle_global_click(self, e: Event):
