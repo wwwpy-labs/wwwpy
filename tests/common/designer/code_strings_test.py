@@ -15,14 +15,14 @@ class MyElement(wpc.Component): # comment2
         ''' % escape
 
         original_source = common_piece + escape
-        exepct_source = common_piece + '''<button data-name='btn2'>list files in folder</button>''' + escape
+        expected_source = common_piece + '''<button data-name='btn2'>list files in folder</button>''' + escape
 
         def manipulate_html(html):
             return html + "<button data-name='btn2'>list files in folder</button>"
 
         actual_source = html_string_edit(original_source, 'MyElement', manipulate_html)
 
-        assert actual_source == exepct_source
+        assert actual_source == expected_source
 
 
 def test_html_edit__two_classes():
@@ -41,14 +41,14 @@ class MyElement1(wpc.Component):
         '''
 
     original_source = common_piece + '"""'
-    exepct_source = common_piece + '''<button data-name='btn2'>list files in folder</button>"""'''
+    expected_source = common_piece + '''<button data-name='btn2'>list files in folder</button>"""'''
 
     def manipulate_html(html):
         return html + "<button data-name='btn2'>list files in folder</button>"
 
     actual_source = html_string_edit(original_source, 'MyElement1', manipulate_html)
 
-    assert actual_source == exepct_source
+    assert actual_source == expected_source
 
 
 def test_html_from_source():
