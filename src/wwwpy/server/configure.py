@@ -71,6 +71,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         hr = Hotreload(directory)
         hr.configure_server(['common', 'server'])
         hr.configure_remote(['common', 'remote'], websocket_pool)
+        hr.start()
 
     if webserver is not None:
         webserver.set_http_route(*routes)

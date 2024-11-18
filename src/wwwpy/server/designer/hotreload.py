@@ -19,24 +19,16 @@ class Hotreload:
 
     def __init__(self, directory: Path):
         self.directory = directory
+        self.server_packages = []
+        self.remote_packages = []
 
-    def configure_server(self, hotreload_packages: list[str]):
-        def on_change(events: List[sync.Event]):
-
-            for p in hotreload_packages:
-                directory = self.directory / p.replace('.', '/')
-                if directory:
-                    try:
-                        import wwwpy.common.reloader as reloader
-                        reloader.unload_path(str(directory))
-                    except:
-                        # we could send a sync_init
-                        import traceback
-                        logger.error(f'_hotreload_server {traceback.format_exc()}')
-
-        _watch_filesystem_change_for_server(self.directory, on_change)
+    def configure_server(self, server_packages: list[str]):
+        self.server_packages.extend(server_packages)
+        _watch_filesystem_change_for_server(self.directory, self._on_server_events)
 
     def configure_remote(self, remote_packages: list[str], websocket_pool: WebsocketPool, ):
+        self.remote_packages.extend(remote_packages)
+
         directory = self.directory
 
         def on_sync_events(events: List[sync.Event]):
@@ -54,6 +46,22 @@ class Hotreload:
 
         handler = WatchdogDebouncer(directory, timedelta(milliseconds=100), on_sync_events)
         handler.watch_directory()
+
+    def _on_server_events(self, events: List[sync.Event]):
+
+        for p in self.server_packages:
+            directory = self.directory / p.replace('.', '/')
+            if directory:
+                try:
+                    import wwwpy.common.reloader as reloader
+                    reloader.unload_path(str(directory))
+                except:
+                    # we could send a sync_init
+                    import traceback
+                    logger.error(f'_hotreload_server {traceback.format_exc()}')
+
+    def start(self):
+        pass
 
 
 def _watch_filesystem_change_for_server(directory: Path, callback: Callable[[List[sync.Event]], None]):
