@@ -20,6 +20,7 @@ class FilesystemFixture:
         self.initial_fs = mk('initial')
         self.expected_fs = mk('expected')
         self.inverted_events = None
+        self.events = None
         self.fs_compare = FsCompare(self.initial_fs, self.expected_fs, 'initial', 'expected')
         self.source_mutator = Mutator(self.expected_fs)
         """This transform the initial_fs into the expected_fs.
@@ -31,20 +32,21 @@ class FilesystemFixture:
         assert self.fs_compare.synchronized(), self.fs_compare.sync_error()
 
     def invoke(self, events_str: str):
-        events = _deserialize_events(events_str)
+        assert self.inverted_events is None
+        assert self.events is None
+        self.events = _deserialize_events(events_str)
 
         # verify that we specified events_str correctly
-        if self.verify_mutator_events:
-            assert self.source_mutator.events == events
+        # if not self.verify_mutator_events:
+        assert self.source_mutator.events == self.events
 
-        self.invert_apply(events)
+        self.invert_apply()
 
-    def invert_apply(self, events=None):
-        if events is None:
-            assert self.inverted_events is not None
-            events = self.source_mutator.events
+    def invert_apply(self):
+        assert self.inverted_events is None
+        assert self.events is not None
 
-        events_fix = [e.to_absolute(self.expected_fs) for e in events]
+        events_fix = [e.to_absolute(self.expected_fs) for e in self.events]
         self.inverted_events = events_invert(self.expected_fs, events_fix)
         events_apply(self.initial_fs, self.inverted_events)
 

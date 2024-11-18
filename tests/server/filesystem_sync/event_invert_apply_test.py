@@ -423,21 +423,33 @@ class TestRealEvents:
 
     def test_new_file_and_delete(self, target):
         # GIVEN
-        target.verify_mutator_events = False
         with target.source_mutator as m:
             m.touch('foo.txt')
-            m.unlink('foo.txt')
+            m.touch('')
+            m.touch('foo.txt')
+            m.close('foo.txt')
 
+            m.touch('')
+            m.write('foo.txt', 'content1')
+            m.write('foo.txt', 'content2')
+            m.close('foo.txt')
+
+            m.touch('')
+            m.unlink('foo.txt')
+            m.touch('')
+        # assert target.source_mutator.events == target.events
         # WHEN
         target.invoke("""
   {"event_type": "created", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}
   {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "closed", "is_directory": false, "src_path": "foo.txt"}
+  
   {"event_type": "modified", "is_directory": true, "src_path": ""}
   {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "closed", "is_directory": false, "src_path": "foo.txt"}
+  
   {"event_type": "modified", "is_directory": true, "src_path": ""}
   {"event_type": "deleted", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}""")
@@ -448,21 +460,30 @@ class TestRealEvents:
 
     def test_new_file_in_subfolder(self, target):
         # GIVEN
-        target.verify_mutator_events = False
         with target.source_mutator as m:
             m.mkdir('sub1')
+            m.touch('')
             m.touch('sub1/foo.txt')
-            m.write('sub1/foo.txt', 'content')
+
+            m.touch('sub1')
+            m.created('sub1/foo.txt')  # double create!!
+            m.modified('sub1')
+            m.modified('sub1/foo.txt')
+
+            m.close('sub1/foo.txt')
+            m.modified('sub1')
 
         # WHEN
         target.invoke("""
   {"event_type": "created", "is_directory": true, "src_path": "sub1"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}
   {"event_type": "created", "is_directory": false, "src_path": "sub1/foo.txt"}
+  
   {"event_type": "modified", "is_directory": true, "src_path": "sub1"}
   {"event_type": "created", "is_directory": false, "src_path": "sub1/foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": "sub1"}
   {"event_type": "modified", "is_directory": false, "src_path": "sub1/foo.txt"}
+  
   {"event_type": "closed", "is_directory": false, "src_path": "sub1/foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": "sub1"}""")
         # THEN
@@ -471,11 +492,15 @@ class TestRealEvents:
 
     def test_delete_folder(self, target):
         # GIVEN
-        target.verify_mutator_events = False
-        with target.source_mutator as m:
+        with target.source_init as m:
             m.mkdir('sub1')
             m.touch('sub1/foo.txt')
+
+        with target.source_mutator as m:
+            m.unlink('sub1/foo.txt')
+            m.touch('sub1')
             m.rmdir('sub1')
+            m.touch('')
 
         # WHEN
         target.invoke("""

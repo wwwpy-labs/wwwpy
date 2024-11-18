@@ -24,6 +24,16 @@ class Mutator:
         self.events.append(Event(event_type=event_type, is_directory=fs_path.is_dir(), src_path=path))
         fs_path.touch()
 
+    def modified(self, path: str):
+        """This serve to create 'weird' events that happen"""
+        fs_path = self.fs / path
+        self.events.append(Event(event_type='modified', is_directory=fs_path.is_dir(), src_path=path))
+
+    def created(self, path: str):
+        """This serve to create 'weird' events that happen"""
+        fs_path = self.fs / path
+        self.events.append(Event(event_type='created', is_directory=fs_path.is_dir(), src_path=path))
+
     def close(self, path: str):
         fs_path = self.fs / path
         self.events.append(Event(event_type='closed', is_directory=fs_path.is_dir(), src_path=path))
