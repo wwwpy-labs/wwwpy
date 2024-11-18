@@ -32,12 +32,12 @@ def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
     server_set = {directory / d for d in server_packages}
 
     def process_events(events: List[sync.Event]):
-        remote_events = event_rebase.rebase(events, remote_set)
+        remote_events = event_rebase.filter_by_directory(events, remote_set)
         if len(remote_events) > 0:
             _print_events('remote', remote_events, directory)
             process_remote_events(directory, websocket_pool, remote_events)
 
-        server_events = event_rebase.rebase(events, server_set)
+        server_events = event_rebase.filter_by_directory(events, server_set)
         if len(server_events) > 0:
             _print_events('server', server_events, directory)
             do_unload_for(directory, server_packages)

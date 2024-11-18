@@ -6,7 +6,7 @@ from typing import List, Set
 from wwwpy.common.filesystem import sync
 
 
-def rebase(events: List[sync.Event], directory_set: Set[str | Path]) -> List[sync.Event]:
+def filter_by_directory(events: List[sync.Event], directory_set: Set[str | Path]) -> List[sync.Event]:
     """Rebase events that falls in directory_set.
     It will retain the original path because the events will be used to send sync content to the remote;
     so the files still need to be accessible."""
