@@ -17,47 +17,56 @@ sync_impl: Sync = sync_delta2
 
 def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
                     server_packages, remote_packages):
-    hr = Hotreload(directory, websocket_pool, server_packages, remote_packages)
+    def server_unload_func():
+        do_unload_for(directory, server_packages)
+
+    def remote_notify_func(events: List[sync.Event]):
+        process_remote_events(directory, websocket_pool, events)
+
+    hr = Hotreload(directory, server_packages, remote_packages, server_unload_func, remote_notify_func)
     _watch_filesystem_change(directory, hr.process_events)
 
 
 class Hotreload:
 
-    def __init__(self, directory: Path, websocket_pool: WebsocketPool,
-                 server_packages, remote_packages
+    def __init__(self, directory: Path,
+                 server_packages: List[str], remote_packages: List[str],
+                 server_unload_func, remote_notify_func
                  ):
         self.directory = directory
         self.server_packages = server_packages
         self.remote_packages = remote_packages
-        self._websocket_pool = websocket_pool
+        self._server_unload_func = server_unload_func
+        self._remote_notify_func = remote_notify_func
 
     def process_events(self, events: List[sync.Event]):
-        self._on_remote_events(events)
-        self._on_server_events()
+        self._remote_notify_func(events)
+        self._server_unload_func()
 
-    def _on_remote_events(self, events: List[sync.Event]):
-        try:
-            payload = sync_impl.sync_source(self.directory, events)
-            for client in self._websocket_pool.clients:
-                remote_rpc = client.rpc(DesignerRpc)
-                remote_rpc.hotreload_notify_changes(payload)
-        except:
-            # we could send a sync_init
-            import traceback
-            logger.error(f'_on_remote_events 1 {traceback.format_exc()}')
 
-    def _on_server_events(self):
+def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events: List[sync.Event]):
+    try:
+        payload = sync_impl.sync_source(directory, events)
+        for client in websocket_pool.clients:
+            remote_rpc = client.rpc(DesignerRpc)
+            remote_rpc.hotreload_notify_changes(payload)
+    except:
+        # we could send a sync_init
+        import traceback
+        logger.error(f'_on_remote_events 1 {traceback.format_exc()}')
 
-        for p in self.server_packages:
-            directory = self.directory / p.replace('.', '/')
-            if directory:
-                try:
-                    import wwwpy.common.reloader as reloader
-                    reloader.unload_path(str(directory))
-                except:
-                    # we could send a sync_init
-                    import traceback
-                    logger.error(f'_hotreload_server {traceback.format_exc()}')
+
+def do_unload_for(directory, server_packages: List[str]):
+    for p in server_packages:
+        package_directory = directory / p.replace('.', '/')
+        if package_directory:
+            try:
+                import wwwpy.common.reloader as reloader
+                reloader.unload_path(str(package_directory))
+            except:
+                # we could send a sync_init
+                import traceback
+                logger.error(f'_hotreload_server {traceback.format_exc()}')
 
 
 def _watch_filesystem_change(directory: Path, callback: Callable[[List[sync.Event]], None]):
