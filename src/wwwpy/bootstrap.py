@@ -31,7 +31,7 @@ import sys
 from pyodide.http import pyfetch
 response = await pyfetch('{zip_route.path}')
 await response.unpack_archive(extract_dir='{extract_dir}')
-sys.path.insert(0, '/wwwpy_bundle')
+sys.path.insert(0, '{extract_dir}')
 
 {python}
     """
