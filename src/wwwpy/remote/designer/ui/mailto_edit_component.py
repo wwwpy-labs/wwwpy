@@ -27,7 +27,7 @@ class MailtoEditComponent(wpc.Component):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-<span>component-1</span>
+<h1>MailtoEditComponent</h1>
 <sl-input data-name="_recipient" placeholder="Recipient" label="Recipient" ></sl-input>
 <sl-input data-name="_subject" placeholder="Subject" label="Subject"></sl-input>
 <sl-textarea data-name="_body" placeholder="Body" label="Body">slTextarea1</sl-textarea>
