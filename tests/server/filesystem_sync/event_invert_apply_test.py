@@ -250,9 +250,11 @@ def test_rename_move_file_and_rename_dir(target):
 
 def test_modify_folder__should_be_ignored(target):
     # GIVEN
-    target.verify_mutator_events = False
     with target.source_init as m:
         m.mkdir('dir')
+
+    with target.source_mutator as m:
+        m.touch('dir')
 
     # WHEN
     target.invoke("""{"event_type": "modified", "is_directory": true, "src_path": "dir"}""")
@@ -371,7 +373,11 @@ class TestCompression:
 
     def test_closed_file_should_be_ignored(self, target):
         # GIVEN
-        target.verify_mutator_events = False
+        with target.source_init as m:
+            m.touch('f.txt')
+
+        with target.source_mutator as m:
+            m.close('f.txt')
 
         # WHEN
         target.invoke("""{"event_type": "closed", "is_directory": false, "src_path": "f.txt"}""")
@@ -381,7 +387,10 @@ class TestCompression:
 
     def test_closed_directory_should_be_ignored(self, target):
         # GIVEN
-        target.verify_mutator_events = False
+        with target.source_init as m:
+            m.mkdir('dir')
+        with target.source_mutator as m:
+            m.close('dir')
 
         # WHEN
         target.invoke("""{"event_type": "closed", "is_directory": true, "src_path": "dir"}""")
@@ -393,9 +402,12 @@ class TestCompression:
 class TestRealEvents:
     def test_new_file(self, target):
         # GIVEN
-        target.verify_mutator_events = False
         with target.source_mutator as m:
             m.touch('new_file.txt')
+            m.touch('')
+            m.write('new_file.txt', 'content')
+            m.close('new_file.txt')
+            m.touch('')
 
         # WHEN
         target.invoke("""

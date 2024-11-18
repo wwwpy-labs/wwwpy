@@ -19,8 +19,14 @@ class Mutator:
             self.on_exit()
 
     def touch(self, path: str):
-        self.events.append(Event(event_type='created', is_directory=False, src_path=path))
-        (self.fs / path).touch()
+        fs_path = self.fs / path
+        event_type = 'created' if not fs_path.exists() else 'modified'
+        self.events.append(Event(event_type=event_type, is_directory=fs_path.is_dir(), src_path=path))
+        fs_path.touch()
+
+    def close(self, path: str):
+        fs_path = self.fs / path
+        self.events.append(Event(event_type='closed', is_directory=fs_path.is_dir(), src_path=path))
 
     def mkdir(self, path: str):
         self.events.append(Event(event_type='created', is_directory=True, src_path=path))
