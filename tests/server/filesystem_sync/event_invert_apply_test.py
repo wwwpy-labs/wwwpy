@@ -425,21 +425,21 @@ class TestRealEvents:
         # GIVEN
         target.verify_mutator_events = False
         with target.source_mutator as m:
-            m.touch('new_file.txt')
-            m.unlink('new_file.txt')
+            m.touch('foo.txt')
+            m.unlink('foo.txt')
 
         # WHEN
         target.invoke("""
-  {"event_type": "created", "is_directory": false, "src_path": "new_file.txt"}
+  {"event_type": "created", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}
-  {"event_type": "modified", "is_directory": false, "src_path": "new_file.txt"}
-  {"event_type": "closed", "is_directory": false, "src_path": "new_file.txt"}
+  {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
+  {"event_type": "closed", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}
-  {"event_type": "modified", "is_directory": false, "src_path": "new_file.txt"}
-  {"event_type": "modified", "is_directory": false, "src_path": "new_file.txt"}
-  {"event_type": "closed", "is_directory": false, "src_path": "new_file.txt"}
+  {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
+  {"event_type": "modified", "is_directory": false, "src_path": "foo.txt"}
+  {"event_type": "closed", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}
-  {"event_type": "deleted", "is_directory": false, "src_path": "new_file.txt"}
+  {"event_type": "deleted", "is_directory": false, "src_path": "foo.txt"}
   {"event_type": "modified", "is_directory": true, "src_path": ""}""")
 
         # THEN
