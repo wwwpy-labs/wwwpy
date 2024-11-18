@@ -16,15 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from tests.server.filesystem_sync.filesystem_fixture import FilesystemFixture
+from tests.server.filesystem_sync.filesystem_fixture import FilesystemFixture, fixture
 from wwwpy.common.filesystem.sync import Event
-
-
-@pytest.fixture
-def fixture(tmp_path):
-    print(f'\ntmp_path file://{tmp_path}')
-    fixture = FilesystemFixture(tmp_path)
-    yield fixture
 
 
 def test_new_file(fixture: FilesystemFixture):

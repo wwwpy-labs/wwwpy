@@ -1,10 +1,19 @@
 import shutil
 from pathlib import Path
 
+import pytest
+
 from tests.server.filesystem_sync.mutator import Mutator
 from tests.server.filesystem_sync.fs_compare import FsCompare
 from tests.server.filesystem_sync.sync_fixture import _deserialize_events
 from wwwpy.common.filesystem.sync.event_invert_apply import events_invert, events_apply
+
+
+@pytest.fixture
+def fixture(tmp_path):
+    print(f'\ntmp_path file://{tmp_path}')
+    fixture = FilesystemFixture(tmp_path)
+    yield fixture
 
 
 class FilesystemFixture:
