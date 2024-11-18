@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from inspect import iscoroutinefunction
 import asyncio
+from logging import exception
+
 import js
 from js import console
 
@@ -27,33 +29,33 @@ def _reload():
     async def reload():
         console.log('reloading')
         reloader.unload_path(files._bundle_path)
-        await _invoke_browser_main(True)
+        await _invoke_browser_main()
 
     asyncio.create_task(reload())
 
 
-async def _invoke_browser_main(reload=False):
+async def _invoke_browser_main():
     try:
         console.log('invoke_browser_main')
 
         try:
             js.document.body.innerText = f'Going to import the "remote" package'
             import remote
-            if reload:
-                import importlib
-                importlib.reload(remote)
-        except ImportError as e:
+            if hasattr(remote, 'main'):
+                if iscoroutinefunction(remote.main):
+                    await remote.main()
+                else:
+                    remote.main()
+        except Exception as e:
             import traceback
             msg = _no_remote_infrastructure_found_text + ' Exception: ' + str(
                 e) + '\n\n' + traceback.format_exc() + '\n\n'
-            js.document.body.innerHTML = msg.replace('\n', '<br>')
+            pre = js.document.createElement('pre')
+            pre.innerText = msg
+            js.document.body.innerHTML = ''
+            js.document.body.appendChild(pre)
             return
 
-        if hasattr(remote, 'main'):
-            if iscoroutinefunction(remote.main):
-                await remote.main()
-            else:
-                remote.main()
     finally:
         if dm.is_active():
             from wwwpy.remote.designer.ui import dev_mode_component

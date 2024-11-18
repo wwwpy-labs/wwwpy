@@ -75,6 +75,7 @@ def test_module_missing_and_one_present():
     target = RpcRoute('/rpc1')
     target.add_module('missing_module.rpc')
     target.add_module(support2_module_name)
+    target.generate_remote_stubs()
 
     actual = list(target.remote_stub_resources())
     actual_names = list(map(lambda x: x.arcname, actual))

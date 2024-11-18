@@ -147,6 +147,30 @@ async def main():
         # THEN
         expect(fixture.page.locator('body')).to_have_text('second=conn:conn1-updated', use_inner_text=True)
 
+    @for_all_webservers()
+    def fails_test_server_rpc_signature_change(self, fixture: PageFixture):
+        # GIVEN
+        fixture.dev_mode = True
+        fixture.write_module('server/rpc.py', "async def func1() -> str: return 'ready'")
+
+        fixture.start_remote(  # language=python
+            """
+async def main():
+    import js 
+    from server import rpc 
+    js.document.body.innerText = 'first=' + await rpc.func1()
+""")
+
+        expect(fixture.page.locator('body')).to_have_text('first=ready', use_inner_text=True)
+
+        # WHEN
+        fixture.write_module('server/rpc.py', "async def func1(msg:str) -> str: return f'updated-{msg}'")
+        fixture.remote_init.write_text(fixture.remote_init.read_text().replace(
+            "'first=' + await rpc.func1()", "'second=' + await rpc.func1('new_param')"))
+
+        # THEN
+        expect(fixture.page.locator('body')).to_have_text('second=updated-new_param', use_inner_text=True)
+
     def _wait_filesystem_debounce_and_hotreload(self):
         # todo, awful: wait the debounce of file system events/hotreload
         sleep(0.2 * timeout_multiplier())

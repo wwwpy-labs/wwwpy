@@ -53,6 +53,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
     global websocket_pool
     websocket_pool = WebsocketPool('/wwwpy/ws')
     services = _configure_server_rpc_services('/wwwpy/rpc', server_rpc_packages)
+    services.generate_remote_stubs()
     routes = [services.route, websocket_pool.http_route, *bootstrap_routes(
         resources=[
             library_resources(),
@@ -69,7 +70,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         dev_modelib._warning_on_multiple_clients(websocket_pool)
 
         dev_modelib.start_hotreload(
-            directory, websocket_pool,
+            directory, websocket_pool, services,
             server_folders={'common', 'server'},
             remote_folders={'common', 'remote'}
         )
@@ -78,7 +79,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         wwwpy_package_dir = wwwpy_dir.parent
 
         dev_modelib.start_hotreload(
-            wwwpy_package_dir, websocket_pool,
+            wwwpy_package_dir, websocket_pool, services,
             server_folders={'wwwpy/common', 'wwwpy/server'},
             remote_folders={'wwwpy/common', 'wwwpy/remote'}
         )

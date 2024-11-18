@@ -1,15 +1,17 @@
+import tempfile
 import traceback
 from inspect import getmembers, isfunction, signature, iscoroutinefunction, Signature
 from types import ModuleType, FunctionType
-from typing import NamedTuple, List, Tuple, Any, Optional, Dict, Callable, Awaitable, Protocol, Iterator
+from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, Protocol, Iterator
 
 from wwwpy.common import modlib
 from wwwpy.common.iterlib import CallableToIterable
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
-from wwwpy.resources import Resource, StringResource, ResourceIterable
+from wwwpy.resources import Resource, StringResource, ResourceIterable, from_directory
 from wwwpy.unasync import unasync
+from pathlib import Path
 
 
 class Function(NamedTuple):
@@ -87,6 +89,7 @@ class RpcRoute:
     def __init__(self, route_path: str):
         self._allowed_modules: set[str] = set()
         self.route = HttpRoute(route_path, self._route_callback)
+        self.tmp_bundle_folder = Path(tempfile.mkdtemp())
 
     def _route_callback(self, request: HttpRequest) -> HttpResponse:
         resp = self.dispatch(request.content)
@@ -125,17 +128,22 @@ class RpcRoute:
         return response.to_json()
 
     def remote_stub_resources(self) -> ResourceIterable:
+        return from_directory(self.tmp_bundle_folder)
 
-        def bundle() -> Iterator[Resource]:
-            for module_name in self._allowed_modules:
-                module = self.find_module(module_name)
-                if module is None:
-                    continue
-                imports = 'from wwwpy.remote.fetch import async_fetch_str'
-                stub_source = generate_stub_source(module, self.route.path, imports)
-                yield StringResource(module_name.replace('.', '/') + '.py', stub_source)
-
-        return CallableToIterable(bundle)
+    def generate_remote_stubs(self) -> List[Path]:
+        result = []
+        for module_name in self._allowed_modules:
+            module = self.find_module(module_name)
+            if module is None:
+                continue
+            imports = 'from wwwpy.remote.fetch import async_fetch_str'
+            stub_source = generate_stub_source(module, self.route.path, imports)
+            filename = module_name.replace('.', '/') + '.py'
+            file = self.tmp_bundle_folder / filename
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_text(stub_source)
+            result.append(file)
+        return result
 
 
 def generate_stub_source(module: Module, rpc_url: str, imports: str):

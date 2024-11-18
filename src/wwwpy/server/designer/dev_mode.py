@@ -6,7 +6,9 @@ from typing import List, Callable, Set
 from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
 from wwwpy.common.filesystem.sync import sync_delta2, Sync, event_rebase
+from wwwpy.common.reloader import reload
 from wwwpy.remote.designer.rpc import DesignerRpc
+from wwwpy.rpc import RpcRoute
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
 from wwwpy.websocket import WebsocketPool, PoolEvent
 
@@ -26,31 +28,39 @@ def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
     websocket_pool.on_after_change.append(pool_before_change)
 
 
-def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
+def start_hotreload(directory: Path, websocket_pool: WebsocketPool, rpc_route: RpcRoute,
                     server_folders: Set[str], remote_folders: Set[str]):
     remote_set = {directory / d for d in remote_folders}
     server_set = {directory / d for d in server_folders}
+    rpc_set = {directory / (d.replace('.', '/') + '.py') for d in rpc_route._allowed_modules}
 
     def process_events(events: List[sync.Event]):
         remote_events = event_rebase.filter_by_directory(events, remote_set)
-        if len(remote_events) > 0:
-            _print_events('remote', remote_events, directory)
-            process_remote_events(directory, websocket_pool, remote_events)
-
         server_events = event_rebase.filter_by_directory(events, server_set)
+
         if len(server_events) > 0:
             _print_events('server', server_events, directory)
             do_unload_for(directory, server_folders)
+            rpc_events = event_rebase.filter_by_directory(server_events, rpc_set)
+            if len(rpc_events) > 0:
+                # if the signature of the rpc changes, it will write on the fs and will trigger the observer
+                rpc_stub_files = rpc_route.generate_remote_stubs()
+                evs = [sync.Event('modified', False, str(f)) for f in rpc_stub_files]
+                process_remote_events(rpc_route.tmp_bundle_folder, websocket_pool, evs, len(remote_events) == 0)
+
+        if len(remote_events) > 0:
+            _print_events('remote', remote_events, directory)
+            process_remote_events(directory, websocket_pool, remote_events, do_reload=True)
 
     _watch_filesystem_change(directory, process_events)
 
 
-def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events: List[sync.Event]):
+def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events: List[sync.Event], do_reload: bool):
     try:
         payload = sync_impl.sync_source(directory, events)
         for client in websocket_pool.clients:
             remote_rpc = client.rpc(DesignerRpc)
-            remote_rpc.hotreload_notify_changes(payload)
+            remote_rpc.hotreload_notify_changes(do_reload, payload)
     except:
         # we could send a sync_init
         import traceback
