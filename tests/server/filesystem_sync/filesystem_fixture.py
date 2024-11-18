@@ -37,8 +37,14 @@ class FilesystemFixture:
         if self.verify_mutator_events:
             assert self.source_mutator.events == events
 
-        events_fix = [e.to_absolute(self.expected_fs) for e in events]
+        self.invert_apply(events)
 
+    def invert_apply(self, events=None):
+        if events is None:
+            assert self.inverted_events is not None
+            events = self.source_mutator.events
+
+        events_fix = [e.to_absolute(self.expected_fs) for e in events]
         self.inverted_events = events_invert(self.expected_fs, events_fix)
         events_apply(self.initial_fs, self.inverted_events)
 
