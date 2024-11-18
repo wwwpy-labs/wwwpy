@@ -5,9 +5,8 @@ from typing import List, Callable
 
 from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
-from wwwpy.common.filesystem.sync import sync_delta2, Sync
+from wwwpy.common.filesystem.sync import sync_delta2, Sync, event_rebase
 from wwwpy.remote.designer.rpc import DesignerRpc
-from wwwpy.server.designer.hotreload import Hotreload
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
 from wwwpy.websocket import WebsocketPool, PoolEvent
 
@@ -26,16 +25,25 @@ def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
 
     websocket_pool.on_after_change.append(pool_before_change)
 
+
 def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
                     server_packages, remote_packages):
-    def server_unload_func():
-        do_unload_for(directory, server_packages)
+    remote_set = {directory / d for d in remote_packages}
+    server_set = {directory / d for d in server_packages}
 
-    def remote_notify_func(events: List[sync.Event]):
-        process_remote_events(directory, websocket_pool, events)
+    def process_events(events: List[sync.Event]):
+        remote_events = event_rebase.rebase(events, remote_set)
+        if len(remote_events) > 0:
+            _print_events('remote', remote_events, directory)
+            process_remote_events(directory, websocket_pool, remote_events)
 
-    hr = Hotreload(directory, server_packages, remote_packages, server_unload_func, remote_notify_func)
-    _watch_filesystem_change(directory, hr.process_events)
+        server_events = event_rebase.rebase(events, server_set)
+        if len(server_events) > 0:
+            _print_events('server', server_events, directory)
+            do_unload_for(directory, server_packages)
+
+    _watch_filesystem_change(directory, process_events)
+
 
 def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events: List[sync.Event]):
     try:
@@ -90,11 +98,10 @@ def _filter_events(events: List[sync.Event], directory: Path) -> List[sync.Event
         return False
 
     result = [e for e in events if not reject(e)]
-    _print_events(result, directory, len(events) - len(result))
     return result
 
 
-def _print_events(events: List[sync.Event], root_dir: Path, blacklisted_count: int):
+def _print_events(label: str, events: List[sync.Event], root_dir: Path):
     def accept(e: sync.Event) -> bool:
         bad = e.is_directory and e.event_type == 'modified'
         return not bad
@@ -108,5 +115,4 @@ def _print_events(events: List[sync.Event], root_dir: Path, blacklisted_count: i
         return src_path if dest_path == '' else f'{src_path} -> {dest_path}'
 
     summary = list(set(to_str(e) for e in events if accept(e)))
-    blacklist_applied = f' [{blacklisted_count} blacklisted events]' if blacklisted_count > 0 else ''
-    logger.info(f'Hotreload events: {len(events)}. Changes summary: {summary}{blacklist_applied}')
+    logger.info(f'Hotreload {label} events: {len(events)}. Changes summary: {summary}')
