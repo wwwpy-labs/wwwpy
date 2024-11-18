@@ -35,12 +35,6 @@ def _reload():
 async def _invoke_browser_main(reload=False):
     try:
         console.log('invoke_browser_main')
-        if dm.is_active():
-            from wwwpy.remote.designer import helpers
-            js.window.onerror = helpers._on_error
-            js.window.onunhandledrejection = helpers._on_unhandledrejection
-            from wwwpy.remote.designer import log_redirect
-            log_redirect.redirect_logging()
 
         try:
             js.document.body.innerText = f'Going to import the "remote" package'
