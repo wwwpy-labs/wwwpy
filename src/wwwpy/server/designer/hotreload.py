@@ -5,10 +5,14 @@ from typing import List, Callable
 
 from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
+from wwwpy.common.filesystem.sync import sync_delta2, Sync
+from wwwpy.remote.designer.rpc import DesignerRpc
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
 from wwwpy.websocket import WebsocketPool, PoolEvent
 
 logger = logging.getLogger(__name__)
+
+sync_impl: Sync = sync_delta2
 
 
 class Hotreload:
@@ -31,6 +35,25 @@ class Hotreload:
                         logger.error(f'_hotreload_server {traceback.format_exc()}')
 
         _watch_filesystem_change_for_server(self.directory, on_change)
+
+    def configure_remote(self, remote_packages: list[str], websocket_pool: WebsocketPool, ):
+        directory = self.directory
+
+        def on_sync_events(events: List[sync.Event]):
+            try:
+                filtered_events = _filter_events(events, directory)
+                if len(filtered_events) > 0:
+                    payload = sync_impl.sync_source(directory, filtered_events)
+                    for client in websocket_pool.clients:
+                        remote_rpc = client.rpc(DesignerRpc)
+                        remote_rpc.hotreload_notify_changes(payload)
+            except:
+                # we could send a sync_init
+                import traceback
+                logger.error(f'on_sync_events 1 {traceback.format_exc()}')
+
+        handler = WatchdogDebouncer(directory, timedelta(milliseconds=100), on_sync_events)
+        handler.watch_directory()
 
 
 def _watch_filesystem_change_for_server(directory: Path, callback: Callable[[List[sync.Event]], None]):
