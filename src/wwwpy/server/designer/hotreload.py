@@ -17,12 +17,8 @@ sync_impl: Sync = sync_delta2
 
 def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
                     server_packages, remote_packages):
-    hr = Hotreload(
-        directory, websocket_pool,
-        server_packages=['common', 'server'],
-        remote_packages=['common', 'remote']
-    )
-    hr.start()
+    hr = Hotreload(directory, websocket_pool, server_packages, remote_packages)
+    _watch_filesystem_change(directory, hr.process_events)
 
 
 class Hotreload:
@@ -35,12 +31,9 @@ class Hotreload:
         self.remote_packages = remote_packages
         self._websocket_pool = websocket_pool
 
-    def start(self):
-        def on_events(events: List[sync.Event]):
-            self._on_remote_events(events)
-            self._on_server_events(events)
-
-        _watch_filesystem_change(self.directory, on_events)
+    def process_events(self, events: List[sync.Event]):
+        self._on_remote_events(events)
+        self._on_server_events(events)
 
     def _on_remote_events(self, events: List[sync.Event]):
         try:
