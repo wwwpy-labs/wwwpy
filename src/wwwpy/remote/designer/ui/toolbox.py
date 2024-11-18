@@ -106,7 +106,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 }
 </style>     
 <wwwpy-draggable-component data-name='dragComp1'>
-    <div slot='title' style='text-align: center'>wwwpy</div>
+    <div slot='title' style='text-align: center'>wwwpy - toolbox</div>
     <div  style="text-align: center; padding: 8px">     
         <button data-name="_select_element_btn">Select element...</button>   
         <button data-name="_select_clear_btn">Clear selection</button>   

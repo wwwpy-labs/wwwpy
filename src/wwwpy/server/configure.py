@@ -66,12 +66,22 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
 
     if dev_mode:
         import wwwpy.server.designer.dev_mode as dev_modelib
+        dev_modelib._warning_on_multiple_clients(websocket_pool)
+
         dev_modelib.start_hotreload(
             directory, websocket_pool,
             server_folders={'common', 'server'},
             remote_folders={'common', 'remote'}
         )
-        dev_modelib._warning_on_multiple_clients(websocket_pool)
+        import wwwpy
+        wwwpy_dir = Path(wwwpy.__file__).parent
+        wwwpy_package_dir = wwwpy_dir.parent
+
+        dev_modelib.start_hotreload(
+            wwwpy_package_dir, websocket_pool,
+            server_folders={'wwwpy/common', 'wwwpy/server'},
+            remote_folders={'wwwpy/common', 'wwwpy/remote'}
+        )
 
     if webserver is not None:
         webserver.set_http_route(*routes)

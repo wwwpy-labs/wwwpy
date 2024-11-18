@@ -6,7 +6,7 @@ import js
 from js import console
 
 import wwwpy.common.reloader as reloader
-from wwwpy.common import _no_remote_infrastructure_found_text
+from wwwpy.common import _no_remote_infrastructure_found_text, files
 from wwwpy.common.tree import print_tree
 from wwwpy.remote.designer import dev_mode as dm
 from wwwpy.remote.websocket import setup_websocket
@@ -25,12 +25,8 @@ async def entry_point(dev_mode: bool = False):
 
 def _reload():
     async def reload():
-        import wwwpy.common.modlib as modlib
         console.log('reloading')
-        for package in ['remote', 'common']:
-            directory = modlib._find_package_directory(package)
-            if directory:
-                reloader.unload_path(str(directory))
+        reloader.unload_path(files._bundle_path)
         await _invoke_browser_main(True)
 
     asyncio.create_task(reload())
