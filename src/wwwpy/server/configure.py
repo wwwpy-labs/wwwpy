@@ -68,9 +68,9 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         from wwwpy.server.designer.dev_mode import _warning_on_multiple_clients
         _warning_on_multiple_clients(websocket_pool)
         from wwwpy.server.designer.hotreload import Hotreload
-        hr = Hotreload(directory)
+        hr = Hotreload(directory, websocket_pool)
         hr.configure_server(['common', 'server'])
-        hr.configure_remote(['common', 'remote'], websocket_pool)
+        hr.configure_remote(['common', 'remote'])
         hr.start()
 
     if webserver is not None:

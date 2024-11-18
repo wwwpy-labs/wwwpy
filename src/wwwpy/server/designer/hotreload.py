@@ -17,35 +17,35 @@ sync_impl: Sync = sync_delta2
 
 class Hotreload:
 
-    def __init__(self, directory: Path):
+    def __init__(self, directory: Path, websocket_pool: WebsocketPool):
         self.directory = directory
         self.server_packages = []
         self.remote_packages = []
+        self._websocket_pool = websocket_pool
 
     def configure_server(self, server_packages: list[str]):
         self.server_packages.extend(server_packages)
-        _watch_filesystem_change_for_server(self.directory, self._on_server_events)
 
-    def configure_remote(self, remote_packages: list[str], websocket_pool: WebsocketPool, ):
+    def configure_remote(self, remote_packages: list[str], ):
         self.remote_packages.extend(remote_packages)
 
-        directory = self.directory
+    def start(self):
+        def on_events(events: List[sync.Event]):
+            self._on_remote_events(events)
+            self._on_server_events(events)
 
-        def on_sync_events(events: List[sync.Event]):
-            try:
-                filtered_events = _filter_events(events, directory)
-                if len(filtered_events) > 0:
-                    payload = sync_impl.sync_source(directory, filtered_events)
-                    for client in websocket_pool.clients:
-                        remote_rpc = client.rpc(DesignerRpc)
-                        remote_rpc.hotreload_notify_changes(payload)
-            except:
-                # we could send a sync_init
-                import traceback
-                logger.error(f'on_sync_events 1 {traceback.format_exc()}')
+        _watch_filesystem_change(self.directory, on_events)
 
-        handler = WatchdogDebouncer(directory, timedelta(milliseconds=100), on_sync_events)
-        handler.watch_directory()
+    def _on_remote_events(self, events: List[sync.Event]):
+        try:
+            payload = sync_impl.sync_source(self.directory, events)
+            for client in self._websocket_pool.clients:
+                remote_rpc = client.rpc(DesignerRpc)
+                remote_rpc.hotreload_notify_changes(payload)
+        except:
+            # we could send a sync_init
+            import traceback
+            logger.error(f'_on_remote_events 1 {traceback.format_exc()}')
 
     def _on_server_events(self, events: List[sync.Event]):
 
@@ -60,11 +60,8 @@ class Hotreload:
                     import traceback
                     logger.error(f'_hotreload_server {traceback.format_exc()}')
 
-    def start(self):
-        pass
 
-
-def _watch_filesystem_change_for_server(directory: Path, callback: Callable[[List[sync.Event]], None]):
+def _watch_filesystem_change(directory: Path, callback: Callable[[List[sync.Event]], None]):
     def on_sync_events(events: List[sync.Event]):
         try:
             # oh, boy. When a .py file is saved it fires the first hot reload. Then, when that file is loaded
@@ -74,7 +71,7 @@ def _watch_filesystem_change_for_server(directory: Path, callback: Callable[[Lis
                 callback(filtered_events)
         except:
             import traceback
-            logger.error(f'_watch_filesystem_change_for_server {traceback.format_exc()}')
+            logger.error(f'_watch_filesystem_change {traceback.format_exc()}')
 
     handler = WatchdogDebouncer(directory, timedelta(milliseconds=100), on_sync_events)
     handler.watch_directory()
