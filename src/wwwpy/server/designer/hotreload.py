@@ -8,7 +8,7 @@ from wwwpy.common.filesystem import sync
 from wwwpy.common.filesystem.sync import sync_delta2, Sync
 from wwwpy.remote.designer.rpc import DesignerRpc
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
-from wwwpy.websocket import WebsocketPool, PoolEvent
+from wwwpy.websocket import WebsocketPool
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class Hotreload:
 
     def process_events(self, events: List[sync.Event]):
         self._on_remote_events(events)
-        self._on_server_events(events)
+        self._on_server_events()
 
     def _on_remote_events(self, events: List[sync.Event]):
         try:
@@ -46,7 +46,7 @@ class Hotreload:
             import traceback
             logger.error(f'_on_remote_events 1 {traceback.format_exc()}')
 
-    def _on_server_events(self, events: List[sync.Event]):
+    def _on_server_events(self):
 
         for p in self.server_packages:
             directory = self.directory / p.replace('.', '/')
@@ -90,17 +90,6 @@ def _filter_events(events: List[sync.Event], directory: Path) -> List[sync.Event
     result = [e for e in events if not reject(e)]
     _print_events(result, directory, len(events) - len(result))
     return result
-
-
-def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
-    def pool_before_change(event: PoolEvent):
-        client_count = len(websocket_pool.clients)
-        if client_count > 1:
-            logger.warning(f'WARNING: more than one client connected, total={client_count}')
-        else:
-            logger.warning(f'Connected client count: {client_count}')
-
-    websocket_pool.on_after_change.append(pool_before_change)
 
 
 def _print_events(events: List[sync.Event], root_dir: Path, blacklisted_count: int):
