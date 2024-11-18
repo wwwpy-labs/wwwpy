@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from pathlib import Path
-from typing import List, Callable
+from typing import List, Callable, Set
 
 from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
@@ -27,9 +27,9 @@ def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
 
 
 def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
-                    server_packages, remote_packages):
-    remote_set = {directory / d for d in remote_packages}
-    server_set = {directory / d for d in server_packages}
+                    server_folders: Set[str], remote_folders: Set[str]):
+    remote_set = {directory / d for d in remote_folders}
+    server_set = {directory / d for d in server_folders}
 
     def process_events(events: List[sync.Event]):
         remote_events = event_rebase.filter_by_directory(events, remote_set)
@@ -40,7 +40,7 @@ def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
         server_events = event_rebase.filter_by_directory(events, server_set)
         if len(server_events) > 0:
             _print_events('server', server_events, directory)
-            do_unload_for(directory, server_packages)
+            do_unload_for(directory, server_folders)
 
     _watch_filesystem_change(directory, process_events)
 
@@ -57,9 +57,9 @@ def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events
         logger.error(f'_on_remote_events 1 {traceback.format_exc()}')
 
 
-def do_unload_for(directory, server_packages: List[str]):
-    for p in server_packages:
-        package_directory = directory / p.replace('.', '/')
+def do_unload_for(directory, server_folders: Set[str]):
+    for p in server_folders:
+        package_directory = directory / p
         if package_directory:
             try:
                 import wwwpy.common.reloader as reloader

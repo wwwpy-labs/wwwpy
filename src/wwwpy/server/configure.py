@@ -68,8 +68,8 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         import wwwpy.server.designer.dev_mode as dev_modelib
         dev_modelib.start_hotreload(
             directory, websocket_pool,
-            server_packages=['common', 'server'],
-            remote_packages=['common', 'remote']
+            server_folders={'common', 'server'},
+            remote_folders={'common', 'remote'}
         )
         dev_modelib._warning_on_multiple_clients(websocket_pool)
 
