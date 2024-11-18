@@ -27,7 +27,7 @@ def target(tmp_path):
     yield fixture
 
 
-def test_new_file(target):
+def test_new_file(target: FilesystemFixture):
     # GIVEN
     with target.source_mutator as m:
         m.touch('new_file.txt')
@@ -40,7 +40,7 @@ def test_new_file(target):
     assert (target.initial_fs / 'new_file.txt').exists()
 
 
-def test_delete_file(target):
+def test_delete_file(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('file.txt')
@@ -56,7 +56,7 @@ def test_delete_file(target):
     assert not (target.initial_fs / 'file.txt').exists()
 
 
-def test_new_directory(target):
+def test_new_directory(target: FilesystemFixture):
     # GIVEN
     with target.source_mutator as m:
         m.mkdir('new_dir')
@@ -70,7 +70,7 @@ def test_new_directory(target):
     assert (target.initial_fs / 'new_dir').is_dir()
 
 
-def test_delete_directory(target):
+def test_delete_directory(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.mkdir('dir')
@@ -86,7 +86,7 @@ def test_delete_directory(target):
     assert not (target.initial_fs / 'dir').exists()
 
 
-def test_move_file(target):
+def test_move_file(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -103,7 +103,7 @@ def test_move_file(target):
     assert (target.initial_fs / 'f2.txt').exists()
 
 
-def test_move_directory(target):
+def test_move_directory(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.mkdir('dir')
@@ -121,7 +121,7 @@ def test_move_directory(target):
     assert (target.initial_fs / 'dir2').is_dir()
 
 
-def test_move_file_to_directory(target):
+def test_move_file_to_directory(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -139,7 +139,7 @@ def test_move_file_to_directory(target):
     assert (target.initial_fs / 'dir/f.txt').exists()
 
 
-def test_change_file_text(target):
+def test_change_file_text(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -155,7 +155,7 @@ def test_change_file_text(target):
     target.assert_filesystem_are_equal()
 
 
-def test_change_file_binary(target):
+def test_change_file_binary(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -171,7 +171,7 @@ def test_change_file_binary(target):
     target.assert_filesystem_are_equal()
 
 
-def test_create_modify_rename(target):
+def test_create_modify_rename(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -190,7 +190,7 @@ def test_create_modify_rename(target):
     target.assert_filesystem_are_equal()
 
 
-def test_create_modify_rename_folder(target):
+def test_create_modify_rename_folder(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.mkdir('dir')
@@ -209,7 +209,7 @@ def test_create_modify_rename_folder(target):
     target.assert_filesystem_are_equal()
 
 
-def test_rename_move_file(target):
+def test_rename_move_file(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -227,7 +227,7 @@ def test_rename_move_file(target):
     assert (target.initial_fs / 'dir/f2.txt').exists()
 
 
-def test_rename_move_file_and_rename_dir(target):
+def test_rename_move_file_and_rename_dir(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.touch('f.txt')
@@ -248,7 +248,7 @@ def test_rename_move_file_and_rename_dir(target):
     assert (target.initial_fs / 'dir2/f2.txt').exists()
 
 
-def test_modify_folder__should_be_ignored(target):
+def test_modify_folder__should_be_ignored(target: FilesystemFixture):
     # GIVEN
     with target.source_init as m:
         m.mkdir('dir')
