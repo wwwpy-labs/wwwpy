@@ -1,11 +1,12 @@
 from __future__ import annotations
-
+# todo rename to filelib.py; reading files.something is confusing
 import hashlib
 import os
 import zipfile
 from io import BytesIO
 from pathlib import Path
 
+# todo move to different module; these are application constants but below we have general purpose functions
 directory_blacklist = {'.mypy_cache', '__pycache__', '.DS_Store'}
 extension_blacklist = {'.py~'}
 _bundle_path = '/wwwpy_bundle'
