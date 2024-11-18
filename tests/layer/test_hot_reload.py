@@ -148,7 +148,7 @@ async def main():
         expect(fixture.page.locator('body')).to_have_text('second=conn:conn1-updated', use_inner_text=True)
 
     @for_all_webservers()
-    def fails_test_server_rpc_signature_change(self, fixture: PageFixture):
+    def test_server_rpc_signature_change(self, fixture: PageFixture):
         # GIVEN
         fixture.dev_mode = True
         fixture.write_module('server/rpc.py', "async def func1() -> str: return 'ready'")
@@ -157,7 +157,8 @@ async def main():
             """
 async def main():
     import js 
-    from server import rpc 
+    # from server import rpc # fails brutally the hotreload
+    import server.rpc as rpc 
     js.document.body.innerText = 'first=' + await rpc.func1()
 """)
 

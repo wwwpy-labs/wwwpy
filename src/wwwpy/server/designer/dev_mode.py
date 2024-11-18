@@ -45,7 +45,13 @@ def start_hotreload(directory: Path, websocket_pool: WebsocketPool, rpc_route: R
             if len(rpc_events) > 0:
                 # if the signature of the rpc changes, it will write on the fs and will trigger the observer
                 rpc_stub_files = rpc_route.generate_remote_stubs()
-                evs = [sync.Event('modified', False, str(f)) for f in rpc_stub_files]
+                evs = [
+                          sync.Event('created', True, str(rpc_route.tmp_bundle_folder / 'server')),
+                          sync.Event('created', True, str(rpc_route.tmp_bundle_folder / 'server/rpc')),
+                       ] + \
+                      [sync.Event('modified', False, str(f)) for f in rpc_stub_files]
+
+                _print_events('server-rpc', evs, rpc_route.tmp_bundle_folder)
                 process_remote_events(rpc_route.tmp_bundle_folder, websocket_pool, evs, len(remote_events) == 0)
 
         if len(remote_events) > 0:

@@ -92,7 +92,7 @@ def _event_apply(fs: Path, event: Event):
     is_dir = event.is_directory
     if t == 'created':
         if is_dir:
-            path.mkdir()
+            path.mkdir(exist_ok=True)  # todo this is because of dev_mode on rpc signature change
         else:
             path.touch()
     elif t == 'deleted':
