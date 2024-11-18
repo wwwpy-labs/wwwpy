@@ -17,17 +17,13 @@ sync_impl: Sync = sync_delta2
 
 class Hotreload:
 
-    def __init__(self, directory: Path, websocket_pool: WebsocketPool):
+    def __init__(self, directory: Path, websocket_pool: WebsocketPool,
+                 server_packages, remote_packages
+                 ):
         self.directory = directory
-        self.server_packages = []
-        self.remote_packages = []
+        self.server_packages = server_packages
+        self.remote_packages = remote_packages
         self._websocket_pool = websocket_pool
-
-    def configure_server(self, server_packages: list[str]):
-        self.server_packages.extend(server_packages)
-
-    def configure_remote(self, remote_packages: list[str], ):
-        self.remote_packages.extend(remote_packages)
 
     def start(self):
         def on_events(events: List[sync.Event]):
