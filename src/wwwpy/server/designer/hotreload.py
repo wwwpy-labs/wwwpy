@@ -15,6 +15,16 @@ logger = logging.getLogger(__name__)
 sync_impl: Sync = sync_delta2
 
 
+def start_hotreload(directory: Path, websocket_pool: WebsocketPool,
+                    server_packages, remote_packages):
+    hr = Hotreload(
+        directory, websocket_pool,
+        server_packages=['common', 'server'],
+        remote_packages=['common', 'remote']
+    )
+    hr.start()
+
+
 class Hotreload:
 
     def __init__(self, directory: Path, websocket_pool: WebsocketPool,
