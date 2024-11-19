@@ -78,8 +78,8 @@ def from_file(file: Path, relative_to: Path) -> FilesystemIterable:
 
 def _recurse(path: Path, relative_to: Path, resource_accept: ResourceAccept) -> Iterator[PathResource]:
     for f in path.glob('*'):
-        rel = f.relative_to(relative_to)
-        candidate = PathResource(str(rel), f)
+        rel = f.relative_to(relative_to).as_posix()
+        candidate = PathResource(rel, f)
         if resource_accept(candidate):
             if f.is_file():
                 yield candidate

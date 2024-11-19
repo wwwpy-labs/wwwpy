@@ -31,7 +31,7 @@ class Test_ResourceIterator_from_filesystem:
     def test_selective(self):
         folder = self.support_data / 'relative_to'
         actual = set(from_directory(folder / 'yes', relative_to=folder))
-        expect = {PathResource(fix_path('yes/yes.txt'), folder / 'yes/yes.txt')}
+        expect = {PathResource('yes/yes.txt', folder / 'yes/yes.txt')}
         assert expect == actual
 
     def test_resource_filter(self):
@@ -48,7 +48,7 @@ class Test_ResourceIterator_from_filesystem:
             return default_resource_accept(resource)
 
         actual = set(from_directory(folder, resource_accept=resource_accept))
-        expect = {PathResource(fix_path('yes/yes.txt'), folder / 'yes/yes.txt')}
+        expect = {PathResource('yes/yes.txt', folder / 'yes/yes.txt')}
         assert expect == actual
 
     def test_lazy__no_path_available_yet(self):
@@ -138,11 +138,7 @@ class Test_stacktrace_pathfinder:
 
 
 def test_library_resources():
-    expected_minimum = set(fix_path_iterable({
-        'wwwpy/__init__.py',
-        'wwwpy/remote/__init__.py',
-        'wwwpy/common/__init__.py',
-    }))
+    expected_minimum = {'wwwpy/__init__.py', 'wwwpy/remote/__init__.py', 'wwwpy/common/__init__.py'}
 
     def actual_minimum(iterable):
         return expected_minimum.intersection({resource.arcname for resource in iterable})
@@ -167,14 +163,6 @@ def test_library_resources__verify_content():
 
     second_level = {ent.parts[1] for ent in actual}
     assert second_level == {'common', 'remote'}
-
-
-def fix_path_iterable(iterable):
-    return [fix_path(i) for i in iterable]
-
-
-def fix_path(path: str) -> str:
-    return path.replace('/', os.path.sep)
 
 
 def posix_path(path: str) -> str:
