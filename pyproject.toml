@@ -2,13 +2,7 @@
 [project]
 name = "wwwpy"
 version = "0.1.45"
-
-
-
-
 description = "Build Powerful Web Applications: Simple, Scalable, and Fully Customizable"
-
-
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
 dependencies = ["tornado==6.4.1", "watchdog==4.0.2", "webtypy"]
 requires-python = ">=3.9"
@@ -22,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-#    "Programming Language :: Python :: 3.13",
+    #    "Programming Language :: Python :: 3.13",
 ]
 
 
@@ -44,7 +38,7 @@ where = ["src"]
 [project.optional-dependencies]
 # libcst==1.3.1 is the version available in pyodide 0.26.1
 test = ["tox", "pytest", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.5.1"]
-dev = ["webtypy", "playwright"]
+dev = ["webtypy", "playwright", "setuptools"] # setuptools is needed from PyCharm
 pypi = ["twine", "build"]
 # pip install -e ".[all]" or pip install -e ".[test,dev]"
 all = ["wwwpy[test,dev,pypi]"]
