@@ -3,7 +3,6 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 
 from common import name
-from .rpc_issue import RpcIssueAlert
 
 import logging
 
@@ -25,7 +24,6 @@ class Component1(wpc.Component, tag_name='component-1'):
 <sl-button data-name="slButton1">Send<sl-icon slot="suffix" name="send"></sl-icon></sl-button>
 <sl-textarea data-name="slTextarea1" placeholder="slTextarea1" rows="10">Messages...</sl-textarea>
 """
-        self.element.append(RpcIssueAlert().element)
         local_storage_key = 'wwwpy.userspace.chat.nickname'
         nick = js.window.localStorage.getItem(local_storage_key)
         if not nick:

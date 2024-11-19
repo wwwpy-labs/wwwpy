@@ -4,7 +4,6 @@ import logging
 import wwwpy.remote.component as wpc
 
 from .upload_component import UploadComponent
-from .rpc_issue import RpcIssueAlert
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,6 @@ class Component1(wpc.Component, tag_name='component-1'):
  </div>               
         """
         self.multiple_checkbox.checked = self.upload1.multiple
-        self.element.append(RpcIssueAlert().element)
 
     async def multiple_checkbox__input(self, event):
         js.console.log('handler multiple_checkbox__input event =', event)
