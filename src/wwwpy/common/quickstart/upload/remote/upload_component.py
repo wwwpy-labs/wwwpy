@@ -5,6 +5,7 @@ import logging
 import js
 import wwwpy.remote.component as wpc
 from pyodide.ffi import create_proxy, JsException
+from wwwpy.remote import dict_to_js
 
 logger = logging.getLogger(__name__)
 
@@ -21,30 +22,24 @@ class UploadComponent(wpc.Component, tag_name='wwwpy-quickstart-upload'):
     def multiple(self, value: bool):
         self.file_input.toggleAttribute('multiple', value)
 
+    def root_element(self):
+        return self.shadow
+
     def init_component(self):
+        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.element.innerHTML = """
+        self.shadow.innerHTML = """
 <input data-name="file_input" placeholder="input1" type="file" multiple>
 <div data-name="uploads"></div>
         """
 
     async def file_input__change(self, event):
-        logger.info('file_input__change')
-        self.uploads.innerHTML = ''
-        self.file_input.style.display = 'none'
         files = self.file_input.files
-        tasks = []
         for file in files:
             progress = UploadProgressComponent()
             self.uploads.appendChild(progress.element)
-            tasks.append(progress.upload(file))
-        await asyncio.gather(*tasks)
-        self.uploads.insertAdjacentHTML('beforeend', 'Upload complete')
-        await asyncio.sleep(3)
-        self.file_input.style.display = 'block'
+            asyncio.create_task(progress.upload(file))
         self.file_input.value = ''
-        self.uploads.innerHTML = ''
-
 
 class UploadProgressComponent(wpc.Component):
     file_input: js.HTMLInputElement = wpc.element()
@@ -84,8 +79,10 @@ class UploadProgressComponent(wpc.Component):
                 # percentage with two decimals
                 percentage = round(offset / total_size * 100, 2)
                 set_label(f'{percentage}%')
-            set_label('done')
+            set_label('upload completed')
             self.progress.value = total_size
+            await asyncio.sleep(3)
+            self.element.remove()
         except Exception as e:
             set_label(f'error: {e}')
             logger.exception(e)
