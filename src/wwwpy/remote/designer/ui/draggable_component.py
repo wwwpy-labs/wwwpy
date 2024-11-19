@@ -38,7 +38,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
   overflow: auto;
 }
 
-.wwwpy-window_title_div {
+.window-title {
   padding: 10px;
   cursor: move;
   z-index: 1001;
@@ -46,13 +46,18 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
   color: #fff;
 }
 
+.window-body {
+  overflow: auto;
+}
 </style>        
 <div data-name="window_div" class='window'>
-    <div  data-name="window_title_div" class='wwwpy-window_title_div' >
+    <div  data-name="window_title_div" class='window-title' >
         <slot name='title' >slot=title</slot>
     </div>
-    <slot>slot=default</slot>    
-</div> 
+   <div class='window-body'>
+        <slot>slot=default</slot>
+    </div>    
+<</div> 
 """
         self.client_x = 0
         self.client_y = 0
