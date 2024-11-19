@@ -10,7 +10,7 @@ description = "Build Powerful Web Applications: Simple, Scalable, and Fully Cust
 
 
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
-dependencies = ["tornado==6.4.1", "watchdog==6.0.0", "webtypy"]
+dependencies = ["tornado==6.4.1", "watchdog==4.0.2", "webtypy"]
 requires-python = ">=3.9"
 keywords = ["wwwpy", "wasm", "pyodide", "web", "development", "dom", "html", "javascript"]
 readme = "README.md"
