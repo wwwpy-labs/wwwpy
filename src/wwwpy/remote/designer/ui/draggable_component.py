@@ -29,12 +29,14 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         self.shadow.innerHTML = """
 <style>
 .window {
-  position: absolute;
-  z-index: 100000;
+  z-index: 100000;  
   background-color: black;
   border: 1px solid #d3d3d3;
-  resize: both;
-  overflow: auto;
+  resize: both;  
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .window-title {
@@ -56,7 +58,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
    <div class='window-body'>
         <slot>slot=default</slot>
     </div>    
-<</div> 
+</div> 
 """
         self.client_x = 0
         self.client_y = 0
@@ -94,7 +96,6 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         add_event_listener(document, 'touchend', self._move_stop)
 
     def _move(self, event: js.MouseEvent | js.TouchEvent):
-        # event.preventDefault()
         x = clientX(event)
         y = clientY(event)
         delta_x = self.client_x - x
@@ -102,8 +103,12 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         self.client_x = x
         self.client_y = y
 
-        new_left = self.window_div.offsetLeft - delta_x
-        new_top = self.window_div.offsetTop - delta_y
+        # Get current 'left' and 'top' from style, defaulting to 0 if not set
+        current_left = float(self.window_div.style.left.rstrip('px')) if self.window_div.style.left else 0
+        current_top = float(self.window_div.style.top.rstrip('px')) if self.window_div.style.top else 0
+
+        new_left = current_left - delta_x
+        new_top = current_top - delta_y
 
         self.set_position(f'{new_left}px', f'{new_top}px')
         self._on_geometry_change()
