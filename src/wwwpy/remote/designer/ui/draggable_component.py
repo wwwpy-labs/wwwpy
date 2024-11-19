@@ -15,7 +15,6 @@ from wwwpy.remote import dict_to_js
 class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
     window_div: wpc.HTMLElement = wpc.element()
     window_title_div: wpc.HTMLElement = wpc.element()
-    resize_handle: wpc.HTMLElement = wpc.element()
     client_x = 0
     client_y = 0
     css_border = 2  # 1px border on each side, so we need to subtract 2px from width and height
