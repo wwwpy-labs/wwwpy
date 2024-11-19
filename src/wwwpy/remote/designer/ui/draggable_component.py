@@ -13,7 +13,7 @@ from wwwpy.remote import dict_to_js
 
 
 class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
-    container_div: wpc.HTMLElement = wpc.element()
+    window_div: wpc.HTMLElement = wpc.element()
     draggable_component_div: wpc.HTMLElement = wpc.element()
     resize_handle: wpc.HTMLElement = wpc.element()
     client_x = 0
@@ -29,7 +29,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         # language=html
         self.shadow.innerHTML = """
 <style>
-.wwwpy-container_div {
+.window {
   position: absolute;
   z-index: 100000;
   background-color: black;
@@ -47,7 +47,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
 }
 
 </style>        
-<div data-name="container_div" class='wwwpy-container_div'>
+<div data-name="window_div" class='window'>
     <div  data-name="draggable_component_div" class='wwwpy-draggable_component_div' >
         <slot name='title' >slot=title</slot>
     </div>
@@ -56,10 +56,10 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
 """
         self.client_x = 0
         self.client_y = 0
-        tb = self.container_div
+        tb = self.window_div
 
         def tb_print(*args):
-            console.log(f'offsets of container_div: {self.geometry()}')
+            console.log(f'offsets of window_div: {self.geometry()}')
 
         tb.print = tb_print
 
@@ -68,7 +68,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
             self._on_geometry_change()
 
         resize_observer = ResizeObserver.new(create_proxy(on_resize))
-        resize_observer.observe(self.container_div)
+        resize_observer.observe(self.window_div)
 
     def _on_geometry_change(self):
         for listener in self.geometry_change_listeners:
@@ -98,8 +98,8 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         self.client_x = x
         self.client_y = y
 
-        new_left = self.container_div.offsetLeft - delta_x
-        new_top = self.container_div.offsetTop - delta_y
+        new_left = self.window_div.offsetLeft - delta_x
+        new_top = self.window_div.offsetTop - delta_y
 
         self.set_position(f'{new_left}px', f'{new_top}px')
         self._on_geometry_change()
@@ -111,7 +111,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         remove_event_listener(document, 'touchend', self._move_stop)
 
     def geometry(self) -> Tuple[int, int, int, int]:
-        t = self.container_div
+        t = self.window_div
         return t.offsetTop, t.offsetLeft, (t.offsetWidth - self.css_border), (t.offsetHeight - self.css_border)
 
     def set_geometry(self, geometry_tuple):
@@ -121,15 +121,15 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
 
     def set_position(self, left: str | None = None, top: str | None = None):
         if top:
-            self.container_div.style.top = top
+            self.window_div.style.top = top
         if left:
-            self.container_div.style.left = left
+            self.window_div.style.left = left
 
     def set_size(self, height: str | None = None, width: str | None = None):
         if height:
-            self.container_div.style.height = height
+            self.window_div.style.height = height
         if width:
-            self.container_div.style.width = width
+            self.window_div.style.width = width
 
     def acceptable_geometry(self) -> bool:
         top, left, width, height = self.geometry()
