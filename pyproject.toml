@@ -43,7 +43,7 @@ where = ["src"]
 
 [project.optional-dependencies]
 # libcst==1.3.1 is the version available in pyodide 0.26.1
-test = ["tox", "pytest", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.3.1"]
+test = ["tox", "pytest", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.5.1"]
 dev = ["webtypy", "playwright"]
 pypi = ["twine", "build"]
 # pip install -e ".[all]" or pip install -e ".[test,dev]"
