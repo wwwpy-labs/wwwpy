@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import NamedTuple, Protocol, List
+from typing import NamedTuple, Protocol, List, Iterator
 
 from wwwpy.common.rpc.serializer import RpcRequest
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WebsocketRoute(NamedTuple):
@@ -61,6 +64,13 @@ class WebsocketPool:
         endpoint.listeners.append(handle_remove)
         self.clients.append(endpoint)
         self._notify_change(add, self.on_after_change)
+
+    def all_clients_rpc(self, rpc_class: Callable[..., T]) -> Iterator[T]:
+        for client in self.clients:
+            try:
+                yield client.rpc(rpc_class)
+            except Exception as e:
+                logger.error(f'Error during rpc call: {e}')
 
 
 class ListenerProtocol(Protocol):

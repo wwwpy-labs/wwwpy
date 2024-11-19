@@ -6,6 +6,7 @@ from typing import List, Callable, Set
 from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
 from wwwpy.common.filesystem.sync import sync_delta2, Sync, event_rebase
+from wwwpy.common.quickstart import is_empty_project
 from wwwpy.common.reloader import reload
 from wwwpy.remote.designer.rpc import DesignerRpc
 from wwwpy.rpc import RpcRoute
@@ -48,7 +49,7 @@ def start_hotreload(directory: Path, websocket_pool: WebsocketPool, rpc_route: R
                 evs = [
                           sync.Event('created', True, str(rpc_route.tmp_bundle_folder / 'server')),
                           sync.Event('created', True, str(rpc_route.tmp_bundle_folder / 'server/rpc')),
-                       ] + \
+                      ] + \
                       [sync.Event('modified', False, str(f)) for f in rpc_stub_files]
 
                 _print_events('server-rpc', evs, rpc_route.tmp_bundle_folder)
@@ -58,14 +59,17 @@ def start_hotreload(directory: Path, websocket_pool: WebsocketPool, rpc_route: R
             _print_events('remote', remote_events, directory)
             process_remote_events(directory, websocket_pool, remote_events, do_reload=True)
 
+        if len(remote_events) == 0 and len(server_events) == 0 and is_empty_project(directory):
+            for remote_rpc in websocket_pool.all_clients_rpc(DesignerRpc):
+                remote_rpc.hotreload_do()
+
     _watch_filesystem_change(directory, process_events)
 
 
 def process_remote_events(directory: Path, websocket_pool: WebsocketPool, events: List[sync.Event], do_reload: bool):
     try:
         payload = sync_impl.sync_source(directory, events)
-        for client in websocket_pool.clients:
-            remote_rpc = client.rpc(DesignerRpc)
+        for remote_rpc in websocket_pool.all_clients_rpc(DesignerRpc):
             remote_rpc.hotreload_notify_changes(do_reload, payload)
     except:
         # we could send a sync_init

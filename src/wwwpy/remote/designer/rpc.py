@@ -13,5 +13,8 @@ class DesignerRpc:
         sync_impl: Sync = sync_delta2
         sync_impl.sync_target(directory, events)
         if do_reload:
-            from wwwpy.remote.browser_main import _reload
-            _reload()
+            self.hotreload_do()
+
+    def hotreload_do(self):
+        from wwwpy.remote.browser_main import _reload
+        _reload()
