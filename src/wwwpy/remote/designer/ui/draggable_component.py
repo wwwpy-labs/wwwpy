@@ -14,7 +14,7 @@ from wwwpy.remote import dict_to_js
 
 class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
     window_div: wpc.HTMLElement = wpc.element()
-    draggable_component_div: wpc.HTMLElement = wpc.element()
+    window_title_div: wpc.HTMLElement = wpc.element()
     resize_handle: wpc.HTMLElement = wpc.element()
     client_x = 0
     client_y = 0
@@ -38,7 +38,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
   overflow: auto;
 }
 
-.wwwpy-draggable_component_div {
+.wwwpy-window_title_div {
   padding: 10px;
   cursor: move;
   z-index: 1001;
@@ -48,7 +48,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
 
 </style>        
 <div data-name="window_div" class='window'>
-    <div  data-name="draggable_component_div" class='wwwpy-draggable_component_div' >
+    <div  data-name="window_title_div" class='wwwpy-window_title_div' >
         <slot name='title' >slot=title</slot>
     </div>
     <slot>slot=default</slot>    
@@ -74,10 +74,10 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
         for listener in self.geometry_change_listeners:
             listener()
 
-    def draggable_component_div__touchstart(self, e: js.TouchEvent):
+    def window_title_div__touchstart(self, e: js.TouchEvent):
         self._move_start(e)
 
-    def draggable_component_div__mousedown(self, e: js.MouseEvent):
+    def window_title_div__mousedown(self, e: js.MouseEvent):
         self._move_start(e)
 
     def _move_start(self, e: js.MouseEvent | js.TouchEvent):
