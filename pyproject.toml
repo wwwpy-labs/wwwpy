@@ -1,7 +1,8 @@
 # https://packaging.python.org/en/latest/tutorials/packaging-projects/
 [project]
 name = "wwwpy"
-version = "0.1.46"
+version = "0.1.47"
+
 
 description = "Build Powerful Web Applications: Simple, Scalable, and Fully Customizable"
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
