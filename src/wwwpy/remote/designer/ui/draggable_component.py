@@ -34,7 +34,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
   border: 1px solid #d3d3d3;
   resize: both;  
   overflow: hidden;
-  position: relative;
+  position: absolute;  /* Changed from 'relative' to 'absolute' */
   display: flex;
   flex-direction: column;
 }
