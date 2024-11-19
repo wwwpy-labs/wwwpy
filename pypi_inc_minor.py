@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 
-from pypi_helper import uncommitted_changes, update_minor_version
+from pypi_helper import uncommitted_changes, update_minor_version, write_build_meta
 
 
 def main():
@@ -11,6 +11,7 @@ def main():
 
     msg = update_minor_version()
     if msg:
+        write_build_meta()
         print('=== committing changes')
         subprocess.run(['git', 'commit', '-am', msg])
 

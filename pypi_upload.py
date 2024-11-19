@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from pypi_helper import uncommitted_changes, write_build_meta
+from pypi_helper import uncommitted_changes
 
 
 def main():
@@ -23,8 +23,6 @@ def main():
     dist_files = glob.glob('dist/*')
     for file in dist_files:
         os.remove(file)
-
-    write_build_meta()
 
     # Build the package
     try:
