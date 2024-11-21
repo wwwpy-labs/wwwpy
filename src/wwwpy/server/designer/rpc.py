@@ -21,6 +21,9 @@ async def write_module_file(module: str, content: str) -> str:
 def _fix_stacktrace(message: str):
     return message.replace('"/wwwpy_bundle/', '"')
 
+async def on_exception_string(exception: str):
+    exception = _fix_stacktrace(exception)
+    print(exception, file=sys.stderr)
 
 async def on_error(message: str, source: str, lineno: int, colno: int, error: str):
     print(f'rpc.on_error')

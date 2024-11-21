@@ -25,14 +25,15 @@ def test_server_convention_c_async(page: Page, webserver: Webserver, restore_sys
 def test_server_convention_c_sync(page: Page, webserver: Webserver, restore_sys_path):
     _test_convention('convention_c_sync', page, webserver)
 
+sub_text = "This may be because the running directory is not a valid wwwpy project directory."
 
 @for_all_webservers()
-def test_server_convention_empty__folder(page: Page, webserver: Webserver, restore_sys_path, tmp_path: Path):
+def test_extraneous_file(page: Page, webserver: Webserver, restore_sys_path, tmp_path: Path):
+    tmp_path.touch('some_file.txt')
     configure.convention(tmp_path, webserver)
     webserver.start_listen()
     page.goto(webserver.localhost_url())
-    from wwwpy.common import _no_remote_infrastructure_found_text
-    expect(page.locator("body")).to_contain_text(_no_remote_infrastructure_found_text)
+    expect(page.locator("body")).to_contain_text(sub_text)
 
 
 @for_all_webservers()
@@ -40,8 +41,7 @@ def test_empty__folder__error_message(page: Page, webserver: Webserver, restore_
     configure.convention(tmp_path, webserver)
     webserver.start_listen()
     page.goto(webserver.localhost_url())
-    from wwwpy.common import _no_remote_infrastructure_found_text
-    expect(page.locator("body")).to_contain_text(_no_remote_infrastructure_found_text)
+    expect(page.locator("body")).to_contain_text(sub_text)
 
 
 def _test_convention(directory, page, webserver):
