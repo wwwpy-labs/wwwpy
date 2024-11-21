@@ -74,15 +74,16 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
             server_folders={'common', 'server'},
             remote_folders={'common', 'remote'}
         )
-        import wwwpy
-        wwwpy_dir = Path(wwwpy.__file__).parent
-        wwwpy_package_dir = wwwpy_dir.parent
-
-        dev_modelib.start_hotreload(
-            wwwpy_package_dir, websocket_pool, services,
-            server_folders={'wwwpy/common', 'wwwpy/server'},
-            remote_folders={'wwwpy/common', 'wwwpy/remote'}
-        )
+        if os.environ.get('WWWPY_DEVSELF') == '1':
+            logger.info('devself detected')
+            import wwwpy
+            wwwpy_dir = Path(wwwpy.__file__).parent
+            wwwpy_package_dir = wwwpy_dir.parent
+            dev_modelib.start_hotreload(
+                wwwpy_package_dir, websocket_pool, services,
+                server_folders={'wwwpy/common', 'wwwpy/server'},
+                remote_folders={'wwwpy/common', 'wwwpy/remote'}
+            )
 
     if webserver is not None:
         webserver.set_http_route(*routes)
