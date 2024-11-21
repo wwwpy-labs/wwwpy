@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+import logging
+import os
 import sys
 import time
 from pathlib import Path
 
 from wwwpy.bootstrap import bootstrap_routes
-from wwwpy.server.custom_str import CustomStr
 from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
-from wwwpy.resources import library_resources, from_directory, from_file
+from wwwpy.resources import library_resources, from_directory
+from wwwpy.server import tcp_port
+from wwwpy.server.custom_str import CustomStr
 from wwwpy.webserver import Webserver
 from wwwpy.webservers.available_webservers import available_webservers
 from wwwpy.websocket import WebsocketPool
-from wwwpy.server import tcp_port
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,6 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
         server_rpc_packages.append('wwwpy.server.designer.rpc')
         remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
         log_emit.add_once(print)
-        from wwwpy.common import quickstart
         # quickstart._make_hotreload_work(directory)
 
     sys.path.insert(0, CustomStr(directory))
@@ -74,7 +73,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
             server_folders={'common', 'server'},
             remote_folders={'common', 'remote'}
         )
-        if os.environ.get('WWWPY_DEVSELF') == '1':
+        if os.environ.get('WWWPY_DEVSELF', '0') == '1':
             logger.info('devself detected')
             import wwwpy
             wwwpy_dir = Path(wwwpy.__file__).parent
