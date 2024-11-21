@@ -33,6 +33,7 @@ To start developing:
 ```
 mkdir my_project
 cd my_project
+
 wwwpy dev
 ```
 
