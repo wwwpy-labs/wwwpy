@@ -2,8 +2,8 @@
 
 Set up your **wwwpy** development environment with these steps:
 
-1. **Create a Python virtual environment:** Open a terminal in your project directory and run `pip install wwwpy`.
-2. **Create an empty folder** and open it in your preferred IDE.
+1. **Create a Python virtual environment:** Open a terminal in your project directory and run: <br>`pip install wwwpy`.
+2. **Create an empty folder** and open it in your preferred IDE.<br>`mkdir my_project`<br>`cd my_project`
 3. **Open a shell** within your IDE (this allows the console output to link directly to file sources) and start **`wwwpy dev`**. This command opens a browser window displaying your developing web app.
 4. **Arrange your IDE and browser side by side** so you can view your app's code in the IDE and the app interface in the browser simultaneously.
 
