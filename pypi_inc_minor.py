@@ -12,9 +12,8 @@ def main():
     msg = update_minor_version()
     if msg:
         print('=== committing changes')
-        subprocess.run(['git', 'commit', '-am', msg])
         write_build_meta()
-        subprocess.run(['git', 'commit', '-am', msg + ' build meta'])
+        subprocess.run(['git', 'commit', '-am', msg])
 
 
 if __name__ == '__main__':
