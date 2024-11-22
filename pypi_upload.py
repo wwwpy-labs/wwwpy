@@ -34,6 +34,7 @@ def main():
     dist_files = glob.glob('dist/*')
     if dist_files:
         subprocess.run([sys.executable, '-m', 'twine', 'upload'] + dist_files, check=True)
+        subprocess.run(['git', 'push'])
     else:
         print("No files found in dist/ to upload.")
 
