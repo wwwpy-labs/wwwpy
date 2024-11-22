@@ -87,6 +87,15 @@ def quickstart_list() -> NamedListMap[Quickstart]:
     quickstarts = sorted(quickstarts, key=lambda x: x.name)
     return NamedListMap(quickstarts)
 
+def invalid_project(root_path: Path | str) -> bool:
+    root_path = Path(root_path)
+    if is_empty_project(root_path):
+        return False
+    # Check if we have a remote folder with an __init__.py
+    remote = root_path / 'remote'
+    invalid = not remote.exists() or not (remote / '__init__.py').exists()
+    return invalid
+
 
 def is_empty_project(root_path: Path | str):
     root_path = Path(root_path)
