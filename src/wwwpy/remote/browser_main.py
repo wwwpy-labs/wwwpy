@@ -51,7 +51,7 @@ async def _invoke_browser_main():
                 else:
                     remote.main()
         except ModuleNotFoundError as e:
-            _show_exception(e, _remote_module_not_found_html)
+            js.document.body.innerHTML = _remote_module_not_found_html
         except Exception as e:
             _show_exception(e, _no_remote_infrastructure_found_text)
             from wwwpy.server.designer import rpc
