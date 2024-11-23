@@ -62,9 +62,9 @@ class Metadata:
 
 
 def get_component(element: HTMLElement) -> Component | None:
-    if not hasattr(element, '_py'):
+    if not hasattr(element, '_python_component'):
         return None
-    component = element._py
+    component = element._python_component
     if hasattr(component, "unwrap"):
         component = component.unwrap()
 
@@ -196,18 +196,18 @@ class WrongTypeDefinition(TypeError): pass
 _custom_element_class_template = """
 class $ClassName extends HTMLElement {
     static observedAttributes = [ $observedAttributes ];
-    constructor(python_instance) {
+    constructor(python_component) {
         super();
-        if (python_instance) 
-            this._py = python_instance;
+        if (python_component) 
+            this._python_component = python_component;
         else 
-            this._py = $namespace.$ClassName(this);
+            this._python_component = $namespace.$ClassName(this);
     }
 
-    connectedCallback()    { this._py.connectedCallback(); }
-    disconnectedCallback() { this._py.disconnectedCallback(); }
-    adoptedCallback()      { this._py.adoptedCallback(); }
-    attributeChangedCallback(name, oldValue, newValue) { this._py.attributeChangedCallback(name, oldValue, newValue); }
+    connectedCallback()    { this._python_component.connectedCallback(); }
+    disconnectedCallback() { this._python_component.disconnectedCallback(); }
+    adoptedCallback()      { this._python_component.adoptedCallback(); }
+    attributeChangedCallback(name, oldValue, newValue) { this._python_component.attributeChangedCallback(name, oldValue, newValue); }
 }
 
 customElements.define('$tagName', $ClassName);
