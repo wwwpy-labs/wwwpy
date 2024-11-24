@@ -65,7 +65,6 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - PyCharm and VS Code plugin
 - Execute/Schedule server-side code [see issue](https://github.com/wwwpy-labs/wwwpy/issues/3)
 - Support IDE Python completion for shoelace property (through Python stubs .pyi)
-- Support server.rpc function signature hot-reload (now if you change the parameters of a function, the hot-reload will not pick it up) [see issue](https://github.com/wwwpy-labs/wwwpy/issues/2) 
 - Improve the serialization mechanism of RPC
 - Change the default event handler code from 'console.log' to 'logger.debug' to use the Python API. As a side effect, all the logging is sent to the server console (only in dev-mode)
 - Improve and clean the Component API that handle the shadow DOM
