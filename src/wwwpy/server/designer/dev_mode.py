@@ -19,12 +19,18 @@ sync_impl: Sync = sync_delta2
 
 
 def _warning_on_multiple_clients(websocket_pool: WebsocketPool):
+    _in_warning = False
+
     def pool_before_change(event: PoolEvent):
+        nonlocal _in_warning
         client_count = len(websocket_pool.clients)
         if client_count > 1:
-            logger.warning(f'more than one client connected, total={client_count}')
+            _in_warning = True
+            logger.warning(f'Total browser connected: {client_count}')
         else:
-            logger.info(f'Connected client count: {client_count}')
+            if _in_warning:
+                _in_warning = False
+                logger.warning(f'Back to only {client_count} browser connected')
 
     websocket_pool.on_after_change.append(pool_before_change)
 

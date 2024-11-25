@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import os
 import sys
 import time
 from pathlib import Path
@@ -42,7 +41,6 @@ websocket_pool: WebsocketPool = None
 def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
     if settings is None:
         settings = Settings()
-    print(f'applying convention to working_dir: {directory}')
     server_rpc_packages = ['server.rpc']
     # todo fix imprecision: for each of the packages, we conceptually apply a remote_proxy_transform
     # we specify also, e.g., 'remote' to transform it but it could end up in an empty string and not a proxy

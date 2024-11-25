@@ -22,11 +22,11 @@ class Webserver(ABC):
         return self
 
     def start_listen(self) -> 'Webserver':
-        device_ip = f' - http://{_get_ip()}:{self.port}\n' if self.host == '0.0.0.0' else ''
-        print(f'Starting web server on:\n'
-              f' - http://{self.host}:{self.port}\n'
-              f' - {self.localhost_url()}\n' +
-              device_ip
+        indent = '    '
+        device_ip = f'{indent}http://{_get_ip()}:{self.port}\n' if self.host == '0.0.0.0' else ''
+        print(f'Available at (non-exhaustive list):\n' +
+              device_ip +
+              f'{indent}{self.localhost_url()}\n'
               )
         self._start_listen()
         self.wait_ready()

@@ -32,6 +32,8 @@ def parse_arguments(args: Optional[Sequence[str]] = None) -> Arguments:
 
 
 def run_server(args: Arguments):
+    import wwwpy
+    print(f'Starting wwwpy v{wwwpy.__version__}')
     from wwwpy.server import configure
     from wwwpy.webserver import wait_forever
     import webbrowser
