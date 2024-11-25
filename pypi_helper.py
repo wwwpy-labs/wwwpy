@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 import subprocess
-from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -41,29 +40,25 @@ class Pyproject:
         for line in lines:
             stripped_line = line.strip()
             if stripped_line.startswith('version ='):
-                # Use regex to extract the version string
                 match = re.match(r'version\s*=\s*"(.*?)"', stripped_line)
                 if match:
                     return match.group(1)
         return ''
 
     def version_inc_minor(self):
-        lines = self.content.splitlines()
+        lines = self.content.splitlines(keepends=True)
         for i, line in enumerate(lines):
             stripped_line = line.strip()
             if stripped_line.startswith('version ='):
-                # Use regex to extract the version string
                 match = re.match(r'version\s*=\s*"(.*?)"', stripped_line)
                 if match:
                     version = match.group(1)
                     version_parts = version.split('.')
                     if version_parts[-1].isdigit():
-                        # Increment the minor version
                         version_parts[-1] = str(int(version_parts[-1]) + 1)
                         new_version = '.'.join(version_parts)
-                        # Replace the line with the updated version
                         lines[i] = f'version = "{new_version}"\n'
-                        self.content = '\n'.join(lines)
+                        self.content = ''.join(lines)
                         break
                     else:
                         print('Error: Last part of the version is not a digit.')

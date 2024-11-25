@@ -42,3 +42,11 @@ def test_update_minor_version(tmp_path):
     assert result == 'Updated version to 0.1.39'
     updated_content = file.read_text()
     assert 'version = "0.1.39"' in updated_content
+
+def test_do_not_add_cr(tmp_path):
+    file = tmp_path / "pyproject.toml"
+    file.write_text('[project]\nversion = "0.1.38"\n#comment')
+
+    update_minor_version(file)
+
+    assert file.read_text() == '[project]\nversion = "0.1.39"\n#comment'
