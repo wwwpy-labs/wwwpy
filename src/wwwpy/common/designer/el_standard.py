@@ -21,6 +21,8 @@ ed_dblclick = EventDef('dblclick', Help('The element was double-clicked.',
 ed_input = EventDef('input', Help('The input event fires when the value of the element has been changed '
                                   'as a direct result of a user action',
                                   'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'))
+ed_keydown = EventDef('keydown', Help('The keydown event is fired when a key is pressed.'
+                                      , 'https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event'))
 
 ed_change = EventDef('change', Help(
     'The change event is fired when a change to the element\'s value is committed by the user.',
@@ -37,7 +39,7 @@ def _standard_elements_def() -> List[ElementDef]:
                              values=['submit', 'reset', 'button'], default_value='button'),
                 ad_value,
             ],
-            events=[ed_click, ed_dblclick],
+            events=[ed_click, ed_dblclick, ed_keydown],
         ),
         ElementDef(
             'input', 'js.HTMLInputElement',
@@ -65,7 +67,7 @@ def _standard_elements_def() -> List[ElementDef]:
                              boolean=True),
 
             ],
-            events=[ed_input, ed_click, ]
+            events=[ed_input, ed_click, ed_keydown]
         ),
         ElementDef(
             'textarea', 'js.HTMLTextAreaElement',
@@ -121,7 +123,7 @@ def _standard_elements_def() -> List[ElementDef]:
                 ),
                 ad_name,
             ],
-            events=[ed_input, ed_change, ],
+            events=[ed_input, ed_change,ed_keydown ],
         ),
         ElementDef(
             'div', 'js.HTMLDivElement',
@@ -164,7 +166,7 @@ def _standard_elements_def() -> List[ElementDef]:
                     Help('The form element that the select is associated with (its id).', '')
                 ),
             ],
-            events=[ed_change, ed_input, ],
+            events=[ed_change, ed_input, ed_keydown],
 
         ),
         ElementDef(
