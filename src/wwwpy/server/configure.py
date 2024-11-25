@@ -10,6 +10,7 @@ from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common import quickstart, _remote_module_not_found_console
 from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
+from wwwpy.common.settingslib import Settings
 from wwwpy.resources import library_resources, from_directory
 from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
@@ -20,13 +21,13 @@ from wwwpy.websocket import WebsocketPool
 logger = logging.getLogger(__name__)
 
 
-def start_default(port: int, directory: Path, dev_mode=False):
+def start_default(port: int, directory: Path, dev_mode=False, settings: Settings = None):
     webserver = available_webservers().new_instance()
 
     if quickstart.invalid_project(directory):
         warn_invalid_project(directory)
 
-    convention(directory, webserver, dev_mode=dev_mode)
+    convention(directory, webserver, dev_mode=dev_mode, settings=settings)
 
     while tcp_port.is_port_busy(port):
         logger.warning(f'port {port} is busy, retrying...')
@@ -38,7 +39,9 @@ def start_default(port: int, directory: Path, dev_mode=False):
 websocket_pool: WebsocketPool = None
 
 
-def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
+def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
+    if settings is None:
+        settings = Settings()
     print(f'applying convention to working_dir: {directory}')
     server_rpc_packages = ['server.rpc']
     # todo fix imprecision: for each of the packages, we conceptually apply a remote_proxy_transform
@@ -77,7 +80,7 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False):
             server_folders={'common', 'server'},
             remote_folders={'common', 'remote'}
         )
-        if os.environ.get('WWWPY_DEVSELF', '0') == '1':
+        if settings.hotreload_self:
             logger.info('devself detected')
             import wwwpy
             wwwpy_dir = Path(wwwpy.__file__).parent

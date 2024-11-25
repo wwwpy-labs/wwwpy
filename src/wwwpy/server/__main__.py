@@ -5,6 +5,9 @@ import argparse
 from pathlib import Path
 from typing import NamedTuple, Optional, Sequence
 
+from wwwpy.server.settingslib import user_settings
+
+
 class Arguments(NamedTuple):
     directory: str
     port: int
@@ -34,7 +37,8 @@ def run_server(args: Arguments):
     import webbrowser
 
     working_dir = Path(args.directory).absolute()
-    configure.start_default(args.port, working_dir, dev_mode=args.dev)
+    settings = user_settings()
+    configure.start_default(args.port, working_dir, dev_mode=args.dev, settings=settings)
     webbrowser.open(f'http://localhost:{args.port}')
     wait_forever()
 
