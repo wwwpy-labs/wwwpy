@@ -92,7 +92,7 @@ def element_library() -> ElementLibrary:
     global _element_library
     if _element_library is None:
         _element_library = ElementLibrary()
-        from wwwpy.common.designer.shoelace import _shoelace_elements_def
+        from wwwpy.common.designer.el_shoelace import _shoelace_elements_def
         _element_library.elements.extend(_shoelace_elements_def())
         from .el_standard import _standard_elements_def
         _element_library.elements.extend(_standard_elements_def())

@@ -62,7 +62,7 @@ def _insert_attribute(elements: List[ElementDef], tag_names, attribute_name: str
 
 
 def _shoelace_elements_def() -> List[ElementDef]:
-    shoelace_json = (parent / 'shoelace.json').read_text()
+    shoelace_json = (parent / 'el_shoelace.json').read_text()
     elements = serialization.from_json(shoelace_json, List[ElementDef])
     elements = ListMap(elements, key_func=lambda x: x.tag_name)
     for element in elements:
