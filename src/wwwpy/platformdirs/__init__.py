@@ -20,11 +20,11 @@ if TYPE_CHECKING:
     from typing import Literal
 
 if sys.platform == "win32":
-    from platformdirs.windows import Windows as _Result
+    from .windows import Windows as _Result
 elif sys.platform == "darwin":
-    from platformdirs.macos import MacOS as _Result
+    from .macos import MacOS as _Result
 else:
-    from platformdirs.unix import Unix as _Result
+    from .unix import Unix as _Result
 
 
 def _set_platform_dir_class() -> type[PlatformDirsABC]:
