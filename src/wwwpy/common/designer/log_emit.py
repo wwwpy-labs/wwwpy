@@ -14,11 +14,10 @@ class _CustomHandler(logging.Handler):
 
 
 def add_once(emit: Callable[[str], None]):
+    logging.getLogger('tornado.access').setLevel(logging.ERROR)
+
     for log_name in ['common', 'remote', 'server']:
         logging.getLogger(log_name).setLevel(logging.DEBUG)
-
-    for log_name in ['wwwpy']:
-        logging.getLogger(log_name).setLevel(logging.INFO)
 
     root = logging.getLogger()
 
