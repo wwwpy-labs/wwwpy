@@ -2,6 +2,30 @@ from typing import List
 
 from wwwpy.common.designer.element_library import ElementDef, Help, EventDef, AttributeDef, NamedListMap
 
+ad_value = AttributeDef('value', Help('The value of the element.', ''))
+ad_disabled = AttributeDef('disabled', Help('Whether the control is disabled.', ''), boolean=True)
+ad_readonly = AttributeDef('readonly', Help('Whether the control is read-only.', ''), boolean=True)
+ad_autofocus = AttributeDef('autofocus',
+                            Help('Whether the control should have input focus when the page loads.', ''),
+                            boolean=True)
+ad_required = AttributeDef('required', Help('Whether the control is required for form submission.', ''),
+                           boolean=True)
+
+ad_placeholder = AttributeDef('placeholder', Help('A hint to the user of what can be entered in the field.', ''))
+ad_name = AttributeDef('name', Help('Name of the control, useful for form submission.', ''))
+
+ed_click = EventDef('click', Help('The element was clicked.',
+                                  'https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event'))
+ed_dblclick = EventDef('dblclick', Help('The element was double-clicked.',
+                                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/dblclick_event'))
+ed_input = EventDef('input', Help('The input event fires when the value of the element has been changed '
+                                  'as a direct result of a user action',
+                                  'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'))
+
+ed_change = EventDef('change', Help(
+    'The change event is fired when a change to the element\'s value is committed by the user.',
+    'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'))
+
 
 def _standard_elements_def() -> List[ElementDef]:
     res = [
@@ -11,12 +35,9 @@ def _standard_elements_def() -> List[ElementDef]:
             attributes=[
                 AttributeDef('type', Help('The type of the button.', ''),
                              values=['submit', 'reset', 'button'], default_value='button'),
-                AttributeDef('value', Help('The value of the button.', '')),
+                ad_value,
             ],
-            events=[EventDef('click', Help('The button was clicked.',
-                                           'https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event')),
-                    EventDef('dblclick', Help('The button was double-clicked.',
-                                              'https://developer.mozilla.org/en-US/docs/Web/API/Element/dblclick_event'))],
+            events=[ed_click, ed_dblclick],
         ),
         ElementDef(
             'input', 'js.HTMLInputElement',
@@ -27,31 +48,24 @@ def _standard_elements_def() -> List[ElementDef]:
                                      'hidden', 'image', 'date', 'datetime-local', 'month', 'time', 'week',
                                      'number', 'range', 'email', 'url', 'search', 'tel', 'color'],
                              default_value='text'),
-                AttributeDef('value', Help('The value of the input field.', '')),
-                AttributeDef('placeholder', Help('A hint to the user of what can be entered in the field.', '')),
-                AttributeDef('disabled', Help('Whether the control is disabled.', ''), boolean=True),
-                AttributeDef('readonly', Help('Whether the control is read-only.', ''), boolean=True),
-                AttributeDef('required', Help('Whether the control is required for form submission.', ''),
-                             boolean=True),
+                ad_value,
+                ad_placeholder,
+                ad_disabled,
+                ad_readonly,
+                ad_required,
                 AttributeDef('min', Help('The minimum value of the input field.', '')),
                 AttributeDef('max', Help('The maximum value of the input field.', '')),
                 AttributeDef('step', Help('The legal number intervals for the input field.', '')),
                 AttributeDef('pattern', Help('A regular expression that the input\'s value is checked against.', '')),
                 AttributeDef('autocomplete', Help('Whether the control is required for form submission.', ''),
                              values=['on', 'off']),
-                AttributeDef('autofocus', Help('Whether the control should have input focus when the page loads.', ''),
-                             boolean=True),
+                ad_autofocus,
                 AttributeDef('checked', Help('Whether the control is checked.', ''), boolean=True),
                 AttributeDef('multiple', Help('Whether the user is allowed to enter more than one value.', ''),
                              boolean=True),
 
             ],
-            events=[
-                EventDef('input', Help('The input event fires when the value of the element has been changed '
-                                       'as a direct result of a user action',
-                                       'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event')),
-                EventDef('change')
-            ]
+            events=[ed_input, ed_click, ]
         ),
         ElementDef(
             'textarea', 'js.HTMLTextAreaElement',
@@ -70,30 +84,11 @@ def _standard_elements_def() -> List[ElementDef]:
                     Help('The number of visible text lines for the control.', ''),
                     default_value='2'
                 ),
-                AttributeDef(
-                    'disabled',
-                    Help('Whether the control is disabled.', ''),
-                    boolean=True
-                ),
-                AttributeDef(
-                    'readonly',
-                    Help('Whether the control is read-only.', ''),
-                    boolean=True
-                ),
-                AttributeDef(
-                    'required',
-                    Help('Whether the control is required for form submission.', ''),
-                    boolean=True
-                ),
-                AttributeDef(
-                    'placeholder',
-                    Help('A hint to the user of what can be entered in the field.', '')
-                ),
-                AttributeDef(
-                    'autofocus',
-                    Help('Whether the control should have input focus when the page loads.', ''),
-                    boolean=True
-                ),
+                ad_disabled,
+                ad_readonly,
+                ad_required,
+                ad_placeholder,
+                ad_autofocus,
                 AttributeDef(
                     'maxlength',
                     Help('The maximum number of characters that the user can enter.', '')
@@ -124,27 +119,9 @@ def _standard_elements_def() -> List[ElementDef]:
                     'form',
                     Help('The form element that the textarea is associated with (its id).', '')
                 ),
-                AttributeDef(
-                    'name',
-                    Help('Name of the control, useful for form submission.', '')
-                ),
+                ad_name,
             ],
-            events=[
-                EventDef(
-                    'input',
-                    Help(
-                        'The input event fires when the value of the element has been changed as a direct result of a user action.',
-                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'
-                    )
-                ),
-                EventDef(
-                    'change',
-                    Help(
-                        'The change event is fired when a change to the element\'s value is committed by the user.',
-                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'
-                    )
-                ),
-            ],
+            events=[ed_input, ed_change, ],
         ),
         ElementDef(
             'div', 'js.HTMLDivElement',
@@ -159,9 +136,7 @@ def _standard_elements_def() -> List[ElementDef]:
                 AttributeDef('value', Help('The current value of the progress bar.', '')),
                 AttributeDef('max', Help('The maximum value of the progress bar.', '')),
             ],
-            events=[
-                EventDef('click', Help('The progress bar was clicked.', '')),
-            ]
+            events=[ed_click, ]
         ),
         ElementDef(
             'select', 'js.HTMLSelectElement',
@@ -170,56 +145,26 @@ def _standard_elements_def() -> List[ElementDef]:
                 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select'
             ),
             attributes=[
-                AttributeDef(
-                    'name',
-                    Help('Name of the control, useful for form submission.', '')
-                ),
-                AttributeDef(
-                    'disabled',
-                    Help('Whether the control is disabled.', ''),
-                    boolean=True
-                ),
+                ad_name,
+                ad_disabled,
                 AttributeDef(
                     'multiple',
                     Help('Whether multiple options can be selected.', ''),
                     boolean=True
                 ),
-                AttributeDef(
-                    'required',
-                    Help('Whether the control is required for form submission.', ''),
-                    boolean=True
-                ),
+                ad_required,
                 AttributeDef(
                     'size',
                     Help('Number of visible options.', ''),
                     default_value='1'
                 ),
-                AttributeDef(
-                    'autofocus',
-                    Help('Whether the control should have input focus when the page loads.', ''),
-                    boolean=True
-                ),
+                ad_autofocus,
                 AttributeDef(
                     'form',
                     Help('The form element that the select is associated with (its id).', '')
                 ),
             ],
-            events=[
-                EventDef(
-                    'change',
-                    Help(
-                        'The change event is fired when a change to the element\'s value is committed by the user.',
-                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'
-                    )
-                ),
-                EventDef(
-                    'input',
-                    Help(
-                        'The input event fires when the value of the element has been changed as a direct result of a user action.',
-                        'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'
-                    )
-                ),
-            ],
+            events=[ed_change, ed_input, ],
 
         ),
         ElementDef(
@@ -237,12 +182,7 @@ def _standard_elements_def() -> List[ElementDef]:
                 AttributeDef('optimum', Help('The optimal numeric value.', '')),
                 AttributeDef('form', Help('Associates the meter with a form element.', '')), ]
             ),
-            events=NamedListMap([
-                EventDef('click',
-                         Help('The meter was clicked.',
-                              'https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event')
-                         ),
-            ]),
+            events=NamedListMap([ed_click, ]),
         )
 
     ]
