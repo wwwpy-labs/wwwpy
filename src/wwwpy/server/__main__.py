@@ -36,13 +36,22 @@ def run_server(args: Arguments):
     print(f'Starting wwwpy v{wwwpy.__version__}')
     from wwwpy.server import configure
     from wwwpy.webserver import wait_forever
-    import webbrowser
 
     working_dir = Path(args.directory).absolute()
     settings = user_settings()
     configure.start_default(args.port, working_dir, dev_mode=args.dev, settings=settings)
-    webbrowser.open(f'http://localhost:{args.port}')
+    _open_browser(args, settings)
+
     wait_forever()
+
+
+def _open_browser(args, settings):
+    import webbrowser
+    if settings.open_url_code:
+        loc = {'url': f'http://localhost:{args.port}', args: args}
+        exec(settings.open_url_code, loc, loc)
+    else:
+        webbrowser.open(f'http://localhost:{args.port}')
 
 
 def main():
