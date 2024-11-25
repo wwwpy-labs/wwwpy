@@ -22,7 +22,7 @@ def main():
     print(element_defs)
     restored = serialization.from_json(element_defs, List[el.ElementDef])
     json_file_root = Path(inspect.getfile(element_library)).parent
-    (json_file_root / 'shoelace.json').write_text(element_defs)
+    (json_file_root / 'el_shoelace.json').write_text(element_defs)
 
 
 def create_element(jet, vsc):
