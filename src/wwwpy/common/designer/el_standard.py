@@ -184,6 +184,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
 
     func = {
         'button': _def(),
+        'div': _def(),
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
         'textarea': _def(placeHolder=True),
