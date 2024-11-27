@@ -11,6 +11,8 @@ from pyodide.ffi.wrappers import add_event_listener, remove_event_listener
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 
+import logging
+logger = logging.getLogger(__name__)
 
 class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
     window_div: wpc.HTMLElement = wpc.element()
@@ -130,6 +132,10 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
 
     def set_position(self, left: str | None = None, top: str | None = None):
         if top:
+            logger.info(f'set_position: top={top}')
+            top_check = float(top.removesuffix('px'))
+            if top_check < 0:
+                top = '0px'
             self.window_div.style.top = top
         if left:
             self.window_div.style.left = left
@@ -142,7 +148,7 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
 
     def acceptable_geometry(self) -> bool:
         top, left, width, height = self.geometry()
-        return width > 100 and height > 100
+        return width > 100 and height > 100 and top > 0 and left > 0
 
 
 def clientX(event: js.MouseEvent | js.TouchEvent):
