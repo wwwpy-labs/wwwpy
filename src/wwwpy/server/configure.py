@@ -98,14 +98,8 @@ from wwwpy.rpc import RpcRoute
 
 def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRoute:
     services = RpcRoute(route_path)
-
     for module_name in modules:
-        try:
-            services.allow(module_name)
-        except Exception as e:
-            print(f'could not load rpc module `{module_name}`: {e}')
-            return None
-
+        services.allow(module_name)
     return services
 
 
