@@ -105,7 +105,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
   margin-right: 0; /* Removes right margin for every even child */
 }
 </style>     
-<wwwpy-draggable-component data-name='dragComp1'>
+<wwwpy-window data-name='dragComp1'>
     <div slot='title' style='text-align: center'>wwwpy - toolbox</div>
     <div  style="text-align: center; padding: 8px">     
         <button data-name="_select_element_btn">Select element...</button>   
@@ -114,7 +114,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         <p><input data-name='inputSearch' type='search' placeholder='type to filter...'></p>
         <div data-name='body' class='two-column-layout'></div>
     </div>   
-</wwwpy-draggable-component>         
+</wwwpy-window>         
 """
         self._manage_toolbox_state()
 

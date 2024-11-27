@@ -12,7 +12,7 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 
 
-class DraggableComponent(wpc.Component, tag_name='wwwpy-draggable-component'):
+class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
     window_div: wpc.HTMLElement = wpc.element()
     window_title_div: wpc.HTMLElement = wpc.element()
     client_x = 0
