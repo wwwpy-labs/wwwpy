@@ -16,13 +16,13 @@ from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.remote.designer.ui.draggable_component import new_window
+from wwwpy.remote.designer.ui.window_component import new_window
 import asyncio
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
 from wwwpy.remote.designer.global_interceptor import GlobalInterceptor, InterceptorEvent
-from wwwpy.remote.designer.ui.draggable_component import DraggableComponent
+from wwwpy.remote.designer.ui.window_component import DraggableComponent
 from wwwpy.server.designer import rpc
 
 from wwwpy.remote.designer.helpers import _element_lbl, _help_button, info_link, _help_url

@@ -10,7 +10,7 @@ from js import console
 
 import wwwpy.remote.component as wpc
 from wwwpy.common.files import zip_in_memory
-from wwwpy.remote.designer.ui.draggable_component import new_window
+from wwwpy.remote.designer.ui.window_component import new_window
 from wwwpy.remote.files import download_bytes
 
 

@@ -2,7 +2,7 @@ import js
 from pyodide.ffi import create_proxy
 import asyncio
 from wwwpy.common import quickstart
-from wwwpy.remote.designer.ui.draggable_component import new_window, DraggableComponent
+from wwwpy.remote.designer.ui.window_component import new_window, DraggableComponent
 from wwwpy.remote.designer.ui.searchable_list_1 import SearchableList1, Item
 from wwwpy.server.designer import rpc
 
