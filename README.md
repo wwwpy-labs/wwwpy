@@ -59,7 +59,7 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - Add support for [AG Grid](https://ag-grid.com) 
 - Easy integration with Django, FastAPI and other Python web frameworks (add support for ASGI)
 - Create a database quickstart with vanilla SQLite (or SQLAlchemy)
-- - Develop a flexible and extensible data-binding mechanism
+- Develop a flexible and extensible data-binding mechanism
 - Implement a simple layout system to easily place components
 - Add support for Ionic custom web components
 - Documentation and tutorial about keybindings (hotkey and shortcuts)
