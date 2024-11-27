@@ -86,4 +86,3 @@ Disclaimer: This roadmap is fluid and we will change according to your feedback.
 - Removing the data-name should remove the Python definition
 - Improve the editing of third-party components (e.g., shoelace). Some components have constraints on parents or children, facilitate that (also standard elements have constraints like this).
 
-
