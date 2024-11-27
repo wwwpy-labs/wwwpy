@@ -10,9 +10,18 @@ from pyodide.ffi.wrappers import add_event_listener, remove_event_listener
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
-
+from typing import NamedTuple
 import logging
+
 logger = logging.getLogger(__name__)
+
+
+class Geometry(NamedTuple):
+    top: int
+    left: int
+    width: int
+    height: int
+
 
 class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
     window_div: wpc.HTMLElement = wpc.element()
@@ -121,9 +130,15 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
         remove_event_listener(document, 'touchmove', self._move)
         remove_event_listener(document, 'touchend', self._move_stop)
 
-    def geometry(self) -> Tuple[int, int, int, int]:
+    def geometry(self) -> Geometry:
         t = self.window_div
-        return t.offsetTop, t.offsetLeft, (t.offsetWidth - self.css_border), (t.offsetHeight - self.css_border)
+        res = Geometry(
+            t.offsetTop,
+            t.offsetLeft,
+            t.offsetWidth - self.css_border,
+            t.offsetHeight - self.css_border
+        )
+        return res
 
     def set_geometry(self, geometry_tuple):
         top, left, width, height = geometry_tuple
@@ -138,7 +153,10 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
                 top = '0px'
             self.window_div.style.top = top
         if left:
-            self.window_div.style.left = left
+            g = self.geometry()
+            left_check = float(left.removesuffix('px'))
+            if (left_check + g.width) > 30:
+                self.window_div.style.left = left
 
     def set_size(self, height: str | None = None, width: str | None = None):
         if height:
@@ -147,8 +165,8 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
             self.window_div.style.width = width
 
     def acceptable_geometry(self) -> bool:
-        top, left, width, height = self.geometry()
-        return width > 100 and height > 100 and top > 0 and left > 0
+        g = self.geometry()
+        return g.width > 100 and g.height > 100 and g.top > 0 and g.left > 0
 
 
 def clientX(event: js.MouseEvent | js.TouchEvent):
