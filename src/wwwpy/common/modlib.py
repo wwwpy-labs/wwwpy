@@ -22,10 +22,6 @@ def _find_module_path(module_name: str) -> Path | None:
         if module_path.is_dir() and init_file.is_file():
             return init_file
 
-    logger.warning(f'warning: path not found for module `{module_name}`')
-    # import traceback
-    # traceback.print_stack()
-
     return None
 
 def _find_package_directory(package_name) -> Path | None:
