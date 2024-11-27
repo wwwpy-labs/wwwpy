@@ -101,7 +101,7 @@ def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRo
 
     for module_name in modules:
         try:
-            services.add_module(module_name)
+            services.allow(module_name)
         except Exception as e:
             print(f'could not load rpc module `{module_name}`: {e}')
             return None

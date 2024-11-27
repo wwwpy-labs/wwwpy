@@ -57,7 +57,7 @@ def test_services_not_allowed():
     actual = target.find_module(support2_module_name)
     assert actual is None
 
-    target.add_module(support2_module_name)
+    target.allow(support2_module_name)
     actual = target.find_module(support2_module_name)
     assert actual is not None
     actual: Module
@@ -66,15 +66,15 @@ def test_services_not_allowed():
 
 def test_module_that_do_not_exists():
     target = RpcRoute('/rpc1')
-    target.add_module('missing_module.rpc')
+    target.allow('missing_module.rpc')
     actual = target.find_module('missing_module.rpc')
     assert actual is None
 
 
 def test_module_missing_and_one_present():
     target = RpcRoute('/rpc1')
-    target.add_module('missing_module.rpc')
-    target.add_module(support2_module_name)
+    target.allow('missing_module.rpc')
+    target.allow(support2_module_name)
     target.generate_remote_stubs()
 
     actual = list(target.remote_stub_resources())

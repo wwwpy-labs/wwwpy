@@ -96,8 +96,7 @@ class RpcRoute:
         response = HttpResponse(resp, 'application/json')
         return response
 
-    def add_module(self, module_name: str):
-        # todo rename to `allow`
+    def allow(self, module_name: str):
         if not isinstance(module_name, str):
             raise TypeError('module_name must be a string')
         self._allowed_modules.add(module_name)

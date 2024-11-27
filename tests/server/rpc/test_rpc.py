@@ -35,7 +35,7 @@ def test_rpc_integration(webserver: Webserver):
     """ server part """
     services = RpcRoute('/rpc2')
 
-    services.add_module(support3.__name__)
+    services.allow(support3.__name__)
 
     webserver.set_http_route(services.route)
     webserver.set_port(find_port()).start_listen().wait_ready()
