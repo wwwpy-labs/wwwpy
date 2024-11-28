@@ -56,6 +56,7 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
   z-index: 1001;
   background-color: #2196F3;
   color: #fff;
+  touch-action: none;
 }
 
 .window-body {
@@ -63,8 +64,8 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
 }
 </style>        
 <div data-name="window_div" class='window'>
-    <div  data-name="window_title_div" class='window-title' >
-        <slot name='title' >slot=title</slot>
+    <div data-name="window_title_div" class='window-title' >
+        <slot name='title'>slot=title</slot>
     </div>
    <div class='window-body'>
         <slot>slot=default</slot>
@@ -73,15 +74,11 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
 """
         self.client_x = 0
         self.client_y = 0
-        tb = self.window_div
 
-        def tb_print(*args):
-            console.log(f'offsets of window_div: {self.geometry()}')
-
-        tb.print = tb_print
+        self._pointermove_proxy = create_proxy(self._pointermove)
+        self._pointerup_proxy = create_proxy(self._pointerup)
 
         def on_resize(entries, observer):
-            tb.print()
             self._on_geometry_change()
 
         resize_observer = ResizeObserver.new(create_proxy(on_resize))
@@ -91,24 +88,12 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
         for listener in self.geometry_change_listeners:
             listener()
 
-    def window_title_div__touchstart(self, e: js.TouchEvent):
+    def window_title_div__pointerdown(self, e: js.PointerEvent):
         self._move_start(e)
 
-    def window_title_div__mousedown(self, e: js.MouseEvent):
-        self._move_start(e)
-
-    def _move_start(self, e: js.MouseEvent | js.TouchEvent):
-        e.preventDefault()
-        self.client_x = clientX(e)  # e.clientX
-        self.client_y = clientY(e)  # e.clientY
-        add_event_listener(document, 'mousemove', self._move)
-        add_event_listener(document, 'mouseup', self._move_stop)
-        add_event_listener(document, 'touchmove', self._move)
-        add_event_listener(document, 'touchend', self._move_stop)
-
-    def _move(self, event: js.MouseEvent | js.TouchEvent):
-        x = clientX(event)
-        y = clientY(event)
+    def _pointermove(self, event: js.PointerEvent):
+        x = event.clientX
+        y = event.clientY
         delta_x = self.client_x - x
         delta_y = self.client_y - y
         self.client_x = x
@@ -124,11 +109,25 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
         self.set_position(f'{new_left}px', f'{new_top}px')
         self._on_geometry_change()
 
-    def _move_stop(self, event):
-        remove_event_listener(document, 'mousemove', self._move)
-        remove_event_listener(document, 'mouseup', self._move_stop)
-        remove_event_listener(document, 'touchmove', self._move)
-        remove_event_listener(document, 'touchend', self._move_stop)
+    def _move_start(self, e: js.PointerEvent):
+        e.preventDefault()
+        self.client_x = e.clientX
+        self.client_y = e.clientY
+
+        # Capture the pointer to ensure consistent event flow
+        self.window_title_div.setPointerCapture(e.pointerId)
+
+        # Add event listeners for pointermove and pointerup
+        self.window_title_div.addEventListener('pointermove', self._pointermove_proxy)
+        self.window_title_div.addEventListener('pointerup', self._pointerup_proxy)
+
+    def _pointerup(self, event: js.PointerEvent):
+        # Remove the event listeners for pointermove and pointerup
+        self.window_title_div.removeEventListener('pointermove', self._pointermove_proxy)
+        self.window_title_div.removeEventListener('pointerup', self._pointerup_proxy)
+
+        # Release the pointer capture
+        self.window_title_div.releasePointerCapture(event.pointerId)
 
     def geometry(self) -> Geometry:
         t = self.window_div
@@ -167,18 +166,6 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     def acceptable_geometry(self) -> bool:
         g = self.geometry()
         return g.width > 100 and g.height > 100 and g.top > 0 and g.left > 0
-
-
-def clientX(event: js.MouseEvent | js.TouchEvent):
-    #   var top = e.clientY || e.targetTouches[0].pageY;
-    # return event.clientX if hasattr(event, 'clientX') else event.targetTouches[0].clientX
-    if hasattr(event, 'targetTouches'):
-        return list(event.targetTouches)[0].clientX
-    return event.clientX
-
-
-def clientY(event: js.MouseEvent | js.TouchEvent):
-    return event.clientY if hasattr(event, 'clientY') else list(event.targetTouches)[0].clientY
 
 
 @dataclass
