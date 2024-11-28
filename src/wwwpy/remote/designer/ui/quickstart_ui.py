@@ -2,7 +2,7 @@ import js
 from pyodide.ffi import create_proxy
 import asyncio
 from wwwpy.common import quickstart
-from wwwpy.remote.designer.ui.window_component import new_window, DraggableComponent
+from wwwpy.remote.designer.ui.window_component import new_window, WindowComponent
 from wwwpy.remote.designer.ui.searchable_list_1 import SearchableList1, Item
 from wwwpy.server.designer import rpc
 
@@ -10,7 +10,7 @@ from wwwpy.server.designer import rpc
 class QuickstartUI:
 
     def __init__(self):
-        self.window: DraggableComponent = new_window("Select a quickstart", closable=False).window
+        self.window: WindowComponent = new_window("Select a quickstart", closable=False).window
         # self.window.set_size('300px', '300px')
         self.window.set_position('5px', '5px')
         cmp1 = SearchableList1()

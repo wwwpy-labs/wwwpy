@@ -23,7 +23,7 @@ class Geometry(NamedTuple):
     height: int
 
 
-class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
+class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     window_div: wpc.HTMLElement = wpc.element()
     window_title_div: wpc.HTMLElement = wpc.element()
     client_x = 0
@@ -32,12 +32,12 @@ class DraggableComponent(wpc.Component, tag_name='wwwpy-window'):
     geometry_change_listeners: List[Callable[[], None]] = []
 
     def root_element(self):
-        return self.shadow
+        return self.element.shadowRoot
 
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <style>
 .window {
   z-index: 100000;  
@@ -183,7 +183,7 @@ def clientY(event: js.MouseEvent | js.TouchEvent):
 
 @dataclass
 class WindowResult:
-    window: DraggableComponent
+    window: WindowComponent
 
     @property
     def element(self):
@@ -191,7 +191,7 @@ class WindowResult:
 
 
 def new_window(title: str, closable=True) -> WindowResult:
-    win = DraggableComponent()
+    win = WindowComponent()
     # language=html
     ct = ClosableTitle()
     ct.element.setAttribute('slot', 'title')
@@ -211,6 +211,6 @@ class ClosableTitle(wpc.Component):
         # language=html
         self.element.innerHTML = f"""
 <div style="display: flex; justify-content: center; align-items: center;">
-    <span data-name='title' style="flex-grow: 1; text-align: center;"></span>&nbsp;
+    <span data-name='title' style="flex-grow: 1; text-align: center;">No title</span>&nbsp;
     <button data-name="close" style="cursor:pointer;">X</button>
 </div> """

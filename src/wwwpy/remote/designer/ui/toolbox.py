@@ -22,7 +22,7 @@ from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
 from wwwpy.remote.designer.global_interceptor import GlobalInterceptor, InterceptorEvent
-from wwwpy.remote.designer.ui.window_component import DraggableComponent
+from wwwpy.remote.designer.ui.window_component import WindowComponent
 from wwwpy.server.designer import rpc
 
 from wwwpy.remote.designer.helpers import _element_lbl, _help_button, info_link, _help_url
@@ -69,7 +69,7 @@ def menu(label, always_visible=False):
 class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     body: HTMLElement = wpc.element()
     inputSearch: js.HTMLInputElement = wpc.element()
-    dragComp1: DraggableComponent = wpc.element()
+    dragComp1: WindowComponent = wpc.element()
     property_editor: PropertyEditor = wpc.element()
     _select_element_btn: js.HTMLElement = wpc.element()
     _select_clear_btn: js.HTMLElement = wpc.element()
@@ -338,10 +338,11 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
         ev.uninstall()
         if selected:
             console.log(
-                f'selection accepted position {selected.position.name} target: ', selected.element,
-                'parent: ', selected.element.parentElement,
-                'event: ', ev.event,
-                'composedPath: ', ev.event.composedPath(),
+                f'\nselection accepted position {selected.position.name}'
+                f'\ntarget: ', selected.element,
+                '\nparent: ', selected.element.parentElement,
+                '\nevent: ', ev.event,
+                '\ncomposedPath: ', ev.event.composedPath(),
             )
             result.append(selected)
         else:
