@@ -139,6 +139,13 @@ class HolderWidget(Widget):
         self._remove(widget)
         self.show(self.stack[-1])
 
+    def close_last(self):
+        if len(self.stack) > 1:
+            instance = self.stack[-1]
+            h = instance.holder
+            if h is not None:
+                h.close(instance)
+
     def _remove(self, widget):
         s = self.stack
         if widget in s:
