@@ -1,16 +1,31 @@
 import os
 from pathlib import Path
+import asyncio
+
+import logging
+
+logging.getLogger().setLevel(logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+logging.warning('Watch out!')  # will print a message to the console
+logging.info('I told you so')
 
 
 async def app(scope, receive, send):
-    if scope['type'] == 'http':
+    scope_type = scope['type']
+    if scope_type == 'http':
         await handle_http(scope, send)
-    elif scope['type'] == 'websocket':
+    elif scope_type == 'websocket':
         await handle_websocket(scope, receive, send)
+    else:
+        logger.info(f"scope_type: {scope_type}")
 
 
 async def handle_http(scope, send):
     path = scope['path']
+    logger.info(f"http path: {path}")
     if path == '/':
         await serve_file('index.html', 'text/html', send)
     else:
@@ -19,17 +34,36 @@ async def handle_http(scope, send):
 
 
 async def handle_websocket(scope, receive, send):
-    if scope['path'] != '/echo':
+    scope_path = scope['path']
+    logger.info(f"websocket path: {scope_path}")
+    if scope_path != '/echo':
         return
     await send({'type': 'websocket.accept'})
 
-    while True:
-        message = await receive()
-        if message['type'] == 'websocket.receive':
-            text = message.get('text')
-            await send({'type': 'websocket.send', 'text': f"echo -> {text}"})
-        elif message['type'] == 'websocket.disconnect':
-            break
+    # Start background task to send 'hello' every 3 seconds
+    async def send_hello():
+        try:
+            hello_count = 0
+            while True:
+                hello_count += 1
+                await send({'type': 'websocket.send', 'text': f'hello {hello_count}'})
+                await asyncio.sleep(2)
+        except asyncio.CancelledError:
+            pass
+
+    hello_task = asyncio.create_task(send_hello())
+
+    try:
+        while True:
+            message = await receive()
+            if message['type'] == 'websocket.receive':
+                text = message.get('text')
+                await send({'type': 'websocket.send', 'text': f"echo -> {text}"})
+            elif message['type'] == 'websocket.disconnect':
+                break
+    finally:
+        # Cancel the background task when the connection is closed
+        hello_task.cancel()
 
 
 async def serve_file(filename, content_type, send):
