@@ -1,6 +1,7 @@
 import asyncio
 
-_active_tasks = set()
+_task_set = set()
+
 
 def create_task_safe(coro):
     """Create an asyncio task and keep a reference to prevent garbage collection.
@@ -8,6 +9,6 @@ def create_task_safe(coro):
     See https://stackoverflow.com/questions/71938799/python-asyncio-create-task-really-need-to-keep-a-reference
     """
     task = asyncio.create_task(coro)
-    _active_tasks.add(task)
-    task.add_done_callback(_active_tasks.discard)
+    _task_set.add(task)
+    task.add_done_callback(_task_set.discard)
     return task
