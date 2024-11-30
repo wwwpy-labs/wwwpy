@@ -1,13 +1,22 @@
+from typing import Any
+
 from tornado.web import RequestHandler
+from tornado.websocket import WebSocketHandler
 
 GLOBAL_CHARSET = "utf-8"
 
 
-class AsgiHandler(RequestHandler):
+class AsgiHandler(WebSocketHandler):
 
     def initialize(self, asgi_app) -> None:
         super().initialize()
         self._asgi_app = asgi_app
+
+    async def get(self, *args: Any, **kwargs: Any):
+        await self.handle_request()
+
+    async def post(self):
+        await self.handle_request()
 
     async def handle_request(self):
         headers = []
@@ -49,9 +58,3 @@ class AsgiHandler(RequestHandler):
                     f"Unsupported response type \"{data['type']}\" for asgi app")
 
         await self._asgi_app(scope, receive, send)
-
-    async def get(self):
-        await self.handle_request()
-
-    async def post(self):
-        await self.handle_request()

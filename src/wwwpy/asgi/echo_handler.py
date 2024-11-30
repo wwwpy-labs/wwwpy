@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 async def app(scope, receive, send):
@@ -9,10 +10,12 @@ async def app(scope, receive, send):
 
 
 async def handle_http(scope, send):
-    if scope['path'] == '/':
+    path = scope['path']
+    if path == '/':
         await serve_file('index.html', 'text/html', send)
     else:
-        await send_response(200, b'Hello, world!', 'text/plain', send)
+        await send_response(200, b'Hello, world! ' + f'you requested `{path}`'.encode('utf-8'),
+                            'text/plain', send)
 
 
 async def handle_websocket(scope, receive, send):
@@ -31,8 +34,7 @@ async def handle_websocket(scope, receive, send):
 
 async def serve_file(filename, content_type, send):
     try:
-        with open(filename, "rb") as f:
-            content = f.read()
+        content = (Path(__file__).parent / filename).read_bytes()
         await send_response(200, content, content_type, send)
     except FileNotFoundError:
         await send_response(404, b'File not found', 'text/plain', send)
