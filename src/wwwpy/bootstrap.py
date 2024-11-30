@@ -1,6 +1,7 @@
 import textwrap
 from typing import List, Iterable, Tuple
 
+from wwwpy.common import files
 from wwwpy.http import HttpRoute, HttpResponse
 from wwwpy.resources import Resource, build_archive, ResourceIterable
 
@@ -11,13 +12,9 @@ def bootstrap_routes(
         resources: List[ResourceIterable],
         python: str,
         zip_route_path: str = '/wwwpy/bundle.zip',
-        extract_dir: str = None,
         html: str = f'<!DOCTYPE html><h1>Loading...</h1><script>{bootstrap_javascript_placeholder}</script>',
 ) -> Tuple[HttpRoute, HttpRoute]:
     """Returns a tuple of two routes: (bootstrap_route, zip_route)"""
-    if extract_dir is None:
-        from wwwpy.common import files
-        extract_dir = files._bundle_path
 
     def zip_response() -> HttpResponse:
         from itertools import chain
@@ -25,7 +22,7 @@ def bootstrap_routes(
         return HttpResponse.application_zip(zip_bytes)
 
     zip_route = HttpRoute(zip_route_path, lambda request: zip_response())
-
+    extract_dir = files._bundle_path
     bootstrap_python = f"""
 import sys
 from pyodide.http import pyfetch
