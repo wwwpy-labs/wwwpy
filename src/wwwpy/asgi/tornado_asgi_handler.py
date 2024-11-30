@@ -9,7 +9,7 @@ logger.setLevel(logging.DEBUG)
 UTF8 = "utf-8"
 
 
-class AsgiHandler(WebSocketHandler):
+class ASGIHandler(WebSocketHandler):
 
     def initialize(self, asgi_app) -> None:
         super().initialize()
@@ -19,7 +19,7 @@ class AsgiHandler(WebSocketHandler):
         if self.request.headers.get("Upgrade", "").lower() != "websocket":
             await self._handle_http_request(args, kwargs)
             return
-        await super().get(*args, **kwargs)
+        await super().get(*args, **kwargs)  # continue as a real WebSocketHandler, thus to self.open()
 
     def open(self):
         logger.debug("WebSocket connection opened")
@@ -68,16 +68,8 @@ class AsgiHandler(WebSocketHandler):
         asyncio.create_task(self._queue_message(message))
 
     async def _queue_message(self, message):
-        if isinstance(message, bytes):
-            await self.receive_queue.put({
-                'type': 'websocket.receive',
-                'bytes': message
-            })
-        else:
-            await self.receive_queue.put({
-                'type': 'websocket.receive',
-                'text': message
-            })
+        await self.receive_queue.put({'type': 'websocket.receive',
+                                      'bytes' if isinstance(message, bytes) else 'text': message})
 
     def on_close(self):
         logger.debug("WebSocket connection closed")

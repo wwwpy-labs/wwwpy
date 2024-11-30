@@ -8,7 +8,7 @@ import tornado_asgi_handler
 import echo_handler
 
 application = tornado.web.Application([
-    (r".*", tornado_asgi_handler.AsgiHandler, dict(asgi_app=echo_handler.app))
+    (r".*", tornado_asgi_handler.ASGIHandler, dict(asgi_app=echo_handler.app))
 ])
 application.listen(8000)
 
