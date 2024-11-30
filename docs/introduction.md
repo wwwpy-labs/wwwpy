@@ -28,7 +28,8 @@ When running **`wwwpy dev`** in an *empty* directory, the browser will display a
 Each template is pre-configured to demonstrate core features, offering a practical way to explore how things are structured and implemented in **wwwpy**. Selecting a template not only helps you get started quickly but also allows you to examine the source code directly in your IDE to understand how specific components and functionality are set up. This makes it easy to dive deeper, modify, and extend the initial setup as needed, all while learning from established patterns and best practices.
 
 
-> **Note:** The folder must be truly *empty* for the **quickstart selector** to appear. Some IDEs automatically add starter files when opening a blank project, which can interfere with this feature. If you don’t see the quickstart selector, check your folder and remove any auto-generated files before running **`wwwpy dev`** again.
+> [!Warning]
+> The folder must be truly *empty* for the **quickstart selector** to appear. Some IDEs automatically add starter files when opening a blank project, which can interfere with this feature. If you don’t see the quickstart selector, check your folder and remove any auto-generated files before running **`wwwpy dev`** again.
 
 ## Navigating Code with Console Logs
 
