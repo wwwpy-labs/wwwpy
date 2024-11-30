@@ -12,7 +12,7 @@ class MailtoComponent(wpc.Component):
     subject: str = wpc.attribute()
     body: str = wpc.attribute()
     text_content: str = wpc.attribute()
-    target: js.HTMLElement = wpc.element()
+    target: js.HTMLElement = wpc.attribute()
 
     _link: js.HTMLElement = wpc.element()
 
