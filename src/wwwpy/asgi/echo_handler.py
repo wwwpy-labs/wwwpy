@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 import asyncio
@@ -34,8 +35,9 @@ async def handle_http(scope, send):
 
 
 async def handle_websocket(scope, receive, send):
+    # scope_str = json.dumps(scope, indent=2)
+    logger.info(f"websocket scope: {scope}")
     scope_path = scope['path']
-    logger.info(f"websocket path: {scope_path}")
     if scope_path != '/echo':
         return
     await send({'type': 'websocket.accept'})
