@@ -180,7 +180,7 @@ def new_window(title: str, closable=True) -> WindowResult:
     ct = ClosableTitle()
     ct.element.setAttribute('slot', 'title')
     ct.title.innerHTML = title
-    ct.close.onclick = lambda ev: win.element.remove()
+    ct.close.onpointerdown = lambda ev: win.element.remove()
     win.element.append(ct.element)
     if not closable:
         ct.close.style.display = 'none'
