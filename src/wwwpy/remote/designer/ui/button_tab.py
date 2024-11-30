@@ -31,13 +31,10 @@ class ButtonTab(wpc.Component, tag_name='wwwpy-button-tab'):
         for tab in self._tabs:
             re.appendChild(tab.root_element())
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <style>
   .selected {
         box-shadow: 0 0 0 2px darkgray;

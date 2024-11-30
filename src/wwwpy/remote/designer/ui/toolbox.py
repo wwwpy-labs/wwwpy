@@ -83,13 +83,10 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     def visible(self, value: bool):
         self.dragComp1.element.style.display = 'block' if value else 'none'
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <style>
 .two-column-layout {
   display: flex;

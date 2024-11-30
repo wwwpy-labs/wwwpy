@@ -165,13 +165,10 @@ class SearchableComboBox(wpc.Component, tag_name='wwwpy-searchable-combobox2'):
     focus_search_on_popup = True
     """This represents the popoup with the options and eventually a search box at the top to filter the options"""
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <style>        
 :host {
         display: inline-block;

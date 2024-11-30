@@ -10,13 +10,10 @@ class HelpIcon(wpc.Component, tag_name='wwwpy-help-icon'):
     _link: js.HTMLElement = wpc.element()
     href: str = wpc.attribute()
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <style>        
  .help-icon {
             width: 18px;

@@ -31,9 +31,6 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     css_border = 2  # 1px border on each side, so we need to subtract 2px from width and height
     geometry_change_listeners: List[Callable[[], None]] = []
 
-    def root_element(self):
-        return self.element.shadowRoot
-
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html

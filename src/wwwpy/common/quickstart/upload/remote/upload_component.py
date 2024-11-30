@@ -22,13 +22,10 @@ class UploadComponent(wpc.Component, tag_name='wwwpy-quickstart-upload'):
     def multiple(self, value: bool):
         self.file_input.toggleAttribute('multiple', value)
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <input data-name="file_input" placeholder="input1" type="file" multiple>
 <div data-name="uploads"></div>
         """

@@ -37,20 +37,17 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
             raise Exception(f'element is not a DevModeComponent: {dict_to_py(first_element)}')
         return component
 
-    def root_element(self):
-        return self.shadow
-
     def init_component(self):
-        self.shadow = self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.shadow.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 <wwwpy-toolbox data-name="toolbox"></wwwpy-toolbox>        
         """
 
         async def check_for_quickstart():
             if await rpc.quickstart_possible():
                 self.quickstart = quickstart_ui.create()
-                self.shadow.append(self.quickstart.window.element)
+                self.element.shadowRoot.append(self.quickstart.window.element)
                 self.toolbox.visible = False
 
         asyncio.create_task(check_for_quickstart())
