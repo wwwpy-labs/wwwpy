@@ -107,6 +107,11 @@ def _standard_elements_def() -> List[ElementDef]:
                       'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div')
         ),
         ElementDef(
+            'br', 'js.HTMLBRElement',
+            help=Help('It produces a line break in text (carriage-return).',
+                      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/br')
+        ),
+        ElementDef(
             'progress', 'js.HTMLProgressElement',
             help=Help('A progress bar.',
                       'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/progress'),
@@ -185,6 +190,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
     func = {
         'button': _def(),
         'div': _def(),
+        'br': lambda: '<br>',
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
         'textarea': _def(placeHolder=True),
