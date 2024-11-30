@@ -41,8 +41,10 @@ def run_server(args: Arguments):
     settings = user_settings()
     configure.start_default(args.port, working_dir, dev_mode=args.dev, settings=settings)
     _open_browser(args, settings)
-
-    wait_forever()
+    try:
+        wait_forever()
+    except KeyboardInterrupt:
+        pass
 
 
 def _open_browser(args, settings):
