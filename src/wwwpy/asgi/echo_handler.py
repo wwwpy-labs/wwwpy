@@ -1,27 +1,23 @@
-import json
-import os
-from pathlib import Path
 import asyncio
-
 import logging
+from pathlib import Path
 
 logging.getLogger().setLevel(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-logging.warning('Watch out!')  # will print a message to the console
-logging.info('I told you so')
+logging.info('Loading module')
 
 
 async def app(scope, receive, send):
     scope_type = scope['type']
-    if scope_type == 'http':
+    if scope_type == 'http':  # https://github.com/django/asgiref/blob/main/asgiref/typing.py#L66
         await handle_http(scope, send)
     elif scope_type == 'websocket':
         await handle_websocket(scope, receive, send)
     else:
-        logger.info(f"scope_type: {scope_type}")
+        logger.info(f"scope_type not handled: {scope_type}")
 
 
 async def handle_http(scope, send):
@@ -35,14 +31,12 @@ async def handle_http(scope, send):
 
 
 async def handle_websocket(scope, receive, send):
-    # scope_str = json.dumps(scope, indent=2)
     logger.info(f"websocket scope: {scope}")
     scope_path = scope['path']
     if scope_path != '/echo':
         return
     await send({'type': 'websocket.accept'})
 
-    # Start background task to send 'hello' every 3 seconds
     async def send_hello():
         try:
             hello_count = 0
