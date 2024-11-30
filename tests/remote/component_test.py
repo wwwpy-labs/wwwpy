@@ -1,5 +1,6 @@
 from js import document, HTMLElement, Event
 
+from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import Component, attribute, element
 
 
@@ -44,12 +45,23 @@ def test_document_tag_creation():
     class Comp2(Component):
 
         def init_component(self):
-            self.element.attachShadow(to_js({'mode': 'open'}))
+            self.element.attachShadow(dict_to_js({'mode': 'open'}))
             self.element.shadowRoot.innerHTML = '<h1>hello123</h1>'
 
     ele = document.createElement(Comp2.component_metadata.tag_name)
     assert 'hello123' in ele.shadowRoot.innerHTML
 
+
+def test_when_shadow__elements_should_be_looked_on_it():
+    class Comp1(Component):
+        foo1: HTMLElement = element()
+        
+        def init_component(self):
+            self.element.attachShadow(dict_to_js({'mode': 'open'}))
+            self.element.shadowRoot.innerHTML = '<div data-name="foo1">yes</div>'
+
+    comp1 = Comp1()
+    assert 'yes' in comp1.foo1.innerHTML
 
 def test_append_tag_to_document():
     class Comp2(Component):
@@ -223,13 +235,6 @@ class TestElementEventBinding:
         foo.click()
 
         assert [1] == events
-
-
-# todo use dict_to_js
-def to_js(o):
-    import js
-    import pyodide
-    return pyodide.ffi.to_js(o, dict_converter=js.Object.fromEntries)
 
 
 class TestAttributes:

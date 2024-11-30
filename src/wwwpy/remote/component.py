@@ -116,7 +116,8 @@ class Component:
 
     def root_element(self):
         """This is used to locate the child elements"""
-        return self.element
+        e = self.element
+        return e if e.shadowRoot is None else e.shadowRoot
 
     def _find_element(self, name: str):
         root = self.root_element()
