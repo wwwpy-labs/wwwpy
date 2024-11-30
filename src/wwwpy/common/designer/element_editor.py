@@ -138,7 +138,7 @@ class ElementEditor:
             return
         new_source = code_edit.add_method(self.current_python_source(), self.element_path.class_name,
                                           event_editor.method_name, 'event',
-                                          f"""js.console.log('handler {event_editor.method_name} event =', event)""")
+                                          f"logger.debug(f'{event_editor.method_name} %s', event)")
         self._write_source(new_source)
 
     def _write_source(self, new_source):
