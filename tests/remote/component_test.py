@@ -1,4 +1,4 @@
-from js import document, HTMLElement, Event
+from js import document, HTMLElement, Event, HTMLDivElement, HTMLBRElement
 
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import Component, attribute, element
@@ -55,13 +55,14 @@ def test_document_tag_creation():
 def test_when_shadow__elements_should_be_looked_on_it():
     class Comp1(Component):
         foo1: HTMLElement = element()
-        
+
         def init_component(self):
             self.element.attachShadow(dict_to_js({'mode': 'open'}))
             self.element.shadowRoot.innerHTML = '<div data-name="foo1">yes</div>'
 
     comp1 = Comp1()
     assert 'yes' in comp1.foo1.innerHTML
+
 
 def test_append_tag_to_document():
     class Comp2(Component):
@@ -125,7 +126,27 @@ class TestElement:
         comp7 = Comp7()
         assert comp7.c6.div1.innerHTML == 'abc'
 
-    def test_Component_attribute_type(self):
+    def TODO_test_component_declared_as_js_element(self):
+        # TODO it needs the right technique to see if the HTML type is ok
+        # the behaviour of the current _find_python_attribute/_check_type is reliable
+        # but as soon as we change the implementation, the reload start to give errors
+        class Comp1(Component, tag_name='comp-1'):
+            div1: HTMLElement = element()
+
+            def init_component(self):
+                self.element.innerHTML = '<div data-name="div1">abc</div>'
+
+        class Comp2(Component):
+            c1: HTMLElement = element()
+
+            def init_component(self):
+                self.element.innerHTML = '<comp-1 data-name="c1"></comp-1>'
+
+        comp2 = Comp2()
+        assert not isinstance(comp2.c1, Component)
+        assert 'abc' in comp2.c1.innerHTML
+
+    def test_wrong_component_type(self):
         class CompUnused(Component):
             ...
 
@@ -140,7 +161,37 @@ class TestElement:
             nop = comp.c6
             assert False, 'Should raise a TypeError'
         except TypeError:
-            pass
+            import traceback
+            traceback.print_exc()
+
+    def TODO_test_wrong_element_type(self):
+        # TODO it needs the right technique to see if the HTML type is ok
+        # the code below is very erratic.
+        # js_ok = js.eval("(e,ann) => e instanceof ann")(ele, ann)
+
+        class Comp1(Component):
+            br: HTMLDivElement = element()
+
+            def init_component(self):
+                self.element.innerHTML = '<br data-name="br">'
+
+        try:
+            comp = Comp1()
+            nop = comp.br
+            assert False, 'Should raise a TypeError'
+        except TypeError:
+            import traceback
+            traceback.print_exc()
+
+    def test_sub_element_type(self):
+        class Comp1(Component):
+            br: HTMLElement = element()
+
+            def init_component(self):
+                self.element.innerHTML = '<br data-name="br">'
+
+        comp = Comp1()
+        nop = comp.br
 
     def test_define_new_root(self):
         class Comp8(Component):

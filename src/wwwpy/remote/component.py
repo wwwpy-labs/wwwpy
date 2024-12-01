@@ -144,7 +144,7 @@ class Component:
 
     def _check_type(self, name, selector):
         import inspect
-        annotations = inspect.get_annotations(self.__class__)
+        annotations = inspect.get_annotations(self.__class__, eval_str=True)
 
         expected_type = annotations.get(name, None)
         if expected_type is None:
