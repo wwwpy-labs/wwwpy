@@ -16,7 +16,7 @@ from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.remote.designer.ui.window_component import new_window
+from wwwpy.remote.designer.ui.window_component import new_window, Geometry
 import asyncio
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ToolboxState:
-    geometry: Tuple[int, int, int, int] = field(default=(200, 30, 400, 330))
+    geometry: Tuple[int, int, int, int] = field(default=(30, 200, 400, 330))
     toolbox_search: str = ''
     selected_element_path: Optional[ElementPath] = None
 
@@ -202,7 +202,9 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         self.dragComp1.set_geometry(self._toolbox_state.geometry)
 
         def on_toolbar_geometry_change():
-            if self.dragComp1.acceptable_geometry():
+            g = self.dragComp1.geometry()
+            acceptable_geometry = g.width > 100 and g.height > 100 and g.top > 0 and g.left > 0
+            if acceptable_geometry:
                 self._toolbox_state.geometry = self.dragComp1.geometry()
 
         self.dragComp1.geometry_change_listeners.append(on_toolbar_geometry_change)

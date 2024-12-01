@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class Geometry(NamedTuple):
-    top: int
     left: int
+    top: int
     width: int
     height: int
 
@@ -68,6 +68,8 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     </div>    
 </div> 
 """
+        # we don't rely on self.window_div.offsetLeft/offsetTop for reading x/y location
+        # because they need rendering to be up to date
         self.window_div.style.top = '10px'
         self.window_div.style.left = '20px'
         self._win_move(0, 0)
@@ -121,8 +123,8 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     def geometry(self) -> Geometry:
         t = self.window_div
         res = Geometry(
-            t.offsetTop,
             t.offsetLeft,
+            t.offsetTop,
             t.offsetWidth - self.css_border,
             t.offsetHeight - self.css_border
         )
@@ -151,10 +153,6 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
             self.window_div.style.height = height
         if width:
             self.window_div.style.width = width
-
-    def acceptable_geometry(self) -> bool:
-        g = self.geometry()
-        return g.width > 100 and g.height > 100 and g.top > 0 and g.left > 0
 
 
 @dataclass
