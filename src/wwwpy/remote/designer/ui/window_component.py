@@ -6,7 +6,6 @@ from typing import Tuple, List, Callable
 import js
 from js import document, console, ResizeObserver
 from pyodide.ffi import create_proxy
-from pyodide.ffi.wrappers import add_event_listener, remove_event_listener
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
@@ -26,8 +25,8 @@ class Geometry(NamedTuple):
 class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     window_div: wpc.HTMLElement = wpc.element()
     window_title_div: wpc.HTMLElement = wpc.element()
-    client_x = 0
-    client_y = 0
+    client_x: int
+    client_y: int
     css_border = 2  # 1px border on each side, so we need to subtract 2px from width and height
     geometry_change_listeners: List[Callable[[], None]] = []
 
@@ -69,8 +68,9 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     </div>    
 </div> 
 """
-        self.client_x = 0
-        self.client_y = 0
+        self.window_div.style.top = '10px'
+        self.window_div.style.left = '20px'
+        self._win_move(0, 0)
 
         self._pointermove_proxy = create_proxy(self._pointermove)
         self._pointerup_proxy = create_proxy(self._pointerup)
@@ -88,42 +88,34 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
     def window_title_div__pointerdown(self, e: js.PointerEvent):
         self._move_start(e)
 
-    def _pointermove(self, event: js.PointerEvent):
-        x = event.clientX
-        y = event.clientY
-        delta_x = self.client_x - x
-        delta_y = self.client_y - y
-        self.client_x = x
-        self.client_y = y
-
-        # Get current 'left' and 'top' from style, defaulting to 0 if not set
-        current_left = float(self.window_div.style.left.rstrip('px')) if self.window_div.style.left else 0
-        current_top = float(self.window_div.style.top.rstrip('px')) if self.window_div.style.top else 0
-
-        new_left = current_left - delta_x
-        new_top = current_top - delta_y
-
-        self.set_position(f'{new_left}px', f'{new_top}px')
-        self._on_geometry_change()
-
     def _move_start(self, e: js.PointerEvent):
         e.preventDefault()
-        self.client_x = e.clientX
-        self.client_y = e.clientY
+        self._update_client_xy(e)
 
-        # Capture the pointer to ensure consistent event flow
         self.window_title_div.setPointerCapture(e.pointerId)
 
-        # Add event listeners for pointermove and pointerup
         self.window_title_div.addEventListener('pointermove', self._pointermove_proxy)
         self.window_title_div.addEventListener('pointerup', self._pointerup_proxy)
 
+    def _update_client_xy(self, e):
+        self.client_x = e.clientX
+        self.client_y = e.clientY
+
+    def _pointermove(self, event: js.PointerEvent):
+        self._win_move(self.client_x - event.clientX, self.client_y - event.clientY)
+        self._update_client_xy(event)
+
+    def _win_move(self, delta_x, delta_y):
+        current_left = float(self.window_div.style.left.rstrip('px'))
+        current_top = float(self.window_div.style.top.rstrip('px'))
+        new_left = current_left - delta_x
+        new_top = current_top - delta_y
+        self.set_position(f'{new_left}px', f'{new_top}px')
+        self._on_geometry_change()
+
     def _pointerup(self, event: js.PointerEvent):
-        # Remove the event listeners for pointermove and pointerup
         self.window_title_div.removeEventListener('pointermove', self._pointermove_proxy)
         self.window_title_div.removeEventListener('pointerup', self._pointerup_proxy)
-
-        # Release the pointer capture
         self.window_title_div.releasePointerCapture(event.pointerId)
 
     def geometry(self) -> Geometry:
@@ -143,7 +135,6 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
 
     def set_position(self, left: str | None = None, top: str | None = None):
         if top:
-            logger.info(f'set_position: top={top}')
             top_check = float(top.removesuffix('px'))
             if top_check < 0:
                 top = '0px'
@@ -153,6 +144,7 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
             left_check = float(left.removesuffix('px'))
             if (left_check + g.width) > 30:
                 self.window_div.style.left = left
+        logger.debug(f'set_position top={top} left={left}')
 
     def set_size(self, height: str | None = None, width: str | None = None):
         if height:
@@ -180,7 +172,7 @@ def new_window(title: str, closable=True) -> WindowResult:
     ct = ClosableTitle()
     ct.element.setAttribute('slot', 'title')
     ct.title.innerHTML = title
-    ct.close.onpointerdown = lambda ev: win.element.remove()
+    ct.close.onpointerdown = lambda e: [e.preventDefault(), e.stopPropagation(), win.element.remove()]
     win.element.append(ct.element)
     if not closable:
         ct.close.style.display = 'none'
