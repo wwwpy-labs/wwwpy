@@ -49,7 +49,8 @@ logger = logging.getLogger(__name__)
 class Component{index}(wpc.Component, tag_name='component-{index}'):
     def init_component(self):
         # language=html
-        self.element.innerHTML = """<span>component-{index}</span>"""
+        self.element.innerHTML = """
+<div>component-{index}</div>"""
 '''
     file.write_text(content)
     return file
