@@ -130,8 +130,8 @@ class WindowComponent(wpc.Component, tag_name='wwwpy-window'):
         )
         return res
 
-    def set_geometry(self, geometry_tuple):
-        top, left, width, height = geometry_tuple
+    def set_geometry(self, geometry_tuple: Geometry):
+        left, top, width, height = geometry_tuple
         self.set_position(f"{left}px", f"{top}px")
         self.set_size(f"{height}px", f"{width}px")
 

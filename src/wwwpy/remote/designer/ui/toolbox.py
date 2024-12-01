@@ -199,7 +199,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     def _manage_toolbox_state(self):
         self._toolbox_state = state._restore(ToolboxState)
         self.inputSearch.value = self._toolbox_state.toolbox_search
-        self._window.set_geometry(self._toolbox_state.geometry)
+        self._window.set_geometry(Geometry(*self._toolbox_state.geometry))
 
         def on_toolbar_geometry_change():
             g = self._window.geometry()
