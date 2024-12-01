@@ -69,7 +69,7 @@ def menu(label, always_visible=False):
 class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     body: HTMLElement = wpc.element()
     inputSearch: js.HTMLInputElement = wpc.element()
-    dragComp1: WindowComponent = wpc.element()
+    _window: WindowComponent = wpc.element()
     property_editor: PropertyEditor = wpc.element()
     _select_element_btn: js.HTMLElement = wpc.element()
     _select_clear_btn: js.HTMLElement = wpc.element()
@@ -77,11 +77,11 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
     @property
     def visible(self) -> bool:
-        return self.dragComp1.element.style.display != 'none'
+        return self._window.element.style.display != 'none'
 
     @visible.setter
     def visible(self, value: bool):
-        self.dragComp1.element.style.display = 'block' if value else 'none'
+        self._window.element.style.display = 'block' if value else 'none'
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -102,7 +102,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
   margin-right: 0; /* Removes right margin for every even child */
 }
 </style>     
-<wwwpy-window data-name='dragComp1'>
+<wwwpy-window data-name='_window'>
     <div slot='title' style='text-align: center'>wwwpy - toolbox</div>
     <div  style="text-align: center; padding: 8px">     
         <button data-name="_select_element_btn">Select element...</button>   
@@ -199,15 +199,15 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     def _manage_toolbox_state(self):
         self._toolbox_state = state._restore(ToolboxState)
         self.inputSearch.value = self._toolbox_state.toolbox_search
-        self.dragComp1.set_geometry(self._toolbox_state.geometry)
+        self._window.set_geometry(self._toolbox_state.geometry)
 
         def on_toolbar_geometry_change():
-            g = self.dragComp1.geometry()
+            g = self._window.geometry()
             acceptable_geometry = g.width > 100 and g.height > 100 and g.top > 0 and g.left > 0
             if acceptable_geometry:
-                self._toolbox_state.geometry = self.dragComp1.geometry()
+                self._toolbox_state.geometry = self._window.geometry()
 
-        self.dragComp1.geometry_change_listeners.append(on_toolbar_geometry_change)
+        self._window.geometry_change_listeners.append(on_toolbar_geometry_change)
         self._restore_selected_element_path()
 
     def inputSearch__input(self, e: Event):
