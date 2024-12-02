@@ -16,7 +16,7 @@ from wwwpy.http import HttpRoute
 from wwwpy.resources import library_resources, from_directory
 from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
-from wwwpy.webserver import Webserver
+from wwwpy.webserver import Webserver, Route
 from wwwpy.webservers.available_webservers import available_webservers
 from wwwpy.websocket import WebsocketPool, WebsocketRoute
 
@@ -32,6 +32,11 @@ class Config:
     server_folders: Collection[str]
     remote_folders: Collection[str]
     settings: Settings
+
+@dataclass
+class Project:
+    config: Config
+    websocket_pool: WebsocketPool
 
 
 def start_default(port: int, directory: Path, dev_mode=False, settings: Settings = None):
@@ -52,7 +57,7 @@ def start_default(port: int, directory: Path, dev_mode=False, settings: Settings
 websocket_pool: WebsocketPool = None
 
 
-def setup(config: Config) -> list[HttpRoute | WebsocketRoute]:
+def setup(config: Config) -> list[Route]:
     sys.path.insert(0, CustomStr(config.directory))
     sys.meta_path.insert(0, CustomFinder(config.remote_rpc_packages))
 

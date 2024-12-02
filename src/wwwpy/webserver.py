@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from time import sleep
+from typing import Union
 
 from wwwpy.http import HttpRoute
 from wwwpy.server.wait_url import wait_url
 from wwwpy.websocket import WebsocketRoute
 
+Route = Union[HttpRoute, WebsocketRoute]
 
 class Webserver(ABC):
     def __init__(self) -> None:
@@ -32,13 +34,13 @@ class Webserver(ABC):
         self.wait_ready()
         return self
 
-    def set_http_route(self, *http_routes: HttpRoute | WebsocketRoute) -> 'Webserver':
+    def set_http_route(self, *http_routes: Route) -> 'Webserver':
         for http_route in http_routes:
             self._setup_route(http_route)
         return self
 
     @abstractmethod
-    def _setup_route(self, route: HttpRoute | WebsocketRoute) -> None:
+    def _setup_route(self, route: Route) -> None:
         pass
 
     @abstractmethod

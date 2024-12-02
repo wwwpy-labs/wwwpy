@@ -11,7 +11,7 @@ from tornado import websocket
 from tornado.ioloop import IOLoop
 
 from wwwpy.http import HttpRoute, HttpRequest
-from ..webserver import Webserver
+from ..webserver import Webserver, Route
 from ..websocket import WebsocketRoute, WebsocketEndpointIO
 
 
@@ -23,7 +23,7 @@ class WsTornado(Webserver):
         self.app = tornado.web.Application()
         self.thread: Optional[Thread] = None
 
-    def _setup_route(self, route: HttpRoute | WebsocketRoute):
+    def _setup_route(self, route: Route):
         if isinstance(route, WebsocketRoute):
             self.app.add_handlers(r".*", [(route.path, _WebsocketHandler, dict(route=route, server=self))])
         else:
@@ -43,7 +43,7 @@ class WsTornado(Webserver):
 class TornadoHandler(tornado.web.RequestHandler):
 
     def __init__(self, *args, **kwargs):
-        self.route: HttpRoute | WebsocketRoute = None
+        self.route: Route = None
         self._serve = None
         super().__init__(*args, **kwargs)
 
