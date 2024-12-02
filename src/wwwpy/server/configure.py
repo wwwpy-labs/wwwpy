@@ -21,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Config:
+    """
+    It may be that we need to split this in the following logic blocks:
+    - dev_mode flag
+    - (a set of) 'directory' has it's common/remote/server set of folders
+        - this will impact the hot reload mechanism and the bundle to be sent to the remote
+    - todo continue this analysis
+    """
     directory: Path
     dev_mode: bool
     server_rpc_packages: Collection[str]
@@ -38,10 +45,16 @@ class Project:
 
 
 def setup(config: Config, settings: Settings = None) -> Project:
+    """This function is used / should be used from these points:
+    - wwwpy main module
+    - remote tests, i.e., XVirtImpl to setup the infrastructure to run tests
+    - server tests, i.e. those using Playwright
+    """
     if settings is None:
         settings = Settings()
 
-    sys.path.insert(0, CustomStr(config.directory))
+    directory = config.directory
+    sys.path.insert(0, CustomStr(directory))
     sys.meta_path.insert(0, CustomFinder(set(config.remote_rpc_packages)))
 
     websocket_pool = WebsocketPool('/wwwpy/ws')
@@ -52,9 +65,7 @@ def setup(config: Config, settings: Settings = None) -> Project:
     resources = [
         library_resources(),
         services.remote_stub_resources(),
-        # todo 'remote' and 'common' should be taken from the config.remote_folders
-        from_directory(config.directory / 'remote', relative_to=config.directory),
-        from_directory(config.directory / 'common', relative_to=config.directory),
+        *[from_directory(directory / f, relative_to=directory) for f in config.remote_folders]
     ]
 
     routes: list[Route] = [
@@ -71,7 +82,7 @@ def setup(config: Config, settings: Settings = None) -> Project:
         dev_modelib._warning_on_multiple_clients(websocket_pool)
 
         dev_modelib.start_hotreload(
-            config.directory, websocket_pool, services,
+            directory, websocket_pool, services,
             server_folders=set(config.server_folders),
             remote_folders=set(config.remote_folders),
         )
@@ -94,5 +105,3 @@ def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRo
     for module_name in modules:
         services.allow(module_name)
     return services
-
-
