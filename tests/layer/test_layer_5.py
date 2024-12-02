@@ -12,7 +12,7 @@ from tests.server.page_fixture import PageFixture, fixture
 from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.resources import library_resources
-from wwwpy.server.convention import convention
+from tests.server.convention_fixture import start_test_convention
 from wwwpy.webserver import Webserver
 from wwwpy.websocket import WebsocketPool, PoolEvent, Change
 
@@ -171,7 +171,7 @@ class TestRpcRemote:
 
     @for_all_webservers()
     def test_rpc_remote(self, page: Page, webserver: Webserver, restore_sys_path):
-        project = convention(self.layer_5_rpc_remote, webserver)
+        project = start_test_convention(self.layer_5_rpc_remote, webserver)
         webserver.start_listen()
 
         remote_connections = _RemoteConnections(project.websocket_pool)
@@ -190,7 +190,7 @@ class TestRpcRemote:
 
     @for_all_webservers()
     def test_websocket_recover(self, page: Page, webserver: Webserver, restore_sys_path):
-        project = convention(self.layer_5_rpc_remote, webserver)
+        project = start_test_convention(self.layer_5_rpc_remote, webserver)
         webserver.start_listen()
 
         remote_connections = _RemoteConnections(project.websocket_pool)

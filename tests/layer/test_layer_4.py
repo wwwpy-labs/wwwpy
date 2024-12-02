@@ -2,6 +2,7 @@ from pathlib import Path
 
 from playwright.sync_api import Page, expect
 
+import tests.server.convention_fixture
 import wwwpy.server.convention
 from tests import for_all_webservers
 from tests.common import restore_sys_path
@@ -31,7 +32,7 @@ sub_text = "This may be because the running directory is not a valid wwwpy proje
 @for_all_webservers()
 def test_extraneous_file(page: Page, webserver: Webserver, restore_sys_path, tmp_path: Path):
     tmp_path.touch('some_file.txt')
-    wwwpy.server.convention.convention(tmp_path, webserver)
+    tests.server.convention_fixture.start_test_convention(tmp_path, webserver)
     webserver.start_listen()
     page.goto(webserver.localhost_url())
     expect(page.locator("body")).to_contain_text(sub_text)
@@ -39,14 +40,14 @@ def test_extraneous_file(page: Page, webserver: Webserver, restore_sys_path, tmp
 
 @for_all_webservers()
 def test_empty__folder__error_message(page: Page, webserver: Webserver, restore_sys_path, tmp_path: Path):
-    wwwpy.server.convention.convention(tmp_path, webserver)
+    tests.server.convention_fixture.start_test_convention(tmp_path, webserver)
     webserver.start_listen()
     page.goto(webserver.localhost_url())
     expect(page.locator("body")).to_contain_text(sub_text)
 
 
 def _test_convention(directory, page, webserver):
-    wwwpy.server.convention.convention(file_parent / 'layer_4_support' / directory, webserver)
+    tests.server.convention_fixture.start_test_convention(file_parent / 'layer_4_support' / directory, webserver)
     webserver.start_listen()
     page.goto(webserver.localhost_url())
     expect(page.locator('id=tag1')).to_have_value(directory)
