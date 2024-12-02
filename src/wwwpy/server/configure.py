@@ -8,17 +8,14 @@ from pathlib import Path
 from typing import Collection
 
 from wwwpy.bootstrap import bootstrap_routes
-from wwwpy.common import quickstart, _remote_module_not_found_console
+from wwwpy.common import _remote_module_not_found_console
 from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
 from wwwpy.resources import library_resources, from_directory
 from wwwpy.rpc import RpcRoute
-from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
-from wwwpy.server.settingslib import user_settings
-from wwwpy.webserver import Webserver, Route
-from wwwpy.webservers.available_webservers import available_webservers
+from wwwpy.webserver import Route
 from wwwpy.websocket import WebsocketPool
 
 logger = logging.getLogger(__name__)
@@ -113,34 +110,6 @@ def setup(config: Config, settings: Settings = None) -> Project:
             )
 
     return Project(config, settings, websocket_pool, tuple(routes))
-
-
-def start_default(port: int, directory: Path, dev_mode=False) -> Project:
-    webserver = available_webservers().new_instance()
-
-    if quickstart.invalid_project(directory):
-        warn_invalid_project(directory)
-
-    project = convention(directory, webserver, dev_mode=dev_mode)
-
-    while tcp_port.is_port_busy(port):
-        logger.warning(f'port {port} is busy, retrying...')
-        [time.sleep(0.1) for _ in range(20) if tcp_port.is_port_busy(port)]
-
-    webserver.set_port(port).start_listen()
-
-    return project
-
-
-def convention(directory: Path, webserver: Webserver = None, dev_mode=False) -> Project:
-    config = default_config(directory, dev_mode)
-    project = setup(config, user_settings())
-    import wwwpy.server.conv as conv
-    conv.add_project(project)
-    if webserver is not None:
-        webserver.set_http_route(*project.routes)
-
-    return project
 
 
 def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRoute:

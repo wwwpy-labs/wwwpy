@@ -9,7 +9,7 @@ from playwright.sync_api import Page
 from tests import timeout_multiplier
 from wwwpy.bootstrap import wrap_in_tryexcept
 from wwwpy.common import reloader
-from wwwpy.server import configure
+from wwwpy.server.conv import convention
 import logging
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ class PageFixture:
         if remote_init_content:
             remote_init.parent.mkdir(parents=True, exist_ok=True)
             remote_init.write_text(remote_init_content)
-        configure.convention(self.tmp_path, self.webserver, dev_mode=self.dev_mode)
+        convention(self.tmp_path, self.webserver, dev_mode=self.dev_mode)
         self.webserver.start_listen()
         self.page.goto(self.webserver.localhost_url())
 

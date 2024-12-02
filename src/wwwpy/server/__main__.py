@@ -5,6 +5,7 @@ import argparse
 from pathlib import Path
 from typing import NamedTuple, Optional, Sequence
 
+import wwwpy.server.conv
 from wwwpy.server.settingslib import user_settings
 
 
@@ -38,7 +39,7 @@ def run_server(args: Arguments):
     from wwwpy.webserver import wait_forever
 
     working_dir = Path(args.directory).absolute()
-    project = configure.start_default(args.port, working_dir, dev_mode=args.dev)
+    project = wwwpy.server.conv.start_default(args.port, working_dir, dev_mode=args.dev)
     _open_browser(args, project.config.settings)
     try:
         wait_forever()

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from playwright.sync_api import Page, expect
 
+import wwwpy.server.conv
 from tests import for_all_webservers
 from tests.common import restore_sys_path
 from wwwpy.server import configure
@@ -13,7 +14,7 @@ support = file_parent / 'source_finder_support'
 
 @for_all_webservers()
 def test_find_component__when_using_convention(page: Page, webserver: Webserver, restore_sys_path):
-    configure.convention(support, webserver)
+    wwwpy.server.conv.convention(support, webserver)
     webserver.start_listen()
 
     page.goto(webserver.localhost_url())
