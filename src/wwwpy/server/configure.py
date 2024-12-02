@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Collection
 
 from wwwpy.bootstrap import bootstrap_routes
-from wwwpy.common import _remote_module_not_found_console
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
 from wwwpy.resources import library_resources, from_directory
@@ -97,13 +96,3 @@ def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRo
     return services
 
 
-def warn_invalid_project(directory: Path):
-    content = _remote_module_not_found_console.replace('$[directory]', str(directory.absolute()))
-    lines = content.split('\n')
-    for line in lines:
-        print(line)
-    print('Continuing in ', end='', flush=True)
-    for text in "3… 2… 1… \n":
-        print(text, end='', flush=True)
-        time.sleep(0.5)
-    print()

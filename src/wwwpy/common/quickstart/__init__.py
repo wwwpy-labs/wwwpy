@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import logging
 import shutil
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
+from wwwpy.common import _remote_module_not_found_console
 from wwwpy.common.designer.element_library import NamedListMap
-from wwwpy.common.tree import print_tree
 
 _known = {'common', 'remote', 'server'}
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,7 @@ def setup_quickstart(directory: Path, quickstart_name: str):
     shutil.copytree(source, directory, dirs_exist_ok=True)
     logger.warning(f'Quickstart applied {quickstart_name} to {directory}')
     # print_tree(directory, logger.warning)
+
 
 def _delete_empty_project(directory: Path):
     assert is_empty_project(directory), f'project is not empty: {directory}'
@@ -87,7 +88,8 @@ def quickstart_list() -> NamedListMap[Quickstart]:
     quickstarts = sorted(quickstarts, key=lambda x: x.name)
     return NamedListMap(quickstarts)
 
-def invalid_project(root_path: Path | str) -> bool:
+
+def unlikely_a_project(root_path: Path | str) -> bool:
     root_path = Path(root_path)
     if is_empty_project(root_path):
         return False
@@ -95,6 +97,20 @@ def invalid_project(root_path: Path | str) -> bool:
     remote = root_path / 'remote'
     invalid = not remote.exists() or not (remote / '__init__.py').exists()
     return invalid
+
+
+def warn_if_unlikely_project(directory: Path):
+    if not unlikely_a_project(directory):
+        return
+    content = _remote_module_not_found_console.replace('$[directory]', str(directory.absolute()))
+    lines = content.split('\n')
+    for line in lines:
+        print(line)
+    print('Continuing in ', end='', flush=True)
+    for text in "3… 2… 1… \n":
+        print(text, end='', flush=True)
+        time.sleep(0.5)
+    print()
 
 
 def is_empty_project(root_path: Path | str):

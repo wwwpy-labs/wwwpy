@@ -6,8 +6,7 @@ from pathlib import Path
 from wwwpy.common import quickstart
 from wwwpy.common.designer import log_emit
 from wwwpy.server import tcp_port
-
-from wwwpy.server.configure import Project, warn_invalid_project, logger, Config, setup
+from wwwpy.server.configure import Project, logger, Config, setup
 from wwwpy.server.settingslib import user_settings
 from wwwpy.webservers.available_webservers import available_webservers
 
@@ -25,15 +24,13 @@ def add_project(project: Project):
 
 
 def start_default(port: int, directory: Path, dev_mode=False) -> Project:
-    webserver = available_webservers().new_instance()
-
-    if quickstart.invalid_project(directory):
-        warn_invalid_project(directory)
+    quickstart.warn_if_unlikely_project(directory)
 
     config = default_config(directory, dev_mode)
     project = setup(config, user_settings())
     add_project(project)
 
+    webserver = available_webservers().new_instance()
     webserver.set_http_route(*project.routes)
 
     while tcp_port.is_port_busy(port):
