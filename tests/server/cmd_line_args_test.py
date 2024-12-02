@@ -30,7 +30,7 @@ def test_custom_port():
 
 def test_custom_directory_and_port_with_dev():
     args = parse_arguments(['--directory', '/tmp', '--port', '1234', 'dev'])
-    assert args == Arguments(directory=Path('/tmp'), port=1234, dev=True)
+    assert args == Arguments(directory=Path('/tmp').absolute(), port=1234, dev=True)
 
 
 def test_invalid_port():
