@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 from typing import NamedTuple, Optional, Sequence
 
-import wwwpy.server.conv
+import wwwpy.server.convention
 from wwwpy.server.settingslib import user_settings
 
 

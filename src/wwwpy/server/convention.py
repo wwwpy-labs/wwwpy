@@ -4,9 +4,10 @@ import time
 from pathlib import Path
 
 from wwwpy.common import quickstart
+from wwwpy.common.designer import log_emit
 from wwwpy.server import tcp_port
 
-from wwwpy.server.configure import Project, warn_invalid_project, logger, default_config, setup
+from wwwpy.server.configure import Project, warn_invalid_project, logger, setup, Config
 from wwwpy.server.settingslib import user_settings
 from wwwpy.webserver import Webserver
 from wwwpy.webservers.available_webservers import available_webservers
@@ -49,3 +50,24 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False) -> 
         webserver.set_http_route(*project.routes)
 
     return project
+
+
+def default_config(directory: Path, dev_mode: bool) -> Config:
+    server_rpc_packages = ['server.rpc']
+    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
+    server_folders = {'common', 'server'}
+    remote_folders = {'common', 'remote'}
+
+    if dev_mode:
+        server_rpc_packages.append('wwwpy.server.designer.rpc')
+        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
+        log_emit.add_once(print)
+
+    return Config(
+        directory=directory,
+        dev_mode=dev_mode,
+        server_rpc_packages=server_rpc_packages,
+        remote_rpc_packages=remote_rpc_packages,
+        server_folders=server_folders,
+        remote_folders=remote_folders
+    )

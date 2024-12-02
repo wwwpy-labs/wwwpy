@@ -9,7 +9,6 @@ from typing import Collection
 
 from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common import _remote_module_not_found_console
-from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
 from wwwpy.resources import library_resources, from_directory
@@ -37,27 +36,6 @@ class Project:
     settings: Settings
     websocket_pool: WebsocketPool
     routes: tuple[Route]
-
-
-def default_config(directory: Path, dev_mode: bool) -> Config:
-    server_rpc_packages = ['server.rpc']
-    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
-    server_folders = {'common', 'server'}
-    remote_folders = {'common', 'remote'}
-
-    if dev_mode:
-        server_rpc_packages.append('wwwpy.server.designer.rpc')
-        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
-        log_emit.add_once(print)
-
-    return Config(
-        directory=directory,
-        dev_mode=dev_mode,
-        server_rpc_packages=server_rpc_packages,
-        remote_rpc_packages=remote_rpc_packages,
-        server_folders=server_folders,
-        remote_folders=remote_folders
-    )
 
 
 def setup(config: Config, settings: Settings = None) -> Project:

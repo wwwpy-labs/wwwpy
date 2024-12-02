@@ -9,7 +9,7 @@ from playwright.sync_api import Page
 from tests import timeout_multiplier
 from wwwpy.bootstrap import wrap_in_tryexcept
 from wwwpy.common import reloader
-from wwwpy.server.conv import convention
+from wwwpy.server.convention import convention
 import logging
 
 logger = logging.getLogger(__name__)

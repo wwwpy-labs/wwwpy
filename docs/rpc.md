@@ -71,10 +71,10 @@ class Rpc:
 The following code is an example of how to call a browser-side function from the server.
 This is a tricky example because it calls all the connected clients from inside a server-side function.
 
-  
 ```python
-from wwwpy.server.conv import default_project
+from wwwpy.server.convention import default_project
 from remote import rpc
+
 
 async def send_alert_to_all(message: str) -> str:
     for client in default_project().websocket_pool.clients:

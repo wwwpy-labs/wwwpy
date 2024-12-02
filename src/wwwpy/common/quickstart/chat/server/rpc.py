@@ -1,6 +1,6 @@
 from remote import rpc
 
-from wwwpy.server.conv import default_project
+from wwwpy.server.convention import default_project
 
 
 async def send_message_to_all(msg: str) -> str:

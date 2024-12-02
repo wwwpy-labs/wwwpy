@@ -12,7 +12,7 @@ from tests.server.page_fixture import PageFixture, fixture
 from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.resources import library_resources
-from wwwpy.server.conv import convention
+from wwwpy.server.convention import convention
 from wwwpy.webserver import Webserver
 from wwwpy.websocket import WebsocketPool, PoolEvent, Change
 
