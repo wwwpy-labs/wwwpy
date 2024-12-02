@@ -3,21 +3,35 @@ from __future__ import annotations
 import logging
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Collection
 
 from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common import quickstart, _remote_module_not_found_console
 from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
+from wwwpy.http import HttpRoute
 from wwwpy.resources import library_resources, from_directory
 from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
 from wwwpy.webserver import Webserver
 from wwwpy.webservers.available_webservers import available_webservers
-from wwwpy.websocket import WebsocketPool
+from wwwpy.websocket import WebsocketPool, WebsocketRoute
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class Config:
+    directory: Path
+    dev_mode: bool
+    server_rpc_packages: Collection[str]
+    remote_rpc_packages: Collection[str]
+    server_folders: Collection[str]
+    remote_folders: Collection[str]
+    settings: Settings
 
 
 def start_default(port: int, directory: Path, dev_mode=False, settings: Settings = None):
@@ -36,6 +50,11 @@ def start_default(port: int, directory: Path, dev_mode=False, settings: Settings
 
 
 websocket_pool: WebsocketPool = None
+
+
+def setup(config: Config) -> list[HttpRoute | WebsocketRoute]:
+    # todo
+    return []
 
 
 def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
