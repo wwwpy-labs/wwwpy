@@ -12,13 +12,13 @@ from wwwpy.common import quickstart, _remote_module_not_found_console
 from wwwpy.common.designer import log_emit
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
-from wwwpy.http import HttpRoute
 from wwwpy.resources import library_resources, from_directory
+from wwwpy.rpc import RpcRoute
 from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
 from wwwpy.webserver import Webserver, Route
 from wwwpy.webservers.available_webservers import available_webservers
-from wwwpy.websocket import WebsocketPool, WebsocketRoute
+from wwwpy.websocket import WebsocketPool
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +33,12 @@ class Config:
     remote_folders: Collection[str]
     settings: Settings
 
+
 @dataclass
 class Project:
     config: Config
     websocket_pool: WebsocketPool
+    routes: tuple[Route]
 
 
 def start_default(port: int, directory: Path, dev_mode=False, settings: Settings = None):
@@ -57,14 +59,14 @@ def start_default(port: int, directory: Path, dev_mode=False, settings: Settings
 websocket_pool: WebsocketPool = None
 
 
-def setup(config: Config) -> list[Route]:
+def setup(config: Config) -> Project:
     sys.path.insert(0, CustomStr(config.directory))
-    sys.meta_path.insert(0, CustomFinder(config.remote_rpc_packages))
+    sys.meta_path.insert(0, CustomFinder(set(config.remote_rpc_packages)))
 
     global websocket_pool
     websocket_pool = WebsocketPool('/wwwpy/ws')
 
-    services = _configure_server_rpc_services('/wwwpy/rpc', config.server_rpc_packages)
+    services = _configure_server_rpc_services('/wwwpy/rpc', list(config.server_rpc_packages))
     services.generate_remote_stubs()
 
     resources = [
@@ -74,7 +76,7 @@ def setup(config: Config) -> list[Route]:
         from_directory(config.directory / 'common', relative_to=config.directory),
     ]
 
-    routes = [
+    routes: list[Route] = [
         services.route,
         websocket_pool.http_route,
         *bootstrap_routes(
@@ -89,8 +91,8 @@ def setup(config: Config) -> list[Route]:
 
         dev_modelib.start_hotreload(
             config.directory, websocket_pool, services,
-            server_folders=config.server_folders,
-            remote_folders=config.remote_folders
+            server_folders=set(config.server_folders),
+            remote_folders=set(config.remote_folders),
         )
         if config.settings.hotreload_self:
             logger.info('devself detected')
@@ -103,7 +105,7 @@ def setup(config: Config) -> list[Route]:
                 remote_folders={'wwwpy/common', 'wwwpy/remote'}
             )
 
-    return routes
+    return Project(config, websocket_pool, tuple(routes))
 
 
 def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
@@ -130,13 +132,10 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False, set
         settings=settings
     )
 
-    routes = setup(config)
+    project = setup(config)
 
     if webserver is not None:
-        webserver.set_http_route(*routes)
-
-
-from wwwpy.rpc import RpcRoute
+        webserver.set_http_route(*project.routes)
 
 
 def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRoute:
