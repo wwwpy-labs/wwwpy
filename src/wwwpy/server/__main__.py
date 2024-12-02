@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import os
 import argparse
+import os
 from pathlib import Path
 from typing import NamedTuple, Optional, Sequence
 
-import wwwpy.server.convention
-from wwwpy.server.settingslib import user_settings
+from wwwpy.server.convention import start_default
 
 
 class Arguments(NamedTuple):
-    directory: str
+    directory: Path
     port: int
     dev: bool
 
@@ -26,25 +25,10 @@ def parse_arguments(args: Optional[Sequence[str]] = None) -> Arguments:
 
     parsed_args = parser.parse_args(args)
     return Arguments(
-        directory=parsed_args.directory,
+        directory=Path(parsed_args.directory).absolute(),
         port=parsed_args.port,
         dev=bool(parsed_args.dev)
     )
-
-
-def run_server(args: Arguments):
-    import wwwpy
-    print(f'Starting wwwpy v{wwwpy.__version__}')
-    from wwwpy.server import configure
-    from wwwpy.webserver import wait_forever
-
-    working_dir = Path(args.directory).absolute()
-    project = wwwpy.server.conv.start_default(args.port, working_dir, dev_mode=args.dev)
-    _open_browser(args, project.config.settings)
-    try:
-        wait_forever()
-    except KeyboardInterrupt:
-        pass
 
 
 def _open_browser(args, settings):
@@ -57,8 +41,16 @@ def _open_browser(args, settings):
 
 
 def main():
+    import wwwpy
+    print(f'Starting wwwpy v{wwwpy.__version__}')
     args = parse_arguments()
-    run_server(args)
+    project = start_default(args.directory, args.port, dev_mode=args.dev)
+    _open_browser(args, project.settings)
+    try:
+        from wwwpy.webserver import wait_forever
+        wait_forever()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == '__main__':

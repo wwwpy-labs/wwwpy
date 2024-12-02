@@ -23,7 +23,7 @@ def add_project(project: Project):
     _projects.append(project)
 
 
-def start_default(port: int, directory: Path, dev_mode=False) -> Project:
+def start_default(directory: Path, port: int, dev_mode=False) -> Project:
     quickstart.warn_if_unlikely_project(directory)
 
     config = default_config(directory, dev_mode)
