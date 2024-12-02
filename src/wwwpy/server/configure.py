@@ -53,51 +53,41 @@ websocket_pool: WebsocketPool = None
 
 
 def setup(config: Config) -> list[HttpRoute | WebsocketRoute]:
-    # todo
-    return []
+    sys.path.insert(0, CustomStr(config.directory))
+    sys.meta_path.insert(0, CustomFinder(config.remote_rpc_packages))
 
-
-def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
-    if settings is None:
-        settings = Settings()
-    server_rpc_packages = ['server.rpc']
-    # todo fix imprecision: for each of the packages, we conceptually apply a remote_proxy_transform
-    # we specify also, e.g., 'remote' to transform it but it could end up in an empty string and not a proxy
-    # we also should parametrize the transform to make it explicit
-    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}  #
-    if dev_mode:
-        server_rpc_packages.append('wwwpy.server.designer.rpc')
-        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
-        log_emit.add_once(print)
-        # quickstart._make_hotreload_work(directory)
-
-    sys.path.insert(0, CustomStr(directory))
-    sys.meta_path.insert(0, CustomFinder(remote_rpc_packages))
     global websocket_pool
     websocket_pool = WebsocketPool('/wwwpy/ws')
-    services = _configure_server_rpc_services('/wwwpy/rpc', server_rpc_packages)
-    services.generate_remote_stubs()
-    routes = [services.route, websocket_pool.http_route, *bootstrap_routes(
-        resources=[
-            library_resources(),
-            services.remote_stub_resources(),
-            from_directory(directory / 'remote', relative_to=directory),
-            from_directory(directory / 'common', relative_to=directory),
-        ],
-        # language=python
-        python=f'from wwwpy.remote.browser_main import entry_point; await entry_point(dev_mode={dev_mode})'
-    )]
 
-    if dev_mode:
+    services = _configure_server_rpc_services('/wwwpy/rpc', config.server_rpc_packages)
+    services.generate_remote_stubs()
+
+    resources = [
+        library_resources(),
+        services.remote_stub_resources(),
+        from_directory(config.directory / 'remote', relative_to=config.directory),
+        from_directory(config.directory / 'common', relative_to=config.directory),
+    ]
+
+    routes = [
+        services.route,
+        websocket_pool.http_route,
+        *bootstrap_routes(
+            resources=resources,
+            python=f'from wwwpy.remote.browser_main import entry_point; await entry_point(dev_mode={config.dev_mode})'
+        )
+    ]
+
+    if config.dev_mode:
         import wwwpy.server.designer.dev_mode as dev_modelib
         dev_modelib._warning_on_multiple_clients(websocket_pool)
 
         dev_modelib.start_hotreload(
-            directory, websocket_pool, services,
-            server_folders={'common', 'server'},
-            remote_folders={'common', 'remote'}
+            config.directory, websocket_pool, services,
+            server_folders=config.server_folders,
+            remote_folders=config.remote_folders
         )
-        if settings.hotreload_self:
+        if config.settings.hotreload_self:
             logger.info('devself detected')
             import wwwpy
             wwwpy_dir = Path(wwwpy.__file__).parent
@@ -107,6 +97,35 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False, set
                 server_folders={'wwwpy/common', 'wwwpy/server'},
                 remote_folders={'wwwpy/common', 'wwwpy/remote'}
             )
+
+    return routes
+
+
+def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
+    if settings is None:
+        settings = Settings()
+
+    server_rpc_packages = ['server.rpc']
+    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
+    server_folders = {'common', 'server'}
+    remote_folders = {'common', 'remote'}
+
+    if dev_mode:
+        server_rpc_packages.append('wwwpy.server.designer.rpc')
+        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
+        log_emit.add_once(print)
+
+    config = Config(
+        directory=directory,
+        dev_mode=dev_mode,
+        server_rpc_packages=server_rpc_packages,
+        remote_rpc_packages=remote_rpc_packages,
+        server_folders=server_folders,
+        remote_folders=remote_folders,
+        settings=settings
+    )
+
+    routes = setup(config)
 
     if webserver is not None:
         webserver.set_http_route(*routes)
