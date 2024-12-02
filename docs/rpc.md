@@ -1,3 +1,5 @@
+from wwwpy.server.conv import default_project
+
 # Seamless communication server/remote
 
 wwwpy allows you to call server-side functions from the browser seamlessly, 
@@ -71,11 +73,11 @@ This is a tricky example because it calls all the connected clients from inside 
 
   
 ```python
-from wwwpy.server.configure import websocket_pool
+from wwwpy.server.conv import default_project
 from remote import rpc
 
 async def send_alert_to_all(message: str) -> str:
-    for client in websocket_pool.clients:
+    for client in default_project().websocket_pool.clients:
         client.rpc(rpc.Rpc).show_alert(message)
     return 'done'
 ```

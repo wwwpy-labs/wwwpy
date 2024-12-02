@@ -32,41 +32,44 @@ class Config:
     remote_rpc_packages: Collection[str]
     server_folders: Collection[str]
     remote_folders: Collection[str]
-    settings: Settings
 
 
 @dataclass
 class Project:
     config: Config
+    settings: Settings
     websocket_pool: WebsocketPool
     routes: tuple[Route]
 
 
-def start_default(port: int, directory: Path, dev_mode=False) -> Project:
-    webserver = available_webservers().new_instance()
+def default_config(directory: Path, dev_mode: bool) -> Config:
+    server_rpc_packages = ['server.rpc']
+    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
+    server_folders = {'common', 'server'}
+    remote_folders = {'common', 'remote'}
 
-    if quickstart.invalid_project(directory):
-        warn_invalid_project(directory)
+    if dev_mode:
+        server_rpc_packages.append('wwwpy.server.designer.rpc')
+        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
+        log_emit.add_once(print)
 
-    project = convention(directory, webserver, dev_mode=dev_mode, settings=user_settings())
-
-    while tcp_port.is_port_busy(port):
-        logger.warning(f'port {port} is busy, retrying...')
-        [time.sleep(0.1) for _ in range(20) if tcp_port.is_port_busy(port)]
-
-    webserver.set_port(port).start_listen()
-
-    return project
-
-
-websocket_pool: WebsocketPool = None
+    return Config(
+        directory=directory,
+        dev_mode=dev_mode,
+        server_rpc_packages=server_rpc_packages,
+        remote_rpc_packages=remote_rpc_packages,
+        server_folders=server_folders,
+        remote_folders=remote_folders
+    )
 
 
-def setup(config: Config) -> Project:
+def setup(config: Config, settings: Settings = None) -> Project:
+    if settings is None:
+        settings = Settings()
+
     sys.path.insert(0, CustomStr(config.directory))
     sys.meta_path.insert(0, CustomFinder(set(config.remote_rpc_packages)))
 
-    global websocket_pool
     websocket_pool = WebsocketPool('/wwwpy/ws')
 
     services = _configure_server_rpc_services('/wwwpy/rpc', list(config.server_rpc_packages))
@@ -75,6 +78,7 @@ def setup(config: Config) -> Project:
     resources = [
         library_resources(),
         services.remote_stub_resources(),
+        # todo 'remote' and 'common' should be taken from the config.remote_folders
         from_directory(config.directory / 'remote', relative_to=config.directory),
         from_directory(config.directory / 'common', relative_to=config.directory),
     ]
@@ -97,7 +101,7 @@ def setup(config: Config) -> Project:
             server_folders=set(config.server_folders),
             remote_folders=set(config.remote_folders),
         )
-        if config.settings.hotreload_self:
+        if settings.hotreload_self:
             logger.info('devself detected')
             import wwwpy
             wwwpy_dir = Path(wwwpy.__file__).parent
@@ -108,35 +112,31 @@ def setup(config: Config) -> Project:
                 remote_folders={'wwwpy/common', 'wwwpy/remote'}
             )
 
-    return Project(config, websocket_pool, tuple(routes))
+    return Project(config, settings, websocket_pool, tuple(routes))
 
 
-def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None) -> Project:
-    if settings is None:
-        settings = Settings()
+def start_default(port: int, directory: Path, dev_mode=False) -> Project:
+    webserver = available_webservers().new_instance()
 
-    server_rpc_packages = ['server.rpc']
-    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
-    server_folders = {'common', 'server'}
-    remote_folders = {'common', 'remote'}
+    if quickstart.invalid_project(directory):
+        warn_invalid_project(directory)
 
-    if dev_mode:
-        server_rpc_packages.append('wwwpy.server.designer.rpc')
-        remote_rpc_packages.update({'wwwpy.remote.designer', 'wwwpy.remote.designer.rpc'})
-        log_emit.add_once(print)
+    project = convention(directory, webserver, dev_mode=dev_mode)
 
-    config = Config(
-        directory=directory,
-        dev_mode=dev_mode,
-        server_rpc_packages=server_rpc_packages,
-        remote_rpc_packages=remote_rpc_packages,
-        server_folders=server_folders,
-        remote_folders=remote_folders,
-        settings=settings
-    )
+    while tcp_port.is_port_busy(port):
+        logger.warning(f'port {port} is busy, retrying...')
+        [time.sleep(0.1) for _ in range(20) if tcp_port.is_port_busy(port)]
 
-    project = setup(config)
+    webserver.set_port(port).start_listen()
 
+    return project
+
+
+def convention(directory: Path, webserver: Webserver = None, dev_mode=False) -> Project:
+    config = default_config(directory, dev_mode)
+    project = setup(config, user_settings())
+    import wwwpy.server.conv as conv
+    conv.add_project(project)
     if webserver is not None:
         webserver.set_http_route(*project.routes)
 

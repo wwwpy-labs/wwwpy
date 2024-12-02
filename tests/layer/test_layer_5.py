@@ -13,6 +13,7 @@ from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.resources import library_resources
 from wwwpy.server import configure
+from wwwpy.server.conv import default_project
 from wwwpy.webserver import Webserver
 from wwwpy.websocket import WebsocketPool, PoolEvent, Change
 
@@ -144,8 +145,7 @@ es.onopen = lambda e: [es.send('foo1'), es.close()]
 
 
 class _RemoteConnections:
-    def __init__(self):
-        from wwwpy.server.configure import websocket_pool
+    def __init__(self, websocket_pool):
         self.ws_pool = websocket_pool
         self.changes = []
         websocket_pool.on_before_change.append(lambda event: self.changes.append(event.change))
@@ -172,10 +172,10 @@ class TestRpcRemote:
 
     @for_all_webservers()
     def test_rpc_remote(self, page: Page, webserver: Webserver, restore_sys_path):
-        configure.convention(self.layer_5_rpc_remote, webserver)
+        project = configure.convention(self.layer_5_rpc_remote, webserver)
         webserver.start_listen()
 
-        remote_connections = _RemoteConnections()
+        remote_connections = _RemoteConnections(project.websocket_pool)
 
         page.goto(webserver.localhost_url())
         expect(page.locator('body')).to_have_text('ready')
@@ -191,10 +191,10 @@ class TestRpcRemote:
 
     @for_all_webservers()
     def test_websocket_recover(self, page: Page, webserver: Webserver, restore_sys_path):
-        configure.convention(self.layer_5_rpc_remote, webserver)
+        project = configure.convention(self.layer_5_rpc_remote, webserver)
         webserver.start_listen()
 
-        remote_connections = _RemoteConnections()
+        remote_connections = _RemoteConnections(project.websocket_pool)
 
         page.goto(webserver.localhost_url())
         expect(page.locator('body')).to_have_text('ready')
