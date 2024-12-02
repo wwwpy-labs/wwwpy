@@ -16,6 +16,7 @@ from wwwpy.resources import library_resources, from_directory
 from wwwpy.rpc import RpcRoute
 from wwwpy.server import tcp_port
 from wwwpy.server.custom_str import CustomStr
+from wwwpy.server.settingslib import user_settings
 from wwwpy.webserver import Webserver, Route
 from wwwpy.webservers.available_webservers import available_webservers
 from wwwpy.websocket import WebsocketPool
@@ -41,19 +42,21 @@ class Project:
     routes: tuple[Route]
 
 
-def start_default(port: int, directory: Path, dev_mode=False, settings: Settings = None):
+def start_default(port: int, directory: Path, dev_mode=False) -> Project:
     webserver = available_webservers().new_instance()
 
     if quickstart.invalid_project(directory):
         warn_invalid_project(directory)
 
-    convention(directory, webserver, dev_mode=dev_mode, settings=settings)
+    project = convention(directory, webserver, dev_mode=dev_mode, settings=user_settings())
 
     while tcp_port.is_port_busy(port):
         logger.warning(f'port {port} is busy, retrying...')
         [time.sleep(0.1) for _ in range(20) if tcp_port.is_port_busy(port)]
 
     webserver.set_port(port).start_listen()
+
+    return project
 
 
 websocket_pool: WebsocketPool = None
@@ -108,7 +111,7 @@ def setup(config: Config) -> Project:
     return Project(config, websocket_pool, tuple(routes))
 
 
-def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None):
+def convention(directory: Path, webserver: Webserver = None, dev_mode=False, settings: Settings = None) -> Project:
     if settings is None:
         settings = Settings()
 
@@ -136,6 +139,8 @@ def convention(directory: Path, webserver: Webserver = None, dev_mode=False, set
 
     if webserver is not None:
         webserver.set_http_route(*project.routes)
+
+    return project
 
 
 def _configure_server_rpc_services(route_path: str, modules: list[str]) -> RpcRoute:

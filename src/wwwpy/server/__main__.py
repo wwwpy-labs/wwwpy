@@ -38,9 +38,8 @@ def run_server(args: Arguments):
     from wwwpy.webserver import wait_forever
 
     working_dir = Path(args.directory).absolute()
-    settings = user_settings()
-    configure.start_default(args.port, working_dir, dev_mode=args.dev, settings=settings)
-    _open_browser(args, settings)
+    project = configure.start_default(args.port, working_dir, dev_mode=args.dev)
+    _open_browser(args, project.config.settings)
     try:
         wait_forever()
     except KeyboardInterrupt:
