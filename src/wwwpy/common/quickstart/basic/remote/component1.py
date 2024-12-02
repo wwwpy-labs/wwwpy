@@ -10,4 +10,6 @@ class Component1(wpc.Component, tag_name='component-1'):
 
     def init_component(self):
         # language=html
-        self.element.innerHTML = """<div>component-1</div>"""
+        self.element.innerHTML = """
+<div>component-1</div>
+"""
