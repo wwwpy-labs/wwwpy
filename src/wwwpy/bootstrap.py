@@ -11,6 +11,7 @@ bootstrap_javascript_placeholder = '// #bootstrap-placeholder#'
 def bootstrap_routes(
         resources: List[ResourceIterable],
         python: str,
+        jspi=False,
         zip_route_path: str = '/wwwpy/bundle.zip',
         html: str = f'<!DOCTYPE html><h1>Loading...</h1><script>{bootstrap_javascript_placeholder}</script>',
 ) -> Tuple[HttpRoute, HttpRoute]:
@@ -33,14 +34,17 @@ sys.path.insert(0, '{extract_dir}')
 {python}
     """
 
-    javascript = get_javascript_for(bootstrap_python)
+    javascript = get_javascript_for(bootstrap_python, jspi)
     html_replaced = html.replace(bootstrap_javascript_placeholder, javascript)
     bootstrap_route = HttpRoute('/', lambda request: HttpResponse.text_html(html_replaced))
     return bootstrap_route, zip_route
 
 
-def get_javascript_for(python_code: str) -> str:
-    return _js_content.replace('# python replace marker', python_code)
+def get_javascript_for(python_code: str, jspi=False) -> str:
+    load = '' if not jspi else '{enableRunUntilComplete: true}'
+    return (_js_content
+            .replace('# python replace marker', python_code)
+            .replace('`# load option marker`', load))
 
 
 # language=javascript
@@ -50,7 +54,7 @@ if (typeof loadPyodide === 'undefined') {
     let script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
     script.onload = async () => {
-        let pyodide = await loadPyodide();
+        let pyodide = await loadPyodide(`# load option marker`);
         window.pyodide = pyodide;
         console.log('loading pyodide.runPythonAsync(...). See in the following lines for the code');
         console.log('-----------------------  START PYTHON CODE  -------------------------------');

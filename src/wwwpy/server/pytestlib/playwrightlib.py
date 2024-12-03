@@ -20,7 +20,8 @@ def start_playwright_in_thread(url: str, headless: bool):
 
 def start_playwright(url: str, headless: bool):
     playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=headless)
+    args = ['--enable-features=WebAssemblyExperimentalJSPI']
+    browser = playwright.chromium.launch(headless=headless, args=args)
     page = browser.new_page()
     playwright_setup_page_logger(page)
     page.goto(url)
