@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import js
+import logging
 from js import HTMLElement, console
 from pyodide.ffi import create_proxy, create_once_callable
 
+logger = logging.getLogger(__name__)
 namespace = "window.python_custom_elements"
 
 
@@ -144,7 +146,14 @@ class Component:
 
     def _check_type(self, name, selector):
         import inspect
-        annotations = inspect.get_annotations(self.__class__, eval_str=True)
+        try:
+            # todo fix probably this happens after one hot reload
+            # it is inspecting the annotations (wpc.HTMLElement) and it fails to
+            # eval_str because it was unloaded...?
+            annotations = inspect.get_annotations(self.__class__, eval_str=True)
+        except Exception as e:
+            logger.error(f'Error getting annotations: {e}')
+            return
 
         expected_type = annotations.get(name, None)
         if expected_type is None:
