@@ -1,11 +1,19 @@
 import os
 import logging
 
+
 async def main(rootpath, invocation_dir, args):
     from wwwpy.common.designer import log_emit
-    log_emit.add_once(print)
+    def emit(msg: str):
+        print(msg)
+        from js import console
+        console.log(msg)
+
+    log_emit.add_once(emit)
     log_emit.warning_to_log()
-    logging.getLogger('wwwpy').setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
+    # from wwwpy.remote.designer import log_redirect
+    # log_redirect.redirect_logging()
 
     from js import console
     console.log(f'main({rootpath}, {invocation_dir}, {args})')
