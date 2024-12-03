@@ -1,6 +1,12 @@
 from js import window
-from pyodide.ffi import create_once_callable
 import asyncio
+import pytest
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    # this prevents pytest-asyncio to closing the pyodide event loop (webloop)
+    yield asyncio.get_running_loop()
 
 
 def pytest_sessionstart(session):
@@ -23,4 +29,3 @@ async def async_fetch_str(url: str, method: str = 'GET', data: str = '') -> str:
     response = await window.fetch(url, method=method, body=data)
     text = await response.text()
     return text
-
