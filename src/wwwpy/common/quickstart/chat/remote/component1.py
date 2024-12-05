@@ -22,7 +22,7 @@ class Component1(wpc.Component, tag_name='component-1'):
 <sl-switch data-name="slSwitch1" checked>Allow empty messages</sl-switch>
 <sl-input data-name="slInput1" placeholder="Message"></sl-input>
 <sl-button data-name="slButton1">Send<sl-icon slot="suffix" name="send"></sl-icon></sl-button>
-<sl-textarea data-name="slTextarea1" placeholder="slTextarea1" rows="10">Messages...</sl-textarea>
+<sl-textarea data-name="slTextarea1" placeholder="No messages yet" rows="10">Messages...</sl-textarea>
 """
         local_storage_key = 'wwwpy.userspace.chat.nickname'
         nick = js.window.localStorage.getItem(local_storage_key)
