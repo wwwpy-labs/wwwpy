@@ -75,11 +75,9 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             /* border: 1px solid ; */                     
         }
     </style>
-<div data-name="message1div" style='color: white'>&nbsp</div>
+<div data-name="message1div" style='color: white; margin: 0.3em'>&nbsp</div>
 <wwwpy-button-tab data-name="_tabs"></wwwpy-button-tab>
-<div class="wwwpy-property-editor" data-name='row_container'>    
-    <div class='wwwpy-property-editor-row' style='font-weight: bold'><div >Event</div><div>Value</div></div>
-</div>
+<div  data-name='row_container' class="wwwpy-property-editor"></div>
 
         """
 
@@ -91,15 +89,6 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         self._tab_events = Tab('events', on_selected=lambda tab: set_state_render(PropertyEditorMode.events))
         self._tab_attributes = Tab('attributes', on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes))
         self._tabs.tabs = [self._tab_palette, self._tab_events, self._tab_attributes, ]
-
-        for lbl in ['data-name', 'name', 'type', 'value', 'form']:
-            row1 = PropertyEditorRowAttribute2()
-            row1.element.classList.add('wwwpy-property-editor-row')
-            self.row_container.appendChild(row1.element)
-            row1.label.innerHTML = lbl
-            row1.value.placeholder = 'Double click creates handler'
-            if lbl == 'type':
-                row1.value.value = 'text'
 
     def set_state_selection_active(self):
         if self.state.mode == PropertyEditorMode.palette:
