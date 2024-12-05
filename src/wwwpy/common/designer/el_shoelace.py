@@ -83,18 +83,19 @@ def _shoelace_elements_def() -> List[ElementDef]:
 def _shoelaceGenerateHtml(element_def: ElementDef, name: str) -> str:
     tag_name = element_def.tag_name
 
-    def _def(placeHolder=False, add=''):
+    def _def(placeHolder=False, add='', content=None):
         def inner():
             pl = '' if not placeHolder else f' placeholder="{name}"'
             add1 = '' if not add else f' {add}'
-            return f'<{tag_name} data-name="{name}"{pl}{add1}>{name}</{tag_name}>'
+            ic = name if content is None else content
+            return f'<{tag_name} data-name="{name}"{pl}{add1}>{ic}</{tag_name}>'
 
         return inner
 
     func = {
         'sl-button': _def(),
         'sl-input': lambda: f"""<sl-input data-name="{name}" placeholder="{name}"></sl-input>""",
-        'sl-textarea': _def(placeHolder=True),
+        'sl-textarea': _def(placeHolder=True, content=''),
         'sl-select': lambda: f'''<sl-select data-name="{name}" label="Select a Few" value="option-2" multiple clearable max-options-visible="0">
     <sl-option value="option-1">Option 1</sl-option>
     <sl-option value="option-2">Option 2</sl-option>

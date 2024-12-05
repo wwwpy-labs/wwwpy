@@ -178,11 +178,11 @@ def _standard_elements_def() -> List[ElementDef]:
 def _generateHtml(element_def: ElementDef, name: str) -> str:
     tag_name = element_def.tag_name
 
-    def _def(placeHolder=False, add='', inner=''):
+    def _def(placeHolder=False, add='', inner=None):
         def inner_func():
             pl = '' if not placeHolder else f' placeholder="{name}"'
             add1 = '' if not add else f' {add}'
-            content = name if not inner else inner
+            content = name if inner is None else inner
             return f'<{tag_name} data-name="{name}"{pl}{add1}>{content}</{tag_name}>'
 
         return inner_func
@@ -193,7 +193,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
         'br': lambda: '<br>',
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
-        'textarea': _def(placeHolder=True),
+        'textarea': _def(placeHolder=True, inner=''),
         'select': _def(inner='''
             <option value="option1">Option 1</option>
             <option value="option2">Option 2</option>
