@@ -10,6 +10,8 @@ from . import element_path as ep
 from .. import modlib
 from ..collectionlib import ListMap
 
+tag_inner_html_attr_name = 'inner HTML'
+
 
 class AttributeEditor(ABC):
     """Allow to add/edit/remove attributes of an HTML element according to its AttributeDef."""
@@ -114,8 +116,11 @@ class ElementEditor:
         node = html_locator.locate_node(self._html_source(), element_path.path)
         self._node = node
         if node.content_span:
-            ad_content_string = el.AttributeDef('content string', el.Help('This is the inner content of the tag', ''), )
-            self.attributes.append(AttributeEditor(ad_content_string, False, node.content,
+            ad_content_string = el.AttributeDef(tag_inner_html_attr_name,
+                                                el.Help('This is the inner content of the tag', ''), )
+            cx, cy = node.content_span
+            content_exists = True if cx < cy else False
+            self.attributes.append(AttributeEditor(ad_content_string, content_exists, node.content,
                                                    self._content_string_set_value, self._content_string_set_value))
 
         attributes = node.attributes

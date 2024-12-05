@@ -4,7 +4,7 @@ import pytest
 
 from tests.common import dyn_sys_path, DynSysPath
 from wwwpy.common.designer import code_info
-from wwwpy.common.designer.element_editor import ElementEditor
+from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name
 from wwwpy.common.designer.element_library import ElementDef, EventDef, AttributeDef
 from wwwpy.common.designer.element_path import ElementPath, Origin
 from wwwpy.common.designer.html_locator import Node, NodePath
@@ -208,6 +208,7 @@ class Component2():
         # language=html
         assert """<button id='foo' >bar</button>""" == target_fixture.current_html
 
+class TestContent:
     def test_content_string_value_get(self, target_fixture):
         # GIVEN
         target_fixture.source = '''
@@ -219,7 +220,24 @@ class Component2():
         target = target_fixture.target
 
         # THEN
-        assert target.attributes.get('content string').value == 'bar'
+        get = target.attributes.get(tag_inner_html_attr_name)
+        assert get.value == 'bar'
+        assert get.exists
+
+    def test_content_string_value_get__when_empty(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'></div>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        get = target.attributes.get(tag_inner_html_attr_name)
+        assert get.value == ''
+        assert not get.exists
 
     def test_content_string_value_set(self, target_fixture):
         # GIVEN
@@ -230,7 +248,7 @@ class Component2():
         '''
         # WHEN
         target = target_fixture.target
-        target.attributes.get('content string').value = '1234'
+        target.attributes.get(tag_inner_html_attr_name).value = '1234'
 
         # THEN
         assert """<div data-name='d1'>1234</div>""" == target_fixture.current_html
@@ -243,7 +261,7 @@ class Component2():
         '''
         # WHEN
         target = target_fixture.target
-        target.attributes.get('content string').remove()
+        target.attributes.get(tag_inner_html_attr_name).remove()
 
         # THEN
         assert """<div data-name='d1'></div>""" == target_fixture.current_html
@@ -259,7 +277,7 @@ class Component2():
         target = target_fixture.target
 
         # THEN
-        assert target.attributes.get('content string') is None
+        assert target.attributes.get(tag_inner_html_attr_name) is None
 
 
 @pytest.fixture
