@@ -112,9 +112,11 @@ class ElementEditor:
         element_def = self.element_def
         element_path = self.element_path
         node = html_locator.locate_node(self._html_source(), element_path.path)
-
-        ad_content_string = el.AttributeDef('content string', el.Help('This is the inner content of the tag', ''), )
-        self.attributes.append(AttributeEditor(ad_content_string, False, node.content, None, None))
+        self._node = node
+        if node.content_span:
+            ad_content_string = el.AttributeDef('content string', el.Help('This is the inner content of the tag', ''), )
+            self.attributes.append(AttributeEditor(ad_content_string, False, node.content,
+                                                   self._content_string_set_value, self._content_string_set_value))
 
         attributes = node.attributes
         for attribute_def in element_def.attributes:
@@ -149,7 +151,7 @@ class ElementEditor:
     def _write_source(self, new_source):
         self._python_source_path().write_text(new_source)
 
-    def _attribute_change(self, html_manipulator: Callable[[str], str]):
+    def _html_change(self, html_manipulator: Callable[[str], str]):
         python_source = self.current_python_source()
         new_source = code_strings.html_string_edit(python_source, self.element_path.class_name, html_manipulator)
         self._write_source(new_source)
@@ -161,7 +163,15 @@ class ElementEditor:
                 html, self.element_path.path, attribute_editor.definition.name, value)
             return new_html
 
-        self._attribute_change(_html_manipulate)
+        self._html_change(_html_manipulate)
+
+    def _content_string_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
+
+        def _html_manipulate(html: str) -> str:
+            new_html = html_edit.html_content_set(html, self.element_path.path, value)
+            return new_html
+
+        self._html_change(_html_manipulate)
 
     def _attribute_remove(self, attribute_editor: AttributeEditor):
 
@@ -170,4 +180,4 @@ class ElementEditor:
                 html, self.element_path.path, attribute_editor.definition.name)
             return new_html
 
-        self._attribute_change(_html_manipulate)
+        self._html_change(_html_manipulate)

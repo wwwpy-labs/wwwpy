@@ -208,18 +208,58 @@ class Component2():
         # language=html
         assert """<button id='foo' >bar</button>""" == target_fixture.current_html
 
-    def test_content_string_get(self, target_fixture):
+    def test_content_string_value_get(self, target_fixture):
         # GIVEN
         target_fixture.source = '''
 class Component2():
     def connectedCallback(self):
-        self.element.innerHTML = """<div data-name='d1'>bar</button>"""
+        self.element.innerHTML = """<div data-name='d1'>bar</div>"""
         '''
         # WHEN
         target = target_fixture.target
 
         # THEN
         assert target.attributes.get('content string').value == 'bar'
+
+    def test_content_string_value_set(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'>bar</div>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get('content string').value = '1234'
+
+        # THEN
+        assert """<div data-name='d1'>1234</div>""" == target_fixture.current_html
+    def test_content_string_value_remove(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'>bar</div>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get('content string').remove()
+
+        # THEN
+        assert """<div data-name='d1'></div>""" == target_fixture.current_html
+
+    def test_content_string_not_present__if_void_tag(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<br>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        assert target.attributes.get('content string') is None
 
 
 @pytest.fixture

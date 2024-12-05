@@ -91,3 +91,18 @@ def html_attribute_remove(html: str, node_path: NodePath, attr_name: str) -> str
     right = html[y:]
 
     return left + right
+
+def html_content_set(html: str, node_path: NodePath, value:str) -> str | None:
+    """This function sets the content of the specified node in the HTML string."""
+
+    node = html_locator.locate_node(html, node_path)
+    if node is None:
+        raise Exception(f'node not found at path={node_path} in html=```{html}```')
+
+    if node.content_span is None:
+        raise Exception(f'node is a void tag at path={node_path} in html=```{html}```')
+
+    x, y = node.content_span
+    left = html[:x]
+    right = html[y:]
+    return left + value + right

@@ -34,6 +34,7 @@ def test_items_in_constructor():
     assert len(target) == 2
     assert target.get('apple').color == 'red'
     assert target.get('banana').color == 'yellow'
+    assert target.get('missing') is None
 
 
 def test_keyfunc_in_constructor():
