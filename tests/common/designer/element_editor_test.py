@@ -208,6 +208,19 @@ class Component2():
         # language=html
         assert """<button id='foo' >bar</button>""" == target_fixture.current_html
 
+    def test_content_string_get(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'>bar</button>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        assert target.attributes.get('content string').value == 'bar'
+
 
 @pytest.fixture
 def target_fixture(dyn_sys_path):

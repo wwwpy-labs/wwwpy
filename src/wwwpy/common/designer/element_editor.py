@@ -94,8 +94,8 @@ class ElementEditor:
 
         self.element_path = element_path
         self.element_def = element_def
-        self._fill_attrs()
         self._fill_events()
+        self._fill_attrs()
 
     def _fill_events(self):
         element_def = self.element_def
@@ -111,7 +111,12 @@ class ElementEditor:
     def _fill_attrs(self):
         element_def = self.element_def
         element_path = self.element_path
-        attributes = html_locator.locate_node(self._html_source(), element_path.path).attributes
+        node = html_locator.locate_node(self._html_source(), element_path.path)
+
+        ad_content_string = el.AttributeDef('content string', el.Help('This is the inner content of the tag', ''), )
+        self.attributes.append(AttributeEditor(ad_content_string, False, node.content, None, None))
+
+        attributes = node.attributes
         for attribute_def in element_def.attributes:
             exists = attribute_def.name in attributes
             value = attributes.get(attribute_def.name, None)
