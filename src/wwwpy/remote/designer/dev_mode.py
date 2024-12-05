@@ -7,11 +7,8 @@ import js
 
 logger = logging.getLogger(__name__)
 
-_wwwpy_dev_mode = 'wwwpy_dev_mode'
-
 
 async def activate():
-    setattr(js.window, _wwwpy_dev_mode, True)
     from wwwpy.remote import micropip_install
     from wwwpy.common import designer
 
@@ -29,7 +26,10 @@ async def activate():
 
 
 def is_active() -> bool:
-    return hasattr(js.window, _wwwpy_dev_mode)
+    try:
+        return js.window._wwwpy_dev_mode
+    except AttributeError:
+        return False
 
 
 def _global_exception_handler(loop, context):
@@ -39,3 +39,7 @@ def _global_exception_handler(loop, context):
     if exception:
         logger.info(f"Exception type: {type(exception)}, Args: {exception.args}")
         logger.exception(exception)
+
+
+def set_active(dev_mode: bool):
+    js.window._wwwpy_dev_mode = dev_mode

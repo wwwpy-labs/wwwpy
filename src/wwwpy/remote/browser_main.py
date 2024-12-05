@@ -23,6 +23,7 @@ async def entry_point(dev_mode: bool = False):
     # print_tree('/wwwpy_bundle')
 
     await setup_websocket()
+    dm.set_active(dev_mode)
     if dev_mode:
         await dm.activate()
 
@@ -43,6 +44,10 @@ async def _invoke_browser_main():
         console.log('invoke_browser_main')
 
         try:
+            js.document.documentElement.innerHTML = ''
+            for attr in js.document.documentElement.attributes:
+                js.document.documentElement.removeAttributeNode(attr)
+
             js.document.body.innerText = f'Going to import the "remote" package'
             import remote
             if hasattr(remote, 'main'):
@@ -51,8 +56,10 @@ async def _invoke_browser_main():
                 else:
                     remote.main()
         except ModuleNotFoundError as e:
+            js.console.error(f'ModuleNotFoundError: {e}')
             js.document.body.innerHTML = _remote_module_not_found_html
         except Exception as e:
+            js.console.error(f'Exception: {e}')
             _show_exception(e, _no_remote_infrastructure_found_text)
             from wwwpy.server.designer import rpc
             create_task_safe(rpc.on_exception_string(traceback.format_exc()))
@@ -60,6 +67,15 @@ async def _invoke_browser_main():
         if dm.is_active():
             from wwwpy.remote.designer.ui import dev_mode_component
             dev_mode_component.show()
+
+
+def _reset_document():
+    pass
+    # the following code is very controversial.
+    # js.document.open()
+    # js.document.write('<!DOCTYPE html><html></html>')
+    # js.document.close()
+
 
 
 def _show_exception(e, html: str):
