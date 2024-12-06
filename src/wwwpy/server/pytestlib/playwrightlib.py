@@ -1,31 +1,50 @@
+from __future__ import annotations
+
 import inspect
 import os
+from dataclasses import dataclass
 from threading import Thread
 from types import FunctionType
 from typing import Callable, Any
 
 from playwright.sync_api import PageAssertions, LocatorAssertions, APIResponseAssertions, Page, sync_playwright, \
-    Playwright
+    Playwright, Browser
 
 with sync_playwright() as pw: pass  # workaround to run playwright in a new thread. see: https://github.com/microsoft/playwright-python/issues/1685
 
 
-def start_playwright_in_thread(url: str, headless: bool):
+@dataclass
+class PlaywrightBunch:
+    playwright: Playwright
+    page: Page
+    browser: Browser
+
+@dataclass
+class PlaywrightArgs:
+    url: str
+    headless: bool
+    instance: PlaywrightBunch | None = None
+
+
+def start_playwright_in_thread(url: str, headless: bool) -> PlaywrightArgs:
+    args = PlaywrightArgs(url, headless, None)
+
     def in_thread():
-        start_playwright(url, headless)
+        start_playwright(args)
 
     thread = Thread(target=in_thread, daemon=True)
     thread.start()
+    return args
 
 
-def start_playwright(url: str, headless: bool):
+def start_playwright(args: PlaywrightArgs) -> None:
     playwright = sync_playwright().start()
-    args = ['--enable-features=WebAssemblyExperimentalJSPI']
-    browser = playwright.chromium.launch(headless=headless, args=args)
+    launch_args = ['--enable-features=WebAssemblyExperimentalJSPI']
+    browser = playwright.chromium.launch(headless=args.headless, args=launch_args)
     page = browser.new_page()
     playwright_setup_page_logger(page)
-    page.goto(url)
-    return playwright
+    page.goto(args.url)
+    args.instance = PlaywrightBunch(playwright, page, browser)
 
 
 def playwright_setup_page_logger(page: Page):
