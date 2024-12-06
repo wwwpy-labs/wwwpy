@@ -9,7 +9,7 @@ from wwwpy.common.iterlib import CallableToIterable
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
-from wwwpy.resources import Resource, StringResource, ResourceIterable, from_directory
+from wwwpy.resources import Resource, StringResource, ResourceIterable, from_directory, from_directory_lazy
 from wwwpy.unasync import unasync
 from pathlib import Path
 
@@ -90,6 +90,7 @@ class RpcRoute:
         self._allowed_modules: set[str] = set()
         self.route = HttpRoute(route_path, self._route_callback)
         self.tmp_bundle_folder = Path(tempfile.mkdtemp())
+        # self._generated_once = False
 
     def _route_callback(self, request: HttpRequest) -> HttpResponse:
         resp = self.dispatch(request.content)
@@ -128,8 +129,15 @@ class RpcRoute:
 
     def remote_stub_resources(self) -> ResourceIterable:
         return from_directory(self.tmp_bundle_folder)
+        # def folder_provider():
+        #     if not self._generated_once:
+        #         self.generate_remote_stubs()
+        #     return self.tmp_bundle_folder, self.tmp_bundle_folder
+        #
+        # return from_directory_lazy(folder_provider)
 
     def generate_remote_stubs(self) -> List[Path]:
+        # _generated_once = True
         result = []
         for module_name in self._allowed_modules:
             module = self.find_module(module_name)

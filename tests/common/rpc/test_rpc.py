@@ -3,6 +3,7 @@ from types import ModuleType
 
 from tests.common.rpc import support1, support2
 from wwwpy.rpc import Module, RpcRoute
+from tests.common import dyn_sys_path, DynSysPath
 
 support2_module_name = 'tests.common.rpc.support2'
 
@@ -80,3 +81,11 @@ def test_module_missing_and_one_present():
     actual = list(target.remote_stub_resources())
     actual_names = list(map(lambda x: x.arcname, actual))
     assert actual_names == ['tests/common/rpc/support2.py']
+
+# def test_module_should_create_stub_automatically(dyn_sys_path:DynSysPath):
+#     dyn_sys_path.write_module2('some/module.py', 'def some_function(a: int, b: int) -> int: return a + b')
+#     target = RpcRoute('/rpc1')
+#     target.allow('some.module')
+#     actual = list(target.remote_stub_resources())
+#     actual_names = list(map(lambda x: x.arcname, actual))
+#     assert actual_names == ['some/module.py']
