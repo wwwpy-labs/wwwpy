@@ -62,11 +62,8 @@ def setup(config: Config, settings: Settings = None) -> Project:
     services = _configure_server_rpc_services('/wwwpy/rpc', list(config.server_rpc_packages))
     services.generate_remote_stubs()
 
-    resources = [
-        library_resources(),
-        services.remote_stub_resources(),
-        *[from_directory(directory / f, relative_to=directory) for f in config.remote_folders]
-    ]
+    resources = [library_resources(), services.remote_stub_resources(), ] + \
+                [from_directory(directory / f, relative_to=directory) for f in config.remote_folders]
 
     routes: list[Route] = [
         services.route,
