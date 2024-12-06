@@ -94,6 +94,7 @@ class XVirtImpl(XVirt):
 
     def finalize(self):
         self.close_pw.set()
+        self.playwright_args.queue.put(None)
         # self._thread.join()
 
     def recv_event(self) -> str:

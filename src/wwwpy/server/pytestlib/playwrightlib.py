@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import inspect
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from queue import Queue
 from threading import Thread
 from types import FunctionType
 from typing import Callable, Any
@@ -19,18 +20,25 @@ class PlaywrightBunch:
     page: Page
     browser: Browser
 
+
 @dataclass
 class PlaywrightArgs:
     url: str
     headless: bool
+    queue: Queue = field(default_factory=Queue)
     instance: PlaywrightBunch | None = None
 
 
 def start_playwright_in_thread(url: str, headless: bool) -> PlaywrightArgs:
-    args = PlaywrightArgs(url, headless, None)
+    args = PlaywrightArgs(url, headless)
 
     def in_thread():
         start_playwright(args)
+        while True:
+            element = args.queue.get(timeout=30)
+            if element is None:
+                break
+            element()
 
     thread = Thread(target=in_thread, daemon=True)
     thread.start()
