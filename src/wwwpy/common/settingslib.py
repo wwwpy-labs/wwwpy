@@ -20,3 +20,7 @@ class Settings:
     @property
     def open_url_code(self) -> str:
         return self._config.get('general', 'open_url_code', fallback='')
+
+    @property
+    def log_level(self) -> dict[str, str]:
+        return dict(self._config.items('log_level'))

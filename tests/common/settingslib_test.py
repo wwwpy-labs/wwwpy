@@ -24,6 +24,12 @@ def test_open_url_set(tmp_path):
     assert target.open_url_code == """import os; os.system("open '{url}')"""
 
 
+def test_log_level(tmp_path):
+    content = """[log_level]\nmod1.mod2=DEBUG\nmod3=INFO"""
+    target, _ = _new_target(tmp_path, content)
+    assert {'mod1.mod2': 'DEBUG', 'mod3': 'INFO'} == target.log_level
+
+
 def _new_target(tmp_path, content: str = None):
     target = Settings()
     ini = tmp_path / 'foo.ini'
