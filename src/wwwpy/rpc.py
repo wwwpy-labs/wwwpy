@@ -143,23 +143,27 @@ class RpcRoute:
         #
         # return from_directory_lazy(folder_provider)
 
-    def generate_remote_stubs(self) -> List[Path]:
+    def generate_remote_stubs(self) -> tuple[List[Path], List[Path]]:
         # _generated_once = True
         logger.debug(f'generate_remote_stubs in {self.tmp_bundle_folder}')
-        result = []
+        add = []
+        rem = []
         for module_name in self._allowed_modules:
             module = self.find_module(module_name)
+            filename = module_name.replace('.', '/') + '.py'
+            file = self.tmp_bundle_folder / filename
             if module is None:
+                if file.exists():
+                    file.unlink(missing_ok=True)
+                    rem.append(file)
                 continue
             imports = 'from wwwpy.remote.fetch import async_fetch_str'
             stub_source = generate_stub_source(module, self.route.path, imports)
-            filename = module_name.replace('.', '/') + '.py'
-            file = self.tmp_bundle_folder / filename
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text(stub_source)
             logger.debug(f'Module `{module_name}` len(stub_source)={len(stub_source)}')
-            result.append(file)
-        return result
+            add.append(file)
+        return add, rem
 
 
 def generate_stub_source(module: Module, rpc_url: str, imports: str):

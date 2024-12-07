@@ -82,6 +82,22 @@ def test_module_missing_and_one_present():
     actual_names = list(map(lambda x: x.arcname, actual))
     assert actual_names == ['tests/common/rpc/support2.py']
 
+
+def test_module_add_and_remove__should_remove_old_stubs(dyn_sys_path: DynSysPath):
+    # GIVEN
+    mod2 = dyn_sys_path.write_module2('some/module.py', 'def some_function(a: int, b: int) -> int: return a + b')
+    target = RpcRoute('/rpc1')
+    target.allow('some.module')
+    target.generate_remote_stubs()
+
+    # WHEN
+    mod2.unlink()
+    target.generate_remote_stubs()
+
+    actual = list(target.remote_stub_resources())
+    actual_names = list(map(lambda x: x.arcname, actual))
+    assert actual_names == []
+
 # def test_module_should_create_stub_automatically(dyn_sys_path:DynSysPath):
 #     dyn_sys_path.write_module2('some/module.py', 'def some_function(a: int, b: int) -> int: return a + b')
 #     target = RpcRoute('/rpc1')
