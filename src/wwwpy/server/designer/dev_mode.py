@@ -141,4 +141,4 @@ def _print_events(label: str, events: List[sync.Event], root_dir: Path):
         return src_path if dest_path == '' else f'{src_path} -> {dest_path}'
 
     summary = list(set(to_str(e) for e in events if accept(e)))
-    logger.info(f'Hotreload {label} events: {len(events)}. Changes summary: {summary}')
+    logger.info(f'Hotreload {len(events)} events for `{label}`. Summary: {summary}')

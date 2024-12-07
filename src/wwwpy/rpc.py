@@ -12,6 +12,9 @@ from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
 from wwwpy.resources import Resource, StringResource, ResourceIterable, from_directory, from_directory_lazy
 from wwwpy.unasync import unasync
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Function(NamedTuple):
@@ -138,6 +141,7 @@ class RpcRoute:
 
     def generate_remote_stubs(self) -> List[Path]:
         # _generated_once = True
+        logger.debug(f'generate_remote_stubs in {self.tmp_bundle_folder}')
         result = []
         for module_name in self._allowed_modules:
             module = self.find_module(module_name)
@@ -149,6 +153,7 @@ class RpcRoute:
             file = self.tmp_bundle_folder / filename
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text(stub_source)
+            logger.debug(f'Module `{module_name}` len(stub_source)={len(stub_source)}')
             result.append(file)
         return result
 
