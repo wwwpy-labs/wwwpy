@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Collection
 
 from wwwpy.bootstrap import bootstrap_routes
+from wwwpy.common import loglib
 from wwwpy.common.rpc.custom_loader import CustomFinder
 from wwwpy.common.settingslib import Settings
 from wwwpy.resources import library_resources, from_directory
@@ -53,6 +54,8 @@ def setup(config: Config, settings: Settings = None) -> Project:
     if settings is None:
         settings = Settings()
 
+    loglib.set_log_level(settings.log_level)
+    
     directory = config.directory
     sys.path.insert(0, CustomStr(directory))
     sys.meta_path.insert(0, CustomFinder(set(config.remote_rpc_packages)))
