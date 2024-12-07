@@ -1,18 +1,18 @@
+import importlib
+import logging
 import tempfile
 import traceback
 from inspect import getmembers, isfunction, signature, iscoroutinefunction, Signature
+from pathlib import Path
 from types import ModuleType, FunctionType
-from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, Protocol, Iterator
+from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, Protocol
 
 from wwwpy.common import modlib
-from wwwpy.common.iterlib import CallableToIterable
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
-from wwwpy.resources import Resource, StringResource, ResourceIterable, from_directory, from_directory_lazy
+from wwwpy.resources import ResourceIterable, from_directory
 from wwwpy.unasync import unasync
-from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -110,8 +110,12 @@ class RpcRoute:
             return None
         if modlib._find_module_path(module_name) is None:
             return None
-        import importlib
-        module = importlib.import_module(module_name)
+        try:
+            module = importlib.import_module(module_name)
+        except Exception:
+            logger.exception(f'Cannot import module {module_name} even though find_module_path found it')
+            return None
+
         # todo, cache? beware of hot reload
         return Module(module)
 
