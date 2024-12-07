@@ -193,7 +193,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
         'br': lambda: '<br>',
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
-        'textarea': _def(placeHolder=True, inner=''),
+        'textarea': _def(placeHolder=True, inner='', add='rows="6" wrap="off" style="width: 100%"'),
         'select': _def(inner='''
             <option value="option1">Option 1</option>
             <option value="option2">Option 2</option>
