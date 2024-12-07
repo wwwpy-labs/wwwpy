@@ -23,4 +23,6 @@ class Settings:
 
     @property
     def log_level(self) -> dict[str, str]:
+        if not self._config.has_section('log_level'):
+            return {}
         return dict(self._config.items('log_level'))
