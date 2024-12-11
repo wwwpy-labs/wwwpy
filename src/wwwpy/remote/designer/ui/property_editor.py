@@ -150,9 +150,10 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             attr_def = attr_editor.definition
             row1 = PE_attribute() if not attr_def.boolean else PE_attribute_bool()
             self.add_row(row1)
-            if isinstance(row1, PE_attribute):
-                row1.label.label.innerHTML = attr_def.name
-                row1.label.set_help(attr_def.help)
+
+            row1.label.label.innerHTML = attr_def.name
+            row1.label.set_help(attr_def.help)
+
             if not attr_def.boolean:
                 options: List[Option] = [Option(value) for value in attr_def.values]
                 focus_search = len(options) > 0
@@ -261,7 +262,7 @@ class PE_event(wpc.Component):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <div data-name="label">uff</div><input data-name='value' type="text" class="wwwpy-property-input">
+        <div data-name="label">no-lbl-set</div><input data-name='value' type="text" class="wwwpy-property-input">
             """
 
     def value__dblclick(self, event):
@@ -275,7 +276,7 @@ class PE_label(wpc.Component, tag_name='wwwpy-pe-label'):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <div style="display: flex; justify-content: space-between;">
+        <div style="width: 100%; display: flex; justify-content: space-between;">
             <span data-name="label"></span>
             <wwwpy-help-icon data-name="_help"></wwwpy-help-icon>
         </div>
@@ -304,13 +305,13 @@ class PE_attribute(wpc.Component):
 
 
 class PE_attribute_bool(wpc.Component):
-    label: js.HTMLElement = wpc.element()
+    label: PE_label = wpc.element()
     value: js.HTMLInputElement = wpc.element()
 
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <div data-name="label">uff</div>
+        <wwwpy-pe-label data-name="label" style="width: 100%"></wwwpy-pe-label>
         <div>
             <input type="checkbox" data-name="value" style="transform: scale(1.4)">
         </div>

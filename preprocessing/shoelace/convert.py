@@ -42,7 +42,7 @@ def create_element(jet, vsc):
 
         attr = el.AttributeDef(
             attr_name,
-            help=el.Help('', jet_attr.get('description', ''))
+            help=el.Help(jet_attr.get('description', ''), '')
             , values=values, boolean=is_bool, default_value=jet_default
         )
 
@@ -51,7 +51,7 @@ def create_element(jet, vsc):
     events: list[el.EventDef] = []
     for jet_event in jet['events']:
         event_name = jet_event['name']
-        event = el.EventDef(event_name, help=el.Help('', jet_event.get('description', '')))
+        event = el.EventDef(event_name, help=el.Help(jet_event.get('description', ''), ''))
         events.append(event)
 
     element = el.ElementDef(tag_name, 'js.HTMLElement', help=help,
