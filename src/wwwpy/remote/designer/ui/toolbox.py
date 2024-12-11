@@ -215,10 +215,19 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         self._update_toolbox_elements()
 
     def _update_toolbox_elements(self):
+        def search_match(meta: MenuMeta):
+            search = self.inputSearch.value.lower()
+            lbl = meta.label.lower()
+            starts_with = search.startswith(' ') and lbl.startswith(search.lstrip())
+            ends_with = search.endswith(' ') and lbl.endswith(search.rstrip())
+            if starts_with or ends_with:
+                return True
+            return search in lbl
+
         self.body.innerHTML = ''
         for meta in self._all_items:
             p = meta.p_element
-            if meta.always_visible or self.inputSearch.value.lower() in meta.label.lower():
+            if meta.always_visible or search_match(meta):
                 self.body.appendChild(p)
 
     async def _select_clear_btn__click(self, e: Event):
@@ -248,10 +257,6 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     # async def _open_error_reporter(self, e: Event):
     #     _open_error_reporter_window('test error report body')
 
-    @menu(components_marker)
-    def _drop_zone_start(self, e: Event):
-        assert False, 'Just a placeholder'
-
     @menu(Help('Create new component', _help_url('add_component')))
     async def _add_new_component(self, e: Event):
         if js.window.confirm('Add new component file?\nIt will be added to your "remote" folder.'):
@@ -262,6 +267,10 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     async def _browse_local_filesystem(self, e: Event):
         from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
         filesystem_tree.show_explorer(DevModeComponent.instance.root_element())
+
+    @menu(components_marker)
+    def _drop_zone_start(self, e: Event):
+        assert False, 'Just a placeholder'
 
     # @menu('handle global click')
     def _handle_global_click(self, e: Event):
