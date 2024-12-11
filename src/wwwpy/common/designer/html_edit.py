@@ -83,16 +83,29 @@ def html_attribute_remove(html: str, node_path: NodePath, attr_name: str) -> str
     if cst_attr is None:
         return html
 
-    value_present = cst_attr.value_span is not None
+    if len(node.attributes) == 1:
+        x = node.attr_span[0]
+        y = node.attr_span[1]
+        return html[:x] + html[y:]
 
+
+    value_present = cst_attr.value_span is not None
     x = cst_attr.name_span[0]
     y = cst_attr.value_span[1] if value_present else cst_attr.name_span[1]
+
     left = html[:x]
     right = html[y:]
 
-    return left + right
+    left = left.rstrip()
+    right = right.lstrip()
 
-def html_content_set(html: str, node_path: NodePath, value:str) -> str | None:
+    is_leftmost = cst_attr.child_index == 0
+    space = ' ' if is_leftmost else ''
+
+    return left + space + right
+
+
+def html_content_set(html: str, node_path: NodePath, value: str) -> str | None:
     """This function sets the content of the specified node in the HTML string."""
 
     node = html_locator.locate_node(html, node_path)

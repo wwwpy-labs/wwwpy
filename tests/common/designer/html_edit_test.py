@@ -95,14 +95,21 @@ class TestAttributeRemove:
         # language=html
         actual = html_attribute_remove("<div id='foo'></div>", path, 'id')
         # language=html
-        assert actual == "<div ></div>"
+        assert actual == "<div></div>"
 
     def test_None_valued_attr(self):
         path = [Node("div", 0, {'id': None})]
         # language=html
         actual = html_attribute_remove("<div id></div>", path, 'id')
         # language=html
-        assert actual == "<div ></div>"
+        assert actual == "<div></div>"
+
+    def test_None_valued_attr_many_spaces(self):
+        path = [Node("div", 0, {'id': None})]
+        # language=html
+        actual = html_attribute_remove("<div  id   ></div>", path, 'id')
+        # language=html
+        assert actual == "<div></div>"
 
     def test_missingAttr(self):
         path = [Node("div", 0, {'id': None})]
@@ -110,6 +117,34 @@ class TestAttributeRemove:
         actual = html_attribute_remove("<div id></div>", path, 'foo')
         # language=html
         assert actual == "<div id></div>"
+
+    def test_multiple_attributes__first_no_space_after(self):
+        path = [Node("div", 0, {'id': 'foo', 'class': 'bar'})]
+        # language=html
+        actual = html_attribute_remove("<div id='foo'class='bar'></div>", path, 'id')
+        # language=html
+        assert actual == "<div class='bar'></div>"
+
+    def test_multiple_attributes__first_yes_space_after(self):
+        path = [Node("div", 0, {'id': 'foo', 'class': 'bar'})]
+        # language=html
+        actual = html_attribute_remove("<div id='foo' class='bar'></div>", path, 'id')
+        # language=html
+        assert actual == "<div class='bar'></div>"
+
+    def test_multiple_attributes__last_no_space_at_all(self):
+        path = [Node("div", 0, {'id': 'foo', 'class': 'bar'})]
+        # language=html
+        actual = html_attribute_remove("<div class='bar'id='foo'></div>", path, 'id')
+        # language=html
+        assert actual == "<div class='bar'></div>"
+
+    def test_multiple_attributes__last_no_space_after(self):
+        path = [Node("div", 0, {'id': 'foo', 'class': 'bar'})]
+        # language=html
+        actual = html_attribute_remove("<div class='bar' id='foo'></div>", path, 'id')
+        # language=html
+        assert actual == "<div class='bar'></div>"
 
 
 class TestContentSet:

@@ -206,7 +206,7 @@ class Component2():
 
         # THEN
         # language=html
-        assert """<button id='foo' >bar</button>""" == target_fixture.current_html
+        assert """<button id='foo'>bar</button>""" == target_fixture.current_html
 
 class TestContent:
     def test_content_string_value_get(self, target_fixture):
