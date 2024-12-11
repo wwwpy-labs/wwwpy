@@ -36,7 +36,7 @@ def test_nested():
 def test_nested_with_attributes_and_spaces():
     actual = html_to_tree('<div   id="div1" > <p ></p> </div> ')
     children = CstTree([CstNode(tag_name='p', span=(19, 27), attr_span=(21, 22), content_span=(23, 23))])
-    attributes_list = [CstAttribute('id', 'div1', (7, 9), (10, 16))]
+    attributes_list = [CstAttribute('id', 'div1', (7, 9), (10, 16), 0)]
     expect = [CstNode(tag_name='div', span=(0, 34), attr_span=(4, 17), content_span=(18, 28)
                       , attributes_list=attributes_list, children=children)]
     assert actual == expect
@@ -46,7 +46,7 @@ def test_nested_with_attributes_and_spaces():
 
 def test_attribute_without_value():
     actual = html_to_tree('<div foo></div>')
-    attrs = [CstAttribute('foo', None, (5, 8), None)]
+    attrs = [CstAttribute('foo', None, (5, 8), None, 0)]
     expect = [CstNode(tag_name='div', span=(0, 15), attr_span=(4, 8), content_span=(9, 9), attributes_list=attrs)]
     assert actual == expect
 
@@ -61,7 +61,7 @@ def test_void_tags():
 
 def test_void_tags_with_attributes_and_spaces():
     actual = html_to_tree('<div>@<input id= "input1"  ></div>'.replace('@', '\n'))
-    attrs = [CstAttribute('id', 'input1', (13, 15), (17, 25))]
+    attrs = [CstAttribute('id', 'input1', (13, 15), (17, 25), 0)]
     children = CstTree([CstNode(tag_name='input', span=(6, 28), attr_span=(12, 12 + 15), attributes_list=attrs)])
     expect = [CstNode(tag_name='div', span=(0, 34), attr_span=(4, 4), content_span=(5, 28), children=children)]
     assert actual == expect
@@ -70,9 +70,14 @@ def test_void_tags_with_attributes_and_spaces():
 def test_attributes_with_escaped_values():
     actual = html_to_tree('<div id="&lt;div1&gt;"></div>')
     expect = [CstNode(tag_name='div', span=(0, 29), attr_span=(4, 22), content_span=(23, 23),
-                      attributes_list=[CstAttribute('id', '<div1>', (5, 7), (8, 22))])]
+                      attributes_list=[CstAttribute('id', '<div1>', (5, 7), (8, 22), 0)])]
     assert actual == expect
 
+def test_attributes_two():
+    actual = html_to_tree('<div id="div1" class="cls1"></div>')
+    attrs = [CstAttribute('id', 'div1', (5, 7), (8, 14), 0), CstAttribute('class', 'cls1', (15, 20), (21, 27), 1)]
+    expect = [CstNode(tag_name='div', span=(0, 34), attr_span=(4, 27), content_span=(28, 28), attributes_list=attrs)]
+    assert actual == expect
 
 def test_issue20240727():
     # language=html

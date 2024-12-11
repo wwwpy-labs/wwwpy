@@ -13,6 +13,8 @@ class CstAttribute:
     name_span: Tuple[int, int]
     value_span: Tuple[int, int] | None
     """The span of the attribute value in the HTML string including the quotes char."""
+    child_index: int
+    """The index of the attribute in the parent node."""
 
 
 def cst_attribute_dict(*attributes: CstAttribute) -> Dict[str, CstAttribute]:
@@ -85,8 +87,8 @@ class _PositionalHTMLParser(HTMLParser):
     def handle_starttag_extended(self, tag, attrs, attrs_extended, autoclosing):
         start_pos = self.current_pos
 
-        def _cst_attr(name, v) -> CstAttribute:
-            return CstAttribute(name, v['value'], v['name_span'], v['value_span'])
+        def _cst_attr(name, v, idx) -> CstAttribute:
+            return CstAttribute(name, v['value'], v['name_span'], v['value_span'], idx)
 
         text = self.get_starttag_text()
         end_displ = 2 if autoclosing else 1
@@ -96,7 +98,7 @@ class _PositionalHTMLParser(HTMLParser):
             span=(start_pos, None),
             attr_span=attr_span,
             content_span=None if autoclosing else (attr_span[1] + 1, None),
-            attributes_list=[_cst_attr(name, v) for name, v in attrs_extended.items()],
+            attributes_list=[_cst_attr(name, v, idx) for idx, (name, v) in enumerate(attrs_extended.items())],
         )
 
         if self.stack:
