@@ -99,7 +99,7 @@ def _standard_elements_def() -> List[ElementDef]:
                 ),
                 ad_name,
             ],
-            events=[ed_input, ed_change,],
+            events=[ed_input, ed_change, ],
         ),
         ElementDef(
             'div', 'js.HTMLDivElement',
@@ -170,10 +170,97 @@ def _standard_elements_def() -> List[ElementDef]:
 
     ]
 
+    _add_additional(res)
+
     for r in res:
         r.gen_html = _generateHtml
+
     _insert_common_to_all(res)
     return res
+
+
+_element_additional = [
+    # tag_name, python_type, description, url
+    ('a', 'js.HTMLAnchorElement', 'A hyperlink.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a'),
+    ('h1', 'js.HTMLHeadingElement', 'A top-level heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1'),
+    ('h2', 'js.HTMLHeadingElement', 'A level-2 heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h2'),
+    ('h3', 'js.HTMLHeadingElement', 'A level-3 heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h3'),
+    ('h4', 'js.HTMLHeadingElement', 'A level-4 heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h4'),
+    ('h5', 'js.HTMLHeadingElement', 'A level-5 heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h5'),
+    ('h6', 'js.HTMLHeadingElement', 'A level-6 heading.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h6'),
+    ('p', 'js.HTMLParagraphElement', 'A paragraph.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p'),
+    ('span', 'js.HTMLSpanElement', 'A generic inline container.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/span'),
+    ('strong', 'js.HTMLElement', 'A strong emphasis.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong'),
+    ('em', 'js.HTMLElement', 'An emphasized text.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em'),
+    ('ul', 'js.HTMLUListElement', 'An unordered list.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul'),
+    ('ol', 'js.HTMLOListElement', 'An ordered list.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol'),
+    ('li', 'js.HTMLLIElement', 'A list item.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li'),
+    ('table', 'js.HTMLTableElement', 'A table.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table'),
+    ('thead', 'js.HTMLTableSectionElement', 'A table header.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/thead'),
+    ('tbody', 'js.HTMLTableSectionElement', 'A table body.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tbody'),
+    ('tr', 'js.HTMLTableRowElement', 'A table row.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr'),
+    ('th', 'js.HTMLTableCellElement', 'A table header cell.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th'),
+    ('td', 'js.HTMLTableCellElement', 'A table data cell.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td'),
+    ('img', 'js.HTMLImageElement', 'An image.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img'),
+    ('form', 'js.HTMLFormElement', 'A form.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form'),
+    ('label', 'js.HTMLLabelElement', 'A label.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label'),
+    ('option', 'js.HTMLOptionElement', 'An option in a select list.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option'),
+    ('optgroup', 'js.HTMLOptGroupElement', 'A group of options in a select list.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup'),
+    ('hr', 'js.HTMLHRElement', 'A thematic break.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr'),
+    ('nav', 'js.HTMLElement', 'A navigation section.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav'),
+    ('header', 'js.HTMLElement', 'A header section.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header'),
+    ('footer', 'js.HTMLElement', 'A footer section.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/footer'),
+    ('main', 'js.HTMLElement', 'A main section.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main'),
+    ('section', 'js.HTMLElement', 'A section.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section'),
+    ('article', 'js.HTMLElement', 'An article.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article'),
+    ('aside', 'js.HTMLElement', 'An aside section.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside'),
+    ('figure', 'js.HTMLFigureElement', 'A figure.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure'),
+    ('figcaption', 'js.HTMLElement', 'A figure caption.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption'),
+    ('details', 'js.HTMLDetailsElement', 'A details section.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details'),
+    ('summary', 'js.HTMLElement', 'A summary.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary'),
+    ('video', 'js.HTMLVideoElement', 'A video.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video'),
+    ('audio', 'js.HTMLAudioElement', 'An audio.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio'),
+    ('source', 'js.HTMLSourceElement', 'A source.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/source'),
+    ('canvas', 'js.HTMLCanvasElement', 'A canvas.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas'),
+    (
+        'iframe', 'js.HTMLIFrameElement', 'An iframe.',
+        'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe'),
+    ('embed', 'js.HTMLEmbedElement', 'An embed.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/embed'),
+    (
+        'object', 'js.HTMLObjectElement', 'An object.',
+        'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object'),
+    ('map', 'js.HTMLMapElement', 'A map.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map'),
+    ('style', 'js.HTMLStyleElement', 'A style.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style'),
+    ('title', 'js.HTMLTitleElement', 'A title.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title'),
+    ('script', 'js.HTMLScriptElement', 'A script.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'),
+    ('template', 'js.HTMLTemplateElement', 'A template.',
+     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template'),
+]
+
+
+def _add_additional(elements: List[ElementDef]):
+    already_present = {e.tag_name for e in elements}
+    for tag_name, python_type, description, url in _element_additional:
+        if tag_name not in already_present:
+            elements.append(ElementDef(tag_name, python_type, help=Help(description, url)))
 
 
 def _generateHtml(element_def: ElementDef, name: str) -> str:
@@ -200,7 +287,9 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
             <option value="option2">Option 2</option>
             <option value="option3">Option 3</option>
         '''),
-        'meter': _def(add='value="0.85" min="0" max="1" low="0.3" high="0.7" optimum="0.8"')
+        'meter': _def(add='value="0.85" min="0" max="1" low="0.3" high="0.7" optimum="0.8"'),
+        'span': _def(),
+        'a': _def(),
     }
     gen_html = func.get(tag_name, None)
     html = '\n' + gen_html() if gen_html else '' + ElementDef.default_gen_html(element_def, name)

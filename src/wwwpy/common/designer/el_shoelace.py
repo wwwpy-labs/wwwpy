@@ -77,6 +77,7 @@ def _shoelace_elements_def() -> List[ElementDef]:
     _insert_event(elements, ['sl-input', 'sl-textarea', 'sl-checkbox'], ed_input)
 
     _insert_common_to_all(elements)
+
     _reorder(elements)
     return elements
 

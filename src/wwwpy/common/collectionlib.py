@@ -13,9 +13,6 @@ class ListMap(list[T]):
             self._key = key_func
         self._map = {self._key(item): item for item in self}
 
-    # append = _modify_method(list.append)
-    # extend = _modify_method(list.extend, takes_list=True)
-    # insert = _modify_method(list.insert, 1)
     # __add__ = _modify_method(list.__add__, takes_list=True)
     # __iadd__ = _modify_method(list.__iadd__, takes_list=True)
     # __setitem__ = _modify_method(list.__setitem__, 1)
@@ -25,6 +22,15 @@ class ListMap(list[T]):
     def append(self, value: T):
         self._map[self._key(value)] = value
         super().append(value)
+
+    def insert(self, index: int, value: T):
+        self._map[self._key(value)] = value
+        super().insert(index, value)
+
+    def extend(self, values: Collection[T]):
+        for value in values:
+            self._map[self._key(value)] = value
+        super().extend(values)
 
     def get(self, key: K) -> T | None:
         """Return the item with the given key or None if it does not exist."""

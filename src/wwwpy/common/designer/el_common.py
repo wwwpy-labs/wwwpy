@@ -42,13 +42,16 @@ ed_pointermove = EventDef('pointermove', Help('The pointermove event is fired wh
 
 
 def _insert_common_to_all(elements: List[ElementDef]):
-    attrs = reversed([ad_style, ad_class])
-    events = reversed([ed_keydown, ed_keyup, ed_pointerdown, ed_pointerup, ed_pointermove, ])
+    attrs = list(reversed([ad_style, ad_class]))
+    events = list(reversed([ed_keydown, ed_keyup, ed_pointerdown, ed_pointerup, ed_pointermove, ]))
 
     for element in elements:
+        ea = element.attributes
         for attr in attrs:
-            if element.attributes.get(attr.name) is None:
-                element.attributes.insert(0, attr)
+            if ea.get(attr.name) is None:
+                ea.insert(0, attr)
+
+        ee = element.events
         for event in events:
-            if element.events.get(event.name) is None:
-                element.events.append(event)
+            if ee.get(event.name) is None:
+                ee.append(event)

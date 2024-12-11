@@ -25,6 +25,28 @@ def test_add_item():
     assert len(target) == 1
     assert target.get('apple').color == 'red'
 
+def test_insert_item():
+    # GIVEN
+    target = MyListMap()
+
+    # WHEN
+    target.insert(0, Item('apple', 'red'))
+
+    # THEN
+    assert len(target) == 1
+    assert target.get('apple').color == 'red'
+
+def test_extend_items():
+    # GIVEN
+    target = MyListMap()
+
+    # WHEN
+    target.extend([Item('apple', 'red'), Item('banana', 'yellow')])
+
+    # THEN
+    assert len(target) == 2
+    assert target.get('apple').color == 'red'
+    assert target.get('banana').color == 'yellow'
 
 def test_items_in_constructor():
     # GIVEN
