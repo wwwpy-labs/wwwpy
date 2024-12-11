@@ -150,9 +150,9 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             attr_def = attr_editor.definition
             row1 = PE_attribute() if not attr_def.boolean else PE_attribute_bool()
             self.add_row(row1)
-            row1.label.innerHTML = attr_def.name
-            if hasattr(row1, 'set_help'):
-                row1.set_help(attr_def.help)
+            if isinstance(row1, PE_attribute):
+                row1.label.label.innerHTML = attr_def.name
+                row1.label.set_help(attr_def.help)
             if not attr_def.boolean:
                 options: List[Option] = [Option(value) for value in attr_def.values]
                 focus_search = len(options) > 0
@@ -268,28 +268,35 @@ class PE_event(wpc.Component):
         if self.double_click_handler:
             self.double_click_handler()
 
-
-class PE_attribute(wpc.Component):
+class PE_label(wpc.Component, tag_name='wwwpy-pe-label'):
     label: js.HTMLElement = wpc.element()
     _help: HelpIcon = wpc.element()
-    value: SearchableComboBox = wpc.element()
-    double_click_handler = None
 
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <div>
-            <div style="width: 100%; display: flex; justify-content: space-between;">
-                <span data-name="label"></span>
-                <wwwpy-help-icon data-name="_help"></wwwpy-help-icon>
-            </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span data-name="label"></span>
+            <wwwpy-help-icon data-name="_help"></wwwpy-help-icon>
         </div>
-        <wwwpy-searchable-combobox2 data-name='value' class="wwwpy-property-input"></wwwpy-searchable-combobox2>
             """
 
     def set_help(self, help: element_library.Help):
         self._help.href = help.url
         self._help.visible = help.url != ''
+
+
+class PE_attribute(wpc.Component):
+    label: PE_label = wpc.element()
+    value: SearchableComboBox = wpc.element()
+    double_click_handler = None
+
+    def init_component(self):
+        # language=html
+        self.element.innerHTML = """       
+        <wwwpy-pe-label data-name="label" style="width: 100%"></wwwpy-pe-label>        
+        <wwwpy-searchable-combobox2 data-name='value' class="wwwpy-property-input"></wwwpy-searchable-combobox2>
+            """
 
     def value__dblclick(self, event):
         if self.double_click_handler:
