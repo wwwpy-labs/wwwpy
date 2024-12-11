@@ -1,7 +1,7 @@
 from typing import List
 
 from wwwpy.common.designer.el_common import ad_value, ad_disabled, ad_readonly, ad_autofocus, ad_required, \
-    ad_placeholder, ad_name, ed_click, ed_dblclick, ed_input, ed_keydown, ed_change
+    ad_placeholder, ad_name, ed_click, ed_dblclick, ed_input, ed_change, _insert_common_to_all
 from wwwpy.common.designer.element_library import ElementDef, Help, AttributeDef, NamedListMap
 
 
@@ -15,7 +15,7 @@ def _standard_elements_def() -> List[ElementDef]:
                              values=['submit', 'reset', 'button'], default_value='button'),
                 ad_value,
             ],
-            events=[ed_click, ed_dblclick, ed_keydown],
+            events=[ed_click, ed_dblclick],
         ),
         ElementDef(
             'input', 'js.HTMLInputElement',
@@ -43,7 +43,7 @@ def _standard_elements_def() -> List[ElementDef]:
                              boolean=True),
 
             ],
-            events=[ed_input, ed_click, ed_keydown]
+            events=[ed_input, ed_click]
         ),
         ElementDef(
             'textarea', 'js.HTMLTextAreaElement',
@@ -99,7 +99,7 @@ def _standard_elements_def() -> List[ElementDef]:
                 ),
                 ad_name,
             ],
-            events=[ed_input, ed_change, ed_keydown],
+            events=[ed_input, ed_change,],
         ),
         ElementDef(
             'div', 'js.HTMLDivElement',
@@ -147,7 +147,7 @@ def _standard_elements_def() -> List[ElementDef]:
                     Help('The form element that the select is associated with (its id).', '')
                 ),
             ],
-            events=[ed_change, ed_input, ed_keydown],
+            events=[ed_change, ed_input],
 
         ),
         ElementDef(
@@ -172,6 +172,7 @@ def _standard_elements_def() -> List[ElementDef]:
 
     for r in res:
         r.gen_html = _generateHtml
+    _insert_common_to_all(res)
     return res
 
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 
 from wwwpy.common.collectionlib import ListMap
-from wwwpy.common.designer.el_common import ed_click, ed_keydown, ed_input
+from wwwpy.common.designer.el_common import ed_click, ed_keydown, ed_input, ad_style, _insert_common_to_all
 from wwwpy.common.designer.element_library import ElementDef, EventDef, Help, NamedListMap, AttributeDef
 from wwwpy.common.rpc import serialization
 
@@ -76,6 +76,7 @@ def _shoelace_elements_def() -> List[ElementDef]:
                              'sl-textarea', 'sl-checkbox', 'sl-progress-bar'], ed_click)
     _insert_event(elements, ['sl-input', 'sl-textarea', 'sl-checkbox'], ed_input)
 
+    _insert_common_to_all(elements)
     _reorder(elements)
     return elements
 

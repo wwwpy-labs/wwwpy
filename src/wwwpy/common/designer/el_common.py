@@ -1,4 +1,11 @@
-from wwwpy.common.designer.element_library import AttributeDef, Help, EventDef
+from typing import List
+
+from wwwpy.common.designer.element_library import AttributeDef, Help, EventDef, ElementDef
+
+ad_style = AttributeDef('style', Help('Inline style.',
+                                      'https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style'))
+ad_class = AttributeDef('class', Help('A space-separated list of the classes of the element.',
+                                      'https://developer.mozilla.org/en-US/docs/Web/API/Element/classList'))
 
 ad_value = AttributeDef('value', Help('The value of the element.', ''))
 ad_disabled = AttributeDef('disabled', Help('Whether the control is disabled.', ''), boolean=True)
@@ -19,6 +26,29 @@ ed_input = EventDef('input', Help('The input event fires when the value of the e
                                   'https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event'))
 ed_keydown = EventDef('keydown', Help('The keydown event is fired when a key is pressed.'
                                       , 'https://developer.mozilla.org/en-US/docs/Web/API/Element/keydown_event'))
+ed_keyup = EventDef('keyup', Help('The keyup event is fired when a key is released.',
+                                  'https://developer.mozilla.org/en-US/docs/Web/API/Element/keyup_event'))
 ed_change = EventDef('change', Help(
     'The change event is fired when a change to the element\'s value is committed by the user.',
     'https://developer.mozilla.org/en-US/docs/Web/API/Element/change_event'))
+
+ed_pointerdown = EventDef('pointerdown', Help('The pointerdown event is fired when a pointer becomes active.',
+                                              'https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerdown_event'))
+
+ed_pointerup = EventDef('pointerup', Help('The pointerup event is fired when a pointer is no longer active.',
+                                          'https://developer.mozilla.org/en-US/docs/Web/API/Element/pointerup_event'))
+ed_pointermove = EventDef('pointermove', Help('The pointermove event is fired when a pointer changes coordinates.',
+                                              'https://developer.mozilla.org/en-US/docs/Web/API/Element/pointermove_event'))
+
+
+def _insert_common_to_all(elements: List[ElementDef]):
+    attrs = reversed([ad_style, ad_class])
+    events = reversed([ed_keydown, ed_keyup, ed_pointerdown, ed_pointerup, ed_pointermove, ])
+
+    for element in elements:
+        for attr in attrs:
+            if element.attributes.get(attr.name) is None:
+                element.attributes.insert(0, attr)
+        for event in events:
+            if element.events.get(event.name) is None:
+                element.events.append(event)
