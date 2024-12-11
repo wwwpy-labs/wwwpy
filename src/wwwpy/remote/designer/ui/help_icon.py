@@ -35,6 +35,8 @@ class HelpIcon(wpc.Component, tag_name='wwwpy-help-icon'):
 
     def _link__click(self, event: js.MouseEvent):
         event.stopPropagation()
+        if not self.href:
+            event.preventDefault()
 
     def attributeChangedCallback(self, name: str, oldValue: str, newValue: str):
         if name == 'href':
@@ -43,3 +45,10 @@ class HelpIcon(wpc.Component, tag_name='wwwpy-help-icon'):
     def _update_href(self):
         self._link.href = self.href
 
+    @property
+    def visible(self):
+        return self.element.style.visibility != 'hidden'
+
+    @visible.setter
+    def visible(self, value):
+        self.element.style.visibility = 'visible' if value else 'hidden'

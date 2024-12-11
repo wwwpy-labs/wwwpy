@@ -16,6 +16,7 @@ from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.helpers import _element_path_lbl, _rpc_save, _log_event, _help_button
 
 from .button_tab import ButtonTab, Tab
+from .help_icon import HelpIcon
 from .searchable_combobox2 import SearchableComboBox, Option
 
 
@@ -87,7 +88,8 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
 
         self._tab_palette = Tab('palette', on_selected=lambda tab: set_state_render(PropertyEditorMode.palette))
         self._tab_events = Tab('events', on_selected=lambda tab: set_state_render(PropertyEditorMode.events))
-        self._tab_attributes = Tab('attributes', on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes))
+        self._tab_attributes = Tab('attributes',
+                                   on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes))
         self._tabs.tabs = [self._tab_palette, self._tab_events, self._tab_attributes, ]
 
     def set_state_selection_active(self):
@@ -149,6 +151,8 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             row1 = PE_attribute() if not attr_def.boolean else PE_attribute_bool()
             self.add_row(row1)
             row1.label.innerHTML = attr_def.name
+            if hasattr(row1, 'set_help'):
+                row1.set_help(attr_def.help)
             if not attr_def.boolean:
                 options: List[Option] = [Option(value) for value in attr_def.values]
                 focus_search = len(options) > 0
@@ -267,15 +271,25 @@ class PE_event(wpc.Component):
 
 class PE_attribute(wpc.Component):
     label: js.HTMLElement = wpc.element()
+    _help: HelpIcon = wpc.element()
     value: SearchableComboBox = wpc.element()
     double_click_handler = None
 
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <div data-name="label">uff</div>
+        <div>
+            <div style="width: 100%; display: flex; justify-content: space-between;">
+                <span data-name="label"></span>
+                <wwwpy-help-icon data-name="_help"></wwwpy-help-icon>
+            </div>
+        </div>
         <wwwpy-searchable-combobox2 data-name='value' class="wwwpy-property-input"></wwwpy-searchable-combobox2>
             """
+
+    def set_help(self, help: element_library.Help):
+        self._help.href = help.url
+        self._help.visible = help.url != ''
 
     def value__dblclick(self, event):
         if self.double_click_handler:
