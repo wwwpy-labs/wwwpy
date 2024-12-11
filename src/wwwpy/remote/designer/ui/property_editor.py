@@ -290,7 +290,9 @@ class PE_attribute_bool(wpc.Component):
         # language=html
         self.element.innerHTML = """
         <div data-name="label">uff</div>
-        <input type="checkbox" data-name="value" style="transform: scale(1.4)">
+        <div>
+            <input type="checkbox" data-name="value" style="transform: scale(1.4)">
+        </div>
             """
 
 
