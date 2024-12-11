@@ -136,7 +136,7 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             self._tab_palette.selected = True
 
     def _set_title(self, lbl, value):
-        pe_title = PropertyEditorTitleRow()
+        pe_title = PE_title_row()
         pe_title.label.innerHTML = lbl
         pe_title.value.innerHTML = value
         self.add_row(pe_title)
@@ -146,7 +146,7 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         element_editor = ElementEditor(ep, element_def)
         for attr_editor in element_editor.attributes:
             attr_def = attr_editor.definition
-            row1 = PropertyEditorRowAttribute() if not attr_def.boolean else PropertyEditorRowBoolAttribute()
+            row1 = PE_attribute() if not attr_def.boolean else PE_attribute_bool()
             self.add_row(row1)
             row1.label.innerHTML = attr_def.name
             if not attr_def.boolean:
@@ -213,7 +213,7 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         self._set_title('Event', 'Value')
         element_editor = ElementEditor(ep, element_def)
         for event_editor in element_editor.events:
-            row1 = PropertyEditorRowAttribute2()
+            row1 = PE_event()
             self.add_row(row1)
             row1.label.innerHTML = event_editor.definition.name
             row1.value.placeholder = '' if event_editor.handled else 'Double click creates handler'
@@ -249,7 +249,7 @@ class PropertyEditorRow(wpc.Component, tag_name='wwwpy-property-editor-row'):
             """
 
 
-class PropertyEditorRowAttribute2(wpc.Component):
+class PE_event(wpc.Component):
     label: js.HTMLElement = wpc.element()
     value: js.HTMLInputElement = wpc.element()
     double_click_handler = None
@@ -265,7 +265,7 @@ class PropertyEditorRowAttribute2(wpc.Component):
             self.double_click_handler()
 
 
-class PropertyEditorRowAttribute(wpc.Component):
+class PE_attribute(wpc.Component):
     label: js.HTMLElement = wpc.element()
     value: SearchableComboBox = wpc.element()
     double_click_handler = None
@@ -282,7 +282,7 @@ class PropertyEditorRowAttribute(wpc.Component):
             self.double_click_handler()
 
 
-class PropertyEditorRowBoolAttribute(wpc.Component):
+class PE_attribute_bool(wpc.Component):
     label: js.HTMLElement = wpc.element()
     value: js.HTMLInputElement = wpc.element()
 
@@ -294,7 +294,7 @@ class PropertyEditorRowBoolAttribute(wpc.Component):
             """
 
 
-class PropertyEditorTitleRow(wpc.Component):
+class PE_title_row(wpc.Component):
     label: js.HTMLElement = wpc.element()
     value: js.HTMLElement = wpc.element()
 
