@@ -69,11 +69,18 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             align-items: center;
             padding-left: 5px;
         }
-        .wwwpy-property-input {
-            width: 100%;
+        .wwwpy-pe-box-padding {
             padding: 3px;
-            box-sizing: border-box;
-            /* border: 1px solid ; */                     
+        }
+        .wwwpy-pe-event-value {
+             width: 90%;
+            margin: 2px 0;
+            padding: 5px;
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 14px;
         }
     </style>
 <div data-name="message1div" style='color: white; margin: 0.3em'>&nbsp</div>
@@ -220,7 +227,8 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
         for event_editor in element_editor.events:
             row1 = PE_event()
             self.add_row(row1)
-            row1.label.innerHTML = event_editor.definition.name
+            row1.label.label.innerHTML = event_editor.definition.name
+            row1.label.set_help(event_editor.definition.help)
             row1.value.placeholder = '' if event_editor.handled else 'Double click creates handler'
             row1.value.readOnly = True
             row1.value.value = event_editor.method.name if event_editor.handled else ''
@@ -254,21 +262,6 @@ class PropertyEditorRow(wpc.Component, tag_name='wwwpy-property-editor-row'):
             """
 
 
-class PE_event(wpc.Component):
-    label: js.HTMLElement = wpc.element()
-    value: js.HTMLInputElement = wpc.element()
-    double_click_handler = None
-
-    def init_component(self):
-        # language=html
-        self.element.innerHTML = """
-        <div data-name="label">no-lbl-set</div><input data-name='value' type="text" class="wwwpy-property-input">
-            """
-
-    def value__dblclick(self, event):
-        if self.double_click_handler:
-            self.double_click_handler()
-
 class PE_label(wpc.Component, tag_name='wwwpy-pe-label'):
     label: js.HTMLElement = wpc.element()
     _help: HelpIcon = wpc.element()
@@ -286,6 +279,24 @@ class PE_label(wpc.Component, tag_name='wwwpy-pe-label'):
         self._help.href = help.url
         self._help.visible = help.url != ''
 
+class PE_event(wpc.Component):
+    label: PE_label = wpc.element()
+    value: js.HTMLInputElement = wpc.element()
+    double_click_handler = None
+
+    def init_component(self):
+        # language=html
+        self.element.innerHTML = """
+        <wwwpy-pe-label data-name="label"></wwwpy-pe-label> 
+        <div>
+            <input data-name='value' type="text" class="wwwpy-pe-box-padding wwwpy-pe-event-value">
+        </div>
+            """
+
+    def value__dblclick(self, event):
+        if self.double_click_handler:
+            self.double_click_handler()
+
 
 class PE_attribute(wpc.Component):
     label: PE_label = wpc.element()
@@ -295,8 +306,8 @@ class PE_attribute(wpc.Component):
     def init_component(self):
         # language=html
         self.element.innerHTML = """       
-        <wwwpy-pe-label data-name="label" style="width: 100%"></wwwpy-pe-label>        
-        <wwwpy-searchable-combobox2 data-name='value' class="wwwpy-property-input"></wwwpy-searchable-combobox2>
+        <wwwpy-pe-label data-name="label"></wwwpy-pe-label>        
+        <wwwpy-searchable-combobox2 data-name='value' class="wwwpy-pe-box-padding"></wwwpy-searchable-combobox2>
             """
 
     def value__dblclick(self, event):
@@ -311,7 +322,7 @@ class PE_attribute_bool(wpc.Component):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        <wwwpy-pe-label data-name="label" style="width: 100%"></wwwpy-pe-label>
+        <wwwpy-pe-label data-name="label"></wwwpy-pe-label>
         <div>
             <input type="checkbox" data-name="value" style="transform: scale(1.4)">
         </div>
