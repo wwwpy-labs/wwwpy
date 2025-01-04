@@ -1,1 +1,1 @@
-pypi_packages = ['libcst==1.3.1']
+pypi_packages = ['libcst==1.4.0']

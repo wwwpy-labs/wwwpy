@@ -42,7 +42,7 @@ where = ["src"]
 
 
 [project.optional-dependencies]
-# libcst==1.3.1 is the version available in pyodide 0.26.1
+# libcst==1.4.0 is the version available in pyodide 0.27.0
 test = ["tox", "pytest", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.5.1"]
 dev = ["webtypy", "playwright", "setuptools"] # setuptools is needed from PyCharm
 pypi = ["twine", "build"]
