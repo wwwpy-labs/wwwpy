@@ -73,6 +73,7 @@ def get_component(element: HTMLElement) -> Component | None:
     return component
 
 
+# PUBLIC-API
 class Component:
     component_metadata: Metadata = None
     element: HTMLElement = None
@@ -232,7 +233,7 @@ window.$ClassName = $ClassName;
 #     def toggle(self):
 #         pass
 
-
+# PUBLIC-API
 class attribute:
 
     def __init__(self):
@@ -250,6 +251,7 @@ class attribute:
         obj.element.setAttribute(self.name, value)
 
 
+# PUBLIC-API
 class element:
 
     def __init__(self):
