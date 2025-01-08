@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Union, Awaitable
 
 
+# PUBLIC-API
 def dict_to_js(o):
     import js
     import pyodide
