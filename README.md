@@ -10,6 +10,9 @@
 Develop web applications in Python quickly and easily.
 
 The vision of wwwpy:
+
+Simplify the learning curve and accelerate the development process. Make the development experience intuitive so developers can quickly move from understanding to implementation, solving problems faster. ⚡
+
 - ✨ Jumpstart Your Projects: With just a couple of commands, get a head start on building web UIs, allowing you to focus on coding and scaling your application.
 - 💻 Build Web UIs: Create web interfaces without focusing (too much :P) on the front end. Everything is Python. You can avoid HTML/DOM/CSS/JavaScript, but you can use its full power if you want. Use the drag-and-drop UI builder for rapid prototyping while still being able to easily create, extend, and customize UIs as needed.
 - 🏗️ Integrated Development Environment: use an intuitive UI building experience within the development environment, making it easy to edit properties and components as you go.
