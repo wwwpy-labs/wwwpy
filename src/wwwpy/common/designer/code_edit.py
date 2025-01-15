@@ -17,7 +17,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def add_property(source_code: str, class_name: str, attr_info: Attribute):
+def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute):
     source_code_imp = ensure_imports(source_code)
     module = cst.parse_module(source_code_imp)
     transformer = _AddFieldToClassTransformer(class_name, attr_info)
@@ -62,7 +62,8 @@ def add_component(source_code: str, class_name: str, comp_def: ElementDef, index
         attr_name = class_info.next_attribute_name(comp_def.tag_name)
         named_html = comp_def.new_html(attr_name)
 
-        source1 = add_property(source_code, class_name, Attribute(attr_name, comp_def.python_type, 'wpc.element()'))
+        source1 = add_class_attribute(source_code, class_name,
+                                      Attribute(attr_name, comp_def.python_type, 'wpc.element()'))
 
         def manipulate_html(html):
             add = html_add_indexed(html, named_html, index_path, position)
