@@ -189,6 +189,10 @@ class ElementEditor:
 
     def _data_name_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
         old_value = attribute_editor.value
+        if self._node.content and old_value == self._node.content:
+            # If the data-name is the same as the inner HTML, we should change the inner HTML too
+            self._content_string_set_value(None, value)
+
         self._attribute_set_value(attribute_editor, value)
         s1 = rename_class_attribute(self.current_python_source(), self.element_path.class_name, old_value, value)
         self._write_source(s1)

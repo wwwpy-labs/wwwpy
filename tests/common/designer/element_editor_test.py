@@ -308,6 +308,26 @@ class Component2():
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
     def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="slButton1">foo</sl-button>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).value = 'btnSend'
+
+        # THEN
+        assert _remove_import(target.current_python_source()) == '''
+class Component2():
+    btnSend: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="btnSend">foo</sl-button>"""
+        '''
+
+    def test_rename_should_change_also_innerHTML_if_matchName(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
         '''
         # WHEN
@@ -319,7 +339,7 @@ class Component2():
 class Component2():
     btnSend: js.HTMLElement = wpc.element()
     def connectedCallback(self):
-        self.element.innerHTML = """<sl-button data-name="btnSend">slButton1</sl-button>"""
+        self.element.innerHTML = """<sl-button data-name="btnSend">btnSend</sl-button>"""
         '''
 
 
