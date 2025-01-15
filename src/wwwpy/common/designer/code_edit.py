@@ -25,6 +25,13 @@ def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute)
 
     return modified_tree.code
 
+def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
+    source_code_imp = ensure_imports(source_code)
+    module = cst.parse_module(source_code_imp)
+    transformer = _RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name)
+    modified_tree = module.visit(transformer)
+
+    return modified_tree.code
 
 @dataclass
 class AddResult:
@@ -92,6 +99,27 @@ def add_component(source_code: str, class_name: str, comp_def: ElementDef, index
         return AddFailed(e, exception_report_str, exception_report_b64)
     return result
 
+class _RenameFieldInClassTransformer(cst.CSTTransformer):
+    def __init__(self, class_name, old_field_name, new_field_name):
+        super().__init__()
+        self.class_name = class_name
+        self.old_field_name = old_field_name
+        self.new_field_name = new_field_name
+
+    def leave_ClassDef(self, original_node, updated_node):
+        if original_node.name.value != self.class_name:
+            return original_node
+        new_body = []
+        for item in updated_node.body.body:
+            if isinstance(item, cst.SimpleStatementLine) and isinstance(item.body[0], cst.AnnAssign):
+                ann_assign = item.body[0]
+                if ann_assign.target.value == self.old_field_name:
+                    new_body.append(item.with_changes(body=[ann_assign.with_changes(target=cst.Name(self.new_field_name))]))
+                else:
+                    new_body.append(item)
+            else:
+                new_body.append(item)
+        return updated_node.with_changes(body=updated_node.body.with_changes(body=new_body))
 
 class _AddFieldToClassTransformer(cst.CSTTransformer):
     def __init__(self, class_name, new_field: Attribute):

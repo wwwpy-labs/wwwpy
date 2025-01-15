@@ -1,5 +1,5 @@
 from wwwpy.common.designer.code_edit import Attribute, add_component, ElementDef, add_method, \
-    ensure_imports, AddComponentExceptionReport, AddFailed
+    ensure_imports, AddComponentExceptionReport, AddFailed, rename_class_attribute
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_component, add_method
 from wwwpy.common.designer.code_info import info
 from wwwpy.common.designer.element_library import ElementDef, element_library
@@ -107,6 +107,30 @@ class MyElement2(wpc.Component):
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
     assert modified_source == expected_source
+
+
+def test_rename_class_attribute():
+    original_source = """
+import wwwpy.remote.component as wpc
+
+class MyElement(wpc.Component):
+    btn1: HTMLButtonElement = wpc.element()
+    """
+
+    # Expected source after renaming the new attribute
+    expected_source = """
+import wwwpy.remote.component as wpc
+
+class MyElement(wpc.Component):
+    btnSend: HTMLButtonElement = wpc.element()
+        """
+
+    modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
+
+    modified_info = info(modified_source)
+    expected_info = info(expected_source)
+
+    assert modified_info == expected_info, "The attribute was not renamed correctly."
 
 
 path01 = [0, 1]
