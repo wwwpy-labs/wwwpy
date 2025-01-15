@@ -37,6 +37,7 @@ class AttributeEditor(ABC):
     def value(self) -> str | None:
         return self._value
 
+    # todo if we wanted to give a result for each operation (set, remove, etc) we could return a Result object but we cannot do it with `value` because it is a property
     @value.setter
     def value(self, value: str | None):
         self._set_value(self, value)
