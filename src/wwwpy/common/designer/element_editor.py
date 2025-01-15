@@ -7,6 +7,7 @@ from . import code_edit, code_strings, html_edit, html_locator
 from . import code_info
 from . import element_library as el
 from . import element_path as ep
+from .code_edit import rename_class_attribute
 from .. import modlib
 from ..collectionlib import ListMap
 
@@ -129,7 +130,7 @@ class ElementEditor:
         exists = _ad_data_name.name in node.attributes
         value = node.attributes.get(_ad_data_name.name, None)
         attribute_editor = AttributeEditor(_ad_data_name, exists, value,
-                                           self._attribute_set_value, self._attribute_remove)
+                                           self._data_name_set_value, self._attribute_remove)
         self.attributes.append(attribute_editor)
 
         # Add the inner HTML attribute
@@ -185,6 +186,12 @@ class ElementEditor:
             return new_html
 
         self._html_change(_html_manipulate)
+
+    def _data_name_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
+        old_value = attribute_editor.value
+        self._attribute_set_value(attribute_editor, value)
+        s1 = rename_class_attribute(self.current_python_source(), self.element_path.class_name, old_value, value)
+        self._write_source(s1)
 
     def _content_string_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
 

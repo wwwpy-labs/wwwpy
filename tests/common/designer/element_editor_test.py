@@ -302,7 +302,7 @@ class Component2():
         # THEN
         assert target.attributes.get(tag_data_name_attr_name).value == 'slButton1'
 
-    def todo_test_rename_class_attribute_and_html_attribute(self, target_fixture):
+    def test_rename_class_attribute_and_html_attribute(self, target_fixture):
         # GIVEN
         target_fixture.source = '''
 class Component2():
@@ -315,7 +315,7 @@ class Component2():
         target.attributes.get(tag_data_name_attr_name).value = 'btnSend'
 
         # THEN
-        assert target.current_python_source() == '''
+        assert _remove_import(target.current_python_source()) == '''
 class Component2():
     btnSend: js.HTMLElement = wpc.element()
     def connectedCallback(self):
@@ -385,3 +385,8 @@ def _node_path(source: str, class_name, indexed_path: list[int]) -> NodePath:
     nodes = hp.html_to_tree(html)
     path = hl.tree_to_path(nodes, indexed_path)
     return path
+
+
+def _remove_import(source: str) -> str:
+    lines = source.split('\n')
+    return '\n'.join([line for line in lines if not line.startswith('import ')])
