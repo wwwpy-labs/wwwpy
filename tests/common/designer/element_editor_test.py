@@ -4,7 +4,7 @@ import pytest
 
 from tests.common import dyn_sys_path, DynSysPath
 from wwwpy.common.designer import code_info
-from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name
+from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name, tag_data_name_attr_name
 from wwwpy.common.designer.element_library import ElementDef, EventDef, AttributeDef
 from wwwpy.common.designer.element_path import ElementPath, Origin
 from wwwpy.common.designer.html_locator import Node, NodePath
@@ -208,7 +208,10 @@ class Component2():
         # language=html
         assert """<button id='foo'>bar</button>""" == target_fixture.current_html
 
+
 class TestContent:
+    """test the element content, aka innerHTML"""
+
     def test_content_string_value_get(self, target_fixture):
         # GIVEN
         target_fixture.source = '''
@@ -252,6 +255,7 @@ class Component2():
 
         # THEN
         assert """<div data-name='d1'>1234</div>""" == target_fixture.current_html
+
     def test_content_string_value_remove(self, target_fixture):
         # GIVEN
         target_fixture.source = '''
@@ -280,9 +284,49 @@ class Component2():
         assert target.attributes.get(tag_inner_html_attr_name) is None
 
 
+class TestDataName:
+    """Test data-name read,rename, add, remove
+    https://github.com/wwwpy-labs/wwwpy/issues/9 """
+
+    def test_read(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        assert target.attributes.get(tag_data_name_attr_name).value == 'slButton1'
+
+    def todo_test_rename_class_attribute_and_html_attribute(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).value = 'btnSend'
+
+        # THEN
+        assert target.current_python_source() == '''
+class Component2():
+    btnSend: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="btnSend">slButton1</sl-button>"""
+        '''
+
+
 @pytest.fixture
 def target_fixture(dyn_sys_path):
     return TargetFixture(dyn_sys_path)
+
 
 # todo should be merged/refactored with ComponentFixture
 class TargetFixture:

@@ -11,6 +11,7 @@ from .. import modlib
 from ..collectionlib import ListMap
 
 tag_inner_html_attr_name = 'inner HTML'
+tag_data_name_attr_name = 'data-name'
 
 
 class AttributeEditor(ABC):
@@ -86,6 +87,8 @@ class ElementEditor:
     Notice that the changes applied by an instance of this class  are not reflected in the internal state;
     it is expected that the hot reload will be triggered and consequently this instance will be discarded and
     reloaded.
+    ElementDef.attributes should not contain data-name and inner HTML attributes, they are added as attributes
+    managed directly by the framework.
     """
 
     def __init__(self, element_path: ep.ElementPath, element_def: el.ElementDef):
@@ -115,6 +118,18 @@ class ElementEditor:
         element_path = self.element_path
         node = html_locator.locate_node(self._html_source(), element_path.path)
         self._node = node
+
+        def add_data_name():
+            attribute_def = el.AttributeDef(tag_data_name_attr_name,
+                                           el.Help('This is the data-name of the tag', ''), )
+            exists = attribute_def.name in node.attributes
+            value = node.attributes.get(attribute_def.name, None)
+            attribute_editor = AttributeEditor(attribute_def, exists, value,
+                                               self._attribute_set_value, self._attribute_remove)
+            self.attributes.append(attribute_editor)
+
+        add_data_name()
+
         if node.content_span:
             ad_content_string = el.AttributeDef(tag_inner_html_attr_name,
                                                 el.Help('This is the inner content of the tag', ''), )
