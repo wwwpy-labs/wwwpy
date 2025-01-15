@@ -132,6 +132,29 @@ class MyElement(wpc.Component):
 
     assert modified_info == expected_info, "The attribute was not renamed correctly."
 
+def test_rename_class_attribute__should_honor_classname():
+    original_source = """
+class MyElement(wpc.Component):
+        btn1: js.HTMLButtonElement = wpc.element()
+class MyElement2(wpc.Component):
+        btn1: js.HTMLButtonElement = wpc.element()
+    """
+
+    expected_source = """import js
+import wwwpy.remote.component as wpc
+
+class MyElement(wpc.Component):
+        btn1: js.HTMLButtonElement = wpc.element()
+class MyElement2(wpc.Component):
+        btnSend: js.HTMLButtonElement = wpc.element()
+    """
+
+    modified_source = rename_class_attribute(original_source, 'MyElement2', 'btn1', 'btnSend')
+
+    assert modified_source == expected_source
+
+
+    
 
 path01 = [0, 1]
 
