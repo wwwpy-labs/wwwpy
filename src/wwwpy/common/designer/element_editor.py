@@ -13,6 +13,11 @@ from ..collectionlib import ListMap
 tag_inner_html_attr_name = 'inner HTML'
 tag_data_name_attr_name = 'data-name'
 
+_ad_content_string = el.AttributeDef(tag_inner_html_attr_name,
+                                     el.Help('This is the inner content of the tag', ''), )
+_ad_data_name = el.AttributeDef(tag_data_name_attr_name,
+                                el.Help('This is the data-name of the tag', ''), )
+
 
 class AttributeEditor(ABC):
     """Allow to add/edit/remove attributes of an HTML element according to its AttributeDef."""
@@ -119,29 +124,24 @@ class ElementEditor:
         node = html_locator.locate_node(self._html_source(), element_path.path)
         self._node = node
 
-        def add_data_name():
-            attribute_def = el.AttributeDef(tag_data_name_attr_name,
-                                           el.Help('This is the data-name of the tag', ''), )
-            exists = attribute_def.name in node.attributes
-            value = node.attributes.get(attribute_def.name, None)
-            attribute_editor = AttributeEditor(attribute_def, exists, value,
-                                               self._attribute_set_value, self._attribute_remove)
-            self.attributes.append(attribute_editor)
+        # Add the data-name
+        exists = _ad_data_name.name in node.attributes
+        value = node.attributes.get(_ad_data_name.name, None)
+        attribute_editor = AttributeEditor(_ad_data_name, exists, value,
+                                           self._attribute_set_value, self._attribute_remove)
+        self.attributes.append(attribute_editor)
 
-        add_data_name()
-
+        # Add the inner HTML attribute
         if node.content_span:
-            ad_content_string = el.AttributeDef(tag_inner_html_attr_name,
-                                                el.Help('This is the inner content of the tag', ''), )
             cx, cy = node.content_span
             content_exists = True if cx < cy else False
-            self.attributes.append(AttributeEditor(ad_content_string, content_exists, node.content,
+            self.attributes.append(AttributeEditor(_ad_content_string, content_exists, node.content,
                                                    self._content_string_set_value, self._content_string_set_value))
 
-        attributes = node.attributes
+        # Add the other attributes from the ElementDef
         for attribute_def in element_def.attributes:
-            exists = attribute_def.name in attributes
-            value = attributes.get(attribute_def.name, None)
+            exists = attribute_def.name in node.attributes
+            value = node.attributes.get(attribute_def.name, None)
             attribute_editor = AttributeEditor(attribute_def, exists, value,
                                                self._attribute_set_value, self._attribute_remove)
             self.attributes.append(attribute_editor)
