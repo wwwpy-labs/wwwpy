@@ -11,7 +11,7 @@ from pyodide.ffi import create_proxy
 from wwwpy.common import state, property_monitor
 from wwwpy.common.designer import element_library, html_locator, code_strings
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
-from wwwpy.common.designer.element_path import ElementPath
+from wwwpy.common.designer.element_path import ElementPath, Origin
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.helpers import _element_path_lbl, _rpc_save, _log_event, _help_button
 
@@ -109,6 +109,10 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
 
     def _render(self):
         ep = self._selected_element_path
+        # this is done here (and not in the moment of saving the ep) because
+        # the stored ep could change in any moment, for example the user
+        # change the type of tag from sl-button to sl-switch
+        ep = _rebase_element_path_to_origin_source(ep)
         self.message1div.innerHTML = '' if ep is None else f'Selection: {_element_path_lbl(ep)}'
 
         self.row_container.innerHTML = ''
@@ -279,6 +283,7 @@ class PE_label(wpc.Component, tag_name='wwwpy-pe-label'):
         self._help.href = help.url
         self._help.visible = help.url != ''
 
+
 class PE_event(wpc.Component):
     label: PE_label = wpc.element()
     value: js.HTMLInputElement = wpc.element()
@@ -338,3 +343,25 @@ class PE_title_row(wpc.Component):
         self.element.innerHTML = """
         <div style='font-weight: bold' data-name="label">Event</div><div style='font-weight: bold' data-name='value'>Value</div></div>        
             """
+
+
+def _rebase_element_path_to_origin_source(ep: ElementPath) -> Optional[ElementPath]:
+    """This is similar to rebase_path dumb because we use indexes alone.
+    This rebase from Origin.live to Origin.source
+    """
+    if not ep:
+        return None
+    if ep.origin == Origin.source:
+        return ep
+
+    html = code_strings.html_from(ep.class_module, ep.class_name)
+    if not html:
+        return ep
+
+    cst_node = html_locator.locate_node(html, ep.path)
+    if cst_node is None:
+        return ep
+
+    node_path = html_locator.node_path_from_leaf(cst_node)
+    ep_source = ElementPath(ep.class_module, ep.class_name, node_path, Origin.source)
+    return ep_source
