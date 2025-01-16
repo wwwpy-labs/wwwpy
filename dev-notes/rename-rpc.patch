@@ -1,0 +1,219 @@
+Subject: [PATCH] Changes
+---
+Index: tests/layer/test_layer_5.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/layer/test_layer_5.py b/tests/layer/test_layer_5.py
+--- a/tests/layer/test_layer_5.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/tests/layer/test_layer_5.py	(date 1734036968393)
+@@ -163,11 +163,11 @@
+         It is because the import process of such package is handled and modified"""
+ 
+         sys.path.insert(0, str(self.layer_5_rpc_remote))
+-        sys.meta_path.insert(0, CustomFinder({'remote', 'remote.rpc'}))
++        sys.meta_path.insert(0, CustomFinder({'remote', 'remote.remote_rpc'}))
+         import remote
+         assert remote
+-        import remote.rpc
+-        assert remote.rpc
++        import remote.remote_rpc
++        assert remote.remote_rpc
+ 
+     @for_all_webservers()
+     def test_rpc_remote(self, page: Page, webserver: Webserver, restore_sys_path):
+@@ -182,7 +182,7 @@
+         remote_connections.wait_for_connection()
+ 
+         # because convention imported layer_5_rpc_remote in sys.path we can import the following
+-        from remote.rpc import Layer5Rpc1
++        from remote.remote_rpc import Layer5Rpc1
+         client = remote_connections.ws_pool.clients[0]
+         client.rpc(Layer5Rpc1).set_body_inner_html('server-side')
+ 
+@@ -206,7 +206,7 @@
+         retry_assert_eq(lambda: remote_connections.changes, lambda: [Change.remove, Change.add])
+ 
+         # because convention imported layer_5_rpc_remote in sys.path we can import the following
+-        from remote.rpc import Layer5Rpc1
++        from remote.remote_rpc import Layer5Rpc1
+         client = remote_connections.ws_pool.clients[0]
+         client.rpc(Layer5Rpc1).set_body_inner_html('server-side')
+ 
+Index: src/wwwpy/server/convention.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/wwwpy/server/convention.py b/src/wwwpy/server/convention.py
+--- a/src/wwwpy/server/convention.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/src/wwwpy/server/convention.py	(date 1734035879201)
+@@ -43,8 +43,8 @@
+ 
+ 
+ def default_config(directory: Path, dev_mode: bool) -> Config:
+-    server_rpc_packages = ['server.rpc']
+-    remote_rpc_packages = {'remote', 'remote.rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
++    server_rpc_packages = ['server.server_rpc']
++    remote_rpc_packages = {'remote', 'remote.remote_rpc', 'wwwpy.remote', 'wwwpy.remote.rpc'}
+     server_folders = {'common', 'server'}
+     remote_folders = {'common', 'remote'}
+ 
+Index: tests/layer/test_hot_reload.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/layer/test_hot_reload.py b/tests/layer/test_hot_reload.py
+--- a/tests/layer/test_hot_reload.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/tests/layer/test_hot_reload.py	(date 1734036039047)
+@@ -5,7 +5,8 @@
+ from tests import for_all_webservers, timeout_multiplier
+ from tests.server.page_fixture import fixture, PageFixture
+ from wwwpy.common import files
+-from wwwpy.common.tree import print_tree
++
++server_rpc_py = 'server/server_rpc.py'
+ 
+ 
+ @for_all_webservers()
+@@ -100,20 +101,20 @@
+     def test_server_rpc_body_change(self, fixture: PageFixture):
+         # GIVEN
+         fixture.dev_mode = True
+-        fixture.write_module('server/rpc.py', "async def func1() -> str: return 'ready'")
++        fixture.write_module(server_rpc_py, "async def func1() -> str: return 'ready'")
+ 
+         fixture.start_remote(  # language=python
+             """
+ async def main():
+     import js 
+-    from server import rpc 
+-    js.document.body.innerText = 'first=' + await rpc.func1()
++    from server import server_rpc 
++    js.document.body.innerText = 'first=' + await server_rpc.func1()
+ """)
+ 
+         expect(fixture.page.locator('body')).to_have_text('first=ready', use_inner_text=True)
+ 
+         # WHEN
+-        fixture.write_module('server/rpc.py', "async def func1() -> str: return 'updated'")
++        fixture.write_module(server_rpc_py, "async def func1() -> str: return 'updated'")
+         self._wait_filesystem_debounce_and_hotreload()
+         fixture.remote_init.write_text(fixture.remote_init.read_text().replace('first=', 'second='))
+ 
+@@ -125,7 +126,7 @@
+         # GIVEN
+         fixture.dev_mode = True
+         fixture.write_module('server/database.py', "conn_name = 'conn1'")
+-        fixture.write_module('server/rpc.py',
++        fixture.write_module(server_rpc_py,
+                              "from . import database as db\n"
+                              "async def func1() -> str: res = 'conn:'+db.conn_name; print(f'res={res}\\n'); return res")
+ 
+@@ -133,8 +134,8 @@
+             """
+ async def main():
+     import js 
+-    from server import rpc 
+-    js.document.body.innerText = 'first=' + await rpc.func1()
++    from server import server_rpc 
++    js.document.body.innerText = 'first=' + await server_rpc.func1()
+ """)
+         expect(fixture.page.locator('body')).to_have_text('first=conn:conn1', use_inner_text=True)
+ 
+@@ -151,23 +152,23 @@
+     def test_server_rpc_signature_change(self, fixture: PageFixture):
+         # GIVEN
+         fixture.dev_mode = True
+-        fixture.write_module('server/rpc.py', "async def func1() -> str: return 'ready'")
++        fixture.write_module(server_rpc_py, "async def func1() -> str: return 'ready'")
+ 
+         fixture.start_remote(  # language=python
+             """
+ async def main():
+     import js 
+-    # from server import rpc # fails brutally the hotreload
+-    import server.rpc as rpc 
+-    js.document.body.innerText = 'first=' + await rpc.func1()
++    # from server import server_rpc # fails brutally the hotreload
++    import server.server_rpc
++    js.document.body.innerText = 'first=' + await server.server_rpc.func1()
+ """)
+ 
+         expect(fixture.page.locator('body')).to_have_text('first=ready', use_inner_text=True)
+ 
+         # WHEN
+-        fixture.write_module('server/rpc.py', "async def func1(msg:str) -> str: return f'updated-{msg}'")
++        fixture.write_module(server_rpc_py, "async def func1(msg:str) -> str: return f'updated-{msg}'")
+         fixture.remote_init.write_text(fixture.remote_init.read_text().replace(
+-            "'first=' + await rpc.func1()", "'second=' + await rpc.func1('new_param')"))
++            "'first=' + await server.server_rpc.func1()", "'second=' + await server.server_rpc.func1('new_param')"))
+ 
+         # THEN
+         expect(fixture.page.locator('body')).to_have_text('second=updated-new_param', use_inner_text=True)
+Index: tests/layer/layer_5_support/rpc_server/remote/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/layer/layer_5_support/rpc_server/remote/__init__.py b/tests/layer/layer_5_support/rpc_server/remote/__init__.py
+--- a/tests/layer/layer_5_support/rpc_server/remote/__init__.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/tests/layer/layer_5_support/rpc_server/remote/__init__.py	(date 1734036783035)
+@@ -2,6 +2,6 @@
+ 
+ 
+ async def main():
+-    from server.rpc import multiply
++    from server.server_rpc import multiply
+     res = await multiply(7, 6)
+     document.body.innerHTML = str(res)
+Index: src/wwwpy/common/reloader.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/wwwpy/common/reloader.py b/src/wwwpy/common/reloader.py
+--- a/src/wwwpy/common/reloader.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/src/wwwpy/common/reloader.py	(date 1734035879191)
+@@ -24,5 +24,5 @@
+     names = [name for name, module in sys.modules.items() if accept(module)]
+ 
+     for name in names:
+-        logger.debug(f'hot-reload: unload module {name}...')
++        logger.warning(f'hot-reload: unload module {name}...')
+         del (sys.modules[name])
+Index: tests/server/rpc/test_rpc_sync.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/tests/server/rpc/test_rpc_sync.py b/tests/server/rpc/test_rpc_sync.py
+--- a/tests/server/rpc/test_rpc_sync.py	(revision 53df0f7785c5c235e32f36151bfa02ef8bd541f6)
++++ b/tests/server/rpc/test_rpc_sync.py	(date 1734036552638)
+@@ -12,15 +12,15 @@
+ def test_sync_rpc_func(fixture: PageFixture):
+     # GIVEN
+     fixture.dev_mode = False
+-    fixture.write_module('server/rpc.py', "def func1() -> str: return 'ready'")
++    fixture.write_module('server/server_rpc.py', "def func1() -> str: return 'ready'")
+ 
+     # WHEN
+     fixture.start_remote(  # language=python
+         """
+ async def main():
+     import js 
+-    from server import rpc 
+-    js.document.body.innerText = 'first=' + rpc.func1()
++    from server import server_rpc 
++    js.document.body.innerText = 'first=' + server_rpc.func1()
+ """)
+     # THEN
+     expect(fixture.page.locator('body')).to_have_text('first=ready', use_inner_text=True)
+diff --git a/tests/layer/layer_5_support/rpc_remote/remote/rpc.py b/tests/layer/layer_5_support/rpc_remote/remote/remote_rpc.py
+rename from tests/layer/layer_5_support/rpc_remote/remote/rpc.py
+rename to tests/layer/layer_5_support/rpc_remote/remote/remote_rpc.py
+diff --git a/tests/layer/layer_5_support/rpc_server/server/rpc.py b/tests/layer/layer_5_support/rpc_server/server/server_rpc.py
+rename from tests/layer/layer_5_support/rpc_server/server/rpc.py
+rename to tests/layer/layer_5_support/rpc_server/server/server_rpc.py
