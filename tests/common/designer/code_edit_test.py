@@ -37,15 +37,12 @@ class MyElement(wpc.Component):
 
 def test_add_class_attribute__should_retain_comments_and_style():
     original_source = """
-import wwwpy.remote.component as wpc
 # comment1
 class MyElement(wpc.Component): # comment2
     btn1: HTMLButtonElement = wpc.element()
     """
 
-    expected_source = """import js
-
-import wwwpy.remote.component as wpc
+    expected_source = """
 # comment1
 class MyElement(wpc.Component): # comment2
     btn1: HTMLButtonElement = wpc.element()
@@ -55,12 +52,11 @@ class MyElement(wpc.Component): # comment2
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    assert modified_source == expected_source
+    assert _remove_import(modified_source) == expected_source
 
 
 def test_add_class_attribute__should_add_it_on_top_after_other_attributes():
     original_source = """
-import wwwpy.remote.component as wpc
 # comment1
 class MyElement(wpc.Component): # comment2
     btn1: HTMLButtonElement = wpc.element()
@@ -68,9 +64,7 @@ class MyElement(wpc.Component): # comment2
         pass
     """
 
-    expected_source = """import js
-
-import wwwpy.remote.component as wpc
+    expected_source = """
 # comment1
 class MyElement(wpc.Component): # comment2
     btn1: HTMLButtonElement = wpc.element()
@@ -82,7 +76,7 @@ class MyElement(wpc.Component): # comment2
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    assert modified_source == expected_source
+    assert _remove_import(modified_source) == expected_source
 
 
 def test_add_class_attribute__should_honor_classname():
@@ -93,9 +87,7 @@ class MyElement2(wpc.Component):
         pass
     """
 
-    expected_source = """import js
-import wwwpy.remote.component as wpc
-
+    expected_source = """
 class MyElement(wpc.Component):
         pass
 class MyElement2(wpc.Component):
@@ -106,7 +98,7 @@ class MyElement2(wpc.Component):
     modified_source = add_class_attribute(original_source, 'MyElement2',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    assert modified_source == expected_source
+    assert _remove_import(modified_source) == expected_source
 
 
 def test_rename_class_attribute():
@@ -163,9 +155,7 @@ class MyElement2(wpc.Component):
         btn1: js.HTMLButtonElement = wpc.element()
     """
 
-    expected_source = """import js
-import wwwpy.remote.component as wpc
-
+    expected_source = """
 class MyElement(wpc.Component):
         btn1: js.HTMLButtonElement = wpc.element()
 class MyElement2(wpc.Component):
@@ -174,7 +164,7 @@ class MyElement2(wpc.Component):
 
     modified_source = rename_class_attribute(original_source, 'MyElement2', 'btn1', 'btnSend')
 
-    assert modified_source == expected_source
+    assert _remove_import(modified_source) == expected_source
 
 
 path01 = [0, 1]
@@ -182,15 +172,12 @@ path01 = [0, 1]
 
 def test_add_component():
     original_source = """
-import wwwpy.remote.component as wpc
 class MyElement(wpc.Component):
     def foo(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    expected_source = """import js
-
-import wwwpy.remote.component as wpc
+    expected_source = """
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def foo(self):
@@ -201,20 +188,17 @@ class MyElement(wpc.Component):
     component_def = ElementDef('btn', 'js.Some')
     add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert add_result.source_code == expected_source
+    assert _remove_import(add_result.source_code) == expected_source
 
 
 def test_add_component_gen_html():
     original_source = """
-import wwwpy.remote.component as wpc
 class MyElement(wpc.Component):
     def foo(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    expected_source = """import js
-
-import wwwpy.remote.component as wpc
+    expected_source = """
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def foo(self):
@@ -228,7 +212,7 @@ class MyElement(wpc.Component):
     component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
     add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert add_result.source_code == expected_source
+    assert _remove_import(add_result.source_code) == expected_source
 
 
 def test_add_component_node_path__afterend():
@@ -269,7 +253,6 @@ class MyElement(wpc.Component):
 
 def test_add_method():
     original_source = """
-import wwwpy.remote.component as wpc
 class MyElement1(wpc.Component):
     btn1: js.Some = wpc.element()"""
 
@@ -279,12 +262,11 @@ class MyElement1(wpc.Component):
         pass
     """
     modified_source = add_method(original_source, 'MyElement1', 'button1__click', 'event')
-    assert modified_source == expected_source
+    assert _remove_import(modified_source) == expected_source
 
 
 def test_add_method_custom_code():
     original_source = """
-import wwwpy.remote.component as wpc
 class MyElement1(wpc.Component):
     btn1: js.Some = wpc.element()"""
 
@@ -293,11 +275,13 @@ class MyElement1(wpc.Component):
     async def button1__click(self, event):
         pass # custom
     """
+
     modified_source = add_method(original_source, 'MyElement1', 'button1__click', 'event', instructions='pass # custom')
-    assert modified_source == expected_source
+
+    assert _remove_import(modified_source) == expected_source
 
 
-_default_imports = ['import wwwpy.remote.component as wpc', 'import js']
+_default_imports = ['import inspect', 'import logging', 'import wwwpy.remote.component as wpc', 'import js', ]
 
 
 class TestEnsureImports:

@@ -196,7 +196,8 @@ class _AddFieldToClassTransformer(cst.CSTTransformer):
 
 def add_method(source_code: str, class_name: str, method_name: str, method_args: str,
                instructions: str = 'pass') -> str:
-    module = cst.parse_module(source_code)
+    source_code_imp = ensure_imports(source_code)
+    module = cst.parse_module(source_code_imp)
     transformer = _AddMethodToClassTransformer(True, class_name, method_name, 'self, ' + method_args, instructions)
     modified_tree = module.visit(transformer)
     return modified_tree.code
@@ -236,8 +237,10 @@ class _AddMethodToClassTransformer(cst.CSTTransformer):
 
 def ensure_imports(source_code: str) -> str:
     required_imports = [
+        'import inspect',
+        'import logging',
+        'import js',
         'import wwwpy.remote.component as wpc',
-        'import js'
     ]
 
     def _remove_comment_if_present(line) -> str:
