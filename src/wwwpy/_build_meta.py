@@ -1,3 +1,3 @@
-__version__ = "0.1.68"
-git_hash_short = "adb8b43"
-git_hash = "adb8b4369818a098d835c8f99f2dcee3e70124b0"
+__version__ = "0.1.69"
+git_hash_short = "5dc1bd2"
+git_hash = "5dc1bd2e6d60142abaf5786bd83d785041ad56f4"
