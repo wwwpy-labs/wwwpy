@@ -132,6 +132,29 @@ class MyElement(wpc.Component):
 
     assert modified_info == expected_info, "The attribute was not renamed correctly."
 
+
+def test_rename_class_attribute__should_rename_events():
+    original_source = """
+class MyElement(wpc.Component):
+    async def btn1__click(self, event):
+        pass
+    """
+
+    # Expected source after renaming the new attribute
+    expected_source = """
+class MyElement(wpc.Component):
+    async def btnSend__click(self, event):
+        pass
+        """
+
+    modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
+
+    modified_info = info(_remove_import(modified_source))
+    expected_info = info(expected_source)
+
+    assert modified_info == expected_info, "The event was not renamed correctly."
+
+
 def test_rename_class_attribute__should_honor_classname():
     original_source = """
 class MyElement(wpc.Component):
@@ -153,8 +176,6 @@ class MyElement2(wpc.Component):
 
     assert modified_source == expected_source
 
-
-    
 
 path01 = [0, 1]
 
@@ -323,3 +344,8 @@ def placeholder_test_error_reporter():
     result = add_component(exc.source_code_orig, exc.class_name, ed, exc.index_path, exc.position)
     if isinstance(result, AddFailed):
         raise result.exception
+
+
+def _remove_import(source: str) -> str:
+    lines = source.split('\n')
+    return '\n'.join([line for line in lines if not line.startswith('import ')])
