@@ -88,6 +88,14 @@ def test_issue20240727():
     assert actual == expect
     assert actual[0].content == '<input/>'
 
+def test_issue20250118_bday():
+    # language=html
+    actual = html_to_tree("""\n<div><sl-button data-name="slButton1">slButton1</sl-button></div>""")
+    c00 = actual[0].children[0]
+    assert c00.content_span == (39, 48)
+    assert c00.content == 'slButton1'
+
+
 
 def test_child_index():
     # language=html

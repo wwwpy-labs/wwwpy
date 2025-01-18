@@ -147,4 +147,4 @@ def _complete_tree_data(html: str, tree: CstTree, parent: CstNode | None = None,
         node.html = html[start:end]
         c_sp = node.content_span
         node.content = html[c_sp[0]:c_sp[1]] if c_sp else None
-        _complete_tree_data(node.html, node.children, node, level + 1)
+        _complete_tree_data(html, node.children, node, level + 1)
