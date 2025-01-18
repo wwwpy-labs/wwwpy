@@ -42,8 +42,7 @@ async def _log_event(element_editor: ElementEditor, event_editor: EventEditor):
     ep = element_editor.element_path
     ee = ElementEditor(ep, element_editor.element_def)
     ev = ee.events.get(event_editor.definition.name)
-    console.log(f'event: {ev.definition.name} handled: {ev.method}')
-    message = f'event: {ev.definition.name} handled: {ev.method}'
+    message = f'\nClick below to locate the event handler {ev.method.name}'
     await rpc.print_module_line(ep.class_module, message, ev.method.code_lineno)
 
 
