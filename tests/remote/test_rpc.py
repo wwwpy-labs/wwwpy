@@ -29,12 +29,14 @@ async def test_some():
     document.body.append(comp1.element)
     for idx in range(1, 15):
         await rpctst_exec('page.mouse.click(100, 100)')
-        await _assert_retry(lambda: len(comp1.events) == idx)
-        await _assert_retry(lambda: len(comp1.button1.innerHTML) == idx)
+        assert len(comp1.events) == idx
+        assert len(comp1.button1.innerHTML) == idx
+        # await _assert_retry(lambda: len(comp1.events) == idx)
+        # await _assert_retry(lambda: len(comp1.button1.innerHTML) == idx)
 
 
-async def _assert_retry(condition):
-    source = inspect.getsource(condition).strip()
-    __tracebackhide__ = True
-    [await sleep(0.01) for _ in range(100) if not condition()]
-    assert condition(), f'wait_condition timeout `{source}`'
+# async def _assert_retry(condition):
+#     source = inspect.getsource(condition).strip()
+#     __tracebackhide__ = True
+#     [await sleep(0.01) for _ in range(100) if not condition()]
+#     assert condition(), f'wait_condition timeout `{source}`'
