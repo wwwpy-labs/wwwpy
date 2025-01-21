@@ -1,7 +1,4 @@
-import inspect
-import inspect
 import logging
-from asyncio import sleep
 from dataclasses import dataclass
 
 import js
@@ -14,14 +11,19 @@ from wwwpy.common.databind.databind import new_dataclass_binding
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class User:
+    name: str
+
+
+@dataclass
+class Car:
+    color: str
+
+
 async def test_databind_input_string1():
     # GIVEN
-    document.body.innerHTML = '<input id="tag1">'
-    tag1: js.HTMLInputElement = document.getElementById('tag1')  # noqa
-
-    @dataclass
-    class User:
-        name: str
+    tag1 = _new_docu_input_tag1()
 
     user = User('foo1')
 
@@ -35,12 +37,7 @@ async def test_databind_input_string1():
 
 async def test_databind_input_string2():
     # GIVEN
-    document.body.innerHTML = '<input id="tag1">'
-    tag1: js.HTMLInputElement = document.getElementById('tag1')  # noqa
-
-    @dataclass
-    class Car:
-        color: str
+    tag1 = _new_docu_input_tag1()
 
     car1 = Car('yellow')
 
@@ -54,12 +51,7 @@ async def test_databind_input_string2():
 
 async def test_databind_input_string__target_to_source():
     # GIVEN
-    document.body.innerHTML = '<input id="tag1">'
-    tag1: js.HTMLInputElement = document.getElementById('tag1')  # noqa
-
-    @dataclass
-    class Car:
-        color: str
+    tag1 = _new_docu_input_tag1()
 
     car1 = Car('')
 
@@ -75,3 +67,9 @@ async def test_databind_input_string__target_to_source():
 
     # THEN
     assert car1.color == 'yellow1'
+
+
+def _new_docu_input_tag1():
+    document.body.innerHTML = '<input id="tag1">'
+    tag1: js.HTMLInputElement = document.getElementById('tag1')  # noqa
+    return tag1
