@@ -6,7 +6,8 @@ from js import document
 from pyodide.ffi import create_proxy
 
 from tests.server.rpc4tests import rpctst_exec
-from wwwpy.common.databind.databind import new_dataclass_binding
+from wwwpy.common.databind.databind import Binding
+from wwwpy.remote.databind.bind_wrapper import InputTargetAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ async def test_databind_input_string1():
     user = User('foo1')
 
     # WHEN
-    target = new_dataclass_binding(user, 'name', tag1)
+    target = Binding(user, 'name', InputTargetAdapter(tag1))
     target.apply_binding()
 
     # THEN
@@ -42,7 +43,7 @@ async def test_databind_input_string2():
     car1 = Car('yellow')
 
     # WHEN
-    target = new_dataclass_binding(car1, 'color', tag1)
+    target = Binding(car1, 'color', InputTargetAdapter(tag1))
     target.apply_binding()
 
     # THEN
@@ -56,12 +57,8 @@ async def test_databind_input_string__target_to_source():
     car1 = Car('')
 
     # WHEN
-    target = new_dataclass_binding(car1, 'color', tag1)
+    target = Binding(car1, 'color', InputTargetAdapter(tag1))
     target.apply_binding()
-
-    # PRODUCTION CODE!
-    tag1.addEventListener('input', create_proxy(lambda event: setattr(car1, 'color', tag1.value)))
-    ################
 
     await rpctst_exec("page.locator('#tag1').press_sequentially('yellow1')")
 
