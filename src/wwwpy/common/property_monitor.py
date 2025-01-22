@@ -26,6 +26,8 @@ class Monitor:
 
 __instance_monitor_attr = "__instance_monitor_attr"
 
+def has_monitor(instance):
+    return hasattr(instance, __instance_monitor_attr)
 
 def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
     """Monitor the changes of the properties of an instance of a class."""
@@ -39,7 +41,7 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
         def new_setattr(self, name, value):
             old_value = getattr(self, name, None)
             original_setattr(self, name, value)
-            if name == __instance_monitor_attr or not hasattr(self, __instance_monitor_attr):
+            if name == __instance_monitor_attr or not has_monitor(self):
                 return
 
             change = PropertyChanged(self, name, old_value, value)
@@ -48,7 +50,7 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
 
         clazz.__setattr__ = new_setattr
 
-    if hasattr(instance, __instance_monitor_attr):
+    if has_monitor(instance):
         m: Monitor = instance.__instance_monitor_attr
     else:
         m = Monitor()
