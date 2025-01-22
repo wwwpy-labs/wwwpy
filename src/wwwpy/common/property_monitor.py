@@ -18,6 +18,8 @@ class _OriginEvent:
     origin: any
 
 
+# in other situations we could make this a class to be inherited from, so to handle the
+# general mechanism of monitoring changes
 @dataclass
 class Monitor:
     listeners: list[Callable[[List[PropertyChanged]], None]] = field(default_factory=list)
@@ -49,6 +51,7 @@ def get_monitor_or_raise(instance) -> Monitor:
         raise Exception("No monitor found")
     return m
 
+
 # todo should return un unsubscribe function
 def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
     """Monitor the changes of the properties of an instance of a class."""
@@ -62,12 +65,12 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
         def new_setattr(self, name, value):
             old_value = getattr(self, name, None)
             original_setattr(self, name, value)
-            if name == __instance_monitor_attr or not has_monitor(self):
-                return
 
-            m: Monitor = self.__instance_monitor_attr
-            change = PropertyChanged(self, name, old_value, value, m.origin)
-            m.notify([change])
+            monitor = get_monitor(self)
+            if monitor is None:
+                return
+            change = PropertyChanged(self, name, old_value, value, monitor.origin)
+            monitor.notify([change])
 
         clazz.__setattr__ = new_setattr
 
