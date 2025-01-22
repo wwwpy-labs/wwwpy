@@ -1,7 +1,9 @@
+from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
 import js
+import pytest
 from js import document
 
 from tests.server.rpc4tests import rpctst_exec
@@ -21,9 +23,9 @@ class Car:
     color: str
 
 
-async def test_databind_input_string1():
+async def test_databind_input_string1(fixture: Fixture):
     # GIVEN
-    tag1 = _new_docu_input_tag1()
+    tag1 = _new_input_and_append()
     user = User('foo1')
 
     # WHEN
@@ -33,9 +35,9 @@ async def test_databind_input_string1():
     assert tag1.value == 'foo1'
 
 
-async def test_databind_input_string2():
+async def test_databind_input_string2(fixture: Fixture):
     # GIVEN
-    tag1 = _new_docu_input_tag1()
+    tag1 = _new_input_and_append()
     car1 = Car('yellow')
 
     # WHEN
@@ -45,9 +47,9 @@ async def test_databind_input_string2():
     assert tag1.value == 'yellow'
 
 
-async def test_databind_input_string__target_to_source():
+async def test_databind_input_string__target_to_source(fixture: Fixture):
     # GIVEN
-    tag1 = _new_docu_input_tag1()
+    tag1 = _new_input_and_append()
     car1 = Car('')
 
     # WHEN
@@ -59,12 +61,28 @@ async def test_databind_input_string__target_to_source():
     assert car1.color == 'yellow1'
 
 
-def _new_docu_input_tag1():
-    document.body.innerHTML = '<input id="tag1">'
-    tag1: js.HTMLInputElement = document.getElementById('tag1')  # noqa
+class TestTwoWayBinding:
+    async def test_databind_input_string__source_to_target(self, fixture: Fixture):
+        pass
+
+
+def _new_input_and_append():
+    tag1: js.HTMLInputElement = document.createElement('input')  # noqa
+    tag1.id = 'tag1'
+    document.body.append(tag1)
     return tag1
 
 
 def _bind(instance, attr_name, tag1):
     target = Binding(instance, attr_name, InputTargetAdapter(tag1))
     target.apply_binding()
+
+
+class Fixture:
+    pass
+
+
+@pytest.fixture
+def fixture():
+    document.body.innerHTML = ''
+    return Fixture()
