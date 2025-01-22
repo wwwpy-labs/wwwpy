@@ -65,11 +65,19 @@ def test_event_should_fire_after_property_change():
     obj.value = 1
 
 
-def test_double_monitor__should_raise_exception():
+def test_double_monitor__should_add_listener():
+    events1: List[List[PropertyChanged]] = []
+    events2: List[List[PropertyChanged]] = []
+
     obj = TestClass("alice", 10)
-    monitor_changes(obj, lambda change: None)
-    with pytest.raises(Exception):
-        monitor_changes(obj, lambda change: None)
+
+    monitor_changes(obj, lambda change: events1.append(change))
+    monitor_changes(obj, lambda change: events2.append(change))
+
+    obj.value = 1
+
+    assert events1 == [[PropertyChanged(obj, "value", 10, 1)]]
+
 
 # todo add test to verify that an exception is thrown when trying to group on an unmonitored object
 def test_group_changes():

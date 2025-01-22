@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Callable, List
+from dataclasses import dataclass, field
+from typing import Callable, List, Optional
 from contextlib import contextmanager
 
 
@@ -11,10 +11,21 @@ class PropertyChanged:
     new_value: object
 
 
+@dataclass
+class Monitor:
+    listeners: list[Callable[[List[PropertyChanged]], None]] = field(default_factory=list)
+    grouping: Optional[List[PropertyChanged]] = None
+
+    def notify(self, changes: List[PropertyChanged]):
+        if self.grouping is not None:
+            self.grouping.extend(changes)
+        else:
+            for l in self.listeners:
+                l(changes)
+
+
 def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
     """Monitor the changes of the properties of an instance of a class."""
-    if hasattr(instance, "__attr_change_monitor_on_changed"):
-        raise Exception("The instance is already being monitored for property changes")
 
     clazz = instance.__class__
     if not hasattr(clazz, "__attr_change_monitor"):
@@ -23,31 +34,37 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
         original_setattr = clazz.__setattr__  # Keep a reference to the original method
 
         def new_setattr(self, name, value):
-            doit = (hasattr(self, name) and name != "__attr_change_monitor_on_changed" and
-                    hasattr(self, "__attr_change_monitor_on_changed"))
-            if doit:
-                change = PropertyChanged(self, name, getattr(self, name), value)
+            old_value = getattr(self, name, None)
             original_setattr(self, name, value)
-            if doit:
-                self.__attr_change_monitor_on_changed([change])
+            if name == "__attr_change_monitor_on_changed" or not hasattr(self, "__attr_change_monitor_on_changed"):
+                return
+
+            change = PropertyChanged(self, name, old_value, value)
+            m: Monitor = self.__attr_change_monitor_on_changed
+            m.notify([change])
 
         clazz.__setattr__ = new_setattr
 
-    instance.__attr_change_monitor_on_changed = on_changed
+    if hasattr(instance, "__attr_change_monitor_on_changed"):
+        m: Monitor = instance.__attr_change_monitor_on_changed
+    else:
+        m = Monitor()
+        instance.__attr_change_monitor_on_changed = m
+
+    m.listeners.append(on_changed)
 
 
 @contextmanager
 def group_changes(instance):
-    old = instance.__attr_change_monitor_on_changed
+    # what happens with nested groupings?
+
+    m: Monitor = instance.__attr_change_monitor_on_changed
     buffer = []
+    m.grouping = buffer
 
-    def _in_buffer(changes):
-        buffer.extend(changes)
-
-    instance.__attr_change_monitor_on_changed = _in_buffer
     try:
         yield instance
     finally:
-        instance.__attr_change_monitor_on_changed = old
+        m.grouping = None
         if buffer:
-            old(buffer)
+            m.notify(buffer)
