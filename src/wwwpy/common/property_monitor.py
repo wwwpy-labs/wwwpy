@@ -24,6 +24,9 @@ class Monitor:
                 l(changes)
 
 
+__instance_monitor_attr = "__instance_monitor_attr"
+
+
 def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
     """Monitor the changes of the properties of an instance of a class."""
 
@@ -36,20 +39,20 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
         def new_setattr(self, name, value):
             old_value = getattr(self, name, None)
             original_setattr(self, name, value)
-            if name == "__attr_change_monitor_on_changed" or not hasattr(self, "__attr_change_monitor_on_changed"):
+            if name == __instance_monitor_attr or not hasattr(self, __instance_monitor_attr):
                 return
 
             change = PropertyChanged(self, name, old_value, value)
-            m: Monitor = self.__attr_change_monitor_on_changed
+            m: Monitor = self.__instance_monitor_attr
             m.notify([change])
 
         clazz.__setattr__ = new_setattr
 
-    if hasattr(instance, "__attr_change_monitor_on_changed"):
-        m: Monitor = instance.__attr_change_monitor_on_changed
+    if hasattr(instance, __instance_monitor_attr):
+        m: Monitor = instance.__instance_monitor_attr
     else:
         m = Monitor()
-        instance.__attr_change_monitor_on_changed = m
+        instance.__instance_monitor_attr = m
 
     m.listeners.append(on_changed)
 
@@ -58,7 +61,7 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
 def group_changes(instance):
     # what happens with nested groupings?
 
-    m: Monitor = instance.__attr_change_monitor_on_changed
+    m: Monitor = instance.__instance_monitor_attr
     buffer = []
     m.grouping = buffer
 
