@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from wwwpy.common import property_monitor as pm
-from wwwpy.common.property_monitor import PropertyChanged, monitor_changes
+from wwwpy.common.property_monitor import PropertyChanged, monitor_changes, set_origin
 import pytest
 
 from wwwpy.common.rpc import serialization
@@ -114,3 +114,14 @@ def test_deserialize():
     deserialized = serialization.deserialize(serialized, TestClass)
 
     assert deserialized == obj
+
+
+def test_with_origin():
+    obj = TestClass("alice", 10)
+    events: List[List[PropertyChanged]] = []
+    monitor_changes(obj, lambda changes: events.append(changes))
+
+    with set_origin(obj, 'some_origin'):
+        obj.value = 123
+
+    assert events == [[PropertyChanged(obj, "value", 10, 123, 'some_origin')]]

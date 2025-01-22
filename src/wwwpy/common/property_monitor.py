@@ -9,12 +9,20 @@ class PropertyChanged:
     name: str
     old_value: object
     new_value: object
+    origin: Optional[any] = None
+
+
+@dataclass
+class _OriginEvent:
+    value: any
+    origin: any
 
 
 @dataclass
 class Monitor:
     listeners: list[Callable[[List[PropertyChanged]], None]] = field(default_factory=list)
     grouping: Optional[List[PropertyChanged]] = None
+    origin: Optional[any] = None
 
     def notify(self, changes: List[PropertyChanged]):
         if self.grouping is not None:
@@ -26,9 +34,22 @@ class Monitor:
 
 __instance_monitor_attr = "__instance_monitor_attr"
 
+
 def has_monitor(instance):
     return hasattr(instance, __instance_monitor_attr)
 
+
+def get_monitor(instance) -> Optional[Monitor]:
+    return getattr(instance, __instance_monitor_attr, None)
+
+
+def get_monitor_or_raise(instance) -> Monitor:
+    m = get_monitor(instance)
+    if m is None:
+        raise Exception("No monitor found")
+    return m
+
+# todo should return un unsubscribe function
 def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
     """Monitor the changes of the properties of an instance of a class."""
 
@@ -44,8 +65,8 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
             if name == __instance_monitor_attr or not has_monitor(self):
                 return
 
-            change = PropertyChanged(self, name, old_value, value)
             m: Monitor = self.__instance_monitor_attr
+            change = PropertyChanged(self, name, old_value, value, m.origin)
             m.notify([change])
 
         clazz.__setattr__ = new_setattr
@@ -63,7 +84,7 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
 def group_changes(instance):
     # what happens with nested groupings?
 
-    m: Monitor = instance.__instance_monitor_attr
+    m: Monitor = get_monitor_or_raise(instance)
     buffer = []
     m.grouping = buffer
 
@@ -73,3 +94,13 @@ def group_changes(instance):
         m.grouping = None
         if buffer:
             m.notify(buffer)
+
+
+@contextmanager
+def set_origin(instance, origin: any):
+    monitor = get_monitor_or_raise(instance)
+    monitor.origin = origin
+    try:
+        yield instance
+    finally:
+        monitor.origin = None
