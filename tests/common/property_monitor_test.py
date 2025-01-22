@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from wwwpy.common import property_monitor as pm
-from wwwpy.common.property_monitor import PropertyChanged, monitor_changes, set_origin
+from wwwpy.common.property_monitor import PropertyChanged, monitor_changes, set_origin, Monitorable, Monitor
 import pytest
 
 from wwwpy.common.rpc import serialization
@@ -125,3 +125,14 @@ def test_with_origin():
         obj.value = 123
 
     assert events == [[PropertyChanged(obj, "value", 10, 123, 'some_origin')]]
+
+
+def test_get_monitor_should_honor_HasMonitor():
+    m = Monitor()
+
+    class SomeMonitored(Monitorable):
+        def get_property_monitor(self):
+            return m
+
+    obj = SomeMonitored()
+    assert pm.get_monitor(obj) == m

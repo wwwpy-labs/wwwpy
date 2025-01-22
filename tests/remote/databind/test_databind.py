@@ -25,31 +25,31 @@ class Car:
 
 async def test_databind_input_string1(fixture: Fixture):
     # GIVEN
-    tag1 = _new_input_and_append()
+    tag1 = _new_target_adapter()
     user = User('foo1')
 
     # WHEN
     _bind(user, 'name', tag1)
 
     # THEN
-    assert tag1.value == 'foo1'
+    assert tag1.input.value == 'foo1'
 
 
 async def test_databind_input_string2(fixture: Fixture):
     # GIVEN
-    tag1 = _new_input_and_append()
+    tag1 = _new_target_adapter()
     car1 = Car('yellow')
 
     # WHEN
     _bind(car1, 'color', tag1)
 
     # THEN
-    assert tag1.value == 'yellow'
+    assert tag1.input.value == 'yellow'
 
 
 async def test_databind_input_string__target_to_source(fixture: Fixture):
     # GIVEN
-    tag1 = _new_input_and_append()
+    tag1 = _new_target_adapter()
     car1 = Car('')
 
     # WHEN
@@ -61,20 +61,15 @@ async def test_databind_input_string__target_to_source(fixture: Fixture):
     assert car1.color == 'yellow1'
 
 
-class TestTwoWayBinding:
-    async def test_databind_input_string__source_to_target(self, fixture: Fixture):
-        pass
-
-
-def _new_input_and_append():
+def _new_target_adapter(tag_id: str = 'tag1'):
     tag1: js.HTMLInputElement = document.createElement('input')  # noqa
-    tag1.id = 'tag1'
+    tag1.id = tag_id
     document.body.append(tag1)
-    return tag1
+    return InputTargetAdapter(tag1)
 
 
-def _bind(instance, attr_name, tag1):
-    target = Binding(instance, attr_name, InputTargetAdapter(tag1))
+def _bind(instance, attr_name, target_adapter):
+    target = Binding(instance, attr_name, target_adapter)
     target.apply_binding()
 
 

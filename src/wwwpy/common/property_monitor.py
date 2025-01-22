@@ -3,6 +3,11 @@ from typing import Callable, List, Optional
 from contextlib import contextmanager
 
 
+class Monitorable:
+    def get_property_monitor(self):
+        pass
+
+
 @dataclass
 class PropertyChanged:
     instance: any
@@ -38,10 +43,12 @@ __instance_monitor_attr = "__instance_monitor_attr"
 
 
 def has_monitor(instance):
-    return hasattr(instance, __instance_monitor_attr)
+    return get_monitor(instance) is not None
 
 
 def get_monitor(instance) -> Optional[Monitor]:
+    if isinstance(instance, Monitorable):
+        return instance.get_property_monitor()
     return getattr(instance, __instance_monitor_attr, None)
 
 
