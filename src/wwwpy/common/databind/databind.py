@@ -49,7 +49,7 @@ class Binding:
             setattr(self.source, self.attr_name, event.new_value)
 
     def _on_source_changes(self, events: List[PropertyChanged]):
-        event = events[-1]
+        event = events[-1] # todo we should filter only for the attr_name!
         if event.origin == self:
             return
         with set_origin(self.target_adapter, self):

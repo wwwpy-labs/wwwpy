@@ -1,3 +1,4 @@
+"""this should test only InputTargetAdapter directly, not the whole databind"""
 from __future__ import annotations
 import logging
 from dataclasses import dataclass
