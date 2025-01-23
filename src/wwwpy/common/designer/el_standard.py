@@ -277,6 +277,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
 
     func = {
         'button': _def(),
+        'label': _def(),
         'div': _def(),
         'br': lambda: '<br>',
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
