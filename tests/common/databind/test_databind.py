@@ -118,3 +118,6 @@ class FakeInputTargetAdapter(TargetAdapter):
 
 def _new_target_adapter():
     return FakeInputTargetAdapter()
+
+# draw diagram of the databind process
+# todo enforce datatype, User.age is an int but binding it to an input field will result in a string
