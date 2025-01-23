@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
 from wwwpy.common.databind.databind import Binding, TargetAdapter
-from wwwpy.common.property_monitor import PropertyChanged
+from wwwpy.common.property_monitor import PropertyChanged, group_changes
 
 
 @dataclass
 class User:
     name: str
+    age: int = 42
 
 
 @dataclass
@@ -68,6 +69,25 @@ class TestTwoWayBinding:
         assert tag2.input.value == 'foo1'
 
 
+    def test_databind_two_different_fields(self):
+        tag1 = _new_target_adapter()
+        tag2 = _new_target_adapter()
+        tag3 = _new_target_adapter()
+        user = User('')
+
+        _bind(user, 'name', tag1)
+        # _bind(user, 'name', tag2)
+        _bind(user, 'age', tag3)
+
+        with group_changes(user):
+            user.name = 'foo1'
+            user.age = 43
+
+
+        assert tag3.input.value == 43
+        assert tag1.input.value == 'foo1'
+
+
 def _bind(instance, attr_name, target_adapter):
     target = Binding(instance, attr_name, target_adapter)
     target.apply_binding()
@@ -92,6 +112,7 @@ class FakeInputTargetAdapter(TargetAdapter):
     def press_sequentially(self, value):
         for ch in value:
             self.input.value += ch
+            # todo this doesn't look right; is it appropriate passing '' for the attr_name?
             self.monitor.notify([PropertyChanged(self, '', None, self.input.value)])
 
 

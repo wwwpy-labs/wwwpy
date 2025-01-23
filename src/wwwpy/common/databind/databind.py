@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, List
 
-from wwwpy.common.property_monitor import Monitor, PropertyChanged, set_origin, monitor_changes, Monitorable
+from wwwpy.common.property_monitor import Monitor, PropertyChanged, set_origin, monitor_changes, Monitorable, \
+    get_monitor_or_create
 
 
 @dataclass
@@ -38,7 +39,7 @@ class Binding:
         self.attr_name = attr_name
         self.target_adapter = target_adapter
         target_adapter.monitor.listeners.append(self._on_target_changes)
-        monitor_changes(source, self._on_source_changes)
+        get_monitor_or_create(source).add_attribute_listener(attr_name, self._on_source_changes)
 
     def apply_binding(self):
         self.target_adapter.set_target_value(getattr(self.source, self.attr_name))
