@@ -139,10 +139,25 @@ def test_get_monitor_should_honor_HasMonitor():
 
 
 def test_get_monitor_or_create():
+
+    # needs to be local because the monitor changes the definition of the class!
+    @dataclass
+    class TestClass:
+        name: str = ""
+        value: int = 0
+
     obj = TestClass("alice", 10)
     m = pm.get_monitor_or_create(obj)
-
     assert pm.get_monitor(obj) == m
+
+    events = []
+    m.listeners.append(lambda changes: events.append(changes))
+
+    obj.value = 123
+
+    assert events == [[PropertyChanged(obj, "value", 10, 123)]]
+
+
 
 
 def test_attr_listener():

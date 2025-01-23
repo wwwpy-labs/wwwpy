@@ -76,24 +76,10 @@ def get_monitor(instance) -> Optional[Monitor]:
 
 def get_monitor_or_create(instance) -> Monitor:
     m = get_monitor(instance)
-    if m is None:
-        m = Monitor()
-        instance.__instance_monitor_attr = m
-    return m
-
-
-def get_monitor_or_raise(instance) -> Monitor:
-    m = get_monitor(instance)
-    if m is None:
-        raise Exception("No monitor found")
-    return m
-
-
-# todo should return un unsubscribe function
-def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
-    """Monitor the changes of the properties of an instance of a class."""
-
+    if m is not None:
+        return m
     clazz = instance.__class__
+
     if not hasattr(clazz, "__attr_change_monitor"):
         setattr(clazz, "__attr_change_monitor", True)
 
@@ -111,12 +97,22 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
 
         clazz.__setattr__ = new_setattr
 
-    if has_monitor(instance):
-        m: Monitor = instance.__instance_monitor_attr
-    else:
-        m = Monitor()
-        instance.__instance_monitor_attr = m
+    m = Monitor()
+    instance.__instance_monitor_attr = m
+    return m
 
+def get_monitor_or_raise(instance) -> Monitor:
+    m = get_monitor(instance)
+    if m is None:
+        raise Exception("No monitor found")
+    return m
+
+
+# todo should return un unsubscribe function
+def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None]):
+    """Monitor the changes of the properties of an instance of a class."""
+
+    m = get_monitor_or_create(instance)
     m.listeners.append(on_changed)
 
 
