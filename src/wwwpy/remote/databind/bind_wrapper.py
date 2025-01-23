@@ -19,4 +19,4 @@ class InputTargetAdapter(TargetAdapter):
         return self.input.value
 
     def _new_input_event(self, event):
-        self.monitor.notify([PropertyChanged(self, '', None, self.input.value)])
+        self.monitor_object.notify([PropertyChanged(self, '', None, self.input.value)])

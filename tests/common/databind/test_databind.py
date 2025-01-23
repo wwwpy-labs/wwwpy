@@ -113,7 +113,7 @@ class FakeInputTargetAdapter(TargetAdapter):
         for ch in value:
             self.input.value += ch
             # todo this doesn't look right; is it appropriate passing '' for the attr_name?
-            self.monitor.notify([PropertyChanged(self, '', None, self.input.value)])
+            self.monitor_object.notify([PropertyChanged(self, '', None, self.input.value)])
 
 
 def _new_target_adapter():

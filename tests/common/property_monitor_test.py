@@ -131,8 +131,7 @@ def test_get_monitor_should_honor_HasMonitor():
     m = Monitor()
 
     class SomeMonitored(Monitorable):
-        def get_property_monitor(self):
-            return m
+        pass
 
     obj = SomeMonitored()
     assert pm.get_monitor(obj) == m

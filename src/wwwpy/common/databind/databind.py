@@ -17,18 +17,13 @@ class TargetOriginEvent:
 class TargetAdapter(Monitorable):
 
     def __init__(self):
-        self.monitor = Monitor()
         super().__init__()
-
-    def get_property_monitor(self):
-        return self.monitor
 
     def set_target_value(self, value):
         pass
 
     def get_target_value(self):
         pass
-
 
 
 class Binding:
@@ -38,7 +33,7 @@ class Binding:
         self.source = source
         self.attr_name = attr_name
         self.target_adapter = target_adapter
-        target_adapter.monitor.listeners.append(self._on_target_changes)
+        target_adapter.monitor_object.listeners.append(self._on_target_changes)
         get_monitor_or_create(source).add_attribute_listener(attr_name, self._on_source_changes)
 
     def apply_binding(self):
@@ -50,7 +45,7 @@ class Binding:
             setattr(self.source, self.attr_name, event.new_value)
 
     def _on_source_changes(self, events: List[PropertyChanged]):
-        event = events[-1] # todo we should filter only for the attr_name!
+        event = events[-1]  # todo we should filter only for the attr_name!
         if event.origin == self:
             return
         with set_origin(self.target_adapter, self):

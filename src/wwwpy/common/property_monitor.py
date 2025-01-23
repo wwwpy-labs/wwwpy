@@ -5,8 +5,8 @@ from contextlib import contextmanager
 
 
 class Monitorable:
-    def get_property_monitor(self):
-        pass
+    def __init__(self):
+        self.monitor_object = Monitor()
 
 
 # todo rename to AttributeChanged
@@ -70,7 +70,7 @@ def has_monitor(instance):
 
 def get_monitor(instance) -> Optional[Monitor]:
     if isinstance(instance, Monitorable):
-        return instance.get_property_monitor()
+        return instance.monitor_object
     return getattr(instance, __instance_monitor_attr, None)
 
 
@@ -100,6 +100,7 @@ def get_monitor_or_create(instance) -> Monitor:
     m = Monitor()
     instance.__instance_monitor_attr = m
     return m
+
 
 def get_monitor_or_raise(instance) -> Monitor:
     m = get_monitor(instance)
