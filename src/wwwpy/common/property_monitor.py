@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 from contextlib import contextmanager
@@ -8,6 +9,7 @@ class Monitorable:
         pass
 
 
+# todo rename to AttributeChanged
 @dataclass
 class PropertyChanged:
     instance: any
@@ -28,15 +30,35 @@ class _OriginEvent:
 @dataclass
 class Monitor:
     listeners: list[Callable[[List[PropertyChanged]], None]] = field(default_factory=list)
+    attr_listeners: dict[str, List[Callable[[List[PropertyChanged]], None]]] = field(default_factory=dict)
     grouping: Optional[List[PropertyChanged]] = None
     origin: Optional[any] = None
 
+    def add_attribute_listener(self, attr_name: str, listener: Callable[[List[PropertyChanged]], None]):
+        if attr_name not in self.attr_listeners:
+            self.attr_listeners[attr_name] = []
+        self.attr_listeners[attr_name].append(listener)
+
     def notify(self, changes: List[PropertyChanged]):
+
         if self.grouping is not None:
             self.grouping.extend(changes)
-        else:
-            for l in self.listeners:
-                l(changes)
+            return
+
+        for l in self.listeners:
+            l(changes)
+        d = _group_by_attr_name(changes)
+        for attr_name, listeners in self.attr_listeners.items():
+            if attr_name in d:
+                for l in listeners:
+                    l(d[attr_name])
+
+
+def _group_by_attr_name(changes: List[PropertyChanged]):
+    d = defaultdict(list)
+    for u in changes:
+        d[str(u.name)].append(u)
+    return dict(d)
 
 
 __instance_monitor_attr = "__instance_monitor_attr"
@@ -50,6 +72,14 @@ def get_monitor(instance) -> Optional[Monitor]:
     if isinstance(instance, Monitorable):
         return instance.get_property_monitor()
     return getattr(instance, __instance_monitor_attr, None)
+
+
+def get_monitor_or_create(instance) -> Monitor:
+    m = get_monitor(instance)
+    if m is None:
+        m = Monitor()
+        instance.__instance_monitor_attr = m
+    return m
 
 
 def get_monitor_or_raise(instance) -> Monitor:

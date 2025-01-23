@@ -136,3 +136,40 @@ def test_get_monitor_should_honor_HasMonitor():
 
     obj = SomeMonitored()
     assert pm.get_monitor(obj) == m
+
+
+def test_get_monitor_or_create():
+    obj = TestClass("alice", 10)
+    m = pm.get_monitor_or_create(obj)
+
+    assert pm.get_monitor(obj) == m
+
+
+def test_attr_listener():
+    obj = TestClass("alice", 10)
+    events: List[List[PropertyChanged]] = []
+    pm.get_monitor_or_create(obj).add_attribute_listener('name', lambda change: events.append(change))
+
+    obj.value = 123
+
+    assert events == []
+
+    obj.name = "bob"
+    assert events == [[PropertyChanged(obj, "name", "alice", "bob")]]
+
+
+def test_attr_listener_with_grouping():
+    obj = TestClass("alice", 10)
+    events: List[List[PropertyChanged]] = []
+    m = pm.get_monitor_or_create(obj)
+    m.add_attribute_listener('name', lambda change: events.append(change))
+
+    with pm.group_changes(obj):
+        obj.name = "bob"
+        assert events == []
+        obj.value = 123
+        assert events == []
+        obj.name = "carol"
+        assert events == []
+
+    assert events == [[PropertyChanged(obj, "name", "alice", "bob"), PropertyChanged(obj, "name", "bob", "carol")]]
