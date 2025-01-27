@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from logging import exception
+from pathlib import Path
 
 import libcst as cst
 
@@ -28,11 +29,41 @@ def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute)
 
 def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     source_code_imp = ensure_imports(source_code)
-    tree0 = cst.parse_module(source_code_imp)
-    tree1 = tree0.visit(_RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name))
-    tree2 = tree1.visit(_RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name))
-    return tree2.code
+    code_rope = _rope_rename_class_attribute(source_code_imp, class_name, old_attr_name, new_attr_name)
+    tree0 = cst.parse_module(code_rope)
+    # tree1 = tree0.visit(_RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name))
+    tree1 = tree0.visit(_RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name))
 
+    return tree1.code
+
+def _rope_rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
+    import tempfile
+    import shutil
+
+    temp_dir = Path(tempfile.mkdtemp())
+    try:
+        temp_file = temp_dir / 'temp.py'
+        temp_file.write_text(source_code)
+        return _rope_rename_class_attribute_in_project(temp_dir, temp_file, class_name, old_attr_name, new_attr_name)
+    finally:
+        shutil.rmtree(temp_dir)
+
+def _rope_rename_class_attribute_in_project(project_dir: Path, file_path: Path, class_name: str, old_attr_name: str, new_attr_name: str):
+    from rope.base.project import Project
+    from rope.refactor.rename import Rename
+    from rope.refactor import change_signature
+
+    project = Project(project_dir)
+    resource = project.get_resource(file_path.name)
+    module = project.pycore.resource_to_pyobject(resource)
+    attributes = module.get_attributes()
+    class_obj = attributes.get(class_name).get_object()
+    offset = class_obj.get_attribute(old_attr_name).start_offset
+    rename = Rename(project, resource, offset)
+    changes = rename.get_changes(new_attr_name)
+    project.do(changes)
+
+    return file_path.read_text()
 
 @dataclass
 class AddResult:
