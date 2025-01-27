@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
-from logging import exception
 from pathlib import Path
 
 import libcst as cst
@@ -10,10 +10,8 @@ from wwwpy.common.designer import code_info, html_parser, html_locator
 from wwwpy.common.designer.code_info import Attribute
 from wwwpy.common.designer.code_strings import html_string_edit
 from wwwpy.common.designer.element_library import ElementDef
-from wwwpy.common.designer.html_edit import Position, html_add, html_add_indexed
+from wwwpy.common.designer.html_edit import Position, html_add_indexed
 from wwwpy.common.designer.html_locator import NodePath, IndexPath
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +27,13 @@ def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute)
 
 def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     source_code_imp = ensure_imports(source_code)
-    code_rope = _rope_rename_class_attribute(source_code_imp, class_name, old_attr_name, new_attr_name)
-    tree0 = cst.parse_module(code_rope)
     # tree1 = tree0.visit(_RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name))
-    tree1 = tree0.visit(_RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name))
+    tree0 = (cst.parse_module(source_code_imp).
+             visit(_RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name)))
+    code_rope = _rope_rename_class_attribute(tree0.code, class_name, old_attr_name, new_attr_name)
 
-    return tree1.code
+    return code_rope
+
 
 def _rope_rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     import tempfile
@@ -48,22 +47,27 @@ def _rope_rename_class_attribute(source_code: str, class_name: str, old_attr_nam
     finally:
         shutil.rmtree(temp_dir)
 
-def _rope_rename_class_attribute_in_project(project_dir: Path, file_path: Path, class_name: str, old_attr_name: str, new_attr_name: str):
-    from rope.base.project import Project
-    from rope.refactor.rename import Rename
-    from rope.refactor import change_signature
 
-    project = Project(project_dir)
-    resource = project.get_resource(file_path.name)
-    module = project.pycore.resource_to_pyobject(resource)
-    attributes = module.get_attributes()
-    class_obj = attributes.get(class_name).get_object()
-    offset = class_obj.get_attribute(old_attr_name).start_offset
-    rename = Rename(project, resource, offset)
+def _rope_rename_class_attribute_in_project(project_dir: Path, file_path: Path, class_name: str, old_attr_name: str,
+                                            new_attr_name: str):
+    from rope.base.project import Project
+    from rope.base.libutils import path_to_resource
+    from rope.refactor.rename import Rename
+    import re
+    project = Project(str(project_dir))
+    resource = path_to_resource(project, str(file_path))
+    orig_code = resource.read()
+    pattern = rf'class\s+{class_name}\b[\s\S]*?\b{old_attr_name}\b'
+    match = re.search(pattern, orig_code)
+    if not match:
+        return orig_code
+    name_offset = match.start() + match.group(0).rfind(old_attr_name)
+    rename = Rename(project, resource, name_offset)
     changes = rename.get_changes(new_attr_name)
     project.do(changes)
+    project.close()
+    return resource.read()
 
-    return file_path.read_text()
 
 @dataclass
 class AddResult:
