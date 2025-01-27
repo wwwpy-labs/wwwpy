@@ -28,14 +28,10 @@ def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute)
 
 def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     source_code_imp = ensure_imports(source_code)
-    module = cst.parse_module(source_code_imp)
-    attr_transformer = _RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name)
-    modified_tree_1 = module.visit(attr_transformer)
-
-    evnt_transformer = _RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name)
-    modified_tree_2 = modified_tree_1.visit(evnt_transformer)
-
-    return modified_tree_2.code
+    tree0 = cst.parse_module(source_code_imp)
+    tree1 = tree0.visit(_RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name))
+    tree2 = tree1.visit(_RenameMethodEventsInClassTransformer(class_name, old_attr_name, new_attr_name))
+    return tree2.code
 
 
 @dataclass
