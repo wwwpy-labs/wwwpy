@@ -1,5 +1,7 @@
 from typing import NamedTuple, Callable, Union
 
+from wwwpy.common.asynclib import OptionalCoroutine
+
 
 class HttpRequest(NamedTuple):
     method: str
@@ -23,4 +25,4 @@ class HttpResponse(NamedTuple):
 
 class HttpRoute(NamedTuple):
     path: str
-    callback: Callable[[HttpRequest], HttpResponse]
+    callback: Callable[[HttpRequest, Callable[[HttpResponse], OptionalCoroutine]], OptionalCoroutine]

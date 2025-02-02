@@ -72,9 +72,13 @@ class TornadoHandler(tornado.web.RequestHandler):
 
     async def _serve_std(self, verb: str):
         body = self.request.body
-        response = self.route.callback(HttpRequest(verb, body, self.request.headers.get('Content-Type', '')))
-        self.set_header("Content-Type", response.content_type)
-        self.write(response.content)
+        request = HttpRequest(verb, body, self.request.headers.get('Content-Type', ''))
+
+        def response_fun(response):
+            self.set_header("Content-Type", response.content_type)
+            return self.write(response.content)
+
+        self.route.callback(request, response_fun)
 
     def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
         raise_exception(self)

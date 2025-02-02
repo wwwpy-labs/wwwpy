@@ -21,8 +21,8 @@ class TestHttpRoute:
         response_a = HttpResponse('a', 'text/plain')
         response_b = HttpResponse('b', 'text/html')
 
-        webserver.set_http_route(HttpRoute('/b', lambda req: response_b))
-        webserver.set_http_route(HttpRoute('/', lambda req: response_a))
+        webserver.set_http_route(HttpRoute('/b', lambda req, res: res(response_b)))
+        webserver.set_http_route(HttpRoute('/', lambda req, res: res(response_a)))
 
         webserver.set_port(find_port()).start_listen()
 
@@ -37,10 +37,11 @@ class TestHttpRoute:
         response_a = HttpResponse('a', 'text/plain')
         actual_request: HttpRequest | None = None
 
-        def handler(req: HttpRequest) -> HttpResponse:
+        def handler(req: HttpRequest, res) -> None:
             nonlocal actual_request
             actual_request = req
-            return response_a
+            # return response_a
+            res(response_a)
 
         http_route = HttpRoute('/route1', handler)
 

@@ -22,7 +22,7 @@ def bootstrap_routes(
         zip_bytes = build_archive(chain.from_iterable(resources))
         return HttpResponse.application_zip(zip_bytes)
 
-    zip_route = HttpRoute(zip_route_path, lambda request: zip_response())
+    zip_route = HttpRoute(zip_route_path, lambda request, resp: resp(zip_response()))
     extract_dir = files._bundle_path
     bootstrap_python = f"""
 import sys
@@ -36,7 +36,7 @@ sys.path.insert(0, '{extract_dir}')
 
     javascript = get_javascript_for(bootstrap_python, jspi)
     html_replaced = html.replace(bootstrap_javascript_placeholder, javascript)
-    bootstrap_route = HttpRoute('/', lambda request: HttpResponse.text_html(html_replaced))
+    bootstrap_route = HttpRoute('/', lambda request, resp: resp(HttpResponse.text_html(html_replaced)))
     return bootstrap_route, zip_route
 
 

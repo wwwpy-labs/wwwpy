@@ -1,6 +1,7 @@
 import asyncio
 from typing import Union, Coroutine, Any
 
+# todo evaluate if best to use Awaitable instead of Coroutine
 OptionalCoroutine = Union[None, Coroutine[Any, Any, None]]
 _task_set = set()
 

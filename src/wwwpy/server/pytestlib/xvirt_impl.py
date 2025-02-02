@@ -39,10 +39,11 @@ class XVirtImpl(XVirt):
             return 'tests.remote-not-available'
         return str(location.parent)
 
-    def _http_handler(self, req: HttpRequest) -> HttpResponse:
+    def _http_handler(self, req: HttpRequest,res) -> None:
         print(f'server side xvirt_notify_handler({req})')
         self.events.put(req.content)
-        return HttpResponse('', 'text/plain')
+        # return HttpResponse('', 'text/plain')
+        res(HttpResponse('', 'text/plain'))
 
     def run(self):
         webserver = self._start_webserver()
