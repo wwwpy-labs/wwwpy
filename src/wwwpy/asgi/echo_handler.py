@@ -2,6 +2,8 @@ import asyncio
 import logging
 from pathlib import Path
 
+from pyasn1.debug import scope
+
 logging.getLogger().setLevel(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
@@ -10,17 +12,32 @@ logger.setLevel(logging.DEBUG)
 logging.info('Loading module')
 
 
+def open_browser_once():
+    open_browser_once.__code__ = (lambda: None).__code__
+    import webbrowser
+    webbrowser.open('http://localhost:8000')
+
+
+# scope # https://github.com/django/asgiref/blob/main/asgiref/typing.py#L66
 async def app(scope, receive, send):
-    scope_type = scope['type']
-    if scope_type == 'http':  # https://github.com/django/asgiref/blob/main/asgiref/typing.py#L66
-        await handle_http(scope, send)
-    elif scope_type == 'websocket':
-        await handle_websocket(scope, receive, send)
+    func = _scopes.get(scope['type'], None)
+    if func:
+        await func(scope, receive, send)
     else:
-        logger.info(f"scope_type not handled: {scope_type}")
+        logger.info(f"scope type not handled: {scope['type']}")
 
 
-async def handle_http(scope, send):
+async def scope_lifespan(scope, receive, send):
+    open_browser_once()
+    logger.info(f"lifespan scope: {scope}")
+    await send({'type': 'lifespan.startup.complete'})
+
+    message = await receive()
+    if message['type'] == 'lifespan.shutdown':
+        await send({'type': 'lifespan.shutdown.complete'})
+
+
+async def scope_http(scope, receive, send):
     path = scope['path']
     logger.info(f"http path: {path}")
     if path == '/':
@@ -30,31 +47,32 @@ async def handle_http(scope, send):
                             'text/plain', send)
 
 
-async def handle_websocket(scope, receive, send):
+async def scope_websocket(scope, receive, send):
     logger.info(f"websocket scope: {scope}")
     scope_path = scope['path']
     if scope_path != '/echo':
         return
     await send({'type': 'websocket.accept'})
+    send_text = lambda t: send({'type': 'websocket.send', 'text': t})
 
     async def send_hello():
         try:
+            await send_text('producing hello messages every 2 seconds')
             hello_count = 0
             while True:
                 hello_count += 1
-                await send({'type': 'websocket.send', 'text': f'hello {hello_count}'})
-                await asyncio.sleep(2)
+                await asyncio.gather(send_text(f'hello {hello_count}'), asyncio.sleep(2))
         except asyncio.CancelledError:
             pass
 
     hello_task = asyncio.create_task(send_hello())
 
+
     try:
         while True:
             message = await receive()
             if message['type'] == 'websocket.receive':
-                text = message.get('text')
-                await send({'type': 'websocket.send', 'text': f"echo -> {text}"})
+                await send_text(f"echo -> {message.get('text')}")
             elif message['type'] == 'websocket.disconnect':
                 break
     finally:
@@ -77,3 +95,10 @@ async def send_response(status, body, content_type, send):
         'headers': [[b'content-type', content_type.encode()], ],
     })
     await send({'type': 'http.response.body', 'body': body, })
+
+
+_scopes = {
+    'http': scope_http,
+    'websocket': scope_websocket,
+    'lifespan': scope_lifespan,
+}
