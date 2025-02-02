@@ -8,6 +8,7 @@ from types import ModuleType, FunctionType
 from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, Protocol
 
 from wwwpy.common import modlib
+from wwwpy.common.asynclib import OptionalCoroutine
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
@@ -95,10 +96,11 @@ class RpcRoute:
         self.tmp_bundle_folder = Path(tempfile.mkdtemp())
         # self._generated_once = False
 
-    def _route_callback(self, request: HttpRequest, resp_callback) -> None:
+    def _route_callback(self, request: HttpRequest,
+                        resp_callback:Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
         resp = self.dispatch(request.content)
         response = HttpResponse(resp, 'application/json')
-        resp_callback(response)
+        return resp_callback(response)
 
     def allow(self, module_name: str):
         if not isinstance(module_name, str):

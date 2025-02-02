@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class WebsocketRoute(NamedTuple):
     path: str
-    on_connect: Callable[[WebsocketEndpointIO], None]
+    on_connect: Callable[[WebsocketEndpoint], None]
 
 
 class Change(Enum):
@@ -50,7 +50,7 @@ class WebsocketPool:
         for callback in listeners:
             callback(change)
 
-    def _on_connect(self, endpoint: WebsocketEndpointIO) -> None:
+    def _on_connect(self, endpoint: WebsocketEndpoint) -> None:
 
         add = PoolEvent(Change.add, endpoint, self)
         self._notify_change(add, self.on_before_change)
@@ -76,10 +76,12 @@ class WebsocketPool:
 
 class ListenerProtocol(Protocol):
     def __call__(self, message: str | bytes | None) -> OptionalCoroutine: ...
+    """None means close the connection"""
 
 
 class SendEndpoint:
     def send(self, message: str | bytes | None) -> OptionalCoroutine: ...
+    """None means close the connection"""
 
 
 class DispatchEndpoint(Protocol):

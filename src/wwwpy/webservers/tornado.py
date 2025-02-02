@@ -49,9 +49,7 @@ class TornadoHandler(tornado.web.RequestHandler):
 
     def initialize(self, route: HttpRoute) -> None:
         self.route = route
-        if isinstance(route, HttpRoute):
-            self._serve = self._serve_std
-        else:
+        if not isinstance(route, HttpRoute):
             raise Exception(f'Unknown route type: {type(route)}')
 
     def set_default_headers(self):
@@ -65,10 +63,10 @@ class TornadoHandler(tornado.web.RequestHandler):
         self.finish()
 
     async def get(self) -> None:
-        await self._serve('GET')
+        await self._serve_std('GET')
 
     async def post(self) -> None:
-        await self._serve('POST')
+        await self._serve_std('POST')
 
     async def _serve_std(self, verb: str):
         body = self.request.body
@@ -78,7 +76,9 @@ class TornadoHandler(tornado.web.RequestHandler):
             self.set_header("Content-Type", response.content_type)
             return self.write(response.content)
 
-        self.route.callback(request, response_fun)
+        res = self.route.callback(request, response_fun)
+        if res:
+            await res
 
     def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
         raise_exception(self)
