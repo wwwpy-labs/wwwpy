@@ -61,9 +61,9 @@ es.onmessage = lambda e: log(f'message:{e.data}')
         """
 
         python_code = python_code.replace('$(webserver.port)', str(webserver.port))
-        webserver.set_http_route(*bootstrap_routes(resources=[library_resources()], python=python_code))
+        webserver.set_routes(*bootstrap_routes(resources=[library_resources()], python=python_code))
         ws_pool = WebsocketPool('/ws')
-        webserver.set_http_route(ws_pool.http_route).start_listen()
+        webserver.set_routes(ws_pool.http_route).start_listen()
 
         page.goto(webserver.localhost_url())
 
@@ -97,13 +97,13 @@ es.onmessage = lambda e: message(e.data)
                 """
 
         python_code = python_code.replace('$(webserver.port)', str(webserver.port))
-        webserver.set_http_route(*bootstrap_routes(resources=[library_resources()], python=python_code))
+        webserver.set_routes(*bootstrap_routes(resources=[library_resources()], python=python_code))
 
         changes = []
 
         ws_pool = WebsocketPool('/ws')
         ws_pool.on_before_change.append(lambda event: changes.append(event.change))
-        webserver.set_http_route(ws_pool.http_route).start_listen()
+        webserver.set_routes(ws_pool.http_route).start_listen()
 
         page.goto(webserver.localhost_url())
 
@@ -128,7 +128,7 @@ es.onopen = lambda e: [es.send('foo1'), es.close()]
                 """
 
         python_code = python_code.replace('$(webserver.port)', str(webserver.port))
-        webserver.set_http_route(*bootstrap_routes(resources=[library_resources()], python=python_code))
+        webserver.set_routes(*bootstrap_routes(resources=[library_resources()], python=python_code))
         incoming_messages = []
 
         def before_change(change: PoolEvent):
@@ -137,7 +137,7 @@ es.onopen = lambda e: [es.send('foo1'), es.close()]
 
         ws_pool = WebsocketPool('/ws')
         ws_pool.on_before_change.append(before_change)
-        webserver.set_http_route(ws_pool.http_route).start_listen()
+        webserver.set_routes(ws_pool.http_route).start_listen()
 
         page.goto(webserver.localhost_url())
 

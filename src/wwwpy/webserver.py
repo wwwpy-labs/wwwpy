@@ -35,10 +35,9 @@ class Webserver(ABC):
         self.wait_ready()
         return self
 
-    # todo rename all to set_routes because it includes both http and websocket routes
-    def set_http_route(self, *http_routes: Route) -> 'Webserver':
-        for http_route in http_routes:
-            self._setup_route(http_route)
+    def set_routes(self, *routes: Route) -> 'Webserver':
+        for route in routes:
+            self._setup_route(route)
         return self
 
     @abstractmethod

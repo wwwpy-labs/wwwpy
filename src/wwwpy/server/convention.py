@@ -31,7 +31,7 @@ def start_default(directory: Path, port: int, dev_mode=False) -> Project:
     add_project(project)
 
     webserver = available_webservers().new_instance()
-    webserver.set_http_route(*project.routes)
+    webserver.set_routes(*project.routes)
 
     while tcp_port.is_port_busy(port):
         logger.warning(f'port {port} is busy, retrying...')

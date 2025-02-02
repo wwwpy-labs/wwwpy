@@ -13,6 +13,6 @@ def start_test_convention(directory: Path, webserver: Webserver = None, dev_mode
     project = setup(config, Settings())
 
     if webserver is not None:
-        webserver.set_http_route(*project.routes)
+        webserver.set_routes(*project.routes)
 
     return project
