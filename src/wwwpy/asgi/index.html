@@ -24,15 +24,15 @@
     const logArea = document.getElementById('log');
     const ws = new WebSocket('ws://' + window.location.host + '/echo');
 
-    ws.onopen = function() {
+    ws.onopen = function () {
         logMessage('Connected to WebSocket');
     };
 
-    ws.onmessage = function(event) {
+    ws.onmessage = function (event) {
         logMessage('Received: ' + event.data);
     };
 
-    ws.onclose = function() {
+    ws.onclose = function () {
         logMessage('WebSocket connection closed');
     };
 
@@ -48,6 +48,20 @@
         logArea.value += message + '\n';
         logArea.scrollTop = logArea.scrollHeight; // Scroll to bottom
     }
+
+    async function postSomething() {
+        const payload = 'Hello, World!';
+        logMessage(`postSomething: Sending POST request payload: ${payload}`);
+        const response = await fetch('/post', {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain',},
+            body: payload,
+        });
+        const data = await response.text();
+        logMessage(`postSomething: Received response: ${data}`);
+    }
+
+    postSomething();
 </script>
 </body>
 </html>

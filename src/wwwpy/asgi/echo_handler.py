@@ -2,8 +2,6 @@ import asyncio
 import logging
 from pathlib import Path
 
-from pyasn1.debug import scope
-
 logging.getLogger().setLevel(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
@@ -39,9 +37,15 @@ async def scope_lifespan(scope, receive, send):
 
 async def scope_http(scope, receive, send):
     path = scope['path']
+    headers = dict(scope['headers'])
     logger.info(f"http path: {path}")
     if path == '/':
         await serve_file('index.html', 'text/html', send)
+    elif path == '/favicon.ico':  # png actually
+        await serve_file('favicon.png', 'image/png', send)
+    elif path == '/post':
+        body = await _all_body(receive)
+        await send_response(200, body, 'text/plain', send)
     else:
         await send_response(200, b'Hello, world! ' + f'you requested `{path}`'.encode('utf-8'),
                             'text/plain', send)
@@ -50,6 +54,7 @@ async def scope_http(scope, receive, send):
 async def scope_websocket(scope, receive, send):
     logger.info(f"websocket scope: {scope}")
     scope_path = scope['path']
+    headers = dict(scope['headers'])
     if scope_path != '/echo':
         return
     await send({'type': 'websocket.accept'})
@@ -66,7 +71,6 @@ async def scope_websocket(scope, receive, send):
             pass
 
     hello_task = asyncio.create_task(send_hello())
-
 
     try:
         while True:
@@ -102,3 +106,14 @@ _scopes = {
     'websocket': scope_websocket,
     'lifespan': scope_lifespan,
 }
+
+
+async def _all_body(receive):
+    body = b""
+    more_body = True
+
+    while more_body:
+        message = await receive()
+        body += message.get("body", b"")
+        more_body = message.get("more_body", False)
+    return body
