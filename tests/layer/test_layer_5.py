@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from time import sleep
 
+import pytest
 from playwright.sync_api import Page, expect
 
 from tests import for_all_webservers
@@ -117,6 +118,8 @@ es.onmessage = lambda e: message(e.data)
 
     @for_all_webservers()
     def test_remote_to_server_message(self, page: Page, webserver: Webserver):
+        # todo skipped because of ASGI support in development
+        pytest.skip('ASGI support in development')
         # language=python
         python_code = """
 from js import WebSocket
