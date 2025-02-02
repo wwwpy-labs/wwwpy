@@ -1,6 +1,6 @@
 import subprocess
 
-# pip install tornado
+# uv pip install tornado
 
 import tornado.ioloop
 import tornado.web

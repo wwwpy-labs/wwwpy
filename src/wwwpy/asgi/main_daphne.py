@@ -1,4 +1,4 @@
 import subprocess
 
-# pip install daphne
+# uv pip install daphne
 subprocess.run(['daphne', 'wwwpy.asgi.echo_handler:app'])
