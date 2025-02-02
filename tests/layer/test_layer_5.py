@@ -130,7 +130,7 @@ es.onopen = lambda e: [es.send('foo1'), es.close()]
 
         def before_change(change: PoolEvent):
             if change.add:
-                change.endpoint.listeners.append(lambda msg: incoming_messages.append(msg))
+                change.endpoint.add_listener(lambda msg: incoming_messages.append(msg))
 
         ws_pool = WebsocketPool('/ws')
         ws_pool.on_before_change.append(before_change)

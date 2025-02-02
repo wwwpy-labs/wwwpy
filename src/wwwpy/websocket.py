@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from typing import NamedTuple, Protocol, List, Iterator
 
+from wwwpy.common.asynclib import OptionalCoroutine
 from wwwpy.common.rpc.serializer import RpcRequest
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ class WebsocketPool:
                 self.clients.remove(endpoint)
                 self._notify_change(remove, self.on_after_change)
 
-        endpoint.listeners.append(handle_remove)
+        endpoint.add_listener(handle_remove)
         self.clients.append(endpoint)
         self._notify_change(add, self.on_after_change)
 
@@ -74,11 +75,11 @@ class WebsocketPool:
 
 
 class ListenerProtocol(Protocol):
-    def __call__(self, message: str | bytes | None) -> None: ...
+    def __call__(self, message: str | bytes | None) -> OptionalCoroutine: ...
 
 
 class SendEndpoint:
-    def send(self, message: str | bytes | None) -> None: ...
+    def send(self, message: str | bytes | None) -> OptionalCoroutine: ...
 
 
 class DispatchEndpoint(Protocol):
@@ -93,8 +94,10 @@ T = TypeVar('T')
 class WebsocketEndpoint(SendEndpoint):
     listeners: list[ListenerProtocol]
 
+    def add_listener(self, listener: ListenerProtocol) -> None: ...
+
     # part to be called by user code to send a outgoing message
-    def send(self, message: str | bytes | None) -> None: ...
+    def send(self, message: str | bytes | None) -> OptionalCoroutine: ...
 
     def rpc(self, factory: Callable[..., T]) -> T:
         instance = factory(self)
@@ -105,15 +108,18 @@ class WebsocketEndpointIO(WebsocketEndpoint):
     def __init__(self, send: ListenerProtocol):
         """The send argument is called by the IO implementation: it will deliver outgoing messages"""
         self._send = send
-        self.listeners: list[ListenerProtocol] = []
+        self._listeners: list[ListenerProtocol] = []
+
+    def add_listener(self, listener: ListenerProtocol) -> None:
+        self._listeners.append(listener)
 
     # part to be called by user code to send a outgoing message
-    def send(self, message: str | bytes | None) -> None:
-        self._send(message)
+    def send(self, message: str | bytes | None) -> OptionalCoroutine:
+        return self._send(message)
 
     # parte to be used by IO implementation to be called to notify incoming messages
-    def on_message(self, message: str | bytes | None) -> None:
-        for listener in self.listeners:
+    def on_message(self, message: str | bytes | None) -> OptionalCoroutine:
+        for listener in self._listeners:
             listener(message)
 
     def dispatch(self, module: str, func_name: str, *args) -> None:
