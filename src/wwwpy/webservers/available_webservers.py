@@ -23,16 +23,6 @@ class AvailableWebservers:
 def _webservers_classes() -> List[type[Webserver]]:
     result: List[type[Webserver]] = []
     try:
-        from .fastapi import WsFastapi
-        result.append(WsFastapi)
-    except:
-        pass
-    try:
-        from .flask import WsFlask
-        result.append(WsFlask)
-    except:
-        pass
-    try:
         from .tornado import WsTornado
         result.append(WsTornado)
     except:
