@@ -38,7 +38,7 @@ def test_rpc_integration(webserver: Webserver):
     services.allow(support3.__name__)
 
     webserver.set_routes(services.route)
-    webserver.set_port(find_port()).start_listen().wait_ready()
+    webserver.set_port(find_port()).start_listen()
 
     rpc_url = webserver.localhost_url() + services.route.path
     imports = 'from wwwpy.server.fetch import async_fetch_str'
