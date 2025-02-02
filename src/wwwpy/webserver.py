@@ -10,6 +10,7 @@ from wwwpy.websocket import WebsocketRoute
 
 Route = Union[HttpRoute, WebsocketRoute]
 
+
 class Webserver(ABC):
     def __init__(self) -> None:
         self.host: str = '0.0.0.0'
@@ -34,6 +35,7 @@ class Webserver(ABC):
         self.wait_ready()
         return self
 
+    # todo rename all to set_routes because it includes both http and websocket routes
     def set_http_route(self, *http_routes: Route) -> 'Webserver':
         for http_route in http_routes:
             self._setup_route(http_route)
