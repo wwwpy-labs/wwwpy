@@ -108,10 +108,12 @@ class WebsocketEndpointIO(WebsocketEndpoint):
     def __init__(self, send: ListenerProtocol):
         """The send argument is called by the IO implementation: it will deliver outgoing messages"""
         self._send = send
-        self._listeners: list[ListenerProtocol] = []
+        self._listener: ListenerProtocol | None = None
 
     def add_listener(self, listener: ListenerProtocol) -> None:
-        self._listeners.append(listener)
+        if self._listener is not None:
+            raise Exception('Only one listener is allowed')
+        self._listener = listener
 
     # part to be called by user code to send a outgoing message
     def send(self, message: str | bytes | None) -> OptionalCoroutine:
@@ -119,8 +121,8 @@ class WebsocketEndpointIO(WebsocketEndpoint):
 
     # parte to be used by IO implementation to be called to notify incoming messages
     def on_message(self, message: str | bytes | None) -> OptionalCoroutine:
-        for listener in self._listeners:
-            listener(message)
+        if self._listener is not None:
+            return self._listener(message)
 
     def dispatch(self, module: str, func_name: str, *args) -> None:
         j = RpcRequest.build_request(module, func_name, *args).json()
