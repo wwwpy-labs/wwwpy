@@ -72,7 +72,8 @@ def function_definitions(source_code) -> List[Function]:
 def source_to_proxy(module_name: str, source: str):
     tree: Module = ast.parse(source)
     content = ''
-    # todo when detecting unsupported structure (e.g, nested class, AsyncFunctionDef, functions with results), log a warning message
+    # todo OptionalCoroutine
+    # add detecting unsupported structure (e.g, nested class, AsyncFunctionDef, functions with results), log a warning message
 
     for b in tree.body:
         if isinstance(b, ClassDef):
