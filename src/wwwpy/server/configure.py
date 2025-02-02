@@ -5,7 +5,7 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Collection
+from typing import Collection, Sequence
 
 from wwwpy.bootstrap import bootstrap_routes
 from wwwpy.common import loglib
@@ -42,7 +42,7 @@ class Project:
     config: Config
     settings: Settings
     websocket_pool: WebsocketPool
-    routes: tuple[Route]
+    routes: Sequence[Route]
 
 
 def setup(config: Config, settings: Settings = None) -> Project:
