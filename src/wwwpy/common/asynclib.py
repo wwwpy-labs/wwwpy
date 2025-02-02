@@ -1,5 +1,7 @@
 import asyncio
+from typing import Union, Coroutine, Any
 
+OptionalCoroutine = Union[None, Coroutine[Any, Any, None]]
 _task_set = set()
 
 
