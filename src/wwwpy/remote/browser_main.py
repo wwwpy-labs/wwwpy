@@ -45,6 +45,7 @@ async def _invoke_browser_main():
 
         try:
             js.document.documentElement.innerHTML = ''
+            js.document.head.innerHTML = ''
             for attr in js.document.documentElement.attributes:
                 js.document.documentElement.removeAttributeNode(attr)
 
