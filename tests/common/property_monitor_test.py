@@ -187,3 +187,20 @@ def test_attr_listener_with_grouping():
         assert events == []
 
     assert events == [[PropertyChanged(obj, "name", "alice", "bob"), PropertyChanged(obj, "name", "bob", "carol")]]
+
+
+def todo_test_monitorable_inheritance_simple_class():
+    class TestClass(Monitorable):
+        name: str = ""
+        value: int = 10
+
+    obj = TestClass()
+    m = pm.get_monitor_or_create(obj)
+    assert obj.monitor_object == m
+
+    events = []
+    m.listeners.append(lambda changes: events.append(changes))
+
+    obj.value = 123
+
+    assert events == [[PropertyChanged(obj, "value", 10, 123)]]
