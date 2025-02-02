@@ -5,7 +5,7 @@ from pyodide.ffi import create_proxy
 
 from wwwpy.common.property_monitor import PropertyChanged
 
-# rename to HTMLInputTargetAdapter
+# rename to HTMLInputTargetAdapter or HTMLInputTarget
 class InputTargetAdapter(TargetAdapter):
     def __init__(self, inp: js.HTMLInputElement):
         super().__init__()
