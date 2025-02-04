@@ -5,4 +5,6 @@ from hypercorn.asyncio import serve
 from echo_handler import app
 
 # uv pip install hypercorn
-asyncio.run(serve(app, Config()))
+config = Config()
+config.bind = '0.0.0.0:8000'
+asyncio.run(serve(app, config))
