@@ -1,3 +1,5 @@
+import asyncio
+
 from js import document, HTMLElement, Event, HTMLDivElement, HTMLBRElement
 
 from wwwpy.remote import dict_to_js
@@ -81,6 +83,38 @@ def test_redefining_an_element_should_be_ok():
     class Comp10b(Component, tag_name='comp-10'):
         pass
 
+
+class TestAfterInit:
+    async def test_after_init_async(self):
+        actual = []
+        event = asyncio.Event()
+        class Comp1(Component):
+            def init_component(self):
+                self.element.innerHTML = '<div>hello</div>'
+                actual.append(1)
+
+            async def after_init_component(self):
+                actual.append(2)
+                event.set()
+
+        comp1 = Comp1()
+        # wait for 5 secs max
+        await asyncio.wait_for(event.wait(), timeout=5)
+        assert actual == [1, 2]
+
+    def test_after_init_sync(self):
+        actual = []
+
+        class Comp1(Component):
+            def init_component(self):
+                self.element.innerHTML = '<div>hello</div>'
+                actual.append(1)
+
+            def after_init_component(self):
+                actual.append(2)
+
+        comp1 = Comp1()
+        assert actual == [1, 2]
 
 class TestElement:
 

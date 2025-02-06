@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 import js
 import logging
 from js import HTMLElement, console
@@ -101,6 +103,16 @@ class Component:
 
         self.init_component()
         self._bind_events()
+
+        if asyncio.iscoroutinefunction(self.after_init_component):
+            asyncio.create_task(self.after_init_component())
+        else:
+            self.after_init_component()
+
+    async def after_init_component(self):
+        """This is called after init_component, it can be async or called synchronously if it is a normal method.
+        It is called after the event binding is completed"""
+        pass
 
     def init_component(self):
         pass
