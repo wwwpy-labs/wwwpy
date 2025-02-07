@@ -21,15 +21,16 @@ from .searchable_combobox2 import SearchableComboBox, Option
 
 
 # write enum class with [events, attributes] and use it in the button click event
-class PropertyEditorMode(str, Enum):
+class PETab(str, Enum):
+    """Property Editor Tab"""
     palette = 'palette'
-    events = 'events'
     attributes = 'attributes'
+    events = 'events'
 
 
 @dataclass
 class PropertyEditorState:
-    mode: PropertyEditorMode = PropertyEditorMode.events
+    mode: PETab = PETab.attributes
 
 
 class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
@@ -89,19 +90,21 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
 
         """
 
-        def set_state_render(mode: PropertyEditorMode):
+        def set_state_render(mode: PETab):
             self.state.mode = mode
             self._render()
 
-        self._tab_palette = Tab('palette', on_selected=lambda tab: set_state_render(PropertyEditorMode.palette))
-        self._tab_events = Tab('events', on_selected=lambda tab: set_state_render(PropertyEditorMode.events))
-        self._tab_attributes = Tab('attributes',
-                                   on_selected=lambda tab: set_state_render(PropertyEditorMode.attributes))
-        self._tabs.tabs = [self._tab_palette, self._tab_events, self._tab_attributes, ]
+        def new_tab(petab: PETab):
+            return Tab(petab.name, on_selected=lambda tab: set_state_render(petab))
+
+        self._tab_palette = new_tab(PETab.palette)
+        self._tab_attributes = new_tab(PETab.attributes)
+        self._tab_events = new_tab(PETab.events)
+        self._tabs.tabs = [self._tab_palette, self._tab_attributes, self._tab_events, ]
 
     def set_state_selection_active(self):
-        if self.state.mode == PropertyEditorMode.palette:
-            self.state.mode = PropertyEditorMode.events
+        if self.state.mode == PETab.palette:
+            self.state.mode = PETab.events
 
     def add_row(self, row: wpc.Component):
         row.element.classList.add('wwwpy-property-editor-row')
@@ -139,10 +142,10 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             return
 
         self.row_container.innerHTML = ''
-        if self.state.mode == PropertyEditorMode.attributes:
+        if self.state.mode == PETab.attributes:
             self._render_attribute_editor(element_def, ep)
             self._tab_attributes.selected = True
-        elif self.state.mode == PropertyEditorMode.events:
+        elif self.state.mode == PETab.events:
             self._render_event_editor(element_def, ep)
             self._tab_events.selected = True
         else:
