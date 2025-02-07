@@ -3,7 +3,7 @@ from pathlib import Path
 from time import sleep
 from typing import List
 
-from tests import timeout_multiplier
+from tests.timeouts import timeout_multiplier
 from wwwpy.common.filesystem.sync import Event
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
 

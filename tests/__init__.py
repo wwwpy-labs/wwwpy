@@ -1,5 +1,4 @@
 import logging
-import os
 from functools import partial
 from typing import Iterable
 
@@ -22,15 +21,3 @@ def for_all_webservers():
     return partial(pytest.mark.parametrize, 'webserver', _webservers_instances(),
                    ids=available_webservers().ids)()
 
-
-def is_github():
-    getenv = os.getenv('GITHUB_ACTIONS')
-    return getenv == 'true'
-
-
-def timeout_multiplier():
-    multiplier = 15 if is_github() else 1
-    return multiplier
-
-
-logger.debug(f'timeout_multiplier={timeout_multiplier()}')

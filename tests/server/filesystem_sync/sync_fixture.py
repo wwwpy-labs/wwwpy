@@ -8,7 +8,7 @@ from typing import List
 
 import pytest
 
-from tests import timeout_multiplier
+from tests.timeouts import timeout_multiplier
 from tests.server.filesystem_sync.fs_compare import FsCompare
 from wwwpy.common.filesystem.sync import Sync, Event
 from wwwpy.common.rpc import serialization

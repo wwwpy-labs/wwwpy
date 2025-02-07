@@ -3,7 +3,8 @@ from time import sleep
 
 from playwright.sync_api import expect
 
-from tests import for_all_webservers, timeout_multiplier
+from tests import for_all_webservers
+from tests.timeouts import timeout_multiplier
 from tests.server.page_fixture import PageFixture, fixture
 from wwwpy.common import quickstart
 from wwwpy.common.files import get_all_paths_with_hashes

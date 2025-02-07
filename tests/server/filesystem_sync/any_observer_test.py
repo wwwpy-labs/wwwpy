@@ -6,7 +6,7 @@ from typing import List
 import pytest
 from watchdog.events import FileSystemEvent
 
-from tests import timeout_multiplier
+from tests.timeouts import timeout_multiplier
 from wwwpy.server.filesystem_sync.any_observer import AnyObserver
 from wwwpy.server.filesystem_sync import any_observer
 

@@ -1,11 +1,7 @@
-from time import sleep
-
 from playwright.sync_api import expect
 
-from tests import for_all_webservers, timeout_multiplier
+from tests import for_all_webservers
 from tests.server.page_fixture import fixture, PageFixture
-from wwwpy.common import files
-from wwwpy.common.tree import print_tree
 
 
 @for_all_webservers()

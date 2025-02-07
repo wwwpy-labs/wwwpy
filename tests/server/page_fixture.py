@@ -6,7 +6,6 @@ from time import sleep
 import pytest
 from playwright.sync_api import Page
 
-from tests import timeout_multiplier
 from wwwpy.bootstrap import wrap_in_tryexcept
 from wwwpy.common import reloader
 from tests.server.convention_fixture import start_test_convention
@@ -51,6 +50,7 @@ class PageFixture:
         """Assert on the evaluated python expression. So the evaluated expression should return a Tuple[bool, str]
         This pass through javascript so, beware of using `` separators"""
         __tracebackhide__ = True
+        from tests.timeouts import timeout_multiplier
         millis = millis * timeout_multiplier()
         delta = timedelta(milliseconds=millis)
         start = datetime.utcnow()
