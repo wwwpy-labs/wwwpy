@@ -11,6 +11,7 @@ from wwwpy.webservers.available_webservers import available_webservers
 
 logger = logging.getLogger(__name__)
 
+
 def _webservers_instances() -> Iterable[Webserver]:
     for i in available_webservers().instances():
         i.set_port(find_port())
@@ -29,5 +30,7 @@ def is_github():
 
 def timeout_multiplier():
     multiplier = 15 if is_github() else 1
-    print(f'timeout_multiplier={multiplier}')
     return multiplier
+
+
+logger.debug(f'timeout_multiplier={timeout_multiplier()}')
