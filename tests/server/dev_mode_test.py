@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 @for_all_webservers()
 def test_dev_mode_with_empty_project__should_show_quickstart_dialog(fixture: PageFixture):
+    logger.info('test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs')
     fixture.dev_mode = True
     assert list(fixture.tmp_path.iterdir()) == []
     fixture.start_remote()
