@@ -12,17 +12,13 @@ _task = []
 
 
 def setup_shoelace():
-    if not _task:
-        task = create_task_safe(setup_shoelace_async())
-        _task.append(task)
-    return _task[0]
+    async def _setup_shoelace():
+        needed = await script_load_once(_js_url, type='module')
+        if needed:
+            document.documentElement.className = 'sl-theme-dark'
+            document.head.append(document.createRange().createContextualFragment(_head_style))
 
-
-
-async def setup_shoelace_async():
-    document.documentElement.className = 'sl-theme-dark'
-    document.head.append(document.createRange().createContextualFragment(_head_style))
-    await script_load_once(_js_url, type='module')
+    return create_task_safe(_setup_shoelace())
 
 
 # <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.0/cdn/shoelace.js" ></script>
