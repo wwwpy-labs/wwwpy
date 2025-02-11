@@ -44,10 +44,8 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
 <wwwpy-toolbox data-name="toolbox"></wwwpy-toolbox>        
         """
 
-        async def check_for_quickstart():
-            if await rpc.quickstart_possible():
-                self.quickstart = quickstart_ui.create()
-                self.element.shadowRoot.append(self.quickstart.window.element)
-                self.toolbox.visible = False
-
-        asyncio.create_task(check_for_quickstart())
+    async def after_init_component(self):
+        if await rpc.quickstart_possible():
+            self.quickstart = quickstart_ui.create()
+            self.element.shadowRoot.append(self.quickstart.window.element)
+            self.toolbox.visible = False
