@@ -5,12 +5,14 @@ from js import document
 from pyodide.ffi import create_proxy
 
 
-async def script_load_once(src: str, type=None):
+async def script_load_once(src: str, type=None) -> bool:
+    """Returns True if the script was needed, False if it was not needed."""
     # logger.debug(f'load {src}')
     src_short = src.split('/')[-1]
     scripts = list(filter(lambda s: s.src == src, document.head.querySelectorAll('script')))  # noqa
     scripts: list[js.HTMLScriptElement]
-    script = None if not scripts else scripts[0]
+    need_load = not scripts
+    script = None if need_load else scripts[0]
 
     if script:
         # logger.debug(f'  found script with same src: {src_short} type={script.type}')
@@ -28,3 +30,4 @@ async def script_load_once(src: str, type=None):
     # logger.debug(f'  waiting for script to load: {src_short}')
     await script.__async_event.wait()
     # logger.debug(f'  event set: {src_short}')
+    return need_load
