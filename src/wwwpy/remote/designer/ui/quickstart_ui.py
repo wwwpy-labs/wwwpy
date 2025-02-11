@@ -20,6 +20,7 @@ class QuickstartUI:
         cmp1.items = [Item(qs.title, qs.description, {'quickstart': qs}) for qs in quickstart_list]
         cmp1.placeholder = 'Search or select below...'
         self.window.element.append(cmp1.element)
+        self.on_done = lambda *args: None
 
         cmp1.element.addEventListener('item-click', create_proxy(self._item_click_handler))
 
@@ -28,6 +29,7 @@ class QuickstartUI:
 
         async def _notify_server():
             await rpc.quickstart_apply(quickstart_name)
+            self.on_done(quickstart_name)
 
         asyncio.create_task(_notify_server())
 

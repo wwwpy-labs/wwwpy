@@ -1,20 +1,21 @@
 from __future__ import annotations
 
-import asyncio
-
 import js
 
 import wwwpy.remote.component as wpc
-from wwwpy.common import files
-from wwwpy.remote import dict_to_js, dict_to_py
+from wwwpy.remote import dict_to_js
 from wwwpy.server.designer import rpc
 from . import quickstart_ui
 from .quickstart_ui import QuickstartUI
 from .toolbox import ToolboxComponent
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def show():
-    js.document.body.append(DevModeComponent().element)
+    x = DevModeComponent.instance
+    js.document.body.append(DevModeComponent.instance.element)
 
 
 class classproperty(property):
@@ -25,17 +26,18 @@ class classproperty(property):
 class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
     toolbox: ToolboxComponent = wpc.element()
     quickstart: QuickstartUI | None = None
+    _instance: DevModeComponent
 
     @classproperty
     def instance(cls) -> DevModeComponent:  # noqa
-        element = js.document.getElementsByTagName(DevModeComponent.component_metadata.tag_name)
-        if element.length == 0:
-            raise Exception('DevModeComponent is not available')
-        first_element = element[0]
-        component = wpc.get_component(first_element)
-        if not isinstance(component, DevModeComponent):
-            raise Exception(f'element is not a DevModeComponent: {dict_to_py(first_element)}')
-        return component
+        try:
+            _i = cls._instance
+            logger.warning(f'instance found: {_i}')
+        except AttributeError:
+            _i = DevModeComponent()
+            cls._instance = _i
+            logger.warning(f'instance created: {_i}')
+        return _i
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -47,5 +49,7 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
     async def after_init_component(self):
         if await rpc.quickstart_possible():
             self.quickstart = quickstart_ui.create()
+            def _on_done(): self.toolbox.visible = True
+            self.quickstart.on_done = lambda *_: _on_done()
             self.element.shadowRoot.append(self.quickstart.window.element)
             self.toolbox.visible = False
