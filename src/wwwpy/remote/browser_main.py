@@ -4,6 +4,7 @@ import traceback
 from inspect import iscoroutinefunction
 import asyncio
 import logging
+from pathlib import Path
 
 import js
 from js import console
@@ -33,6 +34,10 @@ async def entry_point(dev_mode: bool = False):
 def _reload():
     async def reload():
         console.log('reloading')
+        # for p in Path(files._bundle_path).iterdir():
+        #     if p.name == 'wwwpy':
+        #         continue
+        #     reloader.unload_path(str(p))
         reloader.unload_path(files._bundle_path)
         await _invoke_browser_main()
 
@@ -49,7 +54,7 @@ async def _invoke_browser_main():
             for attr in js.document.documentElement.attributes:
                 js.document.documentElement.removeAttributeNode(attr)
 
-            js.document.body.innerText = f'Going to import the "remote" package'
+            js.document.body.innerText = f'Importing the "remote" package...'
             import remote
             if hasattr(remote, 'main'):
                 if iscoroutinefunction(remote.main):

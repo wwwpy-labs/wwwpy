@@ -268,6 +268,14 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
         filesystem_tree.show_explorer(DevModeComponent.instance.root_element())
 
+    @menu(Help("Python console", ''))
+    async def _python_console(self, e: Event):
+        from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+        w1 = new_window('Python console')
+        from wwwpy.remote.designer.ui.python_console import PythonConsoleComponent
+        w1.element.append(PythonConsoleComponent().element)
+        DevModeComponent.instance.root_element().append(w1.element)
+
     @menu(components_marker)
     def _drop_zone_start(self, e: Event):
         assert False, 'Just a placeholder'
