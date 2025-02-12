@@ -104,7 +104,7 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
 
     def set_state_selection_active(self):
         if self.state.mode == PETab.palette:
-            self.state.mode = PETab.events
+            self.state.mode = PETab.attributes
 
     def add_row(self, row: wpc.Component):
         row.element.classList.add('wwwpy-property-editor-row')
