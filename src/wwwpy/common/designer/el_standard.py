@@ -14,6 +14,8 @@ def _standard_elements_def() -> List[ElementDef]:
                 AttributeDef('type', Help('The type of the button.', ''),
                              values=['submit', 'reset', 'button'], default_value='button'),
                 ad_value,
+                ad_disabled,
+                ad_autofocus,
             ],
             events=[ed_click, ed_dblclick],
         ),
@@ -166,7 +168,39 @@ def _standard_elements_def() -> List[ElementDef]:
                 AttributeDef('form', Help('Associates the meter with a form element.', '')), ]
             ),
             events=NamedListMap([ed_click, ]),
-        )
+        ),
+        ElementDef('a', 'js.HTMLAnchorElement',
+                   help=Help('A hyperlink.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a'),
+                   attributes=[AttributeDef('href', Help('The URL of the hyperlink.',
+                                                         'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a'))])
+        ,
+        ElementDef('img', 'js.HTMLImageElement',
+                   help=Help('An image.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img'), attributes=[
+                AttributeDef('src', Help('The source URL of the image.',
+                                         'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img')),
+                AttributeDef('alt', Help('Alternative text for the image.',
+                                         'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img'))])
+        ,
+        ElementDef('option', 'js.HTMLOptionElement', help=Help('An option in a select list.',
+                                                               'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option'),
+                   attributes=[AttributeDef('value', Help('The value of the option.',
+                                                          'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option')),
+                               AttributeDef('disabled', Help('Disables the option.',
+                                                             'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option'),
+                                            boolean=True)])
+        ,
+        ElementDef('form', 'js.HTMLFormElement',
+                   help=Help('A form.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form'), attributes=[
+                AttributeDef('action', Help('The URL to process the form submission.',
+                                            'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form')),
+                AttributeDef('method', Help('The HTTP method for form submission.',
+                                            'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form'),
+                             values=['get', 'post'], default_value='get')])
+        ,
+        ElementDef('script', 'js.HTMLScriptElement',
+                   help=Help('A script.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'),
+                   attributes=[AttributeDef('type', Help('The MIME type of the script.',
+                                                         'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'))])
 
     ]
 
@@ -181,7 +215,6 @@ def _standard_elements_def() -> List[ElementDef]:
 
 _element_additional = [
     # tag_name, python_type, description, url
-    ('a', 'js.HTMLAnchorElement', 'A hyperlink.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a'),
     ('h1', 'js.HTMLHeadingElement', 'A top-level heading.',
      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1'),
     ('h2', 'js.HTMLHeadingElement', 'A level-2 heading.',
@@ -213,11 +246,7 @@ _element_additional = [
      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th'),
     ('td', 'js.HTMLTableCellElement', 'A table data cell.',
      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td'),
-    ('img', 'js.HTMLImageElement', 'An image.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img'),
-    ('form', 'js.HTMLFormElement', 'A form.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form'),
     ('label', 'js.HTMLLabelElement', 'A label.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label'),
-    ('option', 'js.HTMLOptionElement', 'An option in a select list.',
-     'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/option'),
     ('optgroup', 'js.HTMLOptGroupElement', 'A group of options in a select list.',
      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/optgroup'),
     ('hr', 'js.HTMLHRElement', 'A thematic break.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr'),
@@ -250,7 +279,6 @@ _element_additional = [
     ('map', 'js.HTMLMapElement', 'A map.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/map'),
     ('style', 'js.HTMLStyleElement', 'A style.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style'),
     ('title', 'js.HTMLTitleElement', 'A title.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title'),
-    ('script', 'js.HTMLScriptElement', 'A script.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'),
     ('template', 'js.HTMLTemplateElement', 'A template.',
      'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template'),
 ]
@@ -281,6 +309,7 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
         'div': _def(),
         'br': lambda: '<br>',
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
+        'img': lambda: f'<img data-name="{name}" src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=90" alt="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
         'textarea': _def(placeHolder=True, inner='', add='rows="6" wrap="off" style="width: 100%"'),
         'select': _def(inner='''
