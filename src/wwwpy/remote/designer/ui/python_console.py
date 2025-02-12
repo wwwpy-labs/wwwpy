@@ -10,7 +10,7 @@ import logging
 from wwwpy.common import state
 
 logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
 
 @dataclass
 class State:
