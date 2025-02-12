@@ -27,6 +27,7 @@ class Config:
     - dev_mode flag
     - (a set of) 'directory' has it's common/remote/server set of folders
         - this will impact the hot reload mechanism and the bundle to be sent to the remote
+    - keep 'common' separate from 'remote' and 'server' folders ?
     - todo continue this analysis
     """
     directory: Path
