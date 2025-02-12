@@ -114,7 +114,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 </wwwpy-window>         
 """
         self._manage_toolbox_state()
-
+        self._window.closable = False
         attrs = [v for k, v in vars(self.__class__).items() if hasattr(v, 'label')]
         self._all_items: List[MenuMeta] = []
 

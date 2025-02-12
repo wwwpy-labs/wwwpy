@@ -10,7 +10,7 @@ from wwwpy.server.designer import rpc
 class QuickstartUI:
 
     def __init__(self):
-        self.window: WindowComponent = new_window("Select a quickstart", closable=False).window
+        self.window: WindowComponent = new_window("Select a quickstart", closable=False)
         # self.window.set_size('300px', '300px')
         self.window.set_position('5px', '5px')
         cmp1 = SearchableList1()

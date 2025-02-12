@@ -9,6 +9,7 @@ import js
 from js import console
 
 import wwwpy.remote.component as wpc
+from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.files import zip_in_memory
 from wwwpy.remote.designer.ui.window_component import new_window
 from wwwpy.remote.files import download_bytes
@@ -96,8 +97,7 @@ class FilesystemTree(wpc.Component):
         if not self.is_file():
             return
         win = new_window(f'{self.path}', closable=True)
-        component = win.window
-        js.document.body.append(component.element)
+        js.document.body.append(win.element)
 
         pre1: js.HTMLElement = js.document.createElement('pre')
         pre1.innerText = self.path.read_text()
@@ -105,8 +105,14 @@ class FilesystemTree(wpc.Component):
 
 
 def show_explorer(parent: js.HTMLElement = js.document.body):
-    component = new_window('Browse local filesystem')
-    tree = FilesystemTree()
-    tree.show_path('/')
-    component.element.append(tree.element)
-    parent.append(component.element)
+    win = new_window('Browse local filesystem')
+    win.element.innerHTML = '<h1>Loading...</h1>'
+    parent.append(win.element)
+
+    async def coro():
+        tree = FilesystemTree()
+        win.element.innerHTML = ''
+        win.element.append(tree.element)
+        tree.show_path('/')
+
+    create_task_safe(coro())
