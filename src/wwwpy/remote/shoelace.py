@@ -37,3 +37,22 @@ _head_style = f"""
 </style>
 """
 _head_script = f"""<script type="module" src="{_js_url}"></script>"""
+
+
+# alternative
+# language=html
+_head_style_dark_palin ="""
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+<style>
+    body {
+        background: #121212;
+        color: #e0e0e0;
+        margin: 1rem;
+        font: 16px sans-serif;
+    }
+
+    a {
+        color: #bb86fc
+    }
+</style>
+"""
