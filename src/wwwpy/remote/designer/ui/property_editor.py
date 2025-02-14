@@ -69,6 +69,8 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             display: flex;
             align-items: center;
             padding-left: 5px;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
         }
         .wwwpy-pe-box-padding {
             padding: 3px;
