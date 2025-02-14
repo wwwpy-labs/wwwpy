@@ -171,19 +171,22 @@ class SearchableComboBox(wpc.Component, tag_name='wwwpy-searchable-combobox2'):
         self.element.shadowRoot.innerHTML = """
 <style>        
 :host {
-        display: inline-block;
-        position: relative;
-        font-family: Arial, sans-serif;
-    }
-    input {
-        width: 90%;
-        padding: 5px;
-        background-color: #2a2a2a;
-        color: #e0e0e0;
-        border: 1px solid #444;
-        border-radius: 4px;
-        font-size: 14px;
-    }
+    display: block; /* Ensures the host element takes full width if needed */
+    position: relative;
+    font-family: Arial, sans-serif;
+    width: 100%; /* Optional, only if the host should also span full width */
+}
+
+input {
+    width: 100%; /* Makes the input take the full width of the host */
+    box-sizing: border-box; /* Ensures padding and border are included in the width */
+    padding: 5px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 4px;
+    font-size: 14px;
+}
     input::placeholder {
         color: #888;
     }
