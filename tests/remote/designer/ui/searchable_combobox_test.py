@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 
+from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.searchable_combobox2 import SearchableComboBox, Option
 from js import document, window, console
+import js
 from pyodide.ffi import create_proxy
 
 import pytest
@@ -56,7 +58,7 @@ def test_popup_activate__with_input_click(target):
     popup = target.option_popup.root_element()
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # THEN
     element_state(popup).assert_visible()
@@ -94,7 +96,7 @@ def test_popup__click_option(target):
     target.option_popup.options = ['foo', 'bar', 'baz']
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
     target.option_popup.options[1].root_element().click()
 
     # THEN
@@ -110,7 +112,7 @@ def test_search__input_click__should_focus_search(target):
     target.option_popup.search_placeholder = 'search options...'
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # THEN
     search_element = target.root_element().activeElement
@@ -125,7 +127,7 @@ def test_search_text__should_honor_search(target):
     target.option_popup.options = ['foo', 'bar', 'baz']
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
     target.option_popup.search_value = 'ba'
 
     # THEN
@@ -143,7 +145,7 @@ def test_outside_click__should_close_popup(target):
     document.body.append(button)
 
     target.option_popup.options = ['foo', 'bar', 'baz']
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # WHEN
     button.click()
@@ -156,10 +158,10 @@ def test_outside_click__should_close_popup(target):
 def test_click_twice__should_close_popup(target):
     # GIVEN
     target.option_popup.options = ['foo', 'bar', 'baz']
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # THEN
     element_state(target.option_popup.root_element()).assert_not_visible()
@@ -193,7 +195,7 @@ def test_change_event(target):
     # WHEN
     on_change = []
     target.element.addEventListener('wp-change', create_proxy(lambda e: [on_change.append(e.detail.option)]))
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
     bar = target.option_popup.options[1]
     bar.do_click()
 
@@ -205,7 +207,7 @@ def test_when_no_options__should_not_show_popup(target):
     # GIVEN
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # THEN
     element_state(target.option_popup.root_element()).assert_not_visible()
@@ -219,7 +221,7 @@ def test_focus_search_on_popup(target):
     target.focus_search_on_popup = False
 
     # WHEN
-    target._input_element().click()
+    dispatch_pointerdown(target._input_element())
 
     # THEN
     element_state(target.option_popup.root_element()).assert_visible()
@@ -239,6 +241,26 @@ def test_options_should_be_lazy_loaded(target):
     # THEN
     assert not foo.loaded
 
+def test_value_attribute(target):
+    # GIVEN
+    target.value = 'foo'
+
+    # THEN
+    assert target.text_value == 'foo'
+
+def test_value_set_attribute(target):
+    # GIVEN
+    target.element.setAttribute('value', 'foo')
+
+    # THEN
+    assert target.value == 'foo'
+
+def test_disabled_attribute(target):
+    # GIVEN
+    target.disabled = ''
+
+    # THEN
+    assert target._input_element().disabled
 
 @dataclass
 class ElementState:
@@ -277,3 +299,12 @@ def element_state(element) -> ElementState:
         width=rect.width,
         height=rect.height,
     )
+
+
+def dispatch_event(element, event_name):
+    opts = {'bubbles': True, 'cancelable': True, 'pointerId': 1}
+    element.dispatchEvent(js.PointerEvent.new(event_name, dict_to_js(opts)))
+
+
+def dispatch_pointerdown(element):
+    dispatch_event(element, 'pointerdown')

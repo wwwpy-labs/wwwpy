@@ -162,6 +162,9 @@ class OptionPopup(wpc.Component, tag_name='wwwpy-searchable-combobox2-option-pop
 class SearchableComboBox(wpc.Component, tag_name='wwwpy-searchable-combobox2'):
     _input: js.HTMLInputElement = wpc.element()
     option_popup: OptionPopup = wpc.element()
+    value: str | None = wpc.attribute()
+    disabled: str | None = wpc.attribute()
+
     focus_search_on_popup = True
     """This represents the popoup with the options and eventually a search box at the top to filter the options"""
 
@@ -228,6 +231,21 @@ input {
         """
         self.option_popup.parent = self
         self.option_popup.search_placeholder = 'search...'
+        self._update_attributes()
+
+    def _update_attributes(self):
+        if self.value is None:
+            self.value = ''
+        elif self.value != self._input.value:
+            self._input.value = self.value
+
+        if self.disabled is not None:
+            self._input.disabled = True
+        else:
+            self._input.disabled = False
+
+    def attributeChangedCallback(self, name: str, oldValue: str, newValue: str):
+        self._update_attributes()
 
     @property
     def text_value(self) -> str:
@@ -248,7 +266,7 @@ input {
     def _input_element(self) -> js.HTMLElement:
         return self._input
 
-    def _input__click(self, event):
+    def _input__pointerdown(self, event):
         if len(self.option_popup.options) == 0:
             self._input.focus()
             return
