@@ -7,7 +7,7 @@ from . import code_edit, code_strings, html_edit, html_locator
 from . import code_info
 from . import element_library as el
 from . import element_path as ep
-from .code_edit import rename_class_attribute
+from .code_edit import rename_class_attribute, add_class_attribute
 from .. import modlib
 from ..collectionlib import ListMap
 
@@ -194,8 +194,15 @@ class ElementEditor:
             self._content_string_set_value(None, value)
 
         self._attribute_set_value(attribute_editor, value)
-        s1 = rename_class_attribute(self.current_python_source(), self.element_path.class_name, old_value, value)
-        self._write_source(s1)
+        src = self.current_python_source()
+        if old_value:
+            src = rename_class_attribute(src, self.element_path.class_name, old_value, value)
+        else:
+            # add class_attribute
+            # add_class_attribute(source_code, class_name, Attribute(attr_name, comp_def.python_type, 'wpc.element()'))
+            pt = self.element_def.python_type
+            src = add_class_attribute(src, self.element_path.class_name, code_info.Attribute(value, pt, 'wpc.element()'))
+        self._write_source(src)
 
     def _content_string_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
 

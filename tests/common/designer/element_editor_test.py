@@ -1,9 +1,9 @@
-from pathlib import Path
-
+from __future__ import annotations
 import pytest
 
 from tests.common import dyn_sys_path, DynSysPath
 from wwwpy.common.designer import code_info
+from wwwpy.common.designer.code_info import ClassInfo, Attribute
 from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name, tag_data_name_attr_name
 from wwwpy.common.designer.element_library import ElementDef, EventDef, AttributeDef
 from wwwpy.common.designer.element_path import ElementPath, Origin
@@ -285,8 +285,55 @@ class Component2():
 
 
 class TestDataName:
-    """Test data-name read,rename, add, remove
-    https://github.com/wwwpy-labs/wwwpy/issues/9 """
+    """Test data-name
+    https://github.com/wwwpy-labs/wwwpy/issues/9 (rename)
+    https://github.com/wwwpy-labs/wwwpy/issues/10 (add, remove)
+    """
+
+    def test_read_when_not_specified(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
+        '''
+
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        assert target.attributes.get(tag_data_name_attr_name).value is None
+
+    def test_add_should_set_html_attribute(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
+        '''
+
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).value = 'btn1'
+
+        # THEN
+        assert 'data-name="btn1"' in target_fixture.current_html
+
+    def test_add_should_set_class_attribute(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
+        '''
+
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).value = 'btn1'
+
+        # THEN
+        assert target_fixture.code_info().attributes == [Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()')]
 
     def test_read(self, target_fixture):
         # GIVEN
@@ -397,6 +444,9 @@ class TargetFixture:
         from wwwpy.common.designer import code_strings as cs
         html = cs.html_from_source(self.target.current_python_source(), self.element_path.class_name)
         return html
+
+    def code_info(self) -> ClassInfo | None:
+        return code_info.class_info(self.target.current_python_source(), self.element_path.class_name)
 
 
 def _node_path(source: str, class_name, indexed_path: list[int]) -> NodePath:

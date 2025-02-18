@@ -16,7 +16,7 @@ from wwwpy.common.designer.html_locator import NodePath, IndexPath
 logger = logging.getLogger(__name__)
 
 
-def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute):
+def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute) -> str:
     source_code_imp = ensure_imports(source_code)
     module = cst.parse_module(source_code_imp)
     transformer = _AddFieldToClassTransformer(class_name, attr_info)
