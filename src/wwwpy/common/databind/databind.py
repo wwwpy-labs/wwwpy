@@ -13,7 +13,7 @@ class TargetOriginEvent:
     value: any
 
 
-# todo rename to BindingTarget?
+# todo rename to BindingTarget or Bindable or BindableTarget?
 class TargetAdapter(Monitorable):
 
     def __init__(self):

@@ -4,11 +4,11 @@ from dataclasses import dataclass
 from typing import List, Union
 
 import js
-from js import console
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
+from wwwpy.remote.databind.bind_wrapper import InputTargetAdapter
 from wwwpy.remote.designer.global_interceptor import InterceptorEvent, GlobalInterceptor
 
 
@@ -229,6 +229,7 @@ input {
             data-name="option_popup" class="popup" style="display: none">
         </wwwpy-searchable-combobox2-option-popup>
         """
+        self.target_adapter = InputTargetAdapter(self._input)
         self.option_popup.parent = self
         self.option_popup.search_placeholder = 'search...'
         self._update_attributes()
@@ -282,6 +283,7 @@ input {
 
     def _input__change(self, event):
         self.element.dispatchEvent(js.CustomEvent.new('wp-change'))
+        self.target_adapter._new_input_event(None)
 
     def _option_selected(self, option: Option):
         self.option_popup.hide()
@@ -289,3 +291,7 @@ input {
             print(f'option selected: {option.text}')
             self._input.value = option.text
             self.element.dispatchEvent(js.CustomEvent.new('wp-change', dict_to_js({'detail': {'option': option}})))
+            self.target_adapter._new_input_event(None)
+
+    def _input__input(self, event):
+        self.target_adapter._new_input_event(event)

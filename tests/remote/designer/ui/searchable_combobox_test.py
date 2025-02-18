@@ -308,3 +308,5 @@ def dispatch_event(element, event_name):
 
 def dispatch_pointerdown(element):
     dispatch_event(element, 'pointerdown')
+
+# todo test the data-bindability of the component
