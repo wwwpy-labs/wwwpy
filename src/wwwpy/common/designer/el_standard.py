@@ -48,7 +48,7 @@ def _standard_elements_def() -> List[ElementDef]:
                              boolean=True),
 
             ],
-            events=[ed_input, ed_click]
+            events=[ed_input, ed_click, ed_change]
         ),
         ElementDef(
             'textarea', 'js.HTMLTextAreaElement',
