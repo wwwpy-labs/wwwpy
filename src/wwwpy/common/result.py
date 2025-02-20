@@ -35,9 +35,13 @@ class Result(Generic[_S, _F]):
         return self._value if self.is_failure else None
 
     def get_or_throw(self) -> _S:
-        if self.is_failure:
-            raise self._value
-        return self._value
+        if self.is_success:
+            return self._value
+
+        exc = self._value
+        if not isinstance(self._value, BaseException):
+            exc = Exception(self._value)
+        raise exc
 
     def __repr__(self) -> str:
         return f"Success({self._value})" if self.is_success else f"Failure({self._value})"
