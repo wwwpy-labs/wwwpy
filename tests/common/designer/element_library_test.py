@@ -37,7 +37,7 @@ def test_serialization(el):
     for e in el.elements:
         e = dataclasses.replace(e)
         e.gen_html = None
-        logger.warning(f'serializing {e.tag_name}')
+        logger.debug(f'serializing {e.tag_name}')
         ser = serialization.to_json(e, ElementDef)
         deser = serialization.from_json(ser, ElementDef)
         assert e == deser
