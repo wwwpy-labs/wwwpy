@@ -38,10 +38,13 @@ def _standard_elements_def() -> List[ElementDef]:
                 AttributeDef('max', Help('The maximum value of the input field.', '')),
                 AttributeDef('step', Help('The legal number intervals for the input field.', '')),
                 AttributeDef('pattern', Help('A regular expression that the input\'s value is checked against.', '')),
-                AttributeDef('autocomplete', Help('Lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.', ''),
+                AttributeDef('autocomplete', Help(
+                    'Lets web developers specify what if any permission the user agent has to provide automated assistance in filling out form field values, as well as guidance to the browser as to the type of information expected in the field.',
+                    ''),
                              values=['on', 'off']),
-                AttributeDef('autocapitalize', Help('Controls whether inputted text is automatically capitalized and, if so, in what manner.', ''),
-                                values=['on', 'off']),
+                AttributeDef('autocapitalize', Help(
+                    'Controls whether inputted text is automatically capitalized and, if so, in what manner.', ''),
+                             values=['on', 'off']),
                 ad_autofocus,
                 AttributeDef('checked', Help('Whether the control is checked.', ''), boolean=True),
                 AttributeDef('multiple', Help('Whether the user is allowed to enter more than one value.', ''),
@@ -204,6 +207,14 @@ def _standard_elements_def() -> List[ElementDef]:
                    help=Help('A script.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'),
                    attributes=[AttributeDef('type', Help('The MIME type of the script.',
                                                          'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script'))])
+        ,
+        ElementDef('pre', 'js.HTMLPreElement',
+                   help=Help('Preformatted text.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre'),
+                   events=[ed_click, ed_dblclick])
+        ,
+        ElementDef('code', 'js.HTMLCodeElement',
+                   help=Help('Computer code.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code'),
+                   events=[ed_click, ed_dblclick])
 
     ]
 
