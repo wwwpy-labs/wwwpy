@@ -12,7 +12,13 @@ from wwwpy.common.result import Result
 
 class PackageManager:
 
-    def installed_packages(self) -> list[Package]:
+    async def installed_packages(self) -> Result[list[Package], Exception]:
+        try:
+            return Result.success(self._installed_packages_sync())
+        except Exception as e:
+            return Result.failure(e)
+
+    def _installed_packages_sync(self) -> list[Package]:
         packages = []
         unique = set()
         for dist in importlib.metadata.distributions():
