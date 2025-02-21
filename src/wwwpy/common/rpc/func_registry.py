@@ -69,7 +69,7 @@ def function_definitions(source_code) -> List[Function]:
     return functions
 
 
-def source_to_proxy(module_name: str, source: str):
+def source_to_proxy(module_name: str, source: str) -> str:
     tree: Module = ast.parse(source)
     content = ''
     # todo OptionalCoroutine

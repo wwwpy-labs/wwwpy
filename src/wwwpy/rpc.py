@@ -168,7 +168,7 @@ class RpcRoute:
         return add, rem
 
 
-def generate_stub_source(module: Module, rpc_url: str, imports: str):
+def generate_stub_source(module: Module, rpc_url: str, imports: str) -> str:
     module_name = module.name
     # language=python
     stub_header = f"""
