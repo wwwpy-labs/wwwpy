@@ -21,3 +21,8 @@ class PackageSpecification:
         if self.version_specs is None:
             return [self.name]
         return [f"{self.name}{self.version_specs}"]
+
+
+@dataclass(frozen=True)
+class PackageRequest:
+    install: list[PackageSpecification]
