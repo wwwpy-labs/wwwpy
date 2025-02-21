@@ -28,7 +28,17 @@ def test_define_custom_metadata():
 
     assert Comp1.component_metadata.clazz == Comp1
     assert Comp1.component_metadata.tag_name == 'tag-1'
+    assert Comp1.component_metadata.html_snippet == '<tag-1 ></tag-1>'
     assert Comp1.component_metadata.registered
+
+
+def test_metadata_build_snippet():
+    class Comp1(Component, tag_name='tag-1'): ...
+
+    metadata = Comp1.component_metadata
+    assert metadata.build_snippet() == '<tag-1 ></tag-1>'
+    assert metadata.build_snippet({'data-name': 'foo'}) == '<tag-1 data-name="foo"></tag-1>'
+    assert metadata.build_snippet({'data-name': 'foo'}, 'hello') == '<tag-1 data-name="foo">hello</tag-1>'
 
 
 def test_define_custom_metadata__auto_define_False():
@@ -72,7 +82,7 @@ def test_append_tag_to_document():
         def connectedCallback(self):
             self.element.innerHTML = '<h1>hello456</h1>'
 
-    document.body.innerHTML = f'<{Comp2.component_metadata.tag_name}></{Comp2.component_metadata.tag_name}>'
+    document.body.innerHTML = Comp2.component_metadata.html_snippet
     assert 'hello456' in document.body.innerHTML
 
 
@@ -88,6 +98,7 @@ class TestAfterInit:
     async def test_after_init_async(self):
         actual = []
         event = asyncio.Event()
+
         class Comp1(Component):
             def init_component(self):
                 self.element.innerHTML = '<div>hello</div>'
@@ -115,6 +126,7 @@ class TestAfterInit:
 
         comp1 = Comp1()
         assert actual == [1, 2]
+
 
 class TestElement:
 
@@ -282,11 +294,9 @@ class TestElementEventBinding:
             def init_component(self):
                 self.element.innerHTML = "<div>hello</div>"
 
-        tag_name = CChild.component_metadata.tag_name
-
         class CParent(Component):
             def init_component(self):
-                self.element.innerHTML = f"<{tag_name} data-name='foo'></{tag_name}>"
+                self.element.innerHTML = CChild.component_metadata.build_snippet({'data-name': 'foo'})
 
             def foo__click(self, event):
                 events.append(1)
@@ -304,13 +314,11 @@ class TestElementEventBinding:
             def init_component(self):
                 self.element.innerHTML = "<div>hello</div>"
 
-        tag_name = CChild.component_metadata.tag_name
-
         class CParent(Component):
             foo: CChild = element()  # component declaration
 
             def init_component(self):
-                self.element.innerHTML = f"<{tag_name} data-name='foo'></{tag_name}>"
+                self.element.innerHTML = CChild.component_metadata.build_snippet({'data-name': 'foo'})
 
             def foo__click(self, event):
                 events.append(1)

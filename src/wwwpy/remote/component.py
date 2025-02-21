@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Dict
 
 import js
 import logging
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 namespace = "window.python_custom_elements"
 
 
+# todo maybe we can join Metadata and Component into one class
 class Metadata:
     def __init__(self, tag_name: str | None = None, clazz=None):
         if clazz is not None:
@@ -63,6 +65,18 @@ class Metadata:
             js.eval(code)
 
         self.registered = True
+
+    @property
+    def html_snippet(self):
+        """Returns the complete HTML markup for this custom element."""
+        return self.build_snippet()
+
+    def build_snippet(self, attributes: Dict[str, str | None] = None, inner_html: str = '') -> str:
+        """Returns a snippet of HTML for this custom element."""
+        if attributes is None:
+            attributes = {}
+        attr_str = ' '.join(f'{k}="{v}"' for k, v in attributes.items())
+        return f'<{self.tag_name} {attr_str}>{inner_html}</{self.tag_name}>'
 
 
 def get_component(element: HTMLElement) -> Component | None:
