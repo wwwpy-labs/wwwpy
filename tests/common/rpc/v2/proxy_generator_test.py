@@ -50,6 +50,13 @@ def test_function_definitions():
     assert 'def add(a: int, b: int) -> int:' in gen
     assert 'def sub(a: int, b: int) -> int:' in gen
 
+def test_function_type_hints():
+    # WHEN
+    gen = proxy_generator.generate('def add(a: int, b: int = 123) -> int: pass', DispatcherFake)
+
+    # THEN
+    assert 'def add(a: int, b: int=123) -> int:' in gen
+
 def test_definition_complete_called(db_fake):
     # WHEN
     gen = proxy_generator.generate(source, DispatcherFake)

@@ -16,33 +16,24 @@ dispatcher (being it the module or a class dispatcher)
 See the protocol DispatcherBuilder
 """
     tree: ast.Module = ast.parse(source)
-    functions = []
-    for b in tree.body:
-        if isinstance(b, ast.FunctionDef):
-            # Reconstruct parameters with type hints
-            params = []
-            for arg in b.args.args:
-                if arg.annotation is not None:
-                    params.append(f"{arg.arg}: {ast.unparse(arg.annotation)}")
-                else:
-                    params.append(arg.arg)
-            params_str = ", ".join(params)
-            # Reconstruct return annotation if exists
-            ret_hint = f" -> {ast.unparse(b.returns)}" if b.returns is not None else ""
-            functions.append(f'''
-def {b.name}({params_str}){ret_hint}:
-    return dispatcher.dispatch_module_function("{b.name}")
-''')
     module = dispatch_builder_provider.__module__
     qualified_name = dispatch_builder_provider.__qualname__
-    functions_str = "\n".join(functions)
-    result = f"""
-from {TargetType.__module__} import {TargetType.__name__}
-from {module} import {qualified_name}
-dispatcher = {qualified_name}()
 
-{functions_str}
+    lines = [
+        f'from {TargetType.__module__} import {TargetType.__name__}',
+        f'from {module} import {qualified_name}',
+        f'dispatcher = {qualified_name}()',
+        ''
+    ]
 
-dispatcher.definition_complete(locals(), TargetType.module)
-    """
-    return result
+    for b in tree.body:
+        if isinstance(b, ast.FunctionDef):
+            b.body = []  # keep only the signature
+            func_def = ast.unparse(b)
+            lines.append(func_def)
+            lines.append(f'    return dispatcher.dispatch_module_function("{b.name}")')
+
+    lines.append('dispatcher.definition_complete(locals(), TargetType.module)')
+
+    body = '\n'.join(lines)
+    return body
