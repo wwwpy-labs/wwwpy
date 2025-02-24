@@ -32,7 +32,7 @@ def add(a: int, b: int) -> int:
 def sub(a: int, b: int) -> int:
     return a - b
 '''
-
+source_async = source.replace('def ', 'async def ')
 
 def test_instantiation(db_fake):
     # WHEN
@@ -49,6 +49,14 @@ def test_function_definitions():
     # THEN
     assert 'def add(a: int, b: int) -> int:' in gen
     assert 'def sub(a: int, b: int) -> int:' in gen
+
+def todo_test_async_function_definitions():
+    # WHEN
+    gen = proxy_generator.generate(source_async, DispatcherFake)
+
+    # THEN
+    assert 'async def add(a: int, b: int) -> int:' in gen
+    assert 'async def sub(a: int, b: int) -> int:' in gen
 
 def test_function_type_hints():
     # WHEN
