@@ -138,51 +138,52 @@ class Person:
     age: int
 '''
 
+class TestImports:
+    def test_ImportFrom(self, db_fake):
+        # GIVEN
+        db_fake.dyn_sys_path.write_module2(*_person_module)
+        db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
-def test_function_args_values_and_type_hint__complex_type_fromimport_clause(db_fake):
-    # GIVEN
-    db_fake.dyn_sys_path.write_module2(*_person_module)
-    db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
+        import module1  # fires the instantiation of the builder
+        from module_person import Person
+        person = Person('John', 42)
 
-    import module1  # fires the instantiation of the builder
-    from module_person import Person
-    person = Person('John', 42)
+        def dispatch_module_function(name, args):
+            assert name == 'fun1'
+            assert args == [(person, Person)]
+            return 'ignored'
 
-    def dispatch_module_function(name, args):
-        assert name == 'fun1'
-        assert args == [(person, Person)]
-        return 'ignored'
+        db_fake.builder.dispatch_module_function = dispatch_module_function
 
-    db_fake.builder.dispatch_module_function = dispatch_module_function
+        # WHEN invoke add
+        module1.fun1(person)
 
-    # WHEN invoke add
-    module1.fun1(person)
-
-    # THEN
-    # the type hint should be as expected
+        # THEN
+        # the type hint should be as expected
 
 
-def test_function_args_values_and_type_hint__complex_type_simple_import(db_fake):
-    # GIVEN
-    db_fake.dyn_sys_path.write_module2(*_person_module)
-    db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
+    def test_Import(self, db_fake):
+        # GIVEN
+        db_fake.dyn_sys_path.write_module2(*_person_module)
+        db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
-    import module1  # fires the instantiation of the builder
-    from module_person import Person
-    person = Person('John', 42)
+        import module1  # fires the instantiation of the builder
+        from module_person import Person
+        person = Person('John', 42)
 
-    def dispatch_module_function(name, args):
-        assert name == 'fun1'
-        assert args == [(person, Person)]
-        return 'ignored'
+        def dispatch_module_function(name, args):
+            assert name == 'fun1'
+            assert args == [(person, Person)]
+            return 'ignored'
 
-    db_fake.builder.dispatch_module_function = dispatch_module_function
+        db_fake.builder.dispatch_module_function = dispatch_module_function
 
-    # WHEN invoke add
-    module1.fun1(person)
+        # WHEN invoke add
+        module1.fun1(person)
 
-    # THEN
-    # the type hint should be as expected
+        # THEN
+        # the type hint should be as expected
+
 
 
 class DbFake:
