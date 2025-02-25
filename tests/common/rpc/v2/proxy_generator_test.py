@@ -136,7 +136,10 @@ from dataclasses import dataclass
 class Person:
     name: str
     age: int
+
+class Car: ...
 '''
+
 
 class TestImports:
     def test_ImportFrom(self, db_fake):
@@ -161,7 +164,6 @@ class TestImports:
         # THEN
         # the type hint should be as expected
 
-
     def test_Import(self, db_fake):
         # GIVEN
         db_fake.dyn_sys_path.write_module2(*_person_module)
@@ -184,6 +186,15 @@ class TestImports:
         # THEN
         # the type hint should be as expected
 
+    def test_should_importOnlyImportsUsedInTypeHints(self, db_fake):
+        db_fake.generate('from module_person import Person\ndef fun1(a: int) -> int: ...', module='module1')
+
+    def test_should_importFrom_multiple(self, db_fake):
+        db_fake.generate('from module_person import Person, Car\ndef fun1(a: int) -> int: ...', module='module1')
+
+    def test_should_importFrom_multiple__one_used(self, db_fake):
+        db_fake.dyn_sys_path.write_module2(*_person_module)
+        db_fake.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
 
 
 class DbFake:

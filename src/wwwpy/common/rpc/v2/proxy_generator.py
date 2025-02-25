@@ -1,8 +1,9 @@
 import ast
-from typing import Type
+from typing import Type, Optional
 
 from wwwpy.common.rpc.v2.dispatcher import Dispatcher
 
+_annotations_type = set[ast.Name]
 
 def generate(source: str, dispatch_builder_provider: Type[Dispatcher]) -> str:
     """This function is used to parse a source code and generate a new source code that:
@@ -24,7 +25,7 @@ See the protocol DispatcherBuilder
         f'dispatcher = {qualified_name}()',
         ''
     ]
-    used_annotations = set()
+    used_annotations: _annotations_type = set()
     for b in tree.body:
         if isinstance(b, ast.FunctionDef):
             b.body = []  # keep only the signature
@@ -42,11 +43,48 @@ See the protocol DispatcherBuilder
 
     for idx in range(len(lines)):
         line = lines[idx]
-        if isinstance(line, ast.stmt):
-            line = ast.unparse(line)
-        lines[idx] = line
+        if isinstance(line, ast.Import):
+            lines[idx] = ast.unparse(line) if _is_import_used(line, used_annotations) else ''
+        elif isinstance(line, ast.ImportFrom):
+            lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
     lines.append('dispatcher.definition_complete(locals(), "module")')
 
     body = '\n'.join(lines)
     return body
+
+
+def _is_import_used(node: ast.Import, used_annotations: _annotations_type) -> bool:
+    for alias in node.names:
+        candidate = alias.asname if alias.asname is not None else alias.name
+        for ann in used_annotations:
+            if _annotation_uses_candidate(ann, candidate):
+                return True
+    return False
+
+def _is_import_from_used(node: ast.ImportFrom, used_annotations: _annotations_type) -> bool:
+    for alias in node.names:
+        candidate = alias.asname if alias.asname is not None else alias.name
+        for ann in used_annotations:
+            if _annotation_uses_candidate(ann, candidate):
+                return True
+    return False
+
+def _annotation_uses_candidate(node: ast.AST, candidate: str) -> bool:
+    full_name = _get_full_name(node)
+    if full_name is not None:
+        if full_name == candidate or full_name.startswith(candidate + '.'):
+            return True
+    for child in ast.iter_child_nodes(node):
+        if _annotation_uses_candidate(child, candidate):
+            return True
+    return False
+
+def _get_full_name(node: ast.AST) -> Optional[str]:
+    if isinstance(node, ast.Name):
+        return node.id
+    elif isinstance(node, ast.Attribute):
+        base = _get_full_name(node.value)
+        if base is not None:
+            return base + '.' + node.attr
+    return None
