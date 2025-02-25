@@ -5,15 +5,6 @@ from wwwpy.common.rpc.v2 import proxy_generator
 from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition
 
 
-#
-# @dataclass
-# class DefinitionCompleteInvoke:
-#     locals_: dict
-#     target: str
-#     functions: dict
-#     annotations: dict
-
-
 class DispatcherFake(Dispatcher):
     instances: list['DispatcherFake'] = []
 
@@ -21,7 +12,7 @@ class DispatcherFake(Dispatcher):
         self.instances.append(self)
         self.definition_complete_invokes: list[Definition] = []
 
-    def definition_complete(self, locals_, target: str, definition: Definition) -> None:
+    def definition_complete(self, definition: Definition) -> None:
         self.definition_complete_invokes.append(definition)
 
 
@@ -79,7 +70,7 @@ async def test_async_call(db_fake):
     # GIVEN
     db_fake.generate(source_async, module='module1')
 
-    import module1  # fires the instantiation of the builder
+    import module1  # noqa
 
     async def dispatch(name, args):
         assert name == 'add'
@@ -125,7 +116,7 @@ def test_function_return_value(db_fake):
     # GIVEN
     db_fake.generate(source, module='module1')
 
-    import module1  # fires the instantiation of the builder
+    import module1  # noqa
 
     def dispatch_module_function(*args):
         return 42
@@ -179,8 +170,8 @@ class TestImports:
         db_fake.dyn_sys_path.write_module2(*_person_module)
         db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
-        import module1  # fires the instantiation of the builder
-        from module_person import Person
+        import module1  # noqa
+        from module_person import Person  # noqa
         person = Person('John', 42)
 
         assert db_fake.definition.functions['fun1'].annotations == [Person]
@@ -203,8 +194,8 @@ class TestImports:
         db_fake.dyn_sys_path.write_module2(*_person_module)
         db_fake.generate('import module_person\ndef fun1(p: module_person.Person) -> int: ...', module='module1')
 
-        import module1  # fires the instantiation of the builder
-        from module_person import Person
+        import module1  # noqa
+        from module_person import Person  # noqa
         person = Person('John', 42)
 
         assert db_fake.definition.functions['fun1'].annotations == [Person]
@@ -239,7 +230,7 @@ class TestReturn:
         db_fake.generate(source, module='module1')
 
         # WHEN
-        import module1
+        import module1  # noqa
 
         # THEN
         assert db_fake.definition.functions['add'].return_annotation == int
@@ -251,8 +242,8 @@ class TestReturn:
         db_fake.generate('from module_person import Person\ndef fun1() -> Person: ...', module='module1')
 
         # WHEN
-        import module1
-        from module_person import Person
+        import module1  # noqa
+        from module_person import Person  # noqa
 
         # THEN
         assert db_fake.definition.functions['fun1'].return_annotation == Person
@@ -262,8 +253,8 @@ class DbFake:
     def __init__(self, dyn_sys_path: DynSysPath):
         self.dyn_sys_path = dyn_sys_path
 
-    def generate(self, source: str, module=None) -> str:
-        gen = proxy_generator.generate(source, DispatcherFake)
+    def generate(self, src: str, module=None) -> str:
+        gen = proxy_generator.generate(src, DispatcherFake)
         if module is not None:
             self.dyn_sys_path.write_module2(f'{module}.py', gen)
         return gen

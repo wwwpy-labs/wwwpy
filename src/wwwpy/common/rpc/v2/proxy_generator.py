@@ -60,7 +60,7 @@ See the protocol DispatcherBuilder
     fdict = '{' + ', '.join(f'"{fname}": {fdef}' for fname, fdef in functions.items()) + '}'
 
     lines.append('from ' + Definition.__module__ + ' import ' + Definition.__name__ + ', ' + FunctionDef.__name__)
-    lines.append(f'dispatcher.definition_complete(locals(), "module", Definition("module", {fdict}))')
+    lines.append(f'dispatcher.definition_complete(Definition("module", {fdict}))')
 
     body = '\n'.join(lines)
     return body
