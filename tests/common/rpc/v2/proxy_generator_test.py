@@ -136,16 +136,18 @@ def test_function_args_values_and_type_hint(db_fake, dyn_sys_path: DynSysPath):
     # the type hint should be as expected
 
 
-def test_function_args_values_and_type_hint__complex_type_fromimport_clause(db_fake, dyn_sys_path: DynSysPath):
-    dyn_sys_path.write_module2('module_person.py', '''
+_person_module = 'module_person.py', '''
 from dataclasses import dataclass
 @dataclass
 class Person:
     name: str
     age: int
-''')
+'''
 
+
+def test_function_args_values_and_type_hint__complex_type_fromimport_clause(db_fake, dyn_sys_path: DynSysPath):
     # GIVEN
+    dyn_sys_path.write_module2(*_person_module)
     gen = proxy_generator.generate('''
 from module_person import Person    
 def fun1(p: Person) -> int: ...
@@ -172,15 +174,8 @@ def fun1(p: Person) -> int: ...
 
 
 def test_function_args_values_and_type_hint__complex_type_simple_import(db_fake, dyn_sys_path: DynSysPath):
-    dyn_sys_path.write_module2('module_person.py', '''
-from dataclasses import dataclass
-@dataclass
-class Person:
-    name: str
-    age: int
-''')
-
     # GIVEN
+    dyn_sys_path.write_module2(*_person_module)
     gen = proxy_generator.generate('''
 import module_person    
 def fun1(p: module_person.Person) -> int: ...
