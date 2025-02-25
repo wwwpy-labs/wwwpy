@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 import pytest
-from jaraco.functools import invoke
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2 import proxy_generator
@@ -69,13 +68,30 @@ def test_definition_complete_function_dictionary(db_fake):
     print('ok')
 
 
-def todo_test_async_function_definitions(db_fake):
+def test_async_function_definitions(db_fake):
     # WHEN
     gen = db_fake.generate(source_async)
 
     # THEN
     assert 'async def add(a: int, b: int) -> int:' in gen
     assert 'async def sub(a: int, b: int) -> int:' in gen
+
+async def test_async_call(db_fake):
+    # GIVEN
+    db_fake.generate(source_async, module='module1')
+
+    import module1  # fires the instantiation of the builder
+
+    async def dispatch(name, args):
+        assert name == 'add'
+        assert args == [1, 2]
+        return 42
+
+    db_fake.builder.dispatch_async = dispatch
+
+    # WHEN invoke add
+    assert await module1.add(1, 2) == 42
+
 
 
 def test_function_type_hints(db_fake):

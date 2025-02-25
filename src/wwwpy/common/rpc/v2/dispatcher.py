@@ -20,3 +20,7 @@ For example, classes and functions have these attributes.
     def dispatch_sync(self, function_name: str, *args) -> any:
         """The proxy_generator will call this method to dispatch a function call to the implementation."""
         ...
+
+    def dispatch_async(self, function_name: str, *args) -> any:
+        """The proxy_generator will call this method to dispatch a function call to the implementation."""
+        ...

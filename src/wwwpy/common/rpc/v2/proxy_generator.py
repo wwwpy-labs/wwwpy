@@ -30,7 +30,7 @@ See the protocol DispatcherBuilder
     function_name = []
     function_anno = {}
     for b in tree.body:
-        if isinstance(b, ast.FunctionDef):
+        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)):
             function_name.append(b.name)
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
@@ -41,9 +41,12 @@ See the protocol DispatcherBuilder
                 used_annotations.add(ar.annotation)
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
-            args = '[' + ', '.join(args_list) + ']'
+            args = f'"{b.name}", [' + ', '.join(args_list) + ']'
             function_anno[b.name] = f'[{", ".join(anno_list)}]'
-            lines.append(f'    return dispatcher.dispatch_sync("{b.name}", {args})')
+            if isinstance(b, ast.AsyncFunctionDef):
+                lines.append(f'    return await dispatcher.dispatch_async({args})')
+            else:
+                lines.append(f'    return dispatcher.dispatch_sync({args})')
 
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
