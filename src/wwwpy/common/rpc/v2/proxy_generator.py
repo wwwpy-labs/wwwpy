@@ -34,6 +34,9 @@ See the protocol DispatcherBuilder
             args = '[' + ', '.join(f'({ar.arg}, {ar.annotation.id})' for ar in b.args.args) + ']'
             lines.append(f'    return dispatcher.dispatch_module_function("{b.name}", {args})')
 
+        elif isinstance(b, ast.ImportFrom):
+            lines.append(ast.unparse(b))
+
     lines.append('dispatcher.definition_complete(locals(), TargetType.module)')
 
     body = '\n'.join(lines)

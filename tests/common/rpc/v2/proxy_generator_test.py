@@ -136,6 +136,41 @@ def test_function_args_values_and_type_hint(db_fake, dyn_sys_path: DynSysPath):
     # the type hint should be as expected
 
 
+def test_function_args_values_and_type_hint__complex_type(db_fake, dyn_sys_path: DynSysPath):
+    dyn_sys_path.write_module2('module_person.py','''
+from dataclasses import dataclass
+@dataclass
+class Person:
+    name: str
+    age: int
+''')
+
+    # GIVEN
+    gen = proxy_generator.generate('''
+from module_person import Person    
+def fun1(p: Person) -> int: ...
+''', DispatcherFake)
+    dyn_sys_path.write_module2('module1.py', gen)
+
+    import module1  # fires the instantiation of the builder
+    from module_person import Person
+    person = Person('John', 42)
+
+    def dispatch_module_function(name, args):
+        assert name == 'fun1'
+        assert args == [(person, Person)]
+        return 'ignored'
+
+    builder = DispatcherFake.instances[0]
+    builder.dispatch_module_function = dispatch_module_function
+
+    # WHEN invoke add
+    module1.fun1(person)
+
+    # THEN
+    # the type hint should be as expected
+
+
 @pytest.fixture
 def db_fake():
     yield None
