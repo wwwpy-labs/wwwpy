@@ -233,6 +233,31 @@ class TestImports:
         db_fake.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
 
 
+class TestReturn:
+    def test_return_type(self, db_fake):
+        # GIVEN
+        db_fake.generate(source, module='module1')
+
+        # WHEN
+        import module1
+
+        # THEN
+        assert db_fake.definition.functions['add'].return_annotation == int
+        assert db_fake.definition.functions['sub'].return_annotation == int
+
+    def test_return_complex_type(self, db_fake):
+        # GIVEN
+        db_fake.dyn_sys_path.write_module2(*_person_module)
+        db_fake.generate('from module_person import Person\ndef fun1() -> Person: ...', module='module1')
+
+        # WHEN
+        import module1
+        from module_person import Person
+
+        # THEN
+        assert db_fake.definition.functions['fun1'].return_annotation == Person
+
+
 class DbFake:
     def __init__(self, dyn_sys_path: DynSysPath):
         self.dyn_sys_path = dyn_sys_path

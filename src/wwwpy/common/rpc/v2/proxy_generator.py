@@ -40,12 +40,13 @@ See the protocol DispatcherBuilder
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
             args = f'"{b.name}", [' + ', '.join(args_list) + ']'
-            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}])'
+            used_annotations.add(b.returns)
+            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {ast.unparse(b.returns)})'
             if isinstance(b, ast.AsyncFunctionDef):
                 lines.append(f'    return await dispatcher.dispatch_async({args})')
             else:
                 lines.append(f'    return dispatcher.dispatch_sync({args})')
-
+            lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
 
