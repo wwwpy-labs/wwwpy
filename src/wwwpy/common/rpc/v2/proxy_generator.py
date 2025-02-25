@@ -5,6 +5,7 @@ from wwwpy.common.rpc.v2.dispatcher import Dispatcher
 
 _annotations_type = set[ast.Name]
 
+
 def generate(source: str, dispatch_builder_provider: Type[Dispatcher]) -> str:
     """This function is used to parse a source code and generate a new source code that:
 - Instantiates a DispatcherBuilder, one for the top level module and one for each class
@@ -26,8 +27,10 @@ See the protocol DispatcherBuilder
         ''
     ]
     used_annotations: _annotations_type = set()
+    function_name = []
     for b in tree.body:
         if isinstance(b, ast.FunctionDef):
+            function_name.append(b.name)
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
@@ -36,7 +39,7 @@ See the protocol DispatcherBuilder
                 used_annotations.add(ar.annotation)
                 args_list.append(f'({ar.arg}, {ast.unparse(ar.annotation)})')
             args = '[' + ', '.join(args_list) + ']'
-            lines.append(f'    return dispatcher.dispatch_module_function("{b.name}", {args})')
+            lines.append(f'    return dispatcher.dispatch_sync("{b.name}", {args})')
 
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
@@ -48,7 +51,8 @@ See the protocol DispatcherBuilder
         elif isinstance(line, ast.ImportFrom):
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
-    lines.append('dispatcher.definition_complete(locals(), "module")')
+    fdict = '{' + ', '.join(f'"{f}": {f}' for f in function_name) + '}'
+    lines.append(f'dispatcher.definition_complete(locals(), "module", {fdict})')
 
     body = '\n'.join(lines)
     return body
@@ -62,6 +66,7 @@ def _is_import_used(node: ast.Import, used_annotations: _annotations_type) -> bo
                 return True
     return False
 
+
 def _is_import_from_used(node: ast.ImportFrom, used_annotations: _annotations_type) -> bool:
     for alias in node.names:
         candidate = alias.asname if alias.asname is not None else alias.name
@@ -69,6 +74,7 @@ def _is_import_from_used(node: ast.ImportFrom, used_annotations: _annotations_ty
             if _annotation_uses_candidate(ann, candidate):
                 return True
     return False
+
 
 def _annotation_uses_candidate(node: ast.AST, candidate: str) -> bool:
     full_name = _get_full_name(node)
@@ -79,6 +85,7 @@ def _annotation_uses_candidate(node: ast.AST, candidate: str) -> bool:
         if _annotation_uses_candidate(child, candidate):
             return True
     return False
+
 
 def _get_full_name(node: ast.AST) -> Optional[str]:
     if isinstance(node, ast.Name):

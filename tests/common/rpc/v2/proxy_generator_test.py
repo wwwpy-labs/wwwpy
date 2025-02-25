@@ -11,6 +11,7 @@ from wwwpy.common.rpc.v2.dispatcher import Dispatcher
 class DefinitionCompleteInvoke:
     locals_: dict
     target: str
+    functions: dict
 
 
 class DispatcherFake(Dispatcher):
@@ -18,10 +19,10 @@ class DispatcherFake(Dispatcher):
 
     def __init__(self):
         self.instances.append(self)
-        self.definition_complete_invokes = []
+        self.definition_complete_invokes: list[DefinitionCompleteInvoke] = []
 
-    def definition_complete(self, locals_, target: str) -> None:
-        invoke = DefinitionCompleteInvoke(locals_, target)
+    def definition_complete(self, locals_, target: str, functions: dict) -> None:
+        invoke = DefinitionCompleteInvoke(locals_, target, functions)
         self.definition_complete_invokes.append(invoke)
 
 
@@ -51,6 +52,19 @@ def test_function_definitions(db_fake):
     # THEN
     assert 'def add(a: int, b: int) -> int:' in gen
     assert 'def sub(a: int, b: int) -> int:' in gen
+
+
+def test_definition_complete_function_dictionary(db_fake):
+    # WHEN
+    exec(db_fake.generate(source))
+
+    # THEN
+    assert len(db_fake.builder.definition_complete_invokes) == 1
+    invoke = db_fake.builder.definition_complete_invokes[0]
+    assert set(invoke.functions.keys()) == {'add', 'sub'}
+    add = invoke.functions['add']
+    sub = invoke.functions['sub']
+    print('ok')
 
 
 def todo_test_async_function_definitions(db_fake):
@@ -101,7 +115,7 @@ def test_function_return_value(db_fake):
     def dispatch_module_function(*args):
         return 42
 
-    db_fake.builder.dispatch_module_function = dispatch_module_function
+    db_fake.builder.dispatch_sync = dispatch_module_function
 
     # WHEN invoke add
     res = module1.add(1, 2)
@@ -121,7 +135,7 @@ def test_function_args_values_and_type_hint(db_fake):
         assert args == [(1, int), (2, int)]
         return 'ignored'
 
-    db_fake.builder.dispatch_module_function = dispatch_module_function
+    db_fake.builder.dispatch_sync = dispatch_module_function
 
     # WHEN invoke add
     module1.add(1, 2)
@@ -156,7 +170,7 @@ class TestImports:
             assert args == [(person, Person)]
             return 'ignored'
 
-        db_fake.builder.dispatch_module_function = dispatch_module_function
+        db_fake.builder.dispatch_sync = dispatch_module_function
 
         # WHEN invoke add
         module1.fun1(person)
@@ -178,7 +192,7 @@ class TestImports:
             assert args == [(person, Person)]
             return 'ignored'
 
-        db_fake.builder.dispatch_module_function = dispatch_module_function
+        db_fake.builder.dispatch_sync = dispatch_module_function
 
         # WHEN invoke add
         module1.fun1(person)
