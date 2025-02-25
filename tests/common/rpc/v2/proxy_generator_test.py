@@ -4,13 +4,13 @@ import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2 import proxy_generator
-from wwwpy.common.rpc.v2.dispatcher import TargetType, Dispatcher
+from wwwpy.common.rpc.v2.dispatcher import Dispatcher
 
 
 @dataclass
 class DefinitionCompleteInvoke:
     locals_: dict
-    target: TargetType
+    target: str
 
 
 class DispatcherFake(Dispatcher):
@@ -20,7 +20,7 @@ class DispatcherFake(Dispatcher):
         self.instances.append(self)
         self.definition_complete_invokes = []
 
-    def definition_complete(self, locals_, target: TargetType) -> None:
+    def definition_complete(self, locals_, target: str) -> None:
         invoke = DefinitionCompleteInvoke(locals_, target)
         self.definition_complete_invokes.append(invoke)
 
@@ -78,7 +78,7 @@ def test_definition_complete_called(db_fake):
     # THEN
     assert len(db_fake.builder.definition_complete_invokes) == 1
     invoke = db_fake.builder.definition_complete_invokes[0]
-    assert invoke.target == TargetType.module
+    assert invoke.target == 'module'
 
 
 def test_module_function_generation(db_fake):

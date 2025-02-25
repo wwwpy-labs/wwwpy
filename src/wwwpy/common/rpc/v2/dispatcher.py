@@ -1,10 +1,4 @@
-from enum import Enum
 from typing import Protocol
-
-
-class TargetType(str, Enum):
-    class_ = 'class'
-    module = 'module'
 
 
 class Dispatcher(Protocol):
@@ -17,7 +11,7 @@ For example, classes and functions have these attributes.
     __module__: str
     __qualname__: str
 
-    def definition_complete(self, locals_, target: TargetType) -> None:
+    def definition_complete(self, locals_, target: str) -> None:
         """The proxy_generator will call this method when the top level module
     is parsed and also at the end of each class definition. This allows the implementation to
     inspect the functions and their type hints through the locals() dictionary."""
