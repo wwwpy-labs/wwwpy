@@ -34,6 +34,7 @@ def sub(a: int, b: int) -> int:
 '''
 source_async = source.replace('def ', 'async def ')
 
+
 def test_instantiation(db_fake):
     # WHEN
     gen = proxy_generator.generate(source, DispatcherFake)
@@ -41,6 +42,7 @@ def test_instantiation(db_fake):
 
     # THEN
     assert len(DispatcherFake.instances) == 1
+
 
 def test_function_definitions():
     # WHEN
@@ -50,6 +52,7 @@ def test_function_definitions():
     assert 'def add(a: int, b: int) -> int:' in gen
     assert 'def sub(a: int, b: int) -> int:' in gen
 
+
 def todo_test_async_function_definitions():
     # WHEN
     gen = proxy_generator.generate(source_async, DispatcherFake)
@@ -58,12 +61,14 @@ def todo_test_async_function_definitions():
     assert 'async def add(a: int, b: int) -> int:' in gen
     assert 'async def sub(a: int, b: int) -> int:' in gen
 
+
 def test_function_type_hints():
     # WHEN
     gen = proxy_generator.generate('def add(a: int, b: int = 123) -> int: pass', DispatcherFake)
 
     # THEN
     assert 'def add(a: int, b: int=123) -> int:' in gen
+
 
 def test_definition_complete_called(db_fake):
     # WHEN
@@ -94,21 +99,41 @@ def test_function_return_value(db_fake, dyn_sys_path: DynSysPath):
     gen = proxy_generator.generate(source, DispatcherFake)
     dyn_sys_path.write_module2('module1.py', gen)
 
-    import module1 # fires the instantiation of the builder
+    import module1  # fires the instantiation of the builder
 
     def dispatch_module_function(*args):
-        print(f'dispatching {args}')
         return 42
 
     builder = DispatcherFake.instances[0]
     builder.dispatch_module_function = dispatch_module_function
-
 
     # WHEN invoke add
     res = module1.add(1, 2)
 
     # THEN
     assert res == 42
+
+
+def test_function_args_values_and_type_hint(db_fake, dyn_sys_path: DynSysPath):
+    # GIVEN
+    gen = proxy_generator.generate(source, DispatcherFake)
+    dyn_sys_path.write_module2('module1.py', gen)
+
+    import module1  # fires the instantiation of the builder
+
+    def dispatch_module_function(name, args):
+        assert name == 'add'
+        assert args == [(1, int), (2, int)]
+        return 'ignored'
+
+    builder = DispatcherFake.instances[0]
+    builder.dispatch_module_function = dispatch_module_function
+
+    # WHEN invoke add
+    module1.add(1, 2)
+
+    # THEN
+    # the type hint should be as expected
 
 
 @pytest.fixture

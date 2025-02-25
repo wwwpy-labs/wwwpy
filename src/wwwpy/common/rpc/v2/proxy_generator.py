@@ -1,5 +1,5 @@
 import ast
-from typing import Protocol, Type
+from typing import Type
 
 from wwwpy.common.rpc.v2.dispatcher import TargetType, Dispatcher
 
@@ -31,7 +31,8 @@ See the protocol DispatcherBuilder
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
-            lines.append(f'    return dispatcher.dispatch_module_function("{b.name}")')
+            args = '[' + ', '.join(f'({ar.arg}, {ar.annotation.id})' for ar in b.args.args) + ']'
+            lines.append(f'    return dispatcher.dispatch_module_function("{b.name}", {args})')
 
     lines.append('dispatcher.definition_complete(locals(), TargetType.module)')
 
