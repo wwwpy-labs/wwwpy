@@ -1,18 +1,17 @@
-from dataclasses import dataclass
-
 import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2 import proxy_generator
-from wwwpy.common.rpc.v2.dispatcher import Dispatcher
+from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition
 
 
-@dataclass
-class DefinitionCompleteInvoke:
-    locals_: dict
-    target: str
-    functions: dict
-    annotations: dict
+#
+# @dataclass
+# class DefinitionCompleteInvoke:
+#     locals_: dict
+#     target: str
+#     functions: dict
+#     annotations: dict
 
 
 class DispatcherFake(Dispatcher):
@@ -20,11 +19,10 @@ class DispatcherFake(Dispatcher):
 
     def __init__(self):
         self.instances.append(self)
-        self.definition_complete_invokes: list[DefinitionCompleteInvoke] = []
+        self.definition_complete_invokes: list[Definition] = []
 
-    def definition_complete(self, locals_, target: str, functions: dict, annotations: dict) -> None:
-        invoke = DefinitionCompleteInvoke(locals_, target, functions, annotations)
-        self.definition_complete_invokes.append(invoke)
+    def definition_complete(self, locals_, target: str, definition: Definition) -> None:
+        self.definition_complete_invokes.append(definition)
 
 
 source = '''
@@ -76,6 +74,7 @@ def test_async_function_definitions(db_fake):
     assert 'async def add(a: int, b: int) -> int:' in gen
     assert 'async def sub(a: int, b: int) -> int:' in gen
 
+
 async def test_async_call(db_fake):
     # GIVEN
     db_fake.generate(source_async, module='module1')
@@ -91,7 +90,6 @@ async def test_async_call(db_fake):
 
     # WHEN invoke add
     assert await module1.add(1, 2) == 42
-
 
 
 def test_function_type_hints(db_fake):
@@ -119,9 +117,8 @@ def test_module_function_generation(db_fake):
     exec(gen)
 
     # THEN
-    locals_ = db_fake.builder.definition_complete_invokes[0].locals_
-    assert 'add' in locals_
-    assert 'sub' in locals_
+    assert 'add' in db_fake.definition.functions
+    assert 'sub' in db_fake.definition.functions
 
 
 def test_function_return_value(db_fake):
@@ -148,9 +145,8 @@ def test_function_args_values_and_type_hint(db_fake):
 
     import module1  # fires the instantiation of the builder
 
-    invoke = db_fake.builder.definition_complete_invokes[0]
-    assert invoke.annotations['add'] == [int, int]
-    assert invoke.annotations['sub'] == [int, int]
+    assert db_fake.definition.functions['add'].annotations == [int, int]
+    assert db_fake.definition.functions['sub'].annotations == [int, int]
 
     def dispatch_module_function(name, args):
         assert name == 'add'
@@ -187,8 +183,7 @@ class TestImports:
         from module_person import Person
         person = Person('John', 42)
 
-        invoke = db_fake.builder.definition_complete_invokes[0]
-        assert invoke.annotations['fun1'] == [Person]
+        assert db_fake.definition.functions['fun1'].annotations == [Person]
 
         def dispatch_module_function(name, args):
             assert name == 'fun1'
@@ -212,8 +207,7 @@ class TestImports:
         from module_person import Person
         person = Person('John', 42)
 
-        invoke = db_fake.builder.definition_complete_invokes[0]
-        assert invoke.annotations['fun1'] == [Person]
+        assert db_fake.definition.functions['fun1'].annotations == [Person]
 
         def dispatch_module_function(name, args):
             assert name == 'fun1'
@@ -253,6 +247,12 @@ class DbFake:
     def builder(self):
         assert len(DispatcherFake.instances) == 1
         return DispatcherFake.instances[0]
+
+    @property
+    def definition(self) -> Definition:
+        b = self.builder
+        assert len(b.definition_complete_invokes) == 1
+        return b.definition_complete_invokes[0]
 
 
 @pytest.fixture

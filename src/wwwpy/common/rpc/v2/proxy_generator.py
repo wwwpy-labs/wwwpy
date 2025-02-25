@@ -1,7 +1,7 @@
 import ast
 from typing import Type, Optional
 
-from wwwpy.common.rpc.v2.dispatcher import Dispatcher
+from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition, FunctionDef
 
 _annotations_type = set[ast.Name]
 
@@ -27,11 +27,9 @@ See the protocol DispatcherBuilder
         ''
     ]
     used_annotations: _annotations_type = set()
-    function_name = []
-    function_anno = {}
+    functions = {}
     for b in tree.body:
         if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            function_name.append(b.name)
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
@@ -42,7 +40,7 @@ See the protocol DispatcherBuilder
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
             args = f'"{b.name}", [' + ', '.join(args_list) + ']'
-            function_anno[b.name] = f'[{", ".join(anno_list)}]'
+            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}])'
             if isinstance(b, ast.AsyncFunctionDef):
                 lines.append(f'    return await dispatcher.dispatch_async({args})')
             else:
@@ -58,9 +56,10 @@ See the protocol DispatcherBuilder
         elif isinstance(line, ast.ImportFrom):
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
-    fdict = '{' + ', '.join(f'"{f}": {f}' for f in function_name) + '}'
-    adict = '{' + ', '.join(f'"{k}": {annos}' for k, annos in function_anno.items()) + '}'
-    lines.append(f'dispatcher.definition_complete(locals(), "module", {fdict}, {adict})')
+    fdict = '{' + ', '.join(f'"{fname}": {fdef}' for fname, fdef in functions.items()) + '}'
+
+    lines.append('from ' + Definition.__module__ + ' import ' + Definition.__name__ + ', ' + FunctionDef.__name__)
+    lines.append(f'dispatcher.definition_complete(locals(), "module", Definition("module", {fdict}))')
 
     body = '\n'.join(lines)
     return body
