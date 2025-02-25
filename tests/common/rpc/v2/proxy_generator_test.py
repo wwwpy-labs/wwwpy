@@ -145,14 +145,10 @@ class Person:
 '''
 
 
-def test_function_args_values_and_type_hint__complex_type_fromimport_clause(db_fake, dyn_sys_path: DynSysPath):
+def test_function_args_values_and_type_hint__complex_type_fromimport_clause(db_fake):
     # GIVEN
-    dyn_sys_path.write_module2(*_person_module)
-    gen = proxy_generator.generate('''
-from module_person import Person    
-def fun1(p: Person) -> int: ...
-''', DispatcherFake)
-    dyn_sys_path.write_module2('module1.py', gen)
+    db_fake.dyn_sys_path.write_module2(*_person_module)
+    db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
     import module1  # fires the instantiation of the builder
     from module_person import Person
@@ -173,14 +169,10 @@ def fun1(p: Person) -> int: ...
     # the type hint should be as expected
 
 
-def test_function_args_values_and_type_hint__complex_type_simple_import(db_fake, dyn_sys_path: DynSysPath):
+def test_function_args_values_and_type_hint__complex_type_simple_import(db_fake):
     # GIVEN
-    dyn_sys_path.write_module2(*_person_module)
-    gen = proxy_generator.generate('''
-import module_person    
-def fun1(p: module_person.Person) -> int: ...
-''', DispatcherFake)
-    dyn_sys_path.write_module2('module1.py', gen)
+    db_fake.dyn_sys_path.write_module2(*_person_module)
+    db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
     import module1  # fires the instantiation of the builder
     from module_person import Person
@@ -199,9 +191,20 @@ def fun1(p: module_person.Person) -> int: ...
 
     # THEN
     # the type hint should be as expected
+
+
+class DbFake:
+    def __init__(self, dyn_sys_path: DynSysPath):
+        self.dyn_sys_path = dyn_sys_path
+
+    def generate(self, source: str, module=None):
+        gen = proxy_generator.generate(source, DispatcherFake)
+        if module is not None:
+            self.dyn_sys_path.write_module2(f'{module}.py', gen)
 
 
 @pytest.fixture
-def db_fake():
-    yield None
+def db_fake(dyn_sys_path: DynSysPath):
+    dbf = DbFake(dyn_sys_path)
+    yield dbf
     DispatcherFake.instances.clear()
