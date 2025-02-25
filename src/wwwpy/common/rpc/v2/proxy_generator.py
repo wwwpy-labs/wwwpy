@@ -31,10 +31,10 @@ See the protocol DispatcherBuilder
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
-            args = '[' + ', '.join(f'({ar.arg}, {ar.annotation.id})' for ar in b.args.args) + ']'
+            args = '[' + ', '.join(f'({ar.arg}, {ast.unparse(ar.annotation)})' for ar in b.args.args) + ']'
             lines.append(f'    return dispatcher.dispatch_module_function("{b.name}", {args})')
 
-        elif isinstance(b, ast.ImportFrom):
+        elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(ast.unparse(b))
 
     lines.append('dispatcher.definition_complete(locals(), TargetType.module)')
