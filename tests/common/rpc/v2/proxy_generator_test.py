@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import pytest
+from jaraco.functools import invoke
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2 import proxy_generator
@@ -12,6 +13,7 @@ class DefinitionCompleteInvoke:
     locals_: dict
     target: str
     functions: dict
+    annotations: dict
 
 
 class DispatcherFake(Dispatcher):
@@ -21,8 +23,8 @@ class DispatcherFake(Dispatcher):
         self.instances.append(self)
         self.definition_complete_invokes: list[DefinitionCompleteInvoke] = []
 
-    def definition_complete(self, locals_, target: str, functions: dict) -> None:
-        invoke = DefinitionCompleteInvoke(locals_, target, functions)
+    def definition_complete(self, locals_, target: str, functions: dict, annotations: dict) -> None:
+        invoke = DefinitionCompleteInvoke(locals_, target, functions, annotations)
         self.definition_complete_invokes.append(invoke)
 
 
@@ -130,9 +132,13 @@ def test_function_args_values_and_type_hint(db_fake):
 
     import module1  # fires the instantiation of the builder
 
+    invoke = db_fake.builder.definition_complete_invokes[0]
+    assert invoke.annotations['add'] == [int, int]
+    assert invoke.annotations['sub'] == [int, int]
+
     def dispatch_module_function(name, args):
         assert name == 'add'
-        assert args == [(1, int), (2, int)]
+        assert args == [1, 2]
         return 'ignored'
 
     db_fake.builder.dispatch_sync = dispatch_module_function
@@ -165,9 +171,12 @@ class TestImports:
         from module_person import Person
         person = Person('John', 42)
 
+        invoke = db_fake.builder.definition_complete_invokes[0]
+        assert invoke.annotations['fun1'] == [Person]
+
         def dispatch_module_function(name, args):
             assert name == 'fun1'
-            assert args == [(person, Person)]
+            assert args == [person]
             return 'ignored'
 
         db_fake.builder.dispatch_sync = dispatch_module_function
@@ -181,15 +190,18 @@ class TestImports:
     def test_Import(self, db_fake):
         # GIVEN
         db_fake.dyn_sys_path.write_module2(*_person_module)
-        db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
+        db_fake.generate('import module_person\ndef fun1(p: module_person.Person) -> int: ...', module='module1')
 
         import module1  # fires the instantiation of the builder
         from module_person import Person
         person = Person('John', 42)
 
+        invoke = db_fake.builder.definition_complete_invokes[0]
+        assert invoke.annotations['fun1'] == [Person]
+
         def dispatch_module_function(name, args):
             assert name == 'fun1'
-            assert args == [(person, Person)]
+            assert args == [person]
             return 'ignored'
 
         db_fake.builder.dispatch_sync = dispatch_module_function

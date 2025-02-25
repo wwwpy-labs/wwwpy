@@ -28,6 +28,7 @@ See the protocol DispatcherBuilder
     ]
     used_annotations: _annotations_type = set()
     function_name = []
+    function_anno = {}
     for b in tree.body:
         if isinstance(b, ast.FunctionDef):
             function_name.append(b.name)
@@ -35,10 +36,13 @@ See the protocol DispatcherBuilder
             func_def = ast.unparse(b)
             lines.append(func_def)
             args_list = []
+            anno_list = []
             for ar in b.args.args:
                 used_annotations.add(ar.annotation)
-                args_list.append(f'({ar.arg}, {ast.unparse(ar.annotation)})')
+                args_list.append(f'{ar.arg}')
+                anno_list.append(ast.unparse(ar.annotation))
             args = '[' + ', '.join(args_list) + ']'
+            function_anno[b.name] = f'[{", ".join(anno_list)}]'
             lines.append(f'    return dispatcher.dispatch_sync("{b.name}", {args})')
 
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
@@ -52,7 +56,8 @@ See the protocol DispatcherBuilder
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
     fdict = '{' + ', '.join(f'"{f}": {f}' for f in function_name) + '}'
-    lines.append(f'dispatcher.definition_complete(locals(), "module", {fdict})')
+    adict = '{' + ', '.join(f'"{k}": {annos}' for k, annos in function_anno.items()) + '}'
+    lines.append(f'dispatcher.definition_complete(locals(), "module", {fdict}, {adict})')
 
     body = '\n'.join(lines)
     return body
