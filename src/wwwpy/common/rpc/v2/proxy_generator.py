@@ -24,17 +24,27 @@ See the protocol DispatcherBuilder
         f'dispatcher = {qualified_name}()',
         ''
     ]
-
+    used_annotations = set()
     for b in tree.body:
         if isinstance(b, ast.FunctionDef):
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
-            args = '[' + ', '.join(f'({ar.arg}, {ast.unparse(ar.annotation)})' for ar in b.args.args) + ']'
+            args_list = []
+            for ar in b.args.args:
+                used_annotations.add(ar.annotation)
+                args_list.append(f'({ar.arg}, {ast.unparse(ar.annotation)})')
+            args = '[' + ', '.join(args_list) + ']'
             lines.append(f'    return dispatcher.dispatch_module_function("{b.name}", {args})')
 
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
-            lines.append(ast.unparse(b))
+            lines.append(b)
+
+    for idx in range(len(lines)):
+        line = lines[idx]
+        if isinstance(line, ast.stmt):
+            line = ast.unparse(line)
+        lines[idx] = line
 
     lines.append('dispatcher.definition_complete(locals(), "module")')
 
