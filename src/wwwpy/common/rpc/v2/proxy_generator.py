@@ -39,8 +39,11 @@ See the protocol DispatcherBuilder
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
             args = f'"{b.name}", [' + ', '.join(args_list) + ']'
-            used_annotations.add(b.returns)
-            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {ast.unparse(b.returns)})'
+            return_type = 'None'
+            if b.returns:
+                return_type = ast.unparse(b.returns)
+                used_annotations.add(b.returns)
+            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {return_type})'
             if isinstance(b, ast.AsyncFunctionDef):
                 lines.append(f'    return await dispatcher.dispatch_async({args})')
             else:

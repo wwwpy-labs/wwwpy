@@ -249,6 +249,16 @@ class TestReturn:
         # THEN
         assert db_fake.definition.functions['fun1'].return_annotation == Person
 
+    def test_return_no_type_hint_is_the_same_as_None(self, db_fake):
+        # GIVEN
+        db_fake.generate('def fun1(): ...', module='module1')
+
+        # WHEN
+        import module1  # noqa
+
+        # THEN
+        assert db_fake.definition.functions['fun1'].return_annotation is None
+
 
 class TestDispatcherArgs:
     def test_arg_simple_string(self, db_fake):
