@@ -10,6 +10,8 @@ from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, 
 from wwwpy.common import modlib
 from wwwpy.common.asynclib import OptionalCoroutine
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
+from wwwpy.common.rpc.v2 import proxy_generator
+from wwwpy.common.rpc.v2.dispatcher import Dispatcher
 from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
 from wwwpy.resources import ResourceIterable, from_directory
@@ -59,7 +61,7 @@ class Fetch(Protocol):
     def __call__(self, url: str, method: str = '', data: str = '') -> Awaitable[str]: ...
 
 
-class Proxy:
+class Proxy(Dispatcher):
     def __init__(self, module_name: str, rpc_url: str, fetch: Fetch):
         self.rpc_url = rpc_url
         self.fetch = fetch
@@ -169,6 +171,14 @@ class RpcRoute:
 
 
 def generate_stub_source(module: Module, rpc_url: str, imports: str) -> str:
+    proxy_args = f'"{module.name}", "{rpc_url}", async_fetch_str'
+    src = Path(module.module.__file__).read_text()
+    gen = proxy_generator.generate(src, Proxy, proxy_args)
+    gen = imports + '\n\n' + gen
+    return gen
+
+
+def generate_stub_source_old(module: Module, rpc_url: str, imports: str) -> str:
     module_name = module.name
     # language=python
     stub_header = f"""
