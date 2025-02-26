@@ -96,7 +96,6 @@ class RpcRoute:
         self._allowed_modules: set[str] = set()
         self.route = HttpRoute(route_path, self._route_callback)
         self.tmp_bundle_folder = Path(tempfile.mkdtemp())
-        # self._generated_once = False
 
     def _route_callback(self, request: HttpRequest,
                         resp_callback:Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
@@ -125,7 +124,7 @@ class RpcRoute:
 
     def dispatch(self, request: str) -> str:
         rpc_request = RpcRequest.from_json(request)
-        # print(f'dispatch req={request}')
+
         module = self.find_module(rpc_request.module)
         function = module[rpc_request.func]
         exception = ''
@@ -140,12 +139,6 @@ class RpcRoute:
 
     def remote_stub_resources(self) -> ResourceIterable:
         return from_directory(self.tmp_bundle_folder)
-        # def folder_provider():
-        #     if not self._generated_once:
-        #         self.generate_remote_stubs()
-        #     return self.tmp_bundle_folder, self.tmp_bundle_folder
-        #
-        # return from_directory_lazy(folder_provider)
 
     def generate_remote_stubs(self) -> tuple[List[Path], List[Path]]:
         # _generated_once = True
@@ -177,31 +170,3 @@ def generate_stub_source(module: Module, rpc_url: str, imports: str) -> str:
     gen = imports + '\n\n' + gen
     return gen
 
-
-def generate_stub_source_old(module: Module, rpc_url: str, imports: str) -> str:
-    module_name = module.name
-    # language=python
-    stub_header = f"""
-from __future__ import annotations
-from wwwpy.rpc import Proxy
-{imports}
-
-rpc_url = '{rpc_url}'
-module_name = '{module_name}'
-proxy = Proxy(module_name, rpc_url, async_fetch_str)
-    """
-
-    stub_functions = ''
-    for f in module.functions:
-        if f.name.startswith('_'):
-            continue
-        parameters = f.sign.parameters.values()
-        params_list = ', '.join(p.name for p in parameters)
-        args_list = '' if params_list == '' else ', ' + params_list
-        fun_stub_as = f'\nasync def {f.name}{f.signature}:\n' + \
-                      f'    return await proxy.dispatch_async("{f.name}"{args_list})\n'
-        fun_stub_sy = f'\ndef {f.name}{f.signature}:\n' + \
-                      f'    return proxy.dispatch_sync("{f.name}"{args_list})\n'
-        stub_functions += fun_stub_as if f.is_coroutine_function else fun_stub_sy
-
-    return stub_header + stub_functions
