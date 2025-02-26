@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib
 import logging
 import tempfile
@@ -36,6 +38,15 @@ def _std_function_to_function(fun_tuple: Tuple[str, FunctionType]) -> Function:
     is_coroutine_function = iscoroutinefunction(func)
     blocking = unasync(func)
     return Function(name, func, str(sign), is_coroutine_function, signature(func), blocking)
+
+
+class SourceModule:
+    def __init__(self, path: Path | str, module_name: str):
+        self.path = Path(path)
+        self.name = module_name
+
+    def source(self) -> str:
+        return self.path.read_text()
 
 
 class Module:
@@ -98,7 +109,7 @@ class RpcRoute:
         self.tmp_bundle_folder = Path(tempfile.mkdtemp())
 
     def _route_callback(self, request: HttpRequest,
-                        resp_callback:Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
+                        resp_callback: Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
         resp = self.dispatch(request.content)
         response = HttpResponse(resp, 'application/json')
         return resp_callback(response)
@@ -122,6 +133,19 @@ class RpcRoute:
         # todo, cache? beware of hot reload
         return Module(module)
 
+    def find_source_module(self, module_name: str) -> Optional[SourceModule]:
+        if module_name not in self._allowed_modules:
+            return None
+        path = modlib._find_module_path(module_name)
+        if path is None:
+            return None
+        try:
+            module = SourceModule(path, module_name)
+            return module
+        except Exception:
+            logger.exception(f'Cannot import module {module_name} even though find_module_path found it')
+            return None
+
     def dispatch(self, request: str) -> str:
         rpc_request = RpcRequest.from_json(request)
 
@@ -141,12 +165,11 @@ class RpcRoute:
         return from_directory(self.tmp_bundle_folder)
 
     def generate_remote_stubs(self) -> tuple[List[Path], List[Path]]:
-        # _generated_once = True
         logger.debug(f'generate_remote_stubs in {self.tmp_bundle_folder}')
         add = []
         rem = []
         for module_name in self._allowed_modules:
-            module = self.find_module(module_name)
+            module = self.find_source_module(module_name)
             filename = module_name.replace('.', '/') + '.py'
             file = self.tmp_bundle_folder / filename
             if module is None:
@@ -163,10 +186,8 @@ class RpcRoute:
         return add, rem
 
 
-def generate_stub_source(module: Module, rpc_url: str, imports: str) -> str:
+def generate_stub_source(module: SourceModule, rpc_url: str, imports: str) -> str:
     proxy_args = f'"{module.name}", "{rpc_url}", async_fetch_str'
-    src = Path(module.module.__file__).read_text()
-    gen = proxy_generator.generate(src, Proxy, proxy_args)
+    gen = proxy_generator.generate(module.source(), Proxy, proxy_args)
     gen = imports + '\n\n' + gen
     return gen
-

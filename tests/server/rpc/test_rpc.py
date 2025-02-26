@@ -2,11 +2,10 @@ import importlib.util
 from types import ModuleType
 
 import wwwpy
-
 from tests import for_all_webservers
-from tests.common.rpc import support3, support1, support2
+from tests.common.rpc import support3, support2
 from wwwpy.exceptions import RemoteException
-from wwwpy.rpc import Module, RpcRequest, RpcRoute
+from wwwpy.rpc import Module, RpcRoute, SourceModule
 from wwwpy.server.tcp_port import find_port
 from wwwpy.unasync import unasync
 from wwwpy.webserver import Webserver
@@ -16,7 +15,6 @@ support2_module_name = 'tests.common.rpc.support2'
 support1_module_name = 'tests.common.rpc.support1'
 
 
-# done migrating
 @unasync
 async def test_module_invoke_async():
     target = Module(support2)
@@ -29,7 +27,6 @@ async def test_module_invoke_async():
 
 
 # todo write the remote counterpart of the following test
-# todo rewrite this so to use ast_parser and not the old Module
 @for_all_webservers()
 def test_rpc_integration(webserver: Webserver):
     """ server part """
@@ -42,7 +39,7 @@ def test_rpc_integration(webserver: Webserver):
 
     rpc_url = webserver.localhost_url() + services.route.path
     imports = 'from wwwpy.server.fetch import async_fetch_str'
-    module = Module(support3)
+    module = SourceModule(support3.__file__, support3.__name__)
     stub_source = wwwpy.rpc.generate_stub_source(module, rpc_url, imports)
     """ end """
 
