@@ -148,7 +148,7 @@ def test_function_args_values_and_type_hint(db_fake):
     # GIVEN
     db_fake.generate(source, module='module1')
 
-    import module1  # fires the instantiation of the builder
+    import module1  # noqa
 
     assert db_fake.definition.functions['add'].annotations == [int, int]
     assert db_fake.definition.functions['sub'].annotations == [int, int]

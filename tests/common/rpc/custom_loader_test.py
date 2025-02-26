@@ -13,7 +13,7 @@ def test_remote_rpc_interceptor(dyn_sys_path: DynSysPath):
     target = CustomFinder({'remote.rpc'}, factory.MockLoader)
     sys.meta_path.insert(0, target)
     dyn_sys_path.write_module2('remote/rpc.py', ' not even python code')
-    import remote
+    import remote  # noqa
     assert remote
 
     import remote.rpc

@@ -57,8 +57,7 @@ def test_simple_import_of_package_module(dyn_sys_path: DynSysPath):
     # GIVEN
     dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
-    # import server.rpc as rpc
-    # assert rpc.b == 2
+
     gl = {}
     lo = {}
     exec('import server.rpc', gl, lo)
@@ -80,8 +79,7 @@ def test_import_x_as_y(dyn_sys_path: DynSysPath):
     # GIVEN
     dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
-    # import server.rpc as rpc
-    # assert rpc.b == 2
+
     gl = {}
     lo = {}
     exec('import server.rpc as rpc', gl, lo)
@@ -92,9 +90,7 @@ def test_import_x_as_y(dyn_sys_path: DynSysPath):
 
     # THEN
     dyn_sys_path.write_module2('server/rpc.py', 'b = 42')
-    # import server.rpc as rpc
-    # assert rpc.b == 3
-    # assert not hasattr(rpc, 'a')
+
     gl = {}
     lo = {}
     exec('import server.rpc as rpc', gl, lo)
@@ -105,7 +101,7 @@ def test_from_x_import_y(dyn_sys_path: DynSysPath):
     # GIVEN
     dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
-    from server import rpc
+    from server import rpc  # noqa
     assert rpc.b == 2
 
     # WHEN
@@ -113,6 +109,6 @@ def test_from_x_import_y(dyn_sys_path: DynSysPath):
 
     # THEN
     dyn_sys_path.write_module2('server/rpc.py', 'b = 42')
-    from server import rpc
+    from server import rpc  # noqa
     assert rpc.b == 42
     assert not hasattr(rpc, 'a')
