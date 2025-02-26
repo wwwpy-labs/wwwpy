@@ -73,9 +73,9 @@ async def test_async_call(db_fake):
 
     import module1  # noqa
 
-    async def dispatch(name, args):
+    async def dispatch(name, *args):
         assert name == 'add'
-        assert args == [1, 2]
+        assert args == (1, 2)
         return 42
 
     db_fake.builder.dispatch_async = dispatch
@@ -140,9 +140,9 @@ def test_function_args_values_and_type_hint(db_fake):
     assert db_fake.definition.functions['add'].annotations == [int, int]
     assert db_fake.definition.functions['sub'].annotations == [int, int]
 
-    def dispatch_module_function(name, args):
+    def dispatch_module_function(name, *args):
         assert name == 'add'
-        assert args == [1, 2]
+        assert args == (1, 2)
         return 'ignored'
 
     db_fake.builder.dispatch_sync = dispatch_module_function
@@ -177,9 +177,9 @@ class TestImports:
 
         assert db_fake.definition.functions['fun1'].annotations == [Person]
 
-        def dispatch_module_function(name, args):
+        def dispatch_module_function(name, *args):
             assert name == 'fun1'
-            assert args == [person]
+            assert args == (person,)
             return 'ignored'
 
         db_fake.builder.dispatch_sync = dispatch_module_function
@@ -201,9 +201,9 @@ class TestImports:
 
         assert db_fake.definition.functions['fun1'].annotations == [Person]
 
-        def dispatch_module_function(name, args):
+        def dispatch_module_function(name, *args):
             assert name == 'fun1'
-            assert args == [person]
+            assert args == (person,)
             return 'ignored'
 
         db_fake.builder.dispatch_sync = dispatch_module_function

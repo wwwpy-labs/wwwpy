@@ -38,7 +38,7 @@ See the protocol DispatcherBuilder
                 used_annotations.add(ar.annotation)
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
-            args = f'"{b.name}", [' + ', '.join(args_list) + ']'
+            args = f'"{b.name}", ' + ', '.join(args_list)
             return_type = 'None'
             if b.returns:
                 return_type = ast.unparse(b.returns)
