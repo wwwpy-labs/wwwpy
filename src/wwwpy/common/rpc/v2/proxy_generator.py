@@ -6,7 +6,7 @@ from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition, FunctionDef
 _annotations_type = set[ast.Name]
 
 
-def generate(source: str, dispatch_builder_provider: Type[Dispatcher]) -> str:
+def generate(source: str, dispatcher_callable: Type[Dispatcher], dispatcher_args: str= '') -> str:
     """This function is used to parse a source code and generate a new source code that:
 - Instantiates a DispatcherBuilder, one for the top level module and one for each class
 - calls definition_complete at the end of each class and the module
@@ -18,12 +18,11 @@ dispatcher (being it the module or a class dispatcher)
 See the protocol DispatcherBuilder
 """
     tree: ast.Module = ast.parse(source)
-    module = dispatch_builder_provider.__module__
-    qualified_name = dispatch_builder_provider.__qualname__
-
+    module = dispatcher_callable.__module__
+    qualified_name = dispatcher_callable.__qualname__
     lines = [
         f'from {module} import {qualified_name}',
-        f'dispatcher = {qualified_name}()',
+        f'dispatcher = {qualified_name}({dispatcher_args})',
         ''
     ]
     used_annotations: _annotations_type = set()

@@ -8,8 +8,9 @@ from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition
 class DispatcherFake(Dispatcher):
     instances: list['DispatcherFake'] = []
 
-    def __init__(self):
+    def __init__(self, *args):
         self.instances.append(self)
+        self.args = args
         self.definition_complete_invokes: list[Definition] = []
 
     def definition_complete(self, definition: Definition) -> None:
@@ -247,6 +248,31 @@ class TestReturn:
 
         # THEN
         assert db_fake.definition.functions['fun1'].return_annotation == Person
+
+
+class TestDispatcherArgs:
+    def test_arg_simple_string(self, db_fake):
+        # GIVEN
+        gen = proxy_generator.generate('def some(a:int)->int: ...', DispatcherFake, "'s1', 's2'")
+        db_fake.dyn_sys_path.write_module2('module1.py', gen)
+
+        # WHEN
+        import module1  # noqa
+
+        # THEN
+        assert db_fake.builder.args == ('s1', 's2')
+
+    def test_arg_dict(self, db_fake):
+        # GIVEN
+        args = "{'url': 'some-url', 'some-int': 42}"
+        gen = proxy_generator.generate('def some(a:int)->int: ...', DispatcherFake, args)
+        db_fake.dyn_sys_path.write_module2('module1.py', gen)
+
+        # WHEN
+        import module1  # noqa
+
+        # THEN
+        assert db_fake.builder.args == ({'url': 'some-url', 'some-int': 42},)
 
 
 class DbFake:
