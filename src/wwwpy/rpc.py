@@ -7,7 +7,7 @@ import traceback
 from inspect import getmembers, isfunction, signature, iscoroutinefunction, Signature
 from pathlib import Path
 from types import ModuleType, FunctionType
-from typing import NamedTuple, List, Tuple, Any, Optional, Callable, Awaitable, Protocol
+from typing import NamedTuple, List, Tuple, Any, Optional, Callable
 
 from wwwpy.common import modlib
 from wwwpy.common.asynclib import OptionalCoroutine
@@ -63,13 +63,6 @@ class Module:
 
 def function_list(module: ModuleType) -> List[Function]:
     return list(map(_std_function_to_function, getmembers(module, isfunction)))
-
-
-Fetch = Callable[[str, str, str], Awaitable[str]]
-
-
-class Fetch(Protocol):
-    def __call__(self, url: str, method: str = '', data: str = '') -> Awaitable[str]: ...
 
 
 class HybridDispatcher(Dispatcher):
