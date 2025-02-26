@@ -28,7 +28,7 @@ See the protocol DispatcherBuilder
     used_annotations: _annotations_type = set()
     functions = {}
     for b in tree.body:
-        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and not b.name.startswith('_'):
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
