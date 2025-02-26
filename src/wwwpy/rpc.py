@@ -72,15 +72,16 @@ class Fetch(Protocol):
     def __call__(self, url: str, method: str = '', data: str = '') -> Awaitable[str]: ...
 
 
-class Proxy(Dispatcher):
-    def __init__(self, module_name: str, rpc_url: str, fetch: Fetch):
+class HybridDispatcher(Dispatcher):
+    def __init__(self, module_name: str, rpc_url: str):
         self.rpc_url = rpc_url
-        self.fetch = fetch
+        from wwwpy.common.fetch import async_fetch_str
+        self.fetch = async_fetch_str
         self.module_name = module_name
 
     async def dispatch_async(self, func_name: str, *args) -> Any:
-        rpc_request = RpcRequest.build_request(self.module_name, func_name, *args)
-        json_response = await self.fetch(self.rpc_url, method='POST', data=rpc_request.json())
+        rpc_request = RpcRequest.to_json(self.module_name, func_name, *args)
+        json_response = await self.fetch(self.rpc_url, method='POST', data=rpc_request)
         response = RpcResponse.from_json(json_response)
         ex = response.exception
         if ex is not None and ex != '':
@@ -88,12 +89,12 @@ class Proxy(Dispatcher):
         return response.result
 
     def dispatch_sync(self, func_name: str, *args) -> Any:
-        rpc_request = RpcRequest.build_request(self.module_name, func_name, *args)
+        rpc_request = RpcRequest.to_json(self.module_name, func_name, *args)
         import js
         xhr = js.XMLHttpRequest.new()
         xhr.open('POST', self.rpc_url, False)
         xhr.setRequestHeader('Content-Type', 'application/json')
-        xhr.send(rpc_request.json())
+        xhr.send(rpc_request)
         json_response = xhr.responseText
         response = RpcResponse.from_json(json_response)
         ex = response.exception
@@ -177,8 +178,7 @@ class RpcRoute:
                     file.unlink(missing_ok=True)
                     rem.append(file)
                 continue
-            imports = 'from wwwpy.remote.fetch import async_fetch_str'
-            stub_source = generate_stub_source(module, self.route.path, imports)
+            stub_source = generate_stub_source(module, self.route.path)
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text(stub_source)
             logger.debug(f'Module `{module_name}` len(stub_source)={len(stub_source)}')
@@ -186,8 +186,9 @@ class RpcRoute:
         return add, rem
 
 
-def generate_stub_source(module: SourceModule, rpc_url: str, imports: str) -> str:
-    proxy_args = f'"{module.name}", "{rpc_url}", async_fetch_str'
-    gen = proxy_generator.generate(module.source(), Proxy, proxy_args)
+def generate_stub_source(module: SourceModule, rpc_url: str) -> str:
+    imports = 'from wwwpy.common.fetch import async_fetch_str'
+    proxy_args = f'"{module.name}", "{rpc_url}"'
+    gen = proxy_generator.generate(module.source(), HybridDispatcher, proxy_args)
     gen = imports + '\n\n' + gen
     return gen

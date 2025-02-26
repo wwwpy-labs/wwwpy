@@ -8,5 +8,5 @@ class Proxy:
         self.module_name = module_name
 
     def dispatch(self, func_name: str, *args) -> None:
-        rpc_request = RpcRequest.build_request(self.module_name, func_name, *args)
-        self.send_endpoint.send(rpc_request.json())
+        rpc_request = RpcRequest.to_json(self.module_name, func_name, *args)
+        self.send_endpoint.send(rpc_request)

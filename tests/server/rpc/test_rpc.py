@@ -38,9 +38,8 @@ def test_rpc_integration(webserver: Webserver):
     webserver.set_port(find_port()).start_listen()
 
     rpc_url = webserver.localhost_url() + services.route.path
-    imports = 'from wwwpy.server.fetch import async_fetch_str'
     module = SourceModule(support3.__file__, support3.__name__)
-    stub_source = wwwpy.rpc.generate_stub_source(module, rpc_url, imports)
+    stub_source = wwwpy.rpc.generate_stub_source(module, rpc_url)
     """ end """
 
     """ client part """

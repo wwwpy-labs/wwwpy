@@ -127,5 +127,5 @@ class WebsocketEndpointIO(WebsocketEndpoint):
             return self._listener(message)
 
     def dispatch(self, module: str, func_name: str, *args) -> OptionalCoroutine:
-        j = RpcRequest.build_request(module, func_name, *args).json()
+        j = RpcRequest.to_json(module, func_name, *args)
         return self.send(j)

@@ -1,5 +1,6 @@
 import json
-from typing import NamedTuple, List, Tuple, Any, Optional, Dict, Callable, Awaitable, Iterable, Iterator
+from typing import NamedTuple, List, Any, Optional
+
 
 class RpcResponse(NamedTuple):
     result: Any
@@ -20,16 +21,12 @@ class RpcRequest(NamedTuple):
     func: str
     args: List[Optional[Any]]
 
-    def json(self) -> str:
-        return json.dumps(self)
-
     @classmethod
-    def build_request(cls, module_name: str, func_name: str, *args) -> 'RpcRequest':
-        return RpcRequest(module_name, func_name, args)
+    def to_json(cls, module_name: str, func_name: str, *args) -> str:
+        return json.dumps(RpcRequest(module_name, func_name, args))
 
     @classmethod
     def from_json(cls, string: str) -> 'RpcRequest':
         obj = json.loads(string)
         request = RpcRequest(*obj)
         return request
-
