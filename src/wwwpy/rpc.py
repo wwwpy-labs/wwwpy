@@ -7,14 +7,13 @@ import traceback
 from inspect import getmembers, isfunction, signature, iscoroutinefunction, Signature
 from pathlib import Path
 from types import ModuleType, FunctionType
-from typing import NamedTuple, List, Tuple, Any, Optional, Callable
+from typing import NamedTuple, List, Tuple, Optional, Callable
 
 from wwwpy.common import modlib
 from wwwpy.common.asynclib import OptionalCoroutine
+from wwwpy.common.rpc.hibrid_dispatcher import HybridDispatcher
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.common.rpc.v2 import proxy_generator
-from wwwpy.common.rpc.v2.dispatcher import Dispatcher
-from wwwpy.exceptions import RemoteException
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
 from wwwpy.resources import ResourceIterable, from_directory
 from wwwpy.unasync import unasync
@@ -65,37 +64,6 @@ def function_list(module: ModuleType) -> List[Function]:
     return list(map(_std_function_to_function, getmembers(module, isfunction)))
 
 
-class HybridDispatcher(Dispatcher):
-    def __init__(self, module_name: str, rpc_url: str):
-        self.rpc_url = rpc_url
-        from wwwpy.common.fetch import async_fetch_str
-        self.fetch = async_fetch_str
-        self.module_name = module_name
-
-    async def dispatch_async(self, func_name: str, *args) -> Any:
-        rpc_request = RpcRequest.to_json(self.module_name, func_name, *args)
-        json_response = await self.fetch(self.rpc_url, method='POST', data=rpc_request)
-        response = RpcResponse.from_json(json_response)
-        ex = response.exception
-        if ex is not None and ex != '':
-            raise RemoteException(ex)
-        return response.result
-
-    def dispatch_sync(self, func_name: str, *args) -> Any:
-        rpc_request = RpcRequest.to_json(self.module_name, func_name, *args)
-        import js
-        xhr = js.XMLHttpRequest.new()
-        xhr.open('POST', self.rpc_url, False)
-        xhr.setRequestHeader('Content-Type', 'application/json')
-        xhr.send(rpc_request)
-        json_response = xhr.responseText
-        response = RpcResponse.from_json(json_response)
-        ex = response.exception
-        if ex is not None and ex != '':
-            raise RemoteException(ex)
-        return response.result
-
-
 class RpcRoute:
     def __init__(self, route_path: str):
         self._allowed_modules: set[str] = set()
@@ -140,6 +108,7 @@ class RpcRoute:
             logger.exception(f'Cannot import module {module_name} even though find_module_path found it')
             return None
 
+    # todo could be called invoke or call_site_invoke
     def dispatch(self, request: str) -> str:
         rpc_request = RpcRequest.from_json(request)
 
