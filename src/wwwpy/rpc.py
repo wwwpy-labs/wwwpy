@@ -13,7 +13,7 @@ from wwwpy.common import modlib
 from wwwpy.common.asynclib import OptionalCoroutine
 from wwwpy.common.rpc.hibrid_dispatcher import HybridDispatcher
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
-from wwwpy.common.rpc.v2 import proxy_generator
+from wwwpy.common.rpc.v2.caller_proxy import caller_proxy_generate
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
 from wwwpy.resources import ResourceIterable, from_directory
 from wwwpy.unasync import unasync
@@ -72,7 +72,7 @@ class RpcRoute:
 
     def _route_callback(self, request: HttpRequest,
                         resp_callback: Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
-        resp = self.dispatch(request.content)
+        resp = self.callee_dispatch(request.content)
         response = HttpResponse(resp, 'application/json')
         return resp_callback(response)
 
@@ -108,8 +108,9 @@ class RpcRoute:
             logger.exception(f'Cannot import module {module_name} even though find_module_path found it')
             return None
 
-    # todo could be called invoke or call_site_invoke
-    def dispatch(self, request: str) -> str:
+    # todo could be called invoke or call_site_invoke or server_dispatch (but server is charged maybe brainstorm a name)
+    #  in the rpc realm how is it called the caller and the called?
+    def callee_dispatch(self, request: str) -> str:
         rpc_request = RpcRequest.from_json(request)
 
         module = self.find_module(rpc_request.module)
@@ -151,6 +152,6 @@ class RpcRoute:
 def generate_stub_source(module: SourceModule, rpc_url: str) -> str:
     imports = 'from wwwpy.common.fetch import async_fetch_str'
     proxy_args = f'"{module.name}", "{rpc_url}"'
-    gen = proxy_generator.generate(module.source(), HybridDispatcher, proxy_args)
+    gen = caller_proxy_generate(module.source(), HybridDispatcher, proxy_args)
     gen = imports + '\n\n' + gen
     return gen

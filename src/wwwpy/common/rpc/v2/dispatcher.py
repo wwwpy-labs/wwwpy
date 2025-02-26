@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Protocol
-import types
 
 
 @dataclass(frozen=True)
@@ -17,11 +16,17 @@ class Definition:
 
 
 class Dispatcher(Protocol):
-    """This protocol is used by the proxy_generator to build a Dispatcher.
-    The proxy_generator will instantiate a DispatcherBuilder for each module and class.
+    """
+    This Caller/Callee convention this is the Caller.
+    https://en.wikipedia.org/wiki/Calling_convention
 
-    A protocol that also requires the __module__ and __qualname__ attributes.
-For example, classes and functions have these attributes.
+    This is used by the proxy_generator to be used inside the generated source code.
+    The proxy_generator will instantiate a Dispatcher for the module and one for each class.
+
+    It requires the __module__ and __qualname__ attributes. because they will be they will be imported
+    in the generated source code.
+
+    For example, classes and functions have these attributes.
     """
     __module__: str
     __qualname__: str

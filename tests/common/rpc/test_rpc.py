@@ -1,9 +1,6 @@
-import importlib.util
-from types import ModuleType
-
+from tests.common import dyn_sys_path, DynSysPath
 from tests.common.rpc import support1, support2
 from wwwpy.rpc import Module, RpcRoute
-from tests.common import dyn_sys_path, DynSysPath
 
 support2_module_name = 'tests.common.rpc.support2'
 

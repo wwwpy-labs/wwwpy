@@ -6,12 +6,13 @@ from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition, FunctionDef
 _annotations_type = set[ast.Name]
 
 
-def generate(source: str, dispatcher_callable: Type[Dispatcher], dispatcher_args: str= '') -> str:
-    """This function is used to parse a source code and generate a new source code that:
-- Instantiates a DispatcherBuilder, one for the top level module and one for each class
+def caller_proxy_generate(source: str, dispatcher_callable: Type[Dispatcher], dispatcher_args: str = '') -> str:
+    """
+In the caller/callee this is a caller proxy generator.
+
+    This function is used to parse a source code and generate a new source code that:
 - calls definition_complete at the end of each class and the module
-- calls new_dispatcher at the end of the module and in the __init__ of each class
-- keeps the definition of the functions/methods with type hints
+- handles the definition of the functions/methods with type hints
 - removes the implementation of the functions and replaces it with a forwarding call to its contextual
 dispatcher (being it the module or a class dispatcher)
 
