@@ -1,9 +1,12 @@
+import logging
+
 import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2.caller_proxy import caller_proxy_generate
 from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition
 
+logger = logging.getLogger(__name__)
 
 class DispatcherFake(Dispatcher):
     instances: list['DispatcherFake'] = []
@@ -306,6 +309,7 @@ class DbFake:
         gen = caller_proxy_generate(src, DispatcherFake)
         if module is not None:
             self.dyn_sys_path.write_module2(f'{module}.py', gen)
+            logger.debug(f'Generated module {module}:\n{gen}')
         return gen
 
     @property
