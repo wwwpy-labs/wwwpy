@@ -41,6 +41,6 @@ class Dispatcher(Protocol):
         """The proxy_generator will call this method to dispatch a function call to the implementation."""
         ...
 
-    def dispatch_async(self, function_name: str, *args) -> any:
+    async def dispatch_async(self, function_name: str, *args) -> any:
         """The proxy_generator will call this method to dispatch a function call to the implementation."""
         ...
