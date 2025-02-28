@@ -1,10 +1,10 @@
-import js
-import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js
+import logging
 
+import js
 from common import name
 
-import logging
+import wwwpy.remote.component as wpc
+from wwwpy.remote import dict_to_js
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class Component1(wpc.Component, tag_name='component-1'):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-<style> * { margin-bottom: 0.5em; } </style>
+<style> * { margin: 0.25em; } </style>
 <h2>You are: <span data-name="nickname"></span></h2>
 <sl-switch data-name="slSwitch1" checked>Allow empty messages</sl-switch>
 <sl-input data-name="slInput1" placeholder="Message"></sl-input>
