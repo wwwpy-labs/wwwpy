@@ -137,7 +137,10 @@ class ElementEditor:
         if node.content_span:
             cx, cy = node.content_span
             content_exists = True if cx < cy else False
-            self.attributes.append(AttributeEditor(_ad_content_string, content_exists, node.content,
+            content = node.content
+            if content is not None:
+                content = escape_string(content)
+            self.attributes.append(AttributeEditor(_ad_content_string, content_exists, content,
                                                    self._content_string_set_value, self._content_string_set_value))
 
         # Add the other attributes from the ElementDef
@@ -201,10 +204,13 @@ class ElementEditor:
             # add class_attribute
             # add_class_attribute(source_code, class_name, Attribute(attr_name, comp_def.python_type, 'wpc.element()'))
             pt = self.element_def.python_type
-            src = add_class_attribute(src, self.element_path.class_name, code_info.Attribute(value, pt, 'wpc.element()'))
+            src = add_class_attribute(src, self.element_path.class_name,
+                                      code_info.Attribute(value, pt, 'wpc.element()'))
         self._write_source(src)
 
     def _content_string_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
+        if value is not None:
+            value = unescape_string(value)
 
         def _html_manipulate(html: str) -> str:
             new_html = html_edit.html_content_set(html, self.element_path.path, value)
@@ -220,3 +226,21 @@ class ElementEditor:
             return new_html
 
         self._html_change(_html_manipulate)
+
+
+# Create a translation table for the specified characters
+escape_table = str.maketrans({
+    '\r': '\\r',  # Carriage return -> \r
+    '\n': '\\n',  # Newline (line feed) -> \n
+    '\t': '\\t',  # Tab -> \t
+    '\\': '\\\\'  # Backslash -> \\
+})
+
+
+def escape_string(s: str) -> str:
+    return s.translate(escape_table)
+
+
+def unescape_string(s: str) -> str:
+    escaped_bytes = s.encode('ascii', 'backslashreplace')
+    return escaped_bytes.decode('unicode_escape')

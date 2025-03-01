@@ -209,7 +209,7 @@ class Component2():
         assert """<button id='foo'>bar</button>""" == target_fixture.current_html
 
 
-class TestContent:
+class TestContentAkaInnerHTML:
     """test the element content, aka innerHTML"""
 
     def test_content_string_value_get(self, target_fixture):
@@ -255,6 +255,35 @@ class Component2():
 
         # THEN
         assert """<div data-name='d1'>1234</div>""" == target_fixture.current_html
+
+    def test_content_string_value_get__when_cr(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'>a\nb</div>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+
+        # THEN
+        get = target.attributes.get(tag_inner_html_attr_name)
+        assert get.value == 'a\\nb'
+        assert get.exists
+
+    def test_content_string_value_set__when_cr(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def connectedCallback(self):
+        self.element.innerHTML = """<div data-name='d1'></div>"""
+        '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_inner_html_attr_name).value = '12\\n34'
+
+        # THEN
+        assert """<div data-name='d1'>12\n34</div>""" == target_fixture.current_html
 
     def test_content_string_value_remove(self, target_fixture):
         # GIVEN
