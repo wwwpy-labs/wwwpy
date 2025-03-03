@@ -93,16 +93,16 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
                 used_annotations.add(ar.annotation)
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
-            args = f'"{b.name}", ' + ', '.join(args_list)
+            args = ', '.join(args_list)
             return_type = 'None'
             if b.returns:
                 return_type = ast.unparse(b.returns)
                 used_annotations.add(b.returns)
             functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {return_type})'
-            if isinstance(b, ast.AsyncFunctionDef):
-                lines.append(f'    return await dispatcher.dispatch_async({args})')
-            else:
-                lines.append(f'    return dispatcher.dispatch_sync({args})')
+
+            is_async = isinstance(b, ast.AsyncFunctionDef)
+            async_spec = 'async ' if is_async else ''
+            lines.append(f'    return {async_spec}dispatcher.namespace.{b.name}({args})')
             lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)

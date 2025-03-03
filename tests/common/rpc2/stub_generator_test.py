@@ -10,6 +10,14 @@ from wwwpy.common.rpc2.stub_generator import generate_stub, Stub
 logger = logging.getLogger(__name__)
 
 
+class NamespaceFake:
+    def __init__(self, calls):
+        self._calls = calls
+
+    def __getattr__(self, item):
+        return lambda *args: self._calls.append((item, *args))
+
+
 class DispatcherFake(Stub):
     instances: list['DispatcherFake'] = []
 
@@ -18,6 +26,8 @@ class DispatcherFake(Stub):
         self.args = args
         self.definition_complete_invokes: list[Definition] = []
         self.setup_functions_calls: list[tuple[FunctionType, ...]] = []
+        self.calls = []
+        self.namespace = NamespaceFake(self.calls)
 
     def definition_complete(self, definition: Definition) -> None:
         self.definition_complete_invokes.append(definition)
@@ -101,30 +111,16 @@ def test_setup_functions___called(db_fake):
     assert list(map(lambda f: f.__name__, invoke)) == ['add', 'sub']
 
 
-# def test_module_function_generation(db_fake):
-#     # WHEN
-#     gen = db_fake.generate(source)
-#     exec(gen)
-#
-#     # THEN
-#     assert 'add' in db_fake.definition.functions
-#     assert 'sub' in db_fake.definition.functions
+async def test_actual_call__sync(db_fake):
+    # GIVEN
+    db_fake.generate(source, module='module1')
+    import module1  # noqa
 
-# async def test_async_call(db_fake):
-#     # GIVEN
-#     db_fake.generate(source_async, module='module1')
-#
-#     import module1  # noqa
-#
-#     async def dispatch(name, *args):
-#         assert name == 'add'
-#         assert args == (1, 2)
-#         return 42
-#
-#     db_fake.builder.dispatch_async = dispatch
-#
-#     # WHEN invoke add
-#     assert await module1.add(1, 2) == 42
+    # WHEN
+    module1.add(1, 2)
+
+    # THEN
+    assert db_fake.builder.calls == [('add', 1, 2)]
 
 
 def test_function_type_hints(db_fake):
@@ -335,3 +331,16 @@ def db_fake(dyn_sys_path: DynSysPath):
     dbf = DbFake(dyn_sys_path)
     yield dbf
     DispatcherFake.instances.clear()
+
+
+class TestFake:
+    def test_simple_call(self, db_fake):
+        # GIVEN
+        calls = []
+        target = NamespaceFake(calls)
+
+        # WHEN
+        target.something(42)
+
+        # THEN
+        assert calls == [('something', 42)]
