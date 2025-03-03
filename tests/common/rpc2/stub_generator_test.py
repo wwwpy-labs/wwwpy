@@ -155,47 +155,6 @@ def test_function_type_hints(db_fake):
     assert 'def add(a: int, b: int=123) -> int:' in gen
 
 
-# def test_function_return_value(db_fake):
-#     # GIVEN
-#     db_fake.generate(source, module='module1')
-#
-#     import module1  # noqa
-#
-#     def dispatch_module_function(*args):
-#         return 42
-#
-#     db_fake.builder.dispatch_sync = dispatch_module_function
-#
-#     # WHEN invoke add
-#     res = module1.add(1, 2)
-#
-#     # THEN
-#     assert res == 42
-
-
-# def test_function_args_values_and_type_hint(db_fake):
-#     # GIVEN
-#     db_fake.generate(source, module='module1')
-#
-#     import module1  # noqa
-#
-#     assert db_fake.definition.functions['add'].annotations == [int, int]
-#     assert db_fake.definition.functions['sub'].annotations == [int, int]
-#
-#     def dispatch_module_function(name, *args):
-#         assert name == 'add'
-#         assert args == (1, 2)
-#         return 'ignored'
-#
-#     db_fake.builder.dispatch_sync = dispatch_module_function
-#
-#     # WHEN invoke add
-#     module1.add(1, 2)
-#
-#     # THEN
-#     # the type hint should be as expected
-
-
 _person_module = 'module_person.py', '''
 from dataclasses import dataclass
 @dataclass
