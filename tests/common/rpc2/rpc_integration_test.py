@@ -49,6 +49,7 @@ class TestStubPart:
         stub = stub_imports + '\n\n' + stub
         logger.debug(f'stub:\n{stub}')
         fixture.dyn_sys_path.write_module2('stub.py', stub)
+        fixture.dyn_sys_path.write_module2('shared.py', _shared)
 
         import stub  # noqa
 
