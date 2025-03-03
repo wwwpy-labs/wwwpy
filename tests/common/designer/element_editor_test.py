@@ -419,6 +419,30 @@ class Component2():
         '''
 
 
+import unittest
+
+def escape_string(s: str) -> str:
+    escape_table = str.maketrans({'\r': '\\r', '\n': '\\n', '\t': '\\t', '\\': '\\\\'})
+    return s.translate(escape_table)
+
+def unescape_string(s: str) -> str:
+    return s.encode('ascii', 'backslashreplace').decode('unicode_escape')
+
+class TestEscapeUnescape(unittest.TestCase):
+    def test_examples(self):
+        test_cases = [
+            ("Hello\nWorld", "Hello\\nWorld"),
+            ("Tabs\tand\rLines", "Tabs\\tand\\rLines"),
+            ("Backslash \\", "Backslash \\\\"),
+            ("Mixed: Line1\r\nLine2", "Mixed: Line1\\r\\nLine2"),
+            ("Literal \\n \\t", "Literal \\\\n \\\\t"),
+            ("Unicode: π and €", "Unicode: π and €")
+        ]
+        for original, expected in test_cases:
+            self.assertEqual(escape_string(original), expected)
+            self.assertEqual(unescape_string(escape_string(original)), original)
+
+
 @pytest.fixture
 def target_fixture(dyn_sys_path):
     return TargetFixture(dyn_sys_path)
@@ -489,3 +513,5 @@ def _node_path(source: str, class_name, indexed_path: list[int]) -> NodePath:
 def _remove_import(source: str) -> str:
     lines = source.split('\n')
     return '\n'.join([line for line in lines if not line.startswith('import ')])
+
+
