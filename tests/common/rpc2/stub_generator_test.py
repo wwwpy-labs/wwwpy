@@ -50,6 +50,12 @@ def sub(a: int, b: int) -> int:
 '''
 source_async = source_sync.replace('def ', 'async def ')
 
+class_sync = '''
+class Class1:
+    def foo(self, a: int) -> int: return a
+    def bar(self, b: str) -> str: return b 
+'''
+
 
 class TestImportForSourceCorrectness:
     def test_blank_source_should_not_fail(self, fixture):
@@ -107,6 +113,24 @@ def test_async_function_definitions(fixture):
     # THEN
     assert 'async def add(a: int, b: int) -> int:' in gen
     assert 'async def sub(a: int, b: int) -> int:' in gen
+
+
+def test_sync_method_definitions(fixture):
+    # WHEN
+    gen = fixture.generate(class_sync)
+
+    # THEN
+    assert 'def foo(self, a: int) -> int:' in gen
+    assert 'def bar(self, b: str) -> str:' in gen
+
+
+def test_async_method_definitions(fixture):
+    # WHEN
+    gen = fixture.generate(class_sync.replace('def ', 'async def '))
+
+    # THEN
+    assert 'async def foo(self, a: int) -> int:' in gen
+    assert 'async def bar(self, b: str) -> str:' in gen
 
 
 # def test_definition_complete_function_dictionary(db_fake):
