@@ -31,9 +31,18 @@ def sub(a: int, b: int) -> int:
 source_async = source.replace('def ', 'async def ')
 
 
-def test_blank_source_should_not_fail(db_fake):
-    db_fake.generate('', module='module1')
-    import module1  # noqa
+class TestImportForSourceCorrectness:
+    def test_blank_source_should_not_fail(self, db_fake):
+        db_fake.generate('', module='module1')
+        import module1  # noqa
+
+    def test_instantiation(self, db_fake):
+        # WHEN
+        gen = db_fake.generate(source)
+        exec(gen)
+
+        # THEN
+        assert len(DispatcherFake.instances) == 1
 
 
 def test_private_functions_should_not_be_generated(db_fake):
@@ -42,15 +51,6 @@ def test_private_functions_should_not_be_generated(db_fake):
     import module1  # noqa
 
     assert '_private1' not in db_fake.definition.functions
-
-
-def test_instantiation(db_fake):
-    # WHEN
-    gen = db_fake.generate(source)
-    exec(gen)
-
-    # THEN
-    assert len(DispatcherFake.instances) == 1
 
 
 def test_function_definitions(db_fake):
