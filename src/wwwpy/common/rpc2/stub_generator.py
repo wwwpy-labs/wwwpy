@@ -64,9 +64,13 @@ Inclusion/Exclusion
         ''
     ]
     used_annotations: _annotations_type = set()
-    functions_names = []
+    function_names = []
+    class_names = []
     for b in tree.body:
-        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and not b.name.startswith('_'):
+        def name_accepted():
+            return not b.name.startswith('_')
+
+        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and name_accepted():
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
@@ -79,7 +83,7 @@ Inclusion/Exclusion
             args = ', '.join(args_list)
             if b.returns:
                 used_annotations.add(b.returns)
-            functions_names.append(b.name)
+            function_names.append(b.name)
 
             is_async = isinstance(b, ast.AsyncFunctionDef)
             async_spec = 'await ' if is_async else ''
@@ -87,6 +91,33 @@ Inclusion/Exclusion
             lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
+        elif isinstance(b, ast.ClassDef) and name_accepted():
+            class_names.append(b.name)
+            class_body = b.body
+            b.body = []
+            class_def = ast.unparse(b)
+            lines.append(class_def)
+            indent = '    '
+            for m in class_body:
+                if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)) and not m.name.startswith('_'):
+                    m.body = []  # keep only the signature
+                    func_def = ast.unparse(m)
+                    lines.append(indent + func_def)
+                    args_list = []
+                    anno_list = []
+                    for ar in m.args.args:
+                        pass
+                        # used_annotations.add(ar.annotation)
+                        # args_list.append(f'{ar.arg}')
+                        # anno_list.append(ast.unparse(ar.annotation))
+                    args = ', '.join(args_list)
+                    # if m.returns:
+                    #     used_annotations.add(m.returns)
+
+                    is_async = isinstance(m, ast.AsyncFunctionDef)
+                    async_spec = 'await ' if is_async else ''
+                    lines.append(indent + f'    return {async_spec}dispatcher.namespace.{b.name}.{m.name}({args})')
+                    lines.append('')  # empty line after each function
 
     for idx in range(len(lines)):
         line = lines[idx]
@@ -96,7 +127,9 @@ Inclusion/Exclusion
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
     # setup_functions call
-    lines.append(f'dispatcher.setup_functions({", ".join(functions_names)})')
+    lines.append(f'dispatcher.setup_functions({", ".join(function_names)})')
+    # setup_classes call
+    lines.append(f'dispatcher.setup_classes({", ".join(class_names)})')
 
     body = '\n'.join(lines)
     return body

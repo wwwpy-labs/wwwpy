@@ -30,11 +30,15 @@ class StubFake(Stub):
         self.instances.append(self)
         self.args = args
         self.setup_functions_calls: list[tuple[FunctionType, ...]] = []
+        self.setup_classes_calls: list[tuple[type, ...]] = []
         self.calls = []
         self.namespace = NamespaceFake(self.calls)
 
     def setup_functions(self, *functions: FunctionType) -> None:
         self.setup_functions_calls.append(functions)
+
+    def setup_classes(self, *classes: type) -> None:
+        self.setup_classes_calls.append(classes)
 
 
 source_sync = '''
@@ -69,6 +73,14 @@ def test_private_functions_should_not_be_generated(fixture):
     # assert '_private1' not in the functions of module1
     assert '_private1' not in module1.__dict__
 
+
+def test_private_class_should_not_be_generated(fixture):
+    fixture.generate('class _Private1: pass', module='module1')
+
+    import module1  # noqa
+
+    # assert '_Private1' not in the classes of module1
+    assert '_Private1' not in module1.__dict__
 
 def test_sync_function_definitions(fixture):
     # WHEN
@@ -111,6 +123,19 @@ def test_setup_functions___called(fixture):
     assert len(fixture.builder.setup_functions_calls) == 1
     invoke = fixture.builder.setup_functions_calls[0]
     assert list(map(lambda f: f.__name__, invoke)) == ['add', 'sub']
+
+
+def test_setup_classes___called(fixture):
+    # GIVEN
+    fixture.generate('class Class1:\n    def add(self, c: int) -> int: pass', 'module1')
+
+    # WHEN
+    import module1  # noqa
+
+    # THEN
+    assert len(fixture.builder.setup_classes_calls) == 1
+    invoke = fixture.builder.setup_classes_calls[0]
+    assert list(map(lambda f: f.__name__, invoke)) == ['Class1']
 
 
 def test_actual_call__sync(fixture):
