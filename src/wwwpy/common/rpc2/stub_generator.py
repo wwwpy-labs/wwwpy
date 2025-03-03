@@ -64,8 +64,6 @@ The goals are:
 import ast
 from typing import Optional
 
-from wwwpy.common.rpc.v2.dispatcher import Definition, FunctionDef
-
 _annotations_type = set[ast.Name]
 
 
@@ -115,9 +113,6 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
     fdict = '{' + ', '.join(f'"{fname}": {fdef}' for fname, fdef in functions.items()) + '}'
-
-    lines.append('from ' + Definition.__module__ + ' import ' + Definition.__name__ + ', ' + FunctionDef.__name__)
-    lines.append(f'dispatcher.definition_complete(Definition("module", {fdict}))')
 
     # setup_functions call
     lines.append(f'dispatcher.setup_functions({", ".join(functions.keys())})')

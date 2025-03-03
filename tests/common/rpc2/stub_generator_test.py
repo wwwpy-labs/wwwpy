@@ -1,4 +1,5 @@
 import logging
+import typing
 from types import FunctionType
 
 import pytest
@@ -70,7 +71,8 @@ def test_private_functions_should_not_be_generated(db_fake):
 
     import module1  # noqa
 
-    assert '_private1' not in db_fake.definition.functions
+    # assert '_private1' not in the functions of module1
+    assert '_private1' not in module1.__dict__
 
 
 def test_sync_function_definitions(db_fake):
@@ -166,54 +168,33 @@ class Car: ...
 '''
 
 
+def _verify_type_hints(fun_ref, type_name, expected_type):
+    hints = typing.get_type_hints(fun_ref, {})
+    assert hints.get(type_name, None) == expected_type
+
+
 class TestTypeHintsArguments:
     def test_ImportFrom(self, db_fake):
         # GIVEN
         db_fake.dyn_sys_path.write_module2(*_person_module)
         db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
+        # WHEN
         import module1  # noqa
-        from module_person import Person  # noqa
-        person = Person('John', 42)
-
-        assert db_fake.definition.functions['fun1'].annotations == [Person]
-
-        def dispatch_module_function(name, *args):
-            assert name == 'fun1'
-            assert args == (person,)
-            return 'ignored'
-
-        db_fake.builder.dispatch_sync = dispatch_module_function
-
-        # WHEN invoke add
-        module1.fun1(person)
 
         # THEN
-        # the type hint should be as expected
+        self._verify_fun1_p_type_is_person(module1.fun1)
 
     def test_Import(self, db_fake):
         # GIVEN
         db_fake.dyn_sys_path.write_module2(*_person_module)
         db_fake.generate('import module_person\ndef fun1(p: module_person.Person) -> int: ...', module='module1')
 
+        # WHEN
         import module1  # noqa
-        from module_person import Person  # noqa
-        person = Person('John', 42)
-
-        assert db_fake.definition.functions['fun1'].annotations == [Person]
-
-        def dispatch_module_function(name, *args):
-            assert name == 'fun1'
-            assert args == (person,)
-            return 'ignored'
-
-        db_fake.builder.dispatch_sync = dispatch_module_function
-
-        # WHEN invoke add
-        module1.fun1(person)
 
         # THEN
-        # the type hint should be as expected
+        self._verify_fun1_p_type_is_person(module1.fun1)
 
     def test_should_importOnlyImportsUsedInTypeHints(self, db_fake):
         db_fake.generate('from module_person import Person\ndef fun1(a: int) -> int: ...', module='module1')
@@ -225,6 +206,10 @@ class TestTypeHintsArguments:
         db_fake.dyn_sys_path.write_module2(*_person_module)
         db_fake.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
 
+    def _verify_fun1_p_type_is_person(self, fun1):
+        from module_person import Person  # noqa
+        _verify_type_hints(fun1, 'p', Person)
+
 
 class TestTypeHintsReturn:
     def test_return_type(self, db_fake):
@@ -235,8 +220,8 @@ class TestTypeHintsReturn:
         import module1  # noqa
 
         # THEN
-        assert db_fake.definition.functions['add'].return_annotation == int
-        assert db_fake.definition.functions['sub'].return_annotation == int
+        _verify_type_hints(module1.add, 'return', int)
+        _verify_type_hints(module1.sub, 'return', int)
 
     def test_return_complex_type(self, db_fake):
         # GIVEN
@@ -245,10 +230,10 @@ class TestTypeHintsReturn:
 
         # WHEN
         import module1  # noqa
-        from module_person import Person  # noqa
 
         # THEN
-        assert db_fake.definition.functions['fun1'].return_annotation == Person
+        from module_person import Person  # noqa
+        _verify_type_hints(module1.fun1, 'return', Person)
 
     def test_return_no_type_hint_is_the_same_as_None(self, db_fake):
         # GIVEN
@@ -258,7 +243,7 @@ class TestTypeHintsReturn:
         import module1  # noqa
 
         # THEN
-        assert db_fake.definition.functions['fun1'].return_annotation is None
+        _verify_type_hints(module1.fun1, 'return', None)
 
 
 class TestDispatcherArgs:
@@ -301,12 +286,6 @@ class DbFake:
     def builder(self):
         assert len(DispatcherFake.instances) == 1
         return DispatcherFake.instances[0]
-
-    @property
-    def definition(self) -> Definition:
-        b = self.builder
-        assert len(b.definition_complete_invokes) == 1
-        return b.definition_complete_invokes[0]
 
 
 @pytest.fixture
