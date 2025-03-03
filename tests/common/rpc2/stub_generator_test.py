@@ -11,16 +11,27 @@ logger = logging.getLogger(__name__)
 
 
 class NamespaceFake:
-    def __init__(self, calls):
+    def __init__(self, calls, name: str = ''):
         self._calls = calls
+        self._name = name
         self.return_value = None
+        self.class_by_name = {}
+
+    def add_class(self, class_name: str):
+        fake = NamespaceFake([])
+        self.class_by_name[class_name] = fake
+        return fake
 
     def __getattr__(self, item):
-        def _(*args, **kwargs):
+        class_ns = self.class_by_name.get(item, None)
+        if class_ns is not None:
+            return class_ns
+
+        def function(*args, **kwargs):
             self._calls.append((item, *args))
             return self.return_value
 
-        return _
+        return function
 
 
 class StubFake(Stub):
@@ -97,6 +108,7 @@ def test_private_method_should_not_be_generated(fixture):
     # assert '_private1' not in the methods of Class1
     assert '_private1' not in dir(module1.Class1)
 
+
 def test_sync_function_definitions(fixture):
     # WHEN
     gen = fixture.generate(source_sync)
@@ -171,7 +183,7 @@ def test_setup_classes___called(fixture):
     assert list(map(lambda f: f.__name__, invoke)) == ['Class1']
 
 
-def test_actual_call__sync(fixture):
+def test_actual_invocation__sync_function(fixture):
     # GIVEN
     fixture.generate(source_sync, module='module1')
     import module1  # noqa
@@ -185,7 +197,7 @@ def test_actual_call__sync(fixture):
     assert result == 42
 
 
-async def test_actual_call__async(fixture):
+async def test_actual_invocation__async_function(fixture):
     # GIVEN
     fixture.generate(source_async, module='module1')
     import module1  # noqa
@@ -199,6 +211,23 @@ async def test_actual_call__async(fixture):
 
     # THEN
     assert fixture.builder.calls == [('add', 1, 2)]
+    assert result == 42
+
+
+def test_actual_invocation__sync_method(fixture):
+    # GIVEN
+    fixture.generate(class_sync, module='module1')
+    import module1  # noqa
+
+    class1_fake = fixture.builder.namespace.add_class('Class1')
+    class1_fake.return_value = 42
+
+    # WHEN
+    instance = module1.Class1()
+    result = instance.foo(43)
+
+    # THEN
+    assert class1_fake._calls == [('foo', instance, 43)]
     assert result == 42
 
 
@@ -349,7 +378,7 @@ def fixture(dyn_sys_path: DynSysPath):
 
 
 class TestFake:
-    def test_simple_call(self, fixture):
+    def test_simple_call(self):
         # GIVEN
         calls = []
         target = NamespaceFake(calls)
@@ -360,7 +389,7 @@ class TestFake:
         # THEN
         assert calls == [('something', 42)]
 
-    async def test_return_async(self, fixture):
+    async def test_return_async(self):
         # GIVEN
         target = NamespaceFake([])
 
@@ -371,6 +400,28 @@ class TestFake:
 
         # WHEN
         result = await target.some()
+
+        # THEN
+        assert result == 42
+
+    def test_add_class(self):
+        # GIVEN
+        target = NamespaceFake([])
+
+        # WHEN
+        target.add_class('Class1')
+        target.Class1.some_method(42)
+
+        # THEN
+        assert target.Class1._calls == [('some_method', 42)]
+
+    def test_class_return_value(self):
+        # GIVEN
+        target = NamespaceFake([])
+        target.add_class('Class1').return_value = 42
+
+        # WHEN
+        result = target.Class1.some()
 
         # THEN
         assert result == 42

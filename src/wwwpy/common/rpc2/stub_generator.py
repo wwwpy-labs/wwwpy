@@ -82,24 +82,12 @@ Inclusion/Exclusion
             method_count = 0
             for m in class_body:
                 if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)) and not m.name.startswith('_'):
-                    m.body = []  # keep only the signature
-                    func_def = ast.unparse(m)
-                    lines.append(indent + func_def)
-                    args_list = []
-                    anno_list = []
-                    for ar in m.args.args:
-                        pass
-                        # used_annotations.add(ar.annotation)
-                        # args_list.append(f'{ar.arg}')
-                        # anno_list.append(ast.unparse(ar.annotation))
-                    args = ', '.join(args_list)
-                    # if m.returns:
-                    #     used_annotations.add(m.returns)
-
-                    is_async = isinstance(m, ast.AsyncFunctionDef)
-                    async_spec = 'await ' if is_async else ''
-                    lines.append(indent + f'    return {async_spec}dispatcher.namespace.{b.name}.{m.name}({args})')
-                    lines.append('')  # empty line after each function
+                    method_lines = []
+                    _add_function_or_method(method_lines, m, used_annotations, class_name=b.name)
+                    for ml in method_lines:
+                        if ml:
+                            ml = indent + ml
+                        lines.append(ml)
                     method_count += 1
             if method_count == 0:
                 lines.append(indent + 'pass')
@@ -120,22 +108,26 @@ Inclusion/Exclusion
     return body
 
 
-def _add_function_or_method(lines, b, used_annotations):
+def _add_function_or_method(lines, b, used_annotations, class_name=''):
     b.body = []  # keep only the signature
     func_def = ast.unparse(b)
     lines.append(func_def)
     args_list = []
     anno_list = []
     for ar in b.args.args:
-        used_annotations.add(ar.annotation)
         args_list.append(f'{ar.arg}')
-        anno_list.append(ast.unparse(ar.annotation))
+        if ar.annotation:  # this is because of method definition: self is not annotated
+            used_annotations.add(ar.annotation)
+            anno_list.append(ast.unparse(ar.annotation))
     args = ', '.join(args_list)
     if b.returns:
         used_annotations.add(b.returns)
     is_async = isinstance(b, ast.AsyncFunctionDef)
     async_spec = 'await ' if is_async else ''
-    lines.append(f'    return {async_spec}dispatcher.namespace.{b.name}({args})')
+    name = b.name
+    if class_name:
+        name = f'{class_name}.{name}'
+    lines.append(f'    return {async_spec}dispatcher.namespace.{name}({args})')
     lines.append('')  # empty line after each function
 
 
