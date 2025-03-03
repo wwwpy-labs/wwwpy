@@ -231,6 +231,26 @@ def test_actual_invocation__sync_method(fixture):
     assert result == 42
 
 
+async def test_actual_invocation__async_method(fixture):
+    # GIVEN
+    fixture.generate(class_sync.replace('def ', 'async def '), module='module1')
+    import module1  # noqa
+
+    class1_fake = fixture.builder.namespace.add_class('Class1')
+
+    async def async_call(): return 42
+
+    class1_fake.return_value = async_call()
+
+    # WHEN
+    instance = module1.Class1()
+    result = await instance.foo(43)
+
+    # THEN
+    assert class1_fake._calls == [('foo', instance, 43)]
+    assert result == 42
+
+
 def test_function_type_hints(fixture):
     # WHEN
     gen = fixture.generate('def add(a: int, b: int = 123) -> int: pass')
