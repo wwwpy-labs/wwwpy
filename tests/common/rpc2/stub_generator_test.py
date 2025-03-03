@@ -23,8 +23,8 @@ class NamespaceFake:
         return _
 
 
-class DispatcherFake(Stub):
-    instances: list['DispatcherFake'] = []
+class StubFake(Stub):
+    instances: list['StubFake'] = []
 
     def __init__(self, *args):
         self.instances.append(self)
@@ -48,21 +48,21 @@ source_async = source_sync.replace('def ', 'async def ')
 
 
 class TestImportForSourceCorrectness:
-    def test_blank_source_should_not_fail(self, db_fake):
-        db_fake.generate('', module='module1')
+    def test_blank_source_should_not_fail(self, fixture):
+        fixture.generate('', module='module1')
         import module1  # noqa
 
-    def test_instantiation(self, db_fake):
+    def test_instantiation(self, fixture):
         # WHEN
-        gen = db_fake.generate(source_sync)
+        gen = fixture.generate(source_sync)
         exec(gen)
 
         # THEN
-        assert len(DispatcherFake.instances) == 1
+        assert len(StubFake.instances) == 1
 
 
-def test_private_functions_should_not_be_generated(db_fake):
-    db_fake.generate('def _private1(a, b): ...', module='module1')
+def test_private_functions_should_not_be_generated(fixture):
+    fixture.generate('def _private1(a, b): ...', module='module1')
 
     import module1  # noqa
 
@@ -70,18 +70,18 @@ def test_private_functions_should_not_be_generated(db_fake):
     assert '_private1' not in module1.__dict__
 
 
-def test_sync_function_definitions(db_fake):
+def test_sync_function_definitions(fixture):
     # WHEN
-    gen = db_fake.generate(source_sync)
+    gen = fixture.generate(source_sync)
 
     # THEN
     assert 'def add(a: int, b: int) -> int:' in gen
     assert 'def sub(a: int, b: int) -> int:' in gen
 
 
-def test_async_function_definitions(db_fake):
+def test_async_function_definitions(fixture):
     # WHEN
-    gen = db_fake.generate(source_async)
+    gen = fixture.generate(source_async)
 
     # THEN
     assert 'async def add(a: int, b: int) -> int:' in gen
@@ -102,51 +102,51 @@ def test_async_function_definitions(db_fake):
 
 
 # def test_definition_complete_called(db_fake):
-def test_setup_functions___called(db_fake):
+def test_setup_functions___called(fixture):
     # WHEN
-    gen = db_fake.generate(source_sync)
+    gen = fixture.generate(source_sync)
     exec(gen)
 
     # THEN
-    assert len(db_fake.builder.setup_functions_calls) == 1
-    invoke = db_fake.builder.setup_functions_calls[0]
+    assert len(fixture.builder.setup_functions_calls) == 1
+    invoke = fixture.builder.setup_functions_calls[0]
     assert list(map(lambda f: f.__name__, invoke)) == ['add', 'sub']
 
 
-def test_actual_call__sync(db_fake):
+def test_actual_call__sync(fixture):
     # GIVEN
-    db_fake.generate(source_sync, module='module1')
+    fixture.generate(source_sync, module='module1')
     import module1  # noqa
 
-    db_fake.builder.namespace.return_value = 42
+    fixture.builder.namespace.return_value = 42
     # WHEN
     result = module1.add(1, 2)
 
     # THEN
-    assert db_fake.builder.calls == [('add', 1, 2)]
+    assert fixture.builder.calls == [('add', 1, 2)]
     assert result == 42
 
 
-async def test_actual_call__async(db_fake):
+async def test_actual_call__async(fixture):
     # GIVEN
-    db_fake.generate(source_async, module='module1')
+    fixture.generate(source_async, module='module1')
     import module1  # noqa
 
     async def some_result():
         return 42
 
-    db_fake.builder.namespace.return_value = some_result()
+    fixture.builder.namespace.return_value = some_result()
     # WHEN
     result = await module1.add(1, 2)
 
     # THEN
-    assert db_fake.builder.calls == [('add', 1, 2)]
+    assert fixture.builder.calls == [('add', 1, 2)]
     assert result == 42
 
 
-def test_function_type_hints(db_fake):
+def test_function_type_hints(fixture):
     # WHEN
-    gen = db_fake.generate('def add(a: int, b: int = 123) -> int: pass')
+    gen = fixture.generate('def add(a: int, b: int = 123) -> int: pass')
 
     # THEN
     assert 'def add(a: int, b: int=123) -> int:' in gen
@@ -169,10 +169,10 @@ def _verify_type_hints(fun_ref, type_name, expected_type):
 
 
 class TestTypeHintsArguments:
-    def test_ImportFrom(self, db_fake):
+    def test_ImportFrom(self, fixture):
         # GIVEN
-        db_fake.dyn_sys_path.write_module2(*_person_module)
-        db_fake.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
+        fixture.dyn_sys_path.write_module2(*_person_module)
+        fixture.generate('from module_person import Person\ndef fun1(p: Person) -> int: ...', module='module1')
 
         # WHEN
         import module1  # noqa
@@ -180,10 +180,10 @@ class TestTypeHintsArguments:
         # THEN
         self._verify_fun1_p_type_is_person(module1.fun1)
 
-    def test_Import(self, db_fake):
+    def test_Import(self, fixture):
         # GIVEN
-        db_fake.dyn_sys_path.write_module2(*_person_module)
-        db_fake.generate('import module_person\ndef fun1(p: module_person.Person) -> int: ...', module='module1')
+        fixture.dyn_sys_path.write_module2(*_person_module)
+        fixture.generate('import module_person\ndef fun1(p: module_person.Person) -> int: ...', module='module1')
 
         # WHEN
         import module1  # noqa
@@ -191,15 +191,15 @@ class TestTypeHintsArguments:
         # THEN
         self._verify_fun1_p_type_is_person(module1.fun1)
 
-    def test_should_importOnlyImportsUsedInTypeHints(self, db_fake):
-        db_fake.generate('from module_person import Person\ndef fun1(a: int) -> int: ...', module='module1')
+    def test_should_importOnlyImportsUsedInTypeHints(self, fixture):
+        fixture.generate('from module_person import Person\ndef fun1(a: int) -> int: ...', module='module1')
 
-    def test_should_importFrom_multiple(self, db_fake):
-        db_fake.generate('from module_person import Person, Car\ndef fun1(a: int) -> int: ...', module='module1')
+    def test_should_importFrom_multiple(self, fixture):
+        fixture.generate('from module_person import Person, Car\ndef fun1(a: int) -> int: ...', module='module1')
 
-    def test_should_importFrom_multiple__one_used(self, db_fake):
-        db_fake.dyn_sys_path.write_module2(*_person_module)
-        db_fake.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
+    def test_should_importFrom_multiple__one_used(self, fixture):
+        fixture.dyn_sys_path.write_module2(*_person_module)
+        fixture.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
 
     def _verify_fun1_p_type_is_person(self, fun1):
         from module_person import Person  # noqa
@@ -207,9 +207,9 @@ class TestTypeHintsArguments:
 
 
 class TestTypeHintsReturn:
-    def test_return_type(self, db_fake):
+    def test_return_type(self, fixture):
         # GIVEN
-        db_fake.generate(source_sync, module='module1')
+        fixture.generate(source_sync, module='module1')
 
         # WHEN
         import module1  # noqa
@@ -218,10 +218,10 @@ class TestTypeHintsReturn:
         _verify_type_hints(module1.add, 'return', int)
         _verify_type_hints(module1.sub, 'return', int)
 
-    def test_return_complex_type(self, db_fake):
+    def test_return_complex_type(self, fixture):
         # GIVEN
-        db_fake.dyn_sys_path.write_module2(*_person_module)
-        db_fake.generate('from module_person import Person\ndef fun1() -> Person: ...', module='module1')
+        fixture.dyn_sys_path.write_module2(*_person_module)
+        fixture.generate('from module_person import Person\ndef fun1() -> Person: ...', module='module1')
 
         # WHEN
         import module1  # noqa
@@ -230,9 +230,9 @@ class TestTypeHintsReturn:
         from module_person import Person  # noqa
         _verify_type_hints(module1.fun1, 'return', Person)
 
-    def test_return_no_type_hint_is_the_same_as_None(self, db_fake):
+    def test_return_no_type_hint_is_the_same_as_None(self, fixture):
         # GIVEN
-        db_fake.generate('def fun1(): ...', module='module1')
+        fixture.generate('def fun1(): ...', module='module1')
 
         # WHEN
         import module1  # noqa
@@ -242,36 +242,36 @@ class TestTypeHintsReturn:
 
 
 class TestDispatcherArgs:
-    def test_arg_simple_string(self, db_fake):
+    def test_arg_simple_string(self, fixture):
         # GIVEN
-        gen = generate_stub('def some(a:int)->int: ...', DispatcherFake, "'s1', 's2'")
-        db_fake.dyn_sys_path.write_module2('module1.py', gen)
+        gen = generate_stub('def some(a:int)->int: ...', StubFake, "'s1', 's2'")
+        fixture.dyn_sys_path.write_module2('module1.py', gen)
 
         # WHEN
         import module1  # noqa
 
         # THEN
-        assert db_fake.builder.args == ('s1', 's2')
+        assert fixture.builder.args == ('s1', 's2')
 
-    def test_arg_dict(self, db_fake):
+    def test_arg_dict(self, fixture):
         # GIVEN
         args = "{'url': 'some-url', 'some-int': 42}"
-        gen = generate_stub('def some(a:int)->int: ...', DispatcherFake, args)
-        db_fake.dyn_sys_path.write_module2('module1.py', gen)
+        gen = generate_stub('def some(a:int)->int: ...', StubFake, args)
+        fixture.dyn_sys_path.write_module2('module1.py', gen)
 
         # WHEN
         import module1  # noqa
 
         # THEN
-        assert db_fake.builder.args == ({'url': 'some-url', 'some-int': 42},)
+        assert fixture.builder.args == ({'url': 'some-url', 'some-int': 42},)
 
 
-class DbFake:
+class Fixture:
     def __init__(self, dyn_sys_path: DynSysPath):
         self.dyn_sys_path = dyn_sys_path
 
     def generate(self, src: str, module=None) -> str:
-        gen = generate_stub(src, DispatcherFake)
+        gen = generate_stub(src, StubFake)
         if module is not None:
             self.dyn_sys_path.write_module2(f'{module}.py', gen)
             logger.debug(f'Generated module {module}:\n{gen}')
@@ -279,19 +279,19 @@ class DbFake:
 
     @property
     def builder(self):
-        assert len(DispatcherFake.instances) == 1
-        return DispatcherFake.instances[0]
+        assert len(StubFake.instances) == 1
+        return StubFake.instances[0]
 
 
 @pytest.fixture
-def db_fake(dyn_sys_path: DynSysPath):
-    dbf = DbFake(dyn_sys_path)
-    yield dbf
-    DispatcherFake.instances.clear()
+def fixture(dyn_sys_path: DynSysPath):
+    f = Fixture(dyn_sys_path)
+    yield f
+    StubFake.instances.clear()
 
 
 class TestFake:
-    def test_simple_call(self, db_fake):
+    def test_simple_call(self, fixture):
         # GIVEN
         calls = []
         target = NamespaceFake(calls)
@@ -302,7 +302,7 @@ class TestFake:
         # THEN
         assert calls == [('something', 42)]
 
-    async def test_return_async(self, db_fake):
+    async def test_return_async(self, fixture):
         # GIVEN
         target = NamespaceFake([])
 
