@@ -182,7 +182,7 @@ class Car: ...
 '''
 
 
-class TestImports:
+class TestTypeHintsArguments:
     def test_ImportFrom(self, db_fake):
         # GIVEN
         db_fake.dyn_sys_path.write_module2(*_person_module)
@@ -242,7 +242,7 @@ class TestImports:
         db_fake.generate('from module_person import Person, Car\ndef fun1(a: Person) -> int: ...', module='module1')
 
 
-class TestReturn:
+class TestTypeHintsReturn:
     def test_return_type(self, db_fake):
         # GIVEN
         db_fake.generate(source, module='module1')
