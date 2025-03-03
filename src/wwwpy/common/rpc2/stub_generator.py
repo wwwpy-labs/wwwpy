@@ -79,7 +79,7 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
         ''
     ]
     used_annotations: _annotations_type = set()
-    functions = {}
+    functions_names = []
     for b in tree.body:
         if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and not b.name.startswith('_'):
             b.body = []  # keep only the signature
@@ -92,11 +92,9 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
                 args_list.append(f'{ar.arg}')
                 anno_list.append(ast.unparse(ar.annotation))
             args = ', '.join(args_list)
-            return_type = 'None'
             if b.returns:
-                return_type = ast.unparse(b.returns)
                 used_annotations.add(b.returns)
-            functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {return_type})'
+            functions_names.append(b.name)
 
             is_async = isinstance(b, ast.AsyncFunctionDef)
             async_spec = 'await ' if is_async else ''
@@ -112,10 +110,9 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
         elif isinstance(line, ast.ImportFrom):
             lines[idx] = ast.unparse(line) if _is_import_from_used(line, used_annotations) else ''
 
-    fdict = '{' + ', '.join(f'"{fname}": {fdef}' for fname, fdef in functions.items()) + '}'
 
     # setup_functions call
-    lines.append(f'dispatcher.setup_functions({", ".join(functions.keys())})')
+    lines.append(f'dispatcher.setup_functions({", ".join(functions_names)})')
 
     body = '\n'.join(lines)
     return body

@@ -5,7 +5,6 @@ from types import FunctionType
 import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
-from wwwpy.common.rpc.v2.dispatcher import Definition
 from wwwpy.common.rpc2.stub_generator import generate_stub, Stub
 
 logger = logging.getLogger(__name__)
@@ -30,26 +29,22 @@ class DispatcherFake(Stub):
     def __init__(self, *args):
         self.instances.append(self)
         self.args = args
-        self.definition_complete_invokes: list[Definition] = []
         self.setup_functions_calls: list[tuple[FunctionType, ...]] = []
         self.calls = []
         self.namespace = NamespaceFake(self.calls)
-
-    def definition_complete(self, definition: Definition) -> None:
-        self.definition_complete_invokes.append(definition)
 
     def setup_functions(self, *functions: FunctionType) -> None:
         self.setup_functions_calls.append(functions)
 
 
-source = '''
+source_sync = '''
 def add(a: int, b: int) -> int:
     return a + b
     
 def sub(a: int, b: int) -> int:
     return a - b
 '''
-source_async = source.replace('def ', 'async def ')
+source_async = source_sync.replace('def ', 'async def ')
 
 
 class TestImportForSourceCorrectness:
@@ -59,7 +54,7 @@ class TestImportForSourceCorrectness:
 
     def test_instantiation(self, db_fake):
         # WHEN
-        gen = db_fake.generate(source)
+        gen = db_fake.generate(source_sync)
         exec(gen)
 
         # THEN
@@ -77,7 +72,7 @@ def test_private_functions_should_not_be_generated(db_fake):
 
 def test_sync_function_definitions(db_fake):
     # WHEN
-    gen = db_fake.generate(source)
+    gen = db_fake.generate(source_sync)
 
     # THEN
     assert 'def add(a: int, b: int) -> int:' in gen
@@ -109,7 +104,7 @@ def test_async_function_definitions(db_fake):
 # def test_definition_complete_called(db_fake):
 def test_setup_functions___called(db_fake):
     # WHEN
-    gen = db_fake.generate(source)
+    gen = db_fake.generate(source_sync)
     exec(gen)
 
     # THEN
@@ -120,7 +115,7 @@ def test_setup_functions___called(db_fake):
 
 def test_actual_call__sync(db_fake):
     # GIVEN
-    db_fake.generate(source, module='module1')
+    db_fake.generate(source_sync, module='module1')
     import module1  # noqa
 
     db_fake.builder.namespace.return_value = 42
@@ -214,7 +209,7 @@ class TestTypeHintsArguments:
 class TestTypeHintsReturn:
     def test_return_type(self, db_fake):
         # GIVEN
-        db_fake.generate(source, module='module1')
+        db_fake.generate(source_sync, module='module1')
 
         # WHEN
         import module1  # noqa
