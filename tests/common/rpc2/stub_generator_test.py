@@ -4,7 +4,7 @@ import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
 from wwwpy.common.rpc.v2.dispatcher import Dispatcher, Definition
-from wwwpy.common.rpc2.stub_generator import caller_proxy_generate
+from wwwpy.common.rpc2.stub_generator import generate_stub
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +280,7 @@ class TestReturn:
 class TestDispatcherArgs:
     def test_arg_simple_string(self, db_fake):
         # GIVEN
-        gen = caller_proxy_generate('def some(a:int)->int: ...', DispatcherFake, "'s1', 's2'")
+        gen = generate_stub('def some(a:int)->int: ...', DispatcherFake, "'s1', 's2'")
         db_fake.dyn_sys_path.write_module2('module1.py', gen)
 
         # WHEN
@@ -292,7 +292,7 @@ class TestDispatcherArgs:
     def test_arg_dict(self, db_fake):
         # GIVEN
         args = "{'url': 'some-url', 'some-int': 42}"
-        gen = caller_proxy_generate('def some(a:int)->int: ...', DispatcherFake, args)
+        gen = generate_stub('def some(a:int)->int: ...', DispatcherFake, args)
         db_fake.dyn_sys_path.write_module2('module1.py', gen)
 
         # WHEN
@@ -307,7 +307,7 @@ class DbFake:
         self.dyn_sys_path = dyn_sys_path
 
     def generate(self, src: str, module=None) -> str:
-        gen = caller_proxy_generate(src, DispatcherFake)
+        gen = generate_stub(src, DispatcherFake)
         if module is not None:
             self.dyn_sys_path.write_module2(f'{module}.py', gen)
             logger.debug(f'Generated module {module}:\n{gen}')

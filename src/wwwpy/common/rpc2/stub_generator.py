@@ -71,7 +71,7 @@ _annotations_type = set[ast.Name]
 
 # def caller_proxy_generate(source: str, dispatcher_callable: Type[Dispatcher], dispatcher_args: str = '') -> str:
 # def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> str:
-def caller_proxy_generate(source: str, dispatcher_callable: type[Stub], dispatcher_args: str = '') -> str:
+def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> str:
     """
 In the caller/callee this is a caller proxy generator.
 
@@ -84,11 +84,11 @@ dispatcher (being it the module or a class dispatcher)
 See the protocol DispatcherBuilder
 """
     tree: ast.Module = ast.parse(source)
-    module = dispatcher_callable.__module__
-    qualified_name = dispatcher_callable.__qualname__
+    module = stub_type.__module__
+    qualified_name = stub_type.__qualname__
     lines = [
         f'from {module} import {qualified_name}',
-        f'dispatcher = {qualified_name}({dispatcher_args})',
+        f'dispatcher = {qualified_name}({stub_args})',
         ''
     ]
     used_annotations: _annotations_type = set()
@@ -171,11 +171,6 @@ def _get_full_name(node: ast.AST) -> Optional[str]:
         if base is not None:
             return base + '.' + node.attr
     return None
-
-
-def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> str:
-    # return StubGenerator().generate(source, stub_type, stub_args)
-    return ''
 
 
 class DefaultStub(Stub):
