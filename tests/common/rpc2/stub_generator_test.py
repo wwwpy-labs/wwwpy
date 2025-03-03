@@ -82,6 +82,15 @@ def test_private_class_should_not_be_generated(fixture):
     # assert '_Private1' not in the classes of module1
     assert '_Private1' not in module1.__dict__
 
+
+def test_private_method_should_not_be_generated(fixture):
+    fixture.generate('class Class1:\n    def _private1(self): pass', module='module1')
+
+    import module1  # noqa
+
+    # assert '_private1' not in the methods of Class1
+    assert '_private1' not in dir(module1.Class1)
+
 def test_sync_function_definitions(fixture):
     # WHEN
     gen = fixture.generate(source_sync)

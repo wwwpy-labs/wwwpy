@@ -67,10 +67,7 @@ Inclusion/Exclusion
     function_names = []
     class_names = []
     for b in tree.body:
-        def name_accepted():
-            return not b.name.startswith('_')
-
-        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and name_accepted():
+        if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and not b.name.startswith('_'):
             b.body = []  # keep only the signature
             func_def = ast.unparse(b)
             lines.append(func_def)
@@ -91,13 +88,14 @@ Inclusion/Exclusion
             lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
-        elif isinstance(b, ast.ClassDef) and name_accepted():
+        elif isinstance(b, ast.ClassDef) and not b.name.startswith('_'):
             class_names.append(b.name)
             class_body = b.body
             b.body = []
             class_def = ast.unparse(b)
             lines.append(class_def)
             indent = '    '
+            method_count = 0
             for m in class_body:
                 if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)) and not m.name.startswith('_'):
                     m.body = []  # keep only the signature
@@ -118,6 +116,9 @@ Inclusion/Exclusion
                     async_spec = 'await ' if is_async else ''
                     lines.append(indent + f'    return {async_spec}dispatcher.namespace.{b.name}.{m.name}({args})')
                     lines.append('')  # empty line after each function
+                    method_count += 1
+            if method_count == 0:
+                lines.append(indent + 'pass')
 
     for idx in range(len(lines)):
         line = lines[idx]
