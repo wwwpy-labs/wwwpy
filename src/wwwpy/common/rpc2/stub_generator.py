@@ -72,17 +72,6 @@ _annotations_type = set[ast.Name]
 # def caller_proxy_generate(source: str, dispatcher_callable: Type[Dispatcher], dispatcher_args: str = '') -> str:
 # def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> str:
 def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> str:
-    """
-In the caller/callee this is a caller proxy generator.
-
-    This function is used to parse a source code and generate a new source code that:
-- calls definition_complete at the end of each class and the module
-- handles the definition of the functions/methods with type hints
-- removes the implementation of the functions and replaces it with a forwarding call to its contextual
-dispatcher (being it the module or a class dispatcher)
-
-See the protocol DispatcherBuilder
-"""
     tree: ast.Module = ast.parse(source)
     module = stub_type.__module__
     qualified_name = stub_type.__qualname__
@@ -129,6 +118,9 @@ See the protocol DispatcherBuilder
 
     lines.append('from ' + Definition.__module__ + ' import ' + Definition.__name__ + ', ' + FunctionDef.__name__)
     lines.append(f'dispatcher.definition_complete(Definition("module", {fdict}))')
+
+    # setup_functions call
+    lines.append(f'dispatcher.setup_functions({", ".join(functions.keys())})')
 
     body = '\n'.join(lines)
     return body
@@ -209,5 +201,4 @@ class Class2:
             
 _stub.setup_functions(add, sub)
 _stub.setup_classes(Class1, Class2)
-
 """
