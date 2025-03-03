@@ -13,9 +13,14 @@ logger = logging.getLogger(__name__)
 class NamespaceFake:
     def __init__(self, calls):
         self._calls = calls
+        self.return_value = None
 
     def __getattr__(self, item):
-        return lambda *args: self._calls.append((item, *args))
+        def _(*args, **kwargs):
+            self._calls.append((item, *args))
+            return self.return_value
+
+        return _
 
 
 class DispatcherFake(Stub):
@@ -111,16 +116,35 @@ def test_setup_functions___called(db_fake):
     assert list(map(lambda f: f.__name__, invoke)) == ['add', 'sub']
 
 
-async def test_actual_call__sync(db_fake):
+def test_actual_call__sync(db_fake):
     # GIVEN
     db_fake.generate(source, module='module1')
     import module1  # noqa
 
+    db_fake.builder.namespace.return_value = 42
     # WHEN
-    module1.add(1, 2)
+    result = module1.add(1, 2)
 
     # THEN
     assert db_fake.builder.calls == [('add', 1, 2)]
+    assert result == 42
+
+
+async def test_actual_call__async(db_fake):
+    # GIVEN
+    db_fake.generate(source_async, module='module1')
+    import module1  # noqa
+
+    async def some_result():
+        return 42
+
+    db_fake.builder.namespace.return_value = some_result()
+    # WHEN
+    result = await module1.add(1, 2)
+
+    # THEN
+    assert db_fake.builder.calls == [('add', 1, 2)]
+    assert result == 42
 
 
 def test_function_type_hints(db_fake):
@@ -344,3 +368,18 @@ class TestFake:
 
         # THEN
         assert calls == [('something', 42)]
+
+    async def test_return_async(self, db_fake):
+        # GIVEN
+        target = NamespaceFake([])
+
+        async def async_call():
+            return 42
+
+        target.return_value = async_call()
+
+        # WHEN
+        result = await target.some()
+
+        # THEN
+        assert result == 42

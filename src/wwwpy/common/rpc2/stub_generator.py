@@ -101,7 +101,7 @@ def generate_stub(source: str, stub_type: type[Stub], stub_args: str = '') -> st
             functions[b.name] = f'FunctionDef("{b.name}", [{", ".join(anno_list)}], {return_type})'
 
             is_async = isinstance(b, ast.AsyncFunctionDef)
-            async_spec = 'async ' if is_async else ''
+            async_spec = 'await ' if is_async else ''
             lines.append(f'    return {async_spec}dispatcher.namespace.{b.name}({args})')
             lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
