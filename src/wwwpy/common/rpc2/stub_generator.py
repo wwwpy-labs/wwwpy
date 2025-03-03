@@ -68,24 +68,8 @@ Inclusion/Exclusion
     class_names = []
     for b in tree.body:
         if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and not b.name.startswith('_'):
-            b.body = []  # keep only the signature
-            func_def = ast.unparse(b)
-            lines.append(func_def)
-            args_list = []
-            anno_list = []
-            for ar in b.args.args:
-                used_annotations.add(ar.annotation)
-                args_list.append(f'{ar.arg}')
-                anno_list.append(ast.unparse(ar.annotation))
-            args = ', '.join(args_list)
-            if b.returns:
-                used_annotations.add(b.returns)
+            _add_function_or_method(lines, b, used_annotations)
             function_names.append(b.name)
-
-            is_async = isinstance(b, ast.AsyncFunctionDef)
-            async_spec = 'await ' if is_async else ''
-            lines.append(f'    return {async_spec}dispatcher.namespace.{b.name}({args})')
-            lines.append('')  # empty line after each function
         elif isinstance(b, (ast.ImportFrom, ast.Import)):
             lines.append(b)
         elif isinstance(b, ast.ClassDef) and not b.name.startswith('_'):
@@ -134,6 +118,25 @@ Inclusion/Exclusion
 
     body = '\n'.join(lines)
     return body
+
+
+def _add_function_or_method(lines, b, used_annotations):
+    b.body = []  # keep only the signature
+    func_def = ast.unparse(b)
+    lines.append(func_def)
+    args_list = []
+    anno_list = []
+    for ar in b.args.args:
+        used_annotations.add(ar.annotation)
+        args_list.append(f'{ar.arg}')
+        anno_list.append(ast.unparse(ar.annotation))
+    args = ', '.join(args_list)
+    if b.returns:
+        used_annotations.add(b.returns)
+    is_async = isinstance(b, ast.AsyncFunctionDef)
+    async_spec = 'await ' if is_async else ''
+    lines.append(f'    return {async_spec}dispatcher.namespace.{b.name}({args})')
+    lines.append('')  # empty line after each function
 
 
 def _is_import_used(node: ast.Import, used_annotations: _annotations_type) -> bool:
