@@ -70,9 +70,13 @@ async def _invoke_browser_main():
             from wwwpy.server.designer import rpc
             create_task_safe(rpc.on_exception_string(traceback.format_exc()))
     finally:
-        if dm.is_active():
-            from wwwpy.remote.designer.ui import dev_mode_component
-            dev_mode_component.show()
+        await create_task_safe(_show_dev_mode())
+
+async def _show_dev_mode():
+    if dm.is_active():
+        from wwwpy.remote.designer.ui import dev_mode_component
+        dev_mode_component.show() # todo it looks like it can take ~ 1s or more; investigate,
+        # maybe micropip installing rope has to do with it
 
 
 def _reset_document():
