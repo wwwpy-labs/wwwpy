@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import ast
 import types
-from types import SimpleNamespace
 from typing import Optional
 
-from wwwpy.common.rpc2.encoder_decoder import EncoderDecoder
 from wwwpy.common.rpc2.transport import Transport
 
 
@@ -29,6 +27,7 @@ class Stub:
 
     namespace: any
     """This is the namespace that will be used to forward the function/method calls to the Stub implementation    
+    The namespace needs to take care of creating the correct sync or async function/method calls
     """
 
     def setup_functions(self, *functions: types.FunctionType) -> None:
@@ -170,15 +169,6 @@ def _get_full_name(node: ast.AST) -> Optional[str]:
         if base is not None:
             return base + '.' + node.attr
     return None
-
-
-class DefaultStub(Stub):
-
-    def __init__(self, transport: Transport, enc_dec: EncoderDecoder):
-        self.namespace = SimpleNamespace()
-        self.encoder = enc_dec.encoder
-        self.decoder = enc_dec.decoder
-        self.transport = transport
 
 
 # language=python

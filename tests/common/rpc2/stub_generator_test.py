@@ -5,7 +5,7 @@ from types import FunctionType
 import pytest
 
 from tests.common import DynSysPath, dyn_sys_path
-from wwwpy.common.rpc2.stub_generator import generate_stub, Stub
+from wwwpy.common.rpc2.stub import generate_stub, Stub
 
 logger = logging.getLogger(__name__)
 

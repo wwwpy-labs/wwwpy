@@ -1,71 +1,59 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import TypeVar, Union, Type
+
+from wwwpy.common.rpc import serialization
 
 T = TypeVar('T')
 
 
-class Buffer:
+class EncoderDecoderType:
     buffer_type: Union[bytes, str]
+
+
+class Encoder(EncoderDecoderType):
     buffer: bytes | str
-    """Set or get the buffer"""
 
-
-class Encoder(Buffer):
-    def reset_buffer(self):
-        pass
-
-    def add(self, obj: any, cls: Type[T]):
+    def encode(self, obj: any, cls: Type[T]):
         """Add the object to the encoder"""
 
 
-class Decoder(Buffer):
-    def next(self, cls: Type[T]) -> T:
+class Decoder(EncoderDecoderType):
+    def decode(self, cls: Type[T]) -> T:
         """Get the next object of the given type"""
 
 
-@dataclass
 class EncoderDecoder:
-    encoder: Type[Encoder]
-    decoder: Type[Decoder]
+    def decoder(self, buffer: str | bytes) -> Decoder: raise NotImplementedError
+
+    def encoder(self) -> Encoder: raise NotImplementedError
 
 
 class JsonEncoder(Encoder):
-    buffer_type = str
+    def __init__(self):
+        self._buffer = []
 
-    def reset_buffer(self):
-        raise NotImplementedError
-
-    def add(self, obj: any, cls: Type[T]):
-        raise NotImplementedError
+    def encode(self, obj: any, cls: Type[T]):
+        self._buffer.append(serialization.to_json(obj, cls))
 
     @property
     def buffer(self) -> str:
-        raise NotImplementedError
-
-    @buffer.setter
-    def buffer(self, value: str):
-        raise 'Cannot set buffer in Encoder'
+        return '\t'.join(self._buffer)
 
 
 class JsonDecoder(Decoder):
-    buffer_type = str
+    def __init__(self, buffer: str):
+        self._buffer = iter(buffer.split('\t'))
 
-    def next(self, cls: Type[T]) -> T:
-        raise NotImplementedError
-
-    @property
-    def buffer(self) -> str:
-        raise NotImplementedError
-
-    @buffer.setter
-    def buffer(self, value: str):
-        raise 'Cannot set buffer in Decoder'
+    def decode(self, cls: Type[T]) -> T:
+        item = next(self._buffer)
+        return serialization.from_json(item, cls)
 
 
-json_encoder_decoder = EncoderDecoder(encoder=Encoder, decoder=Decoder)
+class JsonEncoderDecoder(EncoderDecoder):
 
+    def decoder(self, buffer: str | bytes) -> Decoder:
+        return JsonDecoder(buffer)
 
-def json_encoder_decoder_def() -> EncoderDecoder:
-    return json_encoder_decoder
+    def encoder(self) -> Encoder:
+        return JsonEncoder()
