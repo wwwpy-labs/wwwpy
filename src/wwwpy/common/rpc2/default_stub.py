@@ -37,29 +37,33 @@ class DefaultStub(Stub):
         setattr(self.namespace, ft.func_name, fun)
 
     def invoke_sync(self, target_function: TypedFunction, args) -> any:
-        encoder = self._encdec.encoder()
-        encoder.encode(self._module_name, str)
-        encoder.encode(target_function.func_name, str)
-        for arg, arg_type in zip(args, target_function.args_types):
-            encoder.encode(arg, arg_type)
-        send_buffer = encoder.buffer
+        send_buffer = self._encode(target_function, args)
 
         self._transport.send_sync(send_buffer)
 
         recv_buffer = self._transport.recv_sync()
-        decoder = self._encdec.decoder(recv_buffer)
-        return decoder.decode(target_function.return_type)
+        decode = self._decode(target_function, recv_buffer)
+        return decode
 
     async def invoke_async(self, target_function: TypedFunction, args) -> any:
+        send_buffer = self._encode(target_function, args)
+
+        await self._transport.send_async(send_buffer)
+        recv_buffer = await self._transport.recv_async()
+
+        decode = self._decode(target_function, recv_buffer)
+        return decode
+
+    def _decode(self, target_function, recv_buffer):
+        decoder = self._encdec.decoder(recv_buffer)
+        decode = decoder.decode(target_function.return_type)
+        return decode
+
+    def _encode(self, target_function, args):
         encoder = self._encdec.encoder()
         encoder.encode(self._module_name, str)
         encoder.encode(target_function.func_name, str)
         for arg, arg_type in zip(args, target_function.args_types):
             encoder.encode(arg, arg_type)
         send_buffer = encoder.buffer
-
-        await self._transport.send_async(send_buffer)
-        recv_buffer = await self._transport.recv_async()
-
-        decoder = self._encdec.decoder(recv_buffer)
-        return decoder.decode(target_function.return_type)
+        return send_buffer
