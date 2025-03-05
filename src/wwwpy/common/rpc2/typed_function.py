@@ -12,6 +12,7 @@ class TypedFunction:
     func_name: str
     args_types: list[type]
     return_type: type  # this MUST be present also for void functions
+    is_coroutine: bool
 
 
 def get_typed_function(function: types.FunctionType) -> TypedFunction:
@@ -31,5 +32,6 @@ def get_typed_function(function: types.FunctionType) -> TypedFunction:
         function.__module__,
         function.__name__,
         args_types,
-        return_annotation
+        return_annotation,
+        inspect.iscoroutinefunction(function)
     )

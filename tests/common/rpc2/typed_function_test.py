@@ -6,10 +6,17 @@ from wwwpy.common.rpc2.typed_function import get_typed_function, TypedFunction
 class Car: ...
 
 
-def mock_fun(a: int, b: Car) -> float: ...
+def test_sync():
+    def mock_sync(a: int, b: Car) -> float: ...
+
+    target = get_typed_function(mock_sync)
+
+    assert target == TypedFunction(__name__, 'mock_sync', [int, Car], float, False)
 
 
-def test_get():
-    target = get_typed_function(mock_fun)
+def test_async():
+    async def mock_async(a: int, b: Car) -> float: ...
 
-    assert target == TypedFunction(__name__, 'mock_fun', [int, Car], float)
+    target = get_typed_function(mock_async)
+
+    assert target == TypedFunction(__name__, 'mock_async', [int, Car], float, True)
