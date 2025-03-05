@@ -73,6 +73,15 @@ def test_function_sync(fixture: Fixture):
     assert result == shared.Car('Toyota', 2017)
 
 
+def test_allowed_modules(fixture: Fixture):
+    fixture.setup_skeleton(allowed_modules={})
+    fixture.setup_stub()
+
+    import stub  # noqa
+
+    with pytest.raises(Exception):
+        stub.make('Toyota', 2017)
+
 def _make_import(obj: any) -> str:
     return f'from {obj.__module__} import {obj.__name__}'
 
@@ -91,11 +100,13 @@ class Fixture:
         # Fixture.stub_encdec = encdec
         # self.skeleton = DefaultSkeleton(self.paired_transport.server, encdec)
 
-    def setup_skeleton(self):
+    def setup_skeleton(self, allowed_modules: set[str] = None):
         self.write_shared_module()
         self.dyn_sys_path.write_module2('server.py', _called)
 
-        skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec)
+        if allowed_modules is None:
+            allowed_modules = {'server'}
+        skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec, allowed_modules)
 
         self.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
 

@@ -13,14 +13,17 @@ def _get_return_type(func): ...
 
 
 class DefaultSkeleton(Skeleton):
-    def __init__(self, transport: Transport, encdec: EncoderDecoder):
+    def __init__(self, transport: Transport, encdec: EncoderDecoder, allowed_modules: set[str]):
         self._transport = transport
         self._encdec = encdec
+        self._allowed_modules = allowed_modules
 
     def invoke_sync(self):
         recv_buffer = self._transport.recv_sync()
         decoder = self._encdec.decoder(recv_buffer)
         module_name = decoder.decode(str)
+        if module_name not in self._allowed_modules:
+            raise Exception(f'Not allowed module: {module_name}')
         func_name = decoder.decode(str)
 
         import importlib
