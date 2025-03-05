@@ -46,15 +46,7 @@ class Dog:
 
 class TestStubPart:
     def test_import__should_succeed(self, fixture: Fixture):
-        # generate stub
-        stub_imports = _make_import(Fixture)
-        stub_args = f'{Fixture.__name__}.paired_transport.client, {Fixture.__name__}.encdec, __name__'
-        stub = generate_stub(_called, DefaultStub, stub_args)
-        stub = stub_imports + '\n\n' + stub
-        logger.debug(f'stub:\n{stub}')
-        fixture.dyn_sys_path.write_module2('stub.py', stub)
-        fixture.dyn_sys_path.write_module2('shared.py', _shared)
-
+        fixture.setup_stub()
         import stub  # noqa
 
 
@@ -71,13 +63,7 @@ def test_mock_source_is_correct(fixture: Fixture):
 
 def test_function_sync(fixture: Fixture):
     fixture.setup_skeleton()
-
-    stub_imports = _make_import(Fixture)
-    stub_args = f'{Fixture.__name__}.paired_transport.client, {Fixture.__name__}.encdec, "server" '
-    stub = generate_stub(_called, DefaultStub, stub_args)
-    stub = stub_imports + '\n\n' + stub
-    logger.debug(f'stub:\n{stub}')
-    fixture.dyn_sys_path.write_module2('stub.py', stub)
+    fixture.setup_stub()
 
     import stub  # noqa
 
@@ -112,6 +98,17 @@ class Fixture:
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec)
 
         self.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
+
+    def setup_stub(self):
+        fixture = self
+        stub_module_name = '"server"'
+        stub_imports = _make_import(Fixture)
+        stub_args = f'{Fixture.__name__}.paired_transport.client, {Fixture.__name__}.encdec, {stub_module_name} '
+        stub = generate_stub(_called, DefaultStub, stub_args)
+        stub = stub_imports + '\n\n' + stub
+        logger.debug(f'stub:\n{stub}')
+        fixture.dyn_sys_path.write_module2('stub.py', stub)
+        fixture.dyn_sys_path.write_module2('shared.py', _shared)
 
 
 @pytest.fixture
