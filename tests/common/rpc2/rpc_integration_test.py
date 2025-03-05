@@ -53,7 +53,7 @@ class TestStubPart:
 def test_mock_source_is_correct(fixture: Fixture):
     """This is an assumption as a base for the other tests. The written code is entirely under
     the control of the test, so it is assumed to be correct."""
-    fixture.dyn_sys_path.write_module2('shared.py', _shared)
+    fixture.write_shared_module()
     fixture.dyn_sys_path.write_module2('called.py', _called)
 
     import called  # noqa
@@ -92,12 +92,15 @@ class Fixture:
         # self.skeleton = DefaultSkeleton(self.paired_transport.server, encdec)
 
     def setup_skeleton(self):
-        self.dyn_sys_path.write_module2('shared.py', _shared)
+        self.write_shared_module()
         self.dyn_sys_path.write_module2('server.py', _called)
 
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec)
 
         self.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
+
+    def write_shared_module(self):
+        self.dyn_sys_path.write_module2('shared.py', _shared)
 
     def setup_stub(self):
         fixture = self
@@ -108,7 +111,7 @@ class Fixture:
         stub = stub_imports + '\n\n' + stub
         logger.debug(f'stub:\n{stub}')
         fixture.dyn_sys_path.write_module2('stub.py', stub)
-        fixture.dyn_sys_path.write_module2('shared.py', _shared)
+        self.write_shared_module()
 
 
 @pytest.fixture
