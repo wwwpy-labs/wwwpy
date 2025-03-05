@@ -36,6 +36,11 @@ from shared import Car
 
 def make(name:str, year: int) -> Car:
     return Car(name, year)
+
+async def make_async(name:str, year: int) -> Car:
+    import asyncio
+    await asyncio.sleep(0)
+    return Car(name, year)
     
 class Dog:
     
@@ -64,10 +69,28 @@ def test_mock_source_is_correct(fixture: Fixture):
 def test_function_sync(fixture: Fixture):
     fixture.setup_skeleton()
     fixture.setup_stub()
+    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
 
     import stub  # noqa
 
     result = stub.make('Toyota', 2017)
+
+    import shared  # noqa
+    assert result == shared.Car('Toyota', 2017)
+
+
+async def test_function_async(fixture: Fixture):
+    fixture.setup_skeleton()
+    fixture.setup_stub()
+
+    async def async_callback():
+        await fixture.skeleton.invoke_async()
+
+    fixture.paired_transport.client.send_async_callback = async_callback
+
+    import stub  # noqa
+
+    result = await stub.make_async('Toyota', 2017)
 
     import shared  # noqa
     assert result == shared.Car('Toyota', 2017)
@@ -81,6 +104,7 @@ def test_allowed_modules(fixture: Fixture):
 
     with pytest.raises(Exception):
         stub.make('Toyota', 2017)
+
 
 def _make_import(obj: any) -> str:
     return f'from {obj.__module__} import {obj.__name__}'
@@ -107,8 +131,8 @@ class Fixture:
         if allowed_modules is None:
             allowed_modules = {'server'}
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec, allowed_modules)
+        self.skeleton = skeleton
 
-        self.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
 
     def write_shared_module(self):
         self.dyn_sys_path.write_module2('shared.py', _shared)

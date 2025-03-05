@@ -14,18 +14,28 @@ class TransportFake(Transport):
         self.send_buffer = []
         self.send_sync_callback = lambda: None
 
+        async def empty(): pass
+
+        self.send_async_callback = empty
+
     def send_sync(self, payload: str | bytes):
         self.send_buffer.append(payload)
         self.send_sync_callback()
 
     async def send_async(self, payload: str | bytes):
         self.send_buffer.append(payload)
+        await self.send_async_callback()
 
     def recv_sync(self) -> str | bytes:
+        return self._consume()
+
+    def _consume(self):
+        if len(self.recv_buffer) == 0:
+            raise Exception('Buffer is empty')
         return self.recv_buffer.pop(0)
 
     async def recv_async(self) -> str | bytes:
-        return self.recv_buffer.pop(0)
+        return self._consume()
 
 
 @dataclass
