@@ -20,48 +20,39 @@ class DefaultSkeleton(Skeleton):
 
     def invoke_sync(self):
         recv_buffer = self._transport.recv_sync()
-        decoder = self._encdec.decoder(recv_buffer)
-        module_name = decoder.decode(str)
-        if module_name not in self._allowed_modules:
-            raise Exception(f'Not allowed module: {module_name}')
-        func_name = decoder.decode(str)
-
-        import importlib
-        module = importlib.import_module(module_name)
-        func = getattr(module, func_name)
-
-        target_function = get_typed_function(func)
-        args = []
-        for arg_type in target_function.args_types:
-            args.append(decoder.decode(arg_type))
+        args, func, target_function = self._decode(recv_buffer)
 
         result = func(*args)
 
-        encoder = self._encdec.encoder()
-        encoder.encode(result, target_function.return_type)
-        send_buffer = encoder.buffer
+        send_buffer = self._encode(target_function, result)
         self._transport.send_sync(send_buffer)
 
     async def invoke_async(self):
         recv_buffer = await self._transport.recv_async()
+        args, func, target_function = self._decode(recv_buffer)
+
+        result = await func(*args)
+
+        send_buffer = self._encode(target_function, result)
+        await self._transport.send_async(send_buffer)
+
+    def _decode(self, recv_buffer):
         decoder = self._encdec.decoder(recv_buffer)
         module_name = decoder.decode(str)
         if module_name not in self._allowed_modules:
             raise Exception(f'Not allowed module: {module_name}')
         func_name = decoder.decode(str)
-
         import importlib
         module = importlib.import_module(module_name)
         func = getattr(module, func_name)
-
         target_function = get_typed_function(func)
         args = []
         for arg_type in target_function.args_types:
             args.append(decoder.decode(arg_type))
+        return args, func, target_function
 
-        result = await func(*args)
-
+    def _encode(self, target_function, result):
         encoder = self._encdec.encoder()
         encoder.encode(result, target_function.return_type)
         send_buffer = encoder.buffer
-        await self._transport.send_async(send_buffer)
+        return send_buffer
