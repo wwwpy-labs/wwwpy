@@ -70,12 +70,7 @@ def test_mock_source_is_correct(fixture: Fixture):
 
 
 def test_function_sync(fixture: Fixture):
-    fixture.dyn_sys_path.write_module2('shared.py', _shared)
-    fixture.dyn_sys_path.write_module2('server.py', _called)
-
-    skeleton = DefaultSkeleton(fixture.paired_transport.server, fixture.encdec)
-
-    fixture.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
+    fixture.setup_skeleton()
 
     stub_imports = _make_import(Fixture)
     stub_args = f'{Fixture.__name__}.paired_transport.client, {Fixture.__name__}.encdec, "server" '
@@ -109,6 +104,14 @@ class Fixture:
         # encdec = JsonEncoderDecoder()
         # Fixture.stub_encdec = encdec
         # self.skeleton = DefaultSkeleton(self.paired_transport.server, encdec)
+
+    def setup_skeleton(self):
+        self.dyn_sys_path.write_module2('shared.py', _shared)
+        self.dyn_sys_path.write_module2('server.py', _called)
+
+        skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec)
+
+        self.paired_transport.client.send_sync_callback = lambda: skeleton.invoke_sync()
 
 
 @pytest.fixture
