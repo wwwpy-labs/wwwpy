@@ -68,9 +68,7 @@ def test_mock_source_is_correct(fixture: Fixture):
 
 
 def test_function_sync(fixture: Fixture):
-    fixture.setup_skeleton()
-    fixture.setup_stub()
-    fixture.setup_transport_sync_callback()
+    fixture.setup_sync()
 
     import stub  # noqa
 
@@ -81,13 +79,7 @@ def test_function_sync(fixture: Fixture):
 
 
 async def test_function_async(fixture: Fixture):
-    fixture.setup_skeleton()
-    fixture.setup_stub()
-
-    async def async_callback():
-        await fixture.skeleton.invoke_async()
-
-    fixture.paired_transport.client.send_async_callback = async_callback
+    fixture.setup_async()
 
     import stub  # noqa
 
@@ -109,9 +101,7 @@ def test_allowed_modules(fixture: Fixture):
 
 def test_void_function(fixture: Fixture):
     fixture._server_code = 'def void_func(): pass'
-    fixture.setup_skeleton()
-    fixture.setup_stub()
-    fixture.setup_transport_sync_callback()
+    fixture.setup_sync()
 
     import stub  # noqa
 
@@ -120,14 +110,24 @@ def test_void_function(fixture: Fixture):
 
 def test_function_exception_sync(fixture: Fixture):
     fixture._server_code = 'def raise_exception(): raise Exception("message 123")'
-    fixture.setup_skeleton()
-    fixture.setup_stub()
-    fixture.setup_transport_sync_callback()
+    fixture.setup_sync()
 
     import stub  # noqa
 
     with pytest.raises(RemoteException) as e:
         stub.raise_exception()
+
+    assert 'message 123' in str(e)
+
+
+async def test_function_exception_async(fixture: Fixture):
+    fixture._server_code = 'async def raise_exception(): raise Exception("message 123")'
+    fixture.setup_async()
+
+    import stub  # noqa
+
+    with pytest.raises(RemoteException) as e:
+        await stub.raise_exception()
 
     assert 'message 123' in str(e)
 
@@ -160,9 +160,6 @@ class Fixture:
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec, allowed_modules)
         self.skeleton = skeleton
 
-    def setup_transport_sync_callback(self):
-        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_sync()
-
     def write_shared_module(self):
         self.dyn_sys_path.write_module2('shared.py', _shared)
 
@@ -176,6 +173,23 @@ class Fixture:
         logger.debug(f'stub:\n{stub}')
         fixture.dyn_sys_path.write_module2('stub.py', stub)
         self.write_shared_module()
+
+    def setup_sync(self):
+        fixture = self
+        fixture.setup_skeleton()
+        fixture.setup_stub()
+
+        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_sync()
+
+    def setup_async(self):
+        fixture = self
+        fixture.setup_skeleton()
+        fixture.setup_stub()
+
+        async def async_callback():
+            await fixture.skeleton.invoke_async()
+
+        fixture.paired_transport.client.send_async_callback = async_callback
 
 
 @pytest.fixture
