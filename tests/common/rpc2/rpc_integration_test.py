@@ -11,6 +11,7 @@ from wwwpy.common.rpc2.default_skeleton import DefaultSkeleton
 from wwwpy.common.rpc2.default_stub import DefaultStub
 from wwwpy.common.rpc2.encoder_decoder import EncoderDecoder, JsonEncoderDecoder
 from wwwpy.common.rpc2.stub import generate_stub
+from wwwpy.exceptions import RemoteException
 
 """
 This is the integration test of the parts listed below.
@@ -41,7 +42,7 @@ async def make_async(name:str, year: int) -> Car:
     import asyncio
     await asyncio.sleep(0)
     return Car(name, year)
-    
+
 class Dog:
     
     def bark(self, times: float) -> str:
@@ -106,6 +107,33 @@ def test_allowed_modules(fixture: Fixture):
         stub.make('Toyota', 2017)
 
 
+def test_void_function(fixture: Fixture):
+    fixture._server_code = 'def void_func(): pass'
+    fixture.setup_skeleton()
+    fixture.setup_stub()
+
+    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
+
+    import stub  # noqa
+
+    stub.void_func()
+
+
+def test_function_exception_sync(fixture: Fixture):
+    fixture._server_code = 'def raise_exception(): raise Exception("message 123")'
+    fixture.setup_skeleton()
+    fixture.setup_stub()
+
+    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
+
+    import stub  # noqa
+
+    with pytest.raises(RemoteException) as e:
+        stub.raise_exception()
+
+    assert 'message 123' in str(e)
+
+
 def _make_import(obj: any) -> str:
     return f'from {obj.__module__} import {obj.__name__}'
 
@@ -118,6 +146,7 @@ class Fixture:
         self.dyn_sys_path = dyn_sys_path
         Fixture.paired_transport = PairedTransport()
         Fixture.encdec = JsonEncoderDecoder()
+        self._server_code = _called
         # Fixture.stub_transport = self.paired_transport.client
         #
         # encdec = JsonEncoderDecoder()
@@ -126,13 +155,12 @@ class Fixture:
 
     def setup_skeleton(self, allowed_modules: set[str] = None):
         self.write_shared_module()
-        self.dyn_sys_path.write_module2('server.py', _called)
+        self.dyn_sys_path.write_module2('server.py', self._server_code)
 
         if allowed_modules is None:
             allowed_modules = {'server'}
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec, allowed_modules)
         self.skeleton = skeleton
-
 
     def write_shared_module(self):
         self.dyn_sys_path.write_module2('shared.py', _shared)
@@ -142,7 +170,7 @@ class Fixture:
         stub_module_name = '"server"'
         stub_imports = _make_import(Fixture)
         stub_args = f'{Fixture.__name__}.paired_transport.client, {Fixture.__name__}.encdec, {stub_module_name} '
-        stub = generate_stub(_called, DefaultStub, stub_args)
+        stub = generate_stub(self._server_code, DefaultStub, stub_args)
         stub = stub_imports + '\n\n' + stub
         logger.debug(f'stub:\n{stub}')
         fixture.dyn_sys_path.write_module2('stub.py', stub)

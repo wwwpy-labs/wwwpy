@@ -7,6 +7,7 @@ from wwwpy.common.rpc2.encoder_decoder import EncoderDecoder
 from wwwpy.common.rpc2.stub import Stub
 from wwwpy.common.rpc2.transport import Transport
 from wwwpy.common.rpc2.typed_function import TypedFunction, get_typed_function
+from wwwpy.exceptions import RemoteException, RemoteError
 
 
 class DefaultStub(Stub):
@@ -37,29 +38,36 @@ class DefaultStub(Stub):
         setattr(self.namespace, ft.func_name, fun)
 
     def invoke_sync(self, target_function: TypedFunction, args) -> any:
-        send_buffer = self._encode(target_function, args)
+        send_buffer = self._encode_request(target_function, args)
 
         self._transport.send_sync(send_buffer)
 
         recv_buffer = self._transport.recv_sync()
-        decode = self._decode(target_function, recv_buffer)
+        decode = self._decode_result(target_function, recv_buffer)
         return decode
 
     async def invoke_async(self, target_function: TypedFunction, args) -> any:
-        send_buffer = self._encode(target_function, args)
+        send_buffer = self._encode_request(target_function, args)
 
         await self._transport.send_async(send_buffer)
         recv_buffer = await self._transport.recv_async()
 
-        decode = self._decode(target_function, recv_buffer)
+        decode = self._decode_result(target_function, recv_buffer)
         return decode
 
-    def _decode(self, target_function, recv_buffer):
+    def _decode_result(self, target_function, recv_buffer):
         decoder = self._encdec.decoder(recv_buffer)
-        decode = decoder.decode(target_function.return_type)
-        return decode
+        status = decoder.decode(str)
+        if status == 'ex':
+            exception = decoder.decode(str)
+            raise RemoteException(exception)
+        elif status == 'ok':
+            decode = decoder.decode(target_function.return_type)
+            return decode
+        else:
+            raise RemoteError(f'Unknown status: `{status}`')
 
-    def _encode(self, target_function, args):
+    def _encode_request(self, target_function, args):
         encoder = self._encdec.encoder()
         encoder.encode(self._module_name, str)
         encoder.encode(target_function.func_name, str)
