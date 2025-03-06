@@ -179,7 +179,7 @@ class Fixture:
         fixture.setup_skeleton()
         fixture.setup_stub()
 
-        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_sync()
+        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_tobe_fixed()
 
     def setup_async(self):
         fixture = self
@@ -187,7 +187,7 @@ class Fixture:
         fixture.setup_stub()
 
         async def async_callback():
-            await fixture.skeleton.invoke_async()
+            fixture.skeleton.invoke_tobe_fixed()
 
         fixture.paired_transport.client.send_async_callback = async_callback
 

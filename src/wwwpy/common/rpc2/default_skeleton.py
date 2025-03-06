@@ -31,17 +31,20 @@ class DefaultSkeleton(Skeleton):
         if target_function.is_coroutine:
             @unasync
             async def func_async(*args):
-                return await func(*args)
+                with _catch() as r:
+                    r.value = await func(*args)
+                return r
 
-            result = func_async(*args)
+            r = func_async(*args)
         else:
             with _catch() as r:
                 r.value = func(*args)
 
-        send_buffer = self._encode_result(target_function, result)
+        send_buffer = self._encode_result(target_function, r)
         self._transport.send_sync(send_buffer)
 
     def invoke_sync(self):
+        raise Exception('Not implemented - see invoke_tobe_fixed')
         recv_buffer = self._transport.recv_sync()
         args, func, target_function = self._decode_request(recv_buffer)
 
@@ -52,6 +55,7 @@ class DefaultSkeleton(Skeleton):
         self._transport.send_sync(send_buffer)
 
     async def invoke_async(self):
+        raise Exception('Not implemented - see invoke_tobe_fixed')
         recv_buffer = await self._transport.recv_async()
         args, func, target_function = self._decode_request(recv_buffer)
 
