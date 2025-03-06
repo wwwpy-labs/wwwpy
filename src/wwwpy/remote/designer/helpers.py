@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from js import HTMLElement, console
+
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
 from wwwpy.common.designer.element_library import ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.remote.designer import element_path
-
 from wwwpy.server.designer import rpc
 
 
@@ -57,7 +57,11 @@ async def _on_error(message, source, lineno, colno, error):
 
 
 async def _on_unhandledrejection(event):
-    await rpc.on_unhandledrejection(f'{event.reason}')
+    try:
+        await rpc.on_unhandledrejection(f'{event.reason}')
+    except Exception as ex:
+        # trap and send to the console, otherwise we will trigger this handler again going into an infinite loop
+        console.error(f'Error in on_unhandledrejection: {ex}')
 
 
 def _help_url(help_str: str) -> str:
