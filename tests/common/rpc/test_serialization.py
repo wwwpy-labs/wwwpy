@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Tuple, Optional, Dict, Union, AnyStr
+from typing import List, Tuple, Optional, Dict, Union
 
 import pytest
 
@@ -268,3 +268,14 @@ class TestUnion:
         serialized = serialization.to_json(value, union_optional)
         deserialized = serialization.from_json(serialized, union_optional)
         assert deserialized == value
+
+
+def test_none_type():
+    serialized = serialization.to_json(None, type(None))
+    deserialized = serialization.from_json(serialized, type(None))
+    assert deserialized is None
+
+
+def test_none_type_with_falsy():
+    with pytest.raises(Exception):
+        serialization.to_json('', type(None))
