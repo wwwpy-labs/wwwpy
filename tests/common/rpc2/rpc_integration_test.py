@@ -70,7 +70,7 @@ def test_mock_source_is_correct(fixture: Fixture):
 def test_function_sync(fixture: Fixture):
     fixture.setup_skeleton()
     fixture.setup_stub()
-    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
+    fixture.setup_transport_sync_callback()
 
     import stub  # noqa
 
@@ -111,8 +111,7 @@ def test_void_function(fixture: Fixture):
     fixture._server_code = 'def void_func(): pass'
     fixture.setup_skeleton()
     fixture.setup_stub()
-
-    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
+    fixture.setup_transport_sync_callback()
 
     import stub  # noqa
 
@@ -123,8 +122,7 @@ def test_function_exception_sync(fixture: Fixture):
     fixture._server_code = 'def raise_exception(): raise Exception("message 123")'
     fixture.setup_skeleton()
     fixture.setup_stub()
-
-    fixture.paired_transport.client.send_sync_callback = lambda: fixture.skeleton.invoke_sync()
+    fixture.setup_transport_sync_callback()
 
     import stub  # noqa
 
@@ -161,6 +159,9 @@ class Fixture:
             allowed_modules = {'server'}
         skeleton = DefaultSkeleton(self.paired_transport.server, self.encdec, allowed_modules)
         self.skeleton = skeleton
+
+    def setup_transport_sync_callback(self):
+        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_sync()
 
     def write_shared_module(self):
         self.dyn_sys_path.write_module2('shared.py', _shared)
