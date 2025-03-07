@@ -7,6 +7,7 @@ import pytest
 from tests.common import DynSysPath
 from tests.common import dyn_sys_path
 from tests.common.rpc2.transport_fake import PairedTransport
+from wwwpy.common.detect import is_pyodide
 from wwwpy.common.rpc2.default_skeleton import DefaultSkeleton
 from wwwpy.common.rpc2.default_stub import DefaultStub
 from wwwpy.common.rpc2.encoder_decoder import EncoderDecoder, JsonEncoderDecoder
@@ -179,7 +180,10 @@ class Fixture:
         fixture.setup_skeleton()
         fixture.setup_stub()
 
-        self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_tobe_fixed()
+        if is_pyodide():
+            self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_sync()
+        else:
+            self.paired_transport.client.send_sync_callback = lambda: self.skeleton.invoke_tobe_fixed()
 
     def setup_async(self):
         fixture = self
@@ -187,7 +191,10 @@ class Fixture:
         fixture.setup_stub()
 
         async def async_callback():
-            fixture.skeleton.invoke_tobe_fixed()
+            if is_pyodide():
+                await fixture.skeleton.invoke_async()
+            else:
+                fixture.skeleton.invoke_tobe_fixed()
 
         fixture.paired_transport.client.send_async_callback = async_callback
 

@@ -11,9 +11,14 @@ from typing import NamedTuple, List, Tuple, Optional, Callable
 
 from wwwpy.common import modlib
 from wwwpy.common.asynclib import OptionalCoroutine
+from wwwpy.common.http_transport import ServerHttpTransport, RemoteHttpTransport
 from wwwpy.common.rpc.hibrid_dispatcher import HybridDispatcher
 from wwwpy.common.rpc.serializer import RpcRequest, RpcResponse
 from wwwpy.common.rpc.v2.caller_proxy import caller_proxy_generate
+from wwwpy.common.rpc2.default_skeleton import DefaultSkeleton
+from wwwpy.common.rpc2.default_stub import DefaultStub
+from wwwpy.common.rpc2.encoder_decoder import JsonEncoderDecoder
+from wwwpy.common.rpc2.stub import generate_stub
 from wwwpy.http import HttpRoute, HttpResponse, HttpRequest
 from wwwpy.resources import ResourceIterable, from_directory
 from wwwpy.unasync import unasync
@@ -72,8 +77,18 @@ class RpcRoute:
 
     def _route_callback(self, request: HttpRequest,
                         resp_callback: Callable[[HttpResponse], OptionalCoroutine]) -> OptionalCoroutine:
-        resp = self.callee_dispatch(request.content)
-        response = HttpResponse(resp, 'application/json')
+
+        request_content = request.content.decode('utf-8')
+        transport = ServerHttpTransport(request_content)
+        encdec = JsonEncoderDecoder()
+        skeleton = DefaultSkeleton(transport, encdec, self._allowed_modules)
+
+        skeleton.invoke_tobe_fixed()
+
+        if transport.response is None:
+            raise Exception('No response was provided')
+
+        response = HttpResponse(transport.response, 'test/plain')
         return resp_callback(response)
 
     def allow(self, module_name: str):
@@ -141,7 +156,11 @@ class RpcRoute:
                     file.unlink(missing_ok=True)
                     rem.append(file)
                 continue
-            stub_source = generate_stub_source(module, self.route.path)
+            module_source = module.path.read_text()
+            sub_imports = '\n'.join(_make_import(o) for o in [RemoteHttpTransport, JsonEncoderDecoder]) + '\n'
+            stub_args = (f'{RemoteHttpTransport.__name__}("{self.route.path}"), ' +
+                         f'{JsonEncoderDecoder.__name__}(), __name__')
+            stub_source = sub_imports + generate_stub(module_source, DefaultStub, stub_args)
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text(stub_source)
             logger.debug(f'Module `{module_name}` len(stub_source)={len(stub_source)}')
@@ -155,3 +174,7 @@ def generate_stub_source(module: SourceModule, rpc_url: str) -> str:
     gen = caller_proxy_generate(module.source(), HybridDispatcher, proxy_args)
     gen = imports + '\n\n' + gen
     return gen
+
+
+def _make_import(obj: any) -> str:
+    return f'from {obj.__module__} import {obj.__name__}'
