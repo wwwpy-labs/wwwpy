@@ -88,7 +88,7 @@ class RpcRoute:
         if transport.response is None:
             raise Exception('No response was provided')
 
-        response = HttpResponse(transport.response, 'test/plain')
+        response = HttpResponse(transport.response, 'text/plain')
         return resp_callback(response)
 
     def allow(self, module_name: str):
