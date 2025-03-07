@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from dataclasses import dataclass
 from typing import Generic, TypeVar, Union
 
 _S = TypeVar('_S')
@@ -7,17 +9,17 @@ _F = TypeVar('_F')
 """Failure type variable"""
 
 
+@dataclass(frozen=True)
 class Result(Generic[_S, _F]):
-    def __init__(self, value: Union[_S, _F], is_success: bool):
-        self._value = value
-        self._is_success = is_success
+    _value: Union[_S, _F]
+    _is_success: bool
 
     @staticmethod
-    def success(value: _S) -> 'Success[_S, _F]':
+    def success(value: _S) -> Success[_S, _F]:
         return Success(value)
 
     @staticmethod
-    def failure(error: _F) -> 'Failure[_S, _F]':
+    def failure(error: _F) -> Failure[_S, _F]:
         return Failure(error)
 
     @property
@@ -55,3 +57,18 @@ class Success(Result[_S, _F]):
 class Failure(Result[_S, _F]):
     def __init__(self, error: _F):
         super().__init__(error, False)
+
+
+def main():
+    from typing import get_origin, get_args
+
+    result_type = Result[int, str]
+    print("Origin:", get_origin(result_type))  # Should print: <class '__main__.Result'>
+    print("Args:", get_args(result_type))  # Should print: (<class 'int'>, <class 'str'>)
+
+    success = Result.success(42)
+    print("Instance type args:", get_args(success.__orig_class__))  # Extract generics from an instance
+
+
+if __name__ == '__main__':
+    main()

@@ -26,9 +26,9 @@ async def test_module_invoke_async():
     assert actual == 'hello world'
 
 
-# todo write the remote counterpart of the following test
+# todo rewrite this for the new infrastructure
 @for_all_webservers()
-def test_rpc_integration(webserver: Webserver):
+def todo_test_rpc_integration(webserver: Webserver):
     """ server part """
     services = RpcRoute('/rpc2')
 

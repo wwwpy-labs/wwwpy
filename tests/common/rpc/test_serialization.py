@@ -4,6 +4,7 @@ from typing import List, Tuple, Optional, Dict, Union
 
 import pytest
 
+from wwwpy.common.result import Result
 from wwwpy.common.rpc import serialization
 
 
@@ -279,3 +280,24 @@ def test_none_type():
 def test_none_type_with_falsy():
     with pytest.raises(Exception):
         serialization.to_json('', type(None))
+
+
+class TestResult:
+
+    def test_result_success(self):
+        result = Result.success(42)
+        serialized = serialization.to_json(result, Result[int, str])
+        deserialized = serialization.from_json(serialized, Result[int, str])
+        assert deserialized == result
+
+    def test_result_failure(self):
+        result = Result.failure('error')
+        serialized = serialization.to_json(result, Result[int, str])
+        deserialized = serialization.from_json(serialized, Result[int, str])
+        assert deserialized == result
+
+    def test_result_with_dataclass(self):
+        result = Result.success(john)
+        serialized = serialization.to_json(result, Result[Person, str])
+        deserialized = serialization.from_json(serialized, Result[Person, str])
+        assert deserialized == result

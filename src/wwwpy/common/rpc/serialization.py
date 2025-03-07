@@ -9,7 +9,10 @@ from dataclasses import is_dataclass
 from datetime import datetime
 from typing import Any, Type, get_origin, get_args, TypeVar
 
+from wwwpy.common import result
+
 T = TypeVar('T')
+
 
 # todo this should also receive the expected cls Type.
 # this way we can check that the instance is of the expected type
@@ -27,6 +30,14 @@ def serialize(obj: T, cls: Type[T]) -> Any:
             raise ValueError(f"Expected object of type {args}, got {obj_type}")
         obj_ser = serialize(obj, obj_type)
         return [str(obj_type), obj_ser]
+    if origin is result.Result:
+        args = set(get_args(cls))
+        _assert_valid_result_type(type(obj))
+        obj_type = type(obj._value)
+        if obj_type not in args:
+            raise ValueError(f"Expected object of type Result {args}, got {obj._value}")
+        obj_ser = serialize(obj._value, obj_type)
+        return [str(type(obj)), obj_ser]
 
     if origin is not None:
         if not isinstance(obj, origin):
@@ -89,6 +100,18 @@ def deserialize(data: Any, cls: Type[T]) -> T:
         if obj_type not in args:
             raise ValueError(f"Expected object of type {args}, got {obj_type}")
         return deserialize(data[1], obj_type)
+    if origin is result.Result:
+        args = list(get_args(cls))
+        obj_type = _get_type_from_string(data[0])
+        _assert_valid_result_type(obj_type)
+        if obj_type is result.Success:
+            des = deserialize(data[1], args[0])
+            return result.Success(des)
+        elif obj_type is result.Failure:
+            des = deserialize(data[1], args[1])
+            return result.Failure(des)
+        else:
+            raise ValueError(f"Expected object of type Result {args}, got {obj_type}")
     if is_dataclass(cls):
         args = {}
         field_types = typing.get_type_hints(cls)
@@ -164,3 +187,11 @@ def _get_type_from_string(type_str):
 
     # Get the class from the module
     return getattr(module, class_name)
+
+
+def _assert_valid_result_type(typ):
+    success = typ is result.Success
+    failure = typ is result.Failure
+    ok = success or failure
+    if not ok:
+        raise ValueError(f"Expected object of type Result got {typ}")
