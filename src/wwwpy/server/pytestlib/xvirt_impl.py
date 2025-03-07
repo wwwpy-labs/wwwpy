@@ -14,8 +14,8 @@ from wwwpy.common import modlib
 from wwwpy.http import HttpRoute, HttpRequest, HttpResponse
 from wwwpy.resources import library_resources, StringResource, from_directory_lazy
 from wwwpy.server.tcp_port import find_port
-from .playwrightlib import start_playwright_in_thread, PlaywrightArgs
 from wwwpy.webservers.available_webservers import available_webservers
+from .playwrightlib import start_playwright_in_thread, PlaywrightArgs
 from ..configure import _configure_server_rpc_services
 
 _file_parent = Path(__file__).parent
@@ -40,7 +40,7 @@ class XVirtImpl(XVirt):
         return str(location.parent)
 
     def _http_handler(self, req: HttpRequest,res) -> None:
-        print(f'server side xvirt_notify_handler({req})')
+        # print(f'server side xvirt_notify_handler({req})')
         self.events.put(req.content)
         # return HttpResponse('', 'text/plain')
         res(HttpResponse('', 'text/plain'))
