@@ -30,7 +30,8 @@ class EncoderDecoder:
 
 
 class JsonEncoder(Encoder):
-    def __init__(self):
+    def __init__(self, sep: str):
+        self._sep = sep
         self._buffer = []
 
     def encode(self, obj: any, cls: Type[T]):
@@ -38,12 +39,12 @@ class JsonEncoder(Encoder):
 
     @property
     def buffer(self) -> str:
-        return '\t'.join(self._buffer)
+        return self._sep.join(self._buffer)
 
 
 class JsonDecoder(Decoder):
-    def __init__(self, buffer: str):
-        self._buffer = iter(buffer.split('\t'))
+    def __init__(self, buffer: str, sep: str):
+        self._buffer = iter(buffer.split(sep))
 
     def decode(self, cls: Type[T]) -> T:
         item = next(self._buffer)
@@ -52,8 +53,11 @@ class JsonDecoder(Decoder):
 
 class JsonEncoderDecoder(EncoderDecoder):
 
+    def __init__(self):
+        self._sep = '\n'
+
     def decoder(self, buffer: str | bytes) -> Decoder:
-        return JsonDecoder(buffer)
+        return JsonDecoder(buffer, sep=self._sep)
 
     def encoder(self) -> Encoder:
-        return JsonEncoder()
+        return JsonEncoder(sep=self._sep)
