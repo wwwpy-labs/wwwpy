@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import js
 
 import wwwpy.remote.component as wpc
@@ -8,7 +10,6 @@ from wwwpy.server.designer import rpc
 from . import quickstart_ui
 from .quickstart_ui import QuickstartUI
 from .toolbox import ToolboxComponent
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +33,11 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
     def instance(cls) -> DevModeComponent:  # noqa
         try:
             _i = cls._instance
-            logger.warning(f'instance found: {_i}')
+            logger.debug(f'instance found: {_i}')
         except AttributeError:
             _i = DevModeComponent()
             cls._instance = _i
-            logger.warning(f'instance created: {_i}')
+            logger.debug(f'instance created: {_i}')
         return _i
 
     def init_component(self):
