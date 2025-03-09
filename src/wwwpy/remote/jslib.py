@@ -5,7 +5,7 @@ from js import document
 from pyodide.ffi import create_proxy
 
 
-async def script_load_once(src: str, type=None) -> bool:
+async def script_load_once(src: str, type=None, **kwargs) -> bool:
     """Returns True if the script was needed, False if it was not needed."""
     # logger.debug(f'load {src}')
     src_short = src.split('/')[-1]
@@ -20,6 +20,9 @@ async def script_load_once(src: str, type=None) -> bool:
     else:
         # logger.debug(f'  load is needed, no script with same src found: {src_short}')
         script = document.createElement('script')
+        # copy all kwargs to the script
+        for key, value in kwargs.items():
+            setattr(script, key, value)
         script.src = src
         if type:
             script.type = type
