@@ -212,7 +212,7 @@ def _standard_elements_def() -> List[ElementDef]:
                    help=Help('Preformatted text.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre'),
                    events=[ed_click, ed_dblclick])
         ,
-        ElementDef('code', 'js.HTMLCodeElement',
+        ElementDef('code', 'js.HTMLElement',
                    help=Help('Computer code.', 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code'),
                    events=[ed_click, ed_dblclick])
 
