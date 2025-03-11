@@ -1,9 +1,9 @@
 import textwrap
-from typing import List, Iterable, Tuple
+from typing import List, Tuple
 
 from wwwpy.common import files
 from wwwpy.http import HttpRoute, HttpResponse
-from wwwpy.resources import Resource, build_archive, ResourceIterable
+from wwwpy.resources import build_archive, ResourceIterable
 
 bootstrap_javascript_placeholder = '// #bootstrap-placeholder#'
 
@@ -52,7 +52,7 @@ _js_content = """
 if (typeof loadPyodide === 'undefined') {
     console.log('loading pyodide...');
     let script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.1/full/pyodide.js';
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.3/full/pyodide.js';
     script.onload = async () => {
         let pyodide = await loadPyodide(`# load option marker`);
         window.pyodide = pyodide;
