@@ -7,7 +7,6 @@ from wwwpy.common.files import extension_blacklist, directory_blacklist
 from wwwpy.common.filesystem import sync
 from wwwpy.common.filesystem.sync import sync_delta2, Sync, event_rebase
 from wwwpy.common.quickstart import is_empty_project
-from wwwpy.common.reloader import reload
 from wwwpy.remote.designer.rpc import DesignerRpc
 from wwwpy.rpc import RpcRoute
 from wwwpy.server.filesystem_sync.watchdog_debouncer import WatchdogDebouncer
@@ -87,7 +86,7 @@ def do_unload_for(directory, server_folders: Set[str]):
         if package_directory:
             try:
                 import wwwpy.common.reloader as reloader
-                reloader.unload_path(str(package_directory))
+                reloader.unload_path(str(package_directory), skip_wwwpy=True)
             except:
                 # we could send a sync_init
                 import traceback

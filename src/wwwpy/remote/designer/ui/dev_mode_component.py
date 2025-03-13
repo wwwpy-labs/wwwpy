@@ -5,6 +5,7 @@ import logging
 import js
 
 import wwwpy.remote.component as wpc
+from wwwpy.common.asynclib import create_task_safe
 from wwwpy.remote import dict_to_js
 from wwwpy.server.designer import rpc
 from . import quickstart_ui
@@ -47,10 +48,18 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
 <wwwpy-toolbox data-name="toolbox"></wwwpy-toolbox>        
         """
 
-    async def after_init_component(self):
+    async def _connectedCallback_async(self):
         if await rpc.quickstart_possible():
             self.quickstart = quickstart_ui.create()
-            def _on_done(): self.toolbox.visible = True
+
+            def _on_done():
+                self.toolbox.visible = True
+
             self.quickstart.on_done = lambda *_: _on_done()
             self.element.shadowRoot.append(self.quickstart.window.element)
             self.toolbox.visible = False
+        else:
+            self.toolbox.visible = True
+
+    def connectedCallback(self):
+        create_task_safe(self._connectedCallback_async())

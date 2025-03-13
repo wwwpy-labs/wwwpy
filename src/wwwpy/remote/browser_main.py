@@ -1,20 +1,18 @@
 from __future__ import annotations
-import traceback
 
-from inspect import iscoroutinefunction
 import asyncio
 import logging
-from pathlib import Path
+import traceback
+from inspect import iscoroutinefunction
 
 import js
 from js import console
 
 import wwwpy.common.reloader as reloader
 from wwwpy.common import _no_remote_infrastructure_found_text, files, _remote_module_not_found_html
-from wwwpy.common.tree import print_tree
+from wwwpy.common.asynclib import create_task_safe
 from wwwpy.remote.designer import dev_mode as dm
 from wwwpy.remote.websocket import setup_websocket
-from wwwpy.common.asynclib import create_task_safe
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +36,7 @@ def _reload():
         #     if p.name == 'wwwpy':
         #         continue
         #     reloader.unload_path(str(p))
-        reloader.unload_path(files._bundle_path)
+        reloader.unload_path(files._bundle_path, skip_wwwpy=True)
         await _invoke_browser_main()
 
     asyncio.create_task(reload())

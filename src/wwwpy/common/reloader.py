@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import inspect
-import sys
-
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ def reload(module):
     return importlib.reload(module)
 
 
-def unload_path(path: str):
+def unload_path(path: str, skip_wwwpy: bool = False):
     def accept(module):
         try:
             module_path = inspect.getfile(module)
@@ -24,5 +23,8 @@ def unload_path(path: str):
     names = [name for name, module in sys.modules.items() if accept(module)]
 
     for name in names:
-        logger.debug(f'hot-reload: unload module {name}...')
-        del (sys.modules[name])
+        if skip_wwwpy and name.startswith('wwwpy.') or name == 'wwwpy':
+            logger.debug(f'hot-reload: skip module `{name}`')
+        else:
+            logger.debug(f'hot-reload: unload module `{name}`')
+            del (sys.modules[name])
