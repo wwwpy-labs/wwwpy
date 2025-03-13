@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Dict
 
 import js
-import logging
 from js import HTMLElement, console
-from pyodide.ffi import create_proxy, create_once_callable
+from pyodide.ffi import create_proxy
 
 logger = logging.getLogger(__name__)
 namespace = "window.python_custom_elements"
@@ -179,7 +179,7 @@ class Component:
             # eval_str because it was unloaded...?
             annotations = inspect.get_annotations(self.__class__, eval_str=True)
         except Exception as e:
-            logger.error(f'Error getting annotations: {e}')
+            logger.error(f'Error getting annotations name=`{name}` selector=`{selector}`: {e}')
             return
 
         expected_type = annotations.get(name, None)
