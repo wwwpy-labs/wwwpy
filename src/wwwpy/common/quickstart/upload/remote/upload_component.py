@@ -3,8 +3,9 @@ import base64
 import logging
 
 import js
-import wwwpy.remote.component as wpc
 from pyodide.ffi import create_proxy, JsException
+
+import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 
 logger = logging.getLogger(__name__)
@@ -78,7 +79,11 @@ class UploadProgressComponent(wpc.Component):
                 set_label(f'{percentage}%')
             set_label('upload completed')
             self.progress.value = total_size
-            await asyncio.sleep(3)
+            fade_delay = 3
+            self.element.style.opacity = '1'
+            self.element.style.transition = f'opacity {fade_delay}s'
+            self.element.style.opacity = '0'
+            await asyncio.sleep(fade_delay)
             self.element.remove()
         except Exception as e:
             set_label(f'error: {e}')
