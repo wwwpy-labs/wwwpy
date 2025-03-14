@@ -1,38 +1,35 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from functools import partial
 from typing import Optional, Tuple, List
 
 import js
-import wwwpy.remote.component as wpc
 from js import document, console, Event, HTMLElement, window
 from pyodide.ffi import create_proxy
+
+import wwwpy.remote.component as wpc
 from wwwpy.common import state, modlib
-from wwwpy.common.designer import element_library, new_component
+from wwwpy.common.designer import element_library
 from wwwpy.common.designer.code_edit import add_component, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.remote.designer.ui.window_component import new_window, Geometry
-import asyncio
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
 from wwwpy.remote.designer.global_interceptor import GlobalInterceptor, InterceptorEvent
-from wwwpy.remote.designer.ui.window_component import WindowComponent
-from wwwpy.server.designer import rpc
-
 from wwwpy.remote.designer.helpers import _element_lbl, _help_button, info_link, _help_url
 from wwwpy.remote.designer.ui.property_editor import PropertyEditor
+from wwwpy.remote.designer.ui.window_component import WindowComponent
+from wwwpy.remote.designer.ui.window_component import new_window, Geometry
+from wwwpy.server.designer import rpc
 from . import filesystem_tree
 from .help_icon import HelpIcon  # noqa
-import logging
-
 from .mailto_component import MailtoComponent
-from ...component import element
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +110,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     </div>   
 </wwwpy-window>         
 """
+
+    def connectedCallback(self):
         self._manage_toolbox_state()
         self._window.closable = False
         attrs = [v for k, v in vars(self.__class__).items() if hasattr(v, 'label')]
