@@ -59,21 +59,22 @@ async def _invoke_browser_main():
                     await remote.main()
                 else:
                     remote.main()
-        except ModuleNotFoundError as e:
-            js.console.error(f'ModuleNotFoundError: {e}')
-            js.document.body.innerHTML = _remote_module_not_found_html
         except Exception as e:
+            explain_text = _no_remote_infrastructure_found_text
+            if isinstance(e, ModuleNotFoundError) and e.name == 'remote':
+                explain_text = _remote_module_not_found_html
             js.console.error(f'Exception: {e}')
-            _show_exception(e, _no_remote_infrastructure_found_text)
+            _show_exception(e, explain_text)
             from wwwpy.server.designer import rpc
             create_task_safe(rpc.on_exception_string(traceback.format_exc()))
     finally:
         await create_task_safe(_show_dev_mode())
 
+
 async def _show_dev_mode():
     if dm.is_active():
         from wwwpy.remote.designer.ui import dev_mode_component
-        dev_mode_component.show() # todo it looks like it can take ~ 1s or more; investigate,
+        dev_mode_component.show()  # todo it looks like it can take ~ 1s or more; investigate,
         # maybe micropip installing rope has to do with it
 
 
@@ -83,7 +84,6 @@ def _reset_document():
     # js.document.open()
     # js.document.write('<!DOCTYPE html><html></html>')
     # js.document.close()
-
 
 
 def _show_exception(e, html: str):
