@@ -283,8 +283,25 @@ def ensure_imports(source_code: str) -> str:
     existing_imports = set(_remove_comment_if_present(line) for line in source_code.split('\n')
                            if line.strip().startswith('import'))
     missing_imports = [imp for imp in required_imports if imp not in existing_imports]
-    import_lines = '\n'.join(missing_imports) + '\n' if missing_imports else ''
 
-    result_code = import_lines + source_code
+    pre, post = _split_on_future_import(source_code)
 
+    result_lines = pre + missing_imports + post
+    result_code = '\n'.join(result_lines)
     return result_code
+
+
+def _split_on_future_import(source_code: str) -> tuple[list[str], list[str]]:
+    lines = source_code.split('\n')
+    future_index = None
+    for i, line in enumerate(lines):
+        if line.startswith('from __future__ import'):
+            future_index = i
+            break
+
+    if future_index is None:
+        return [], lines
+
+    pre = lines[:future_index + 1]
+    post = lines[future_index + 1:]
+    return pre, post

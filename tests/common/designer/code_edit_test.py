@@ -1,12 +1,12 @@
-from wwwpy.common.designer.code_edit import Attribute, add_component, ElementDef, add_method, \
-    ensure_imports, AddComponentExceptionReport, AddFailed, rename_class_attribute
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_component, add_method
+from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
+    rename_class_attribute
 from wwwpy.common.designer.code_info import info
 from wwwpy.common.designer.element_library import ElementDef, element_library
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.common.files import str_ungzip_base64
-from wwwpy.common.rpc import serializer, serialization
+from wwwpy.common.rpc import serialization
 
 
 def test_add_class_attribute():
@@ -317,6 +317,17 @@ class TestEnsureImports:
         original_source = 'import js # noqa'
         modified_source = self.assert_imports_ok(original_source)
         assert original_source in modified_source
+
+    def test_ensure_import__with_future_annotations(self):
+        # original_source = '''"""File selection component."""\n\nfrom __future__ import annotations'''
+        original_source = """from __future__ import annotations\n"""
+        modified_source = ensure_imports(original_source)
+        assert modified_source.startswith(original_source)
+
+    def test_ensure_import__with_future_annotations__and_comment(self):
+        original_source = '''"""File selection component."""\n\nfrom __future__ import annotations\n'''
+        modified_source = ensure_imports(original_source)
+        assert modified_source.startswith(original_source)
 
 
 def placeholder_test_error_reporter():
