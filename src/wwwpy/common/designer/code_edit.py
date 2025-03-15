@@ -282,9 +282,9 @@ def ensure_imports(source_code: str) -> str:
 
     existing_imports = set(_remove_comment_if_present(line) for line in source_code.split('\n')
                            if line.strip().startswith('import'))
+    missing_imports = [imp for imp in required_imports if imp not in existing_imports]
+    import_lines = '\n'.join(missing_imports) + '\n' if missing_imports else ''
 
-    for imp in required_imports:
-        if imp not in existing_imports:
-            source_code = imp + '\n' + source_code
+    result_code = import_lines + source_code
 
-    return source_code
+    return result_code
