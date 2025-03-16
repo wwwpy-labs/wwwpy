@@ -1,5 +1,6 @@
 """this should test only InputTargetAdapter directly, not the whole databind"""
 from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 
@@ -7,9 +8,9 @@ import js
 import pytest
 from js import document
 
-from tests.server.rpc4tests import rpctst_exec
 from wwwpy.common.databind.databind import Binding
 from wwwpy.remote.databind.bind_wrapper import InputTargetAdapter
+from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
 

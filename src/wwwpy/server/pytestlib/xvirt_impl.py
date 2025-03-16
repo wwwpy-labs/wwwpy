@@ -65,7 +65,7 @@ class XVirtImpl(XVirt):
 
             return target, root
 
-        services = _configure_server_rpc_services('/wwwpy/rpc', ['tests.server.rpc4tests'])
+        services = _configure_server_rpc_services('/wwwpy/rpc', ['wwwpy.server.rpc4tests'])
         services.generate_remote_stubs()
 
         resources = [library_resources(),

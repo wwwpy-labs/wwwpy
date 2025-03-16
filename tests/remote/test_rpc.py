@@ -1,13 +1,10 @@
-import asyncio
-import inspect
 import logging
-from asyncio import sleep
 
-from js import document, window
-
-from tests.server.rpc4tests import rpctst_echo, rpctst_exec
-import wwwpy.remote.component as wpc
 import js
+from js import document
+
+import wwwpy.remote.component as wpc
+from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
 
