@@ -1,7 +1,7 @@
 # https://packaging.python.org/en/latest/tutorials/packaging-projects/
 [project]
 name = "wwwpy"
-version = "0.1.75"
+version = "0.1.76"
 
 # todo
 # dynamic = ["version"]
