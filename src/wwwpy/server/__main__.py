@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 from pathlib import Path
-from typing import NamedTuple, Optional, Sequence
+from typing import Optional, Sequence, NamedTuple
 
 from wwwpy.server.convention import start_default
+from wwwpy.server.tcp_port import find_port
+
+logger = logging.getLogger(__name__)
 
 
 class Arguments(NamedTuple):
@@ -44,6 +48,8 @@ def main():
     import wwwpy
     print(f'Starting wwwpy v{wwwpy.__version__}')
     args = parse_arguments()
+    if args.port == 0:
+        args = args._replace(port=find_port())
     project = start_default(args.directory, args.port, dev_mode=args.dev)
     _open_browser(args, project.settings)
     try:
