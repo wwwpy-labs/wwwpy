@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 class UploadComponent(wpc.Component, tag_name='wwwpy-quickstart-upload'):
     file_input: js.HTMLInputElement = wpc.element()
     uploads: js.HTMLElement = wpc.element()
+    dropzone: js.HTMLElement = wpc.element()  # New element for drop zone
 
     @property
     def multiple(self) -> bool:
@@ -27,16 +28,54 @@ class UploadComponent(wpc.Component, tag_name='wwwpy-quickstart-upload'):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
         self.element.shadowRoot.innerHTML = """
-<input data-name="file_input" placeholder="input1" type="file" multiple>
+<div data-name="dropzone" style="border: 2px dashed #ccc; padding: 20px; text-align: center; margin-bottom: 10px; cursor: pointer;">
+    <p>Drag and drop files here or</p>
+    <input data-name="file_input" placeholder="input1" type="file" multiple style="display: inline-block;">
+</div>
 <div data-name="uploads"></div>
         """
 
-    async def file_input__change(self, event):
-        files = self.file_input.files
+    def dropzone__dragover(self, event):
+        # Prevent default to allow drop
+        event.preventDefault()
+        event.stopPropagation()
+        # Add visual feedback
+        self.dropzone.style.borderColor = '#0099ff'
+        self.dropzone.style.backgroundColor = 'rgba(0, 153, 255, 0.1)'
+
+    def dropzone__dragleave(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        # Reset visual feedback
+        self.dropzone.style.borderColor = '#ccc'
+        self.dropzone.style.backgroundColor = 'transparent'
+
+    def dropzone__drop(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        # Reset visual feedback
+        self.dropzone.style.borderColor = '#ccc'
+        self.dropzone.style.backgroundColor = 'transparent'
+
+        # Get files from the drop event
+        files = event.dataTransfer.files
+        self._process_files(files)
+
+    def dropzone__click(self, event):
+        # If they click the drop zone but not on the input, trigger the file input
+        if event.target != self.file_input:
+            self.file_input.click()
+
+    def _process_files(self, files):
+        # Process the files just like in the change event
         for file in files:
             progress = UploadProgressComponent()
             self.uploads.appendChild(progress.element)
             asyncio.create_task(progress.upload(file))
+
+    async def file_input__change(self, event):
+        files = self.file_input.files
+        self._process_files(files)
         self.file_input.value = ''
 
 class UploadProgressComponent(wpc.Component):
