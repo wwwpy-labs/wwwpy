@@ -1,9 +1,7 @@
-import logging
+from js import fetch, console
 
-from js import fetch
-
-logger = logging.getLogger(__name__)
-
+# logger = logging.getLogger(__name__)
+logger = console  # if log redirect is active, it will create an infinite loop because
 
 async def async_fetch_str(url: str, method: str = 'GET', data: str = '') -> str:
     logger.debug(f'url={url}')
