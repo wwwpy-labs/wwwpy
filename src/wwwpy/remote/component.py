@@ -280,8 +280,9 @@ class attribute:
 # PUBLIC-API
 class element:
 
-    def __init__(self, cached=True):
+    def __init__(self, cached=False):
         """ If cached is True, the element will be cached after the first access.
+        Default is False.
         The practical use of this is when removing the element from the parent, the element is still available.
         Without cache, if it is detached from the parent, the element will be unreachable.
         """

@@ -261,7 +261,7 @@ class TestElement:
         """
 
         class Comp1(Component):
-            div1: HTMLElement = element()
+            div1: HTMLElement = element(cached=True)
 
             def init_component(self):
                 self.element.innerHTML = '<div data-name="div1">abc</div>'
@@ -279,7 +279,7 @@ class TestElement:
         """
 
         class Comp1(Component):
-            div1: HTMLElement = element(cached=False)
+            div1: HTMLElement = element()
 
             def init_component(self):
                 self.element.innerHTML = '<div data-name="div1">abc</div>'
