@@ -1,6 +1,6 @@
 import asyncio
 
-from js import document, HTMLElement, Event, HTMLDivElement, HTMLBRElement
+from js import document, HTMLElement, Event, HTMLDivElement
 
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import Component, attribute, element
@@ -254,6 +254,41 @@ class TestElement:
         comp = Comp8()
         assert comp.div1.innerHTML == 'root'
 
+    def test_caching(self):
+        """This ensures that when we access once an attribute, it is cached; we test it
+        removing the element and reading it again, if it is cached, it should be the same instance (and not
+        throw an exception)
+        """
+
+        class Comp1(Component):
+            div1: HTMLElement = element()
+
+            def init_component(self):
+                self.element.innerHTML = '<div data-name="div1">abc</div>'
+
+        comp = Comp1()
+        div1 = comp.div1
+        div1.remove()
+
+        assert div1 == comp.div1
+
+    def test_cached_False(self):
+        """This ensures that when we access once an attribute, it is cached; we test it
+        removing the element and reading it again, if it is cached, it should be the same instance (and not
+        throw an exception)
+        """
+
+        class Comp1(Component):
+            div1: HTMLElement = element(cached=False)
+
+            def init_component(self):
+                self.element.innerHTML = '<div data-name="div1">abc</div>'
+
+        comp = Comp1()
+        div1 = comp.div1
+        div1.remove()
+
+        assert comp.div1 is None
 
 class TestElementEventBinding:
 

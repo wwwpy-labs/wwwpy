@@ -280,8 +280,14 @@ class attribute:
 # PUBLIC-API
 class element:
 
-    def __init__(self):
+    def __init__(self, cached=True):
+        """ If cached is True, the element will be cached after the first access.
+        The practical use of this is when removing the element from the parent, the element is still available.
+        Without cache, if it is detached from the parent, the element will be unreachable.
+        """
         self.name = None
+        self.cached = cached
+        self.cache = None
 
     def __set_name__(self, owner, name):
         if not issubclass(owner, Component):
@@ -289,4 +295,7 @@ class element:
         self.name = name
 
     def __get__(self, obj: Component, objtype=None):
-        return obj._find_python_attribute(self.name)
+        value = obj._find_python_attribute(self.name) if self.cache is None else self.cache
+        if self.cached and self.cache is None:
+            self.cache = value
+        return value
