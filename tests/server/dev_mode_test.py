@@ -1,16 +1,15 @@
+import logging
 from datetime import timedelta, datetime
 from time import sleep
 
 from playwright.sync_api import expect
 
 from tests import for_all_webservers
-from tests.timeouts import timeout_multiplier
 from tests.server.page_fixture import PageFixture, fixture
+from tests.timeouts import timeout_multiplier
 from wwwpy.common import quickstart
 from wwwpy.common.files import get_all_paths_with_hashes
 from wwwpy.common.quickstart import is_empty_project
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -38,19 +37,27 @@ from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
 not DevModeComponent.instance.toolbox.visible
 """)
 
+    logger.debug('accepting quickstart')
     # language=python
     fixture.assert_evaluate_retry("""
 from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
 not DevModeComponent.instance.quickstart.accept_quickstart('basic')
 """)
 
+    logger.debug('checking quickstart applied')
     # language=python
     fixture.assert_evaluate_retry("""
 from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
 DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
-    expect(fixture.page.locator('component-1')).to_be_attached()
+    try:
+        expect(fixture.page.locator('component-1')).to_be_attached()
+    except Exception as e:
+        logger.error(f"Assertion failed: component-1 not attached. Error: {e}")
+        body_html = fixture.page.evaluate("() => document.body.innerHTML")
+        logger.debug(f"Body HTML content:\n`{body_html}`")
+        raise
 
     # language=python
     fixture.assert_evaluate_retry("""
