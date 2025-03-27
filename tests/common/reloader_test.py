@@ -5,7 +5,7 @@ from wwwpy.common.reloader import unload_path
 def test_simple_reload__of_import(dyn_sys_path: DynSysPath):
     # GIVEN
     dyn_sys_path.write_module2('p1/__init__.py', 'a = 1')
-    import p1
+    import p1  # noqa
     assert p1.a == 1
 
     # WHEN
@@ -53,9 +53,9 @@ def test_simple_reload__of_exec(dyn_sys_path: DynSysPath):
     assert lo['p1'].b == 123
     assert not hasattr(lo['p1'], 'a')
 
+
 def test_simple_import_of_package_module(dyn_sys_path: DynSysPath):
     # GIVEN
-    dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
 
     gl = {}
@@ -77,7 +77,6 @@ def test_simple_import_of_package_module(dyn_sys_path: DynSysPath):
 
 def test_import_x_as_y(dyn_sys_path: DynSysPath):
     # GIVEN
-    dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
 
     gl = {}
@@ -97,10 +96,29 @@ def test_import_x_as_y(dyn_sys_path: DynSysPath):
     assert lo['rpc'].b == 42
     assert not hasattr(lo['rpc'], 'a')
 
+
 def test_from_x_import_y(dyn_sys_path: DynSysPath):
     # GIVEN
-    dyn_sys_path.write_module2('server/__init__.py', '')
     dyn_sys_path.write_module2('server/rpc.py', 'b = 2')
+    from server import rpc  # noqa
+    assert rpc.b == 2
+
+    # WHEN
+    unload_path(str(dyn_sys_path.path))
+
+    # THEN
+    dyn_sys_path.write_module2('server/rpc.py', 'b = 42')
+    from server import rpc  # noqa
+    assert rpc.b == 42
+    assert not hasattr(rpc, 'a')
+
+
+def test_from_x_import_y__namespace(dyn_sys_path: DynSysPath):
+    """ See issue #27 https://github.com/wwwpy-labs/wwwpy/issues/27"""
+    # GIVEN
+    # no __init__.py so it's a namespace package
+    dyn_sys_path.write_module2('server/rpc.py', 'b = 2', create_init=False)
+
     from server import rpc  # noqa
     assert rpc.b == 2
 

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import inspect
 import logging
 import sys
 
 logger = logging.getLogger(__name__)
+
 
 def reload(module):
     import importlib
@@ -15,8 +15,15 @@ def reload(module):
 def unload_path(path: str, skip_wwwpy: bool = False):
     def accept(module):
         try:
-            module_path = inspect.getfile(module)
-            return module_path.startswith(path) and module_path != __file__
+            module_file = getattr(module, '__file__', None)
+            if module_file:
+                return module_file.startswith(path) and module_file != __file__
+            module_path = getattr(module, '__path__', None)
+            if module_path:
+                acc = any(p.startswith(path) for p in module_path)
+                if acc and not all(p.startswith(path) for p in module_path):
+                    logger.warning(f'hot-reload: module `{module}` has mixed paths: {module_path}')
+                return acc
         except:
             return False
 
