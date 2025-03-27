@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Any, Type, get_origin, get_args, TypeVar
 
 from wwwpy.common import result
+from wwwpy.common.strings import id_to_hex
 
 T = TypeVar('T')
 
@@ -43,7 +44,7 @@ def serialize(obj: T, cls: Type[T]) -> Any:
         if not isinstance(obj, origin):
             raise ValueError(f"Expected object of type {origin}, got {type(obj)}")
     elif not isinstance(obj, cls):
-        raise ValueError(f"Expected object of type {cls}, got {type(obj)}")
+        raise ValueError(f"Expected object of type {cls}, got {type(obj)} , {id_to_hex(cls)} != {id_to_hex(type(obj))}")
     if is_dataclass(obj):
         field_types = typing.get_type_hints(cls)
         return {
