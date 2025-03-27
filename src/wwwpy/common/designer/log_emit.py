@@ -24,8 +24,10 @@ def add_once(emit: Callable[[str], None]):
     for handler in root.handlers:
         if isinstance(handler, _CustomHandler):
             return
-
-    formatter = logging.Formatter('%(asctime)s %(levelname).1s %(name)s:%(lineno)d - %(message)s')
+    from wwwpy.common.detect import is_pyodide
+    # side = 'R' if is_pyodide() else 'S'
+    side = '🌎' if is_pyodide() else '🏛'
+    formatter = logging.Formatter(f'%(asctime)s {side} %(levelname).1s %(name)s:%(lineno)d - %(message)s')
     custom_handler = _CustomHandler(emit)
     custom_handler.setFormatter(formatter)
     root.addHandler(custom_handler)
