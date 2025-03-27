@@ -57,6 +57,11 @@ DevModeComponent.instance.quickstart.window.element.isConnected is False
         logger.error(f"Assertion failed: component-1 not attached. Error: {e}")
         body_html = fixture.page.evaluate("() => document.body.innerHTML")
         logger.debug(f"Body HTML content:\n`{body_html}`")
+        # language=python
+        fixture.evaluate("""
+from wwwpy.common.tree import print_tree
+print_tree('/wwwpy_bundle')
+        """)
         raise
 
     # language=python
