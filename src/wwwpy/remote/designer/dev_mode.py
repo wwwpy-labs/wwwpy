@@ -34,7 +34,11 @@ def is_active() -> bool:
 
 def _global_exception_handler(loop, context):
     # The context parameter contains details about the exception
-    logger.info(f"Global handler caught: {context['message']}")
+    if 'message' in context:
+        logger.info(f"Global handler caught: {context['message']}")
+    if 'exception' not in context:
+        logger.error(f"Global handler caught: {context}")
+        return
     exception = context.get('exception')
     if exception:
         logger.info(f"Exception type: {type(exception)}, Args: {exception.args}")
