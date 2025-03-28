@@ -162,39 +162,6 @@ def test_change_file_binary(fixture: FilesystemFixture):
     fixture.assert_filesystem_are_equal()
 
 
-def test_change_file_text_in_non_existing_folder(fixture: FilesystemFixture):
-    # GIVEN
-    with fixture.source_init as m:
-        pass
-
-    with fixture.source_mutator as m:
-        m.mkdir('s1', add_event=False)  # we simulate that the create folder is not registered
-        m.write('s1/f.txt', 'new content')
-
-    # WHEN
-    fixture.invoke("""{"event_type": "modified", "is_directory": false, "src_path": "s1/f.txt"}""")
-
-    # THEN
-    assert Path(fixture.initial_fs / 's1/f.txt').read_text() == 'new content'
-    fixture.assert_filesystem_are_equal()
-
-
-def test_change_file_binary_in_non_existing_folder(fixture: FilesystemFixture):
-    # GIVEN
-    with fixture.source_init as m:
-        pass
-
-    with fixture.source_mutator as m:
-        m.mkdir('s1', add_event=False)  # we simulate that the create folder is not registered
-        m.write('s1/f.txt', b'\x80\x81\x82')
-
-    # WHEN
-    fixture.invoke("""{"event_type": "modified", "is_directory": false, "src_path": "s1/f.txt"}""")
-
-    # THEN
-    assert Path(fixture.initial_fs / 's1/f.txt').read_bytes() == b'\x80\x81\x82'
-    fixture.assert_filesystem_are_equal()
-
 def test_create_modify_rename(fixture: FilesystemFixture):
     # GIVEN
     with fixture.source_init as m:

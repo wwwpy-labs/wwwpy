@@ -38,9 +38,8 @@ class Mutator:
         fs_path = self.fs / path
         self.events.append(Event(event_type='closed', is_directory=fs_path.is_dir(), src_path=path))
 
-    def mkdir(self, path: str, add_event=True):
-        if add_event:
-            self.events.append(Event(event_type='created', is_directory=True, src_path=path))
+    def mkdir(self, path: str):
+        self.events.append(Event(event_type='created', is_directory=True, src_path=path))
         (self.fs / path).mkdir()
 
     def unlink(self, path: str):

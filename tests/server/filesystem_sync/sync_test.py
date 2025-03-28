@@ -3,8 +3,8 @@ import shutil
 import pytest
 
 from tests.server.filesystem_sync.sync_fixture import SyncFixture
-from wwwpy.server.filesystem_sync import sync_delta, sync_zip
 from wwwpy.common.filesystem.sync import sync_delta2
+from wwwpy.server.filesystem_sync import sync_delta, sync_zip
 
 invalid_utf8 = b'\x80\x81\x82'
 
@@ -353,3 +353,45 @@ def test_move_folder_in_subfolder(target):
 
     # THEN
     assert target.synchronized(), target.sync_error()
+
+
+def test_issue_nr28_missing_create_folder_event(target):
+    # GIVEN
+    # target.start()
+    project_dir = target.source
+    readme_path = project_dir / 'readme.txt'
+    remote_dir = project_dir / 'remote'
+    remote_dir.mkdir()
+    readme_path.write_text('readme content')
+    (remote_dir / '__init__.py').write_text('# init file')
+    (remote_dir / 'component1.py').write_text('# component code')
+    # target.wait_at_rest()
+
+    events = """
+  {"event_type": "created", "is_directory": false, "src_path": "source/readme.txt"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source"}
+  {"event_type": "modified", "is_directory": false, "src_path": "source/readme.txt"}
+  {"event_type": "modified", "is_directory": false, "src_path": "source/readme.txt"}
+  {"event_type": "created", "is_directory": false, "src_path": "source/remote/__init__.py"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source/remote"}
+  {"event_type": "modified", "is_directory": false, "src_path": "source/remote/__init__.py"}
+  {"event_type": "created", "is_directory": false, "src_path": "source/remote/component1.py"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source/remote"}
+  {"event_type": "modified", "is_directory": false, "src_path": "source/remote/component1.py"}
+  {"event_type": "created", "is_directory": true, "src_path": "source/remote"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source/remote"}
+  {"event_type": "modified", "is_directory": true, "src_path": "source"}
+    """
+    # WHEN
+    # target.do_sync()
+    target.apply_events(events)
+
+    # THEN
+    assert (target.target / 'readme.txt').exists(), target.sync_error()
+    assert (target.target / 'readme.txt').read_text() == 'readme content', target.sync_error()
+    assert (target.target / 'remote').exists(), target.sync_error()
+    assert (target.target / 'remote' / '__init__.py').exists(), target.sync_error()
+    assert (target.target / 'remote' / 'component1.py').exists(), target.sync_error()
+    assert (target.target / 'remote' / '__init__.py').read_text() == '# init file', target.sync_error()
+    assert (target.target / 'remote' / 'component1.py').read_text() == '# component code', target.sync_error()
