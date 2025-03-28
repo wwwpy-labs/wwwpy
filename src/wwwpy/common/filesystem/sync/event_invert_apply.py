@@ -1,11 +1,11 @@
 import dataclasses
 import shutil
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Iterable, Union, Optional
+from typing import List, Dict, Iterable, Optional
 
 from wwwpy.common import tree
 from wwwpy.common.filesystem.sync import Event
-from dataclasses import dataclass, field
 
 
 def events_invert(fs: Path, events: List[Event]) -> List[Event]:
@@ -105,13 +105,16 @@ def _event_apply(fs: Path, event: Event):
         shutil.move(path, fs / event.dest_path)
     elif t == 'modified':
         c = event.content
+        func = None
         if isinstance(c, str):
-            path.write_text(c)
+            func = path.write_text
         elif isinstance(c, bytes):
-            path.write_bytes(c)
+            func = path.write_bytes
         else:
             raise ValueError(f"Unsupported content type: {type(c)}")
 
+        path.parent.mkdir(parents=True, exist_ok=True)
+        func(c)
 
 def _get_content(path: Path):
     assert path.exists(), f'Path does not exist: {path}'
