@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import pytest
 
 from tests.common import dyn_sys_path, DynSysPath
@@ -418,6 +419,41 @@ class Component2():
         self.element.innerHTML = """<sl-button data-name="btnSend">btnSend</sl-button>"""
         '''
 
+    def test_remove_class_attribute_and_html_attribute(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
+            '''
+
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).remove()
+
+        # THEN
+        assert target.attributes.get(tag_data_name_attr_name).value is None
+        ci = code_info.class_info(target.current_python_source(), 'Component2')
+        assert ci.attributes == []
+
+    def test_set_to_blank_is_the_same_as_removing(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    slButton1: js.HTMLElement = wpc.element()
+    def connectedCallback(self):
+        self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
+            '''
+
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get(tag_data_name_attr_name).value = ''
+
+        # THEN
+        assert target.attributes.get(tag_data_name_attr_name).value is None
+        ci = code_info.class_info(target.current_python_source(), 'Component2')
+        assert ci.attributes == []
 
 import unittest
 

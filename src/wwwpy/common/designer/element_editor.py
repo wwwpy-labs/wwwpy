@@ -99,13 +99,16 @@ class ElementEditor:
     """
 
     def __init__(self, element_path: ep.ElementPath, element_def: el.ElementDef):
+        self.element_path = element_path
+        self.element_def = element_def
+        self._init()
+
+    def _init(self):
         self.attributes: ListMap[AttributeEditor] = ListMap(key_func=lambda attr: attr.definition.name)
         """One AttributeEditor for each attribute defined in the ElementDef."""
         self.events: ListMap[EventEditor] = ListMap(key_func=lambda ev: ev.definition.name)
         """One EventEditor for each event defined in the ElementDef."""
 
-        self.element_path = element_path
-        self.element_def = element_def
         self._fill_events()
         self._fill_attrs()
 
@@ -191,6 +194,9 @@ class ElementEditor:
         self._html_change(_html_manipulate)
 
     def _data_name_set_value(self, attribute_editor: AttributeEditor, value: str | None = ''):
+        if value == '':
+            self._attribute_remove(attribute_editor)
+            return
         old_value = attribute_editor.value
         if self._node.content and old_value == self._node.content:
             # If the data-name is the same as the inner HTML, we should change the inner HTML too
@@ -226,6 +232,13 @@ class ElementEditor:
             return new_html
 
         self._html_change(_html_manipulate)
+
+        if attribute_editor.definition is _ad_data_name:
+            src = self.current_python_source()
+            src = code_edit.remove_class_attribute(src, self.element_path.class_name, attribute_editor.value)
+            self._write_source(src)
+
+        self._init()
 
 
 # Create a translation table for the specified characters
