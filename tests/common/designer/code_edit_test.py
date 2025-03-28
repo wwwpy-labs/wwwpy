@@ -1,4 +1,5 @@
-from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_component, add_method
+from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_component, add_method, \
+    remove_class_attribute
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
 from wwwpy.common.designer.code_info import info
@@ -97,6 +98,22 @@ class MyElement2(wpc.Component):
 
     modified_source = add_class_attribute(original_source, 'MyElement2',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
+
+    assert _remove_import(modified_source) == expected_source
+
+
+def test_remove_class_attribute__should_remove_the_line():
+    original_source = """
+class MyElement(wpc.Component):
+        ele1: HTMLElement = wpc.element()
+        ele2: HTMLElement = wpc.element()
+    """
+    expected_source = """
+class MyElement(wpc.Component):
+        ele2: HTMLElement = wpc.element()
+    """
+
+    modified_source = remove_class_attribute(original_source, 'MyElement', 'ele1')
 
     assert _remove_import(modified_source) == expected_source
 

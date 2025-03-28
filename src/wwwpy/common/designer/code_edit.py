@@ -25,6 +25,14 @@ def add_class_attribute(source_code: str, class_name: str, attr_info: Attribute)
     return modified_tree.code
 
 
+def remove_class_attribute(source_code: str, class_name: str, attr_name: str) -> str:
+    source_code_imp = ensure_imports(source_code)
+    module = cst.parse_module(source_code_imp)
+    transformer = _RemoveFieldFromClassTransformer(class_name, attr_name)
+    modified_tree = module.visit(transformer)
+
+    return modified_tree.code
+
 def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     source_code_imp = ensure_imports(source_code)
     # tree1 = tree0.visit(_RenameFieldInClassTransformer(class_name, old_attr_name, new_attr_name))
@@ -221,6 +229,31 @@ class _AddFieldToClassTransformer(cst.CSTTransformer):
 
         new_body = list(updated_node.body.body)
         new_body.insert(last_assign_index, new_field_node)
+
+        return updated_node.with_changes(body=updated_node.body.with_changes(body=new_body))
+
+
+class _RemoveFieldFromClassTransformer(cst.CSTTransformer):
+    def __init__(self, class_name, field_name):
+        super().__init__()
+        self.class_name = class_name
+        self.field_name = field_name
+
+    def leave_ClassDef(self, original_node, updated_node):
+        if original_node.name.value != self.class_name:
+            return original_node
+
+        new_body = []
+        for item in updated_node.body.body:
+            # Check if this is an annotated assignment with the target field name
+            if (isinstance(item, cst.SimpleStatementLine) and
+                    isinstance(item.body[0], cst.AnnAssign) and
+                    isinstance(item.body[0].target, cst.Name) and
+                    item.body[0].target.value == self.field_name):
+                # Skip this item to remove it
+                continue
+            else:
+                new_body.append(item)
 
         return updated_node.with_changes(body=updated_node.body.with_changes(body=new_body))
 
