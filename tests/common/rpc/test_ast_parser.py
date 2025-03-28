@@ -91,3 +91,20 @@ class Class1:
     c.alert('foo')
 
     assert messages == [(mod_name, 'Class1.alert', 'foo')]
+
+
+def test_ast_module_source_to_proxy_with_class_level_assignment():
+    mod_name = 'mod2'
+    # language=Python
+    target = func_registry.source_to_proxy(mod_name, """
+import js
+class Class1:
+    some = 12       
+    """)
+    ast.parse(target)  # verify it's a valid python code
+
+    # exec the generated code
+    executed = dict()
+    exec(target, executed)
+    assert 'Class1' in executed
+    assert 'some' not in executed['Class1'].__dict__

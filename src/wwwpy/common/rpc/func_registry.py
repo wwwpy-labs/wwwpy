@@ -82,8 +82,8 @@ def source_to_proxy(module_name: str, source: str) -> str:
                        '        self.send_endpoint = send_endpoint\n'
 
             for f in b.body:
-                fqn = b.name + '.' + f.name
                 if isinstance(f, FunctionDef):
+                    fqn = b.name + '.' + f.name
                     if len(f.args.args) > 1:  # beyond self
                         args = ', ' + ', '.join([a.arg for a in f.args.args[1:]])
                     else:
