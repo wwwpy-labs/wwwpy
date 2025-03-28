@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 async def entry_point(dev_mode: bool = False):
     # from wwwpy.common.tree import print_tree
     # print_tree('/wwwpy_bundle')
-
+    import wwwpy
+    console.log(wwwpy.__banner__)
     await setup_websocket()
     dm.set_active(dev_mode)
     if dev_mode:

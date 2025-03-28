@@ -64,6 +64,7 @@ def menu(label, always_visible=False):
 
 
 class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
+    _title: js.HTMLDivElement = wpc.element()
     body: HTMLElement = wpc.element()
     inputSearch: js.HTMLInputElement = wpc.element()
     _window: WindowComponent = wpc.element()
@@ -100,7 +101,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 }
 </style>     
 <wwwpy-window data-name='_window'>
-    <div slot='title' style='text-align: center'>wwwpy - toolbox</div>
+    <div slot='title' data-name="_title" style='text-align: center'></div>
     <div  style="text-align: center; padding: 8px">     
         <button data-name="_select_element_btn">Select element...</button>   
         <button data-name="_select_clear_btn">Clear selection</button>   
@@ -110,6 +111,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     </div>   
 </wwwpy-window>         
 """
+        import wwwpy
+        self._title.innerText = f'toolbox - {wwwpy.__banner__}'
 
     def connectedCallback(self):
         self._manage_toolbox_state()
