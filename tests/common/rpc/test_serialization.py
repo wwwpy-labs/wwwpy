@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import sys
+import typing
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Tuple, Optional, Dict, Union
@@ -269,6 +273,23 @@ class TestUnion:
         serialized = serialization.to_json(value, union_optional)
         deserialized = serialization.from_json(serialized, union_optional)
         assert deserialized == value
+
+    @pytest.mark.skipif(sys.version_info < (3, 10),
+                        reason="Python 3.10+ required for pipe operator in type annotations")
+    def test_union_with_pipe(self):
+        def get_type():
+            def my_fun() -> datetime | str: pass
+
+            # dynamically get type from my_type
+            t = typing.get_type_hints(my_fun)
+            return t['return']
+
+        union_type = get_type()
+        print(union_type)
+        birth = datetime(2000, 12, 31)
+        serialized = serialization.to_json(birth, union_type)
+        deserialized = serialization.from_json(serialized, union_type)
+        assert deserialized == birth
 
 
 def test_none_type():

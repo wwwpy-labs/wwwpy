@@ -4,6 +4,8 @@ import enum
 import importlib
 import json
 import re
+import sys
+import types
 import typing
 from dataclasses import is_dataclass
 from datetime import datetime
@@ -24,7 +26,8 @@ def serialize(obj: T, cls: Type[T]) -> Any:
             return None
         return serialize(obj, optional_type)
     origin = typing.get_origin(cls)
-    if origin is typing.Union:
+    # if origin is typing.Union or origin is types.UnionType:
+    if _is_union_type(origin):
         args = set(get_args(cls))
         obj_type = type(obj)
         if obj_type not in args:
@@ -95,7 +98,8 @@ def deserialize(data: Any, cls: Type[T]) -> T:
             return None
         return deserialize(data, optional_type)
     origin = get_origin(cls)
-    if origin is typing.Union:
+    # if origin is typing.Union:
+    if _is_union_type(origin):
         args = set(get_args(cls))
         obj_type = _get_type_from_string(data[0])
         if obj_type not in args:
@@ -196,3 +200,14 @@ def _assert_valid_result_type(typ):
     ok = success or failure
     if not ok:
         raise ValueError(f"Expected object of type Result got {typ}")
+
+
+def _is_union_type_3_10(origin):
+    return origin is typing.Union or origin is types.UnionType
+
+
+def _is_union_type_3_9(origin):
+    return origin is typing.Union
+
+
+_is_union_type = _is_union_type_3_10 if sys.version_info >= (3, 10) else _is_union_type_3_9
