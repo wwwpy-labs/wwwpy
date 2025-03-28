@@ -4,26 +4,25 @@ from pathlib import Path
 from time import sleep
 from typing import Callable, List
 
+from watchdog.events import FileSystemEvent
+
 from wwwpy.common.filesystem.sync import new_tmp_path
+from wwwpy.common.filesystem.sync.event import Event
 from wwwpy.server.filesystem_sync.any_observer import AnyObserver
 from wwwpy.server.filesystem_sync.debouncer import Debouncer
 from wwwpy.server.filesystem_sync.debouncer_thread import DebouncerThread
-from wwwpy.common.filesystem.sync.event import Event
-from watchdog.events import FileSystemEvent
 
 
 class WatchdogDebouncer(DebouncerThread):
 
     def __init__(self, path: Path, window: timedelta, callback: Callable[[List[Event]], None]):
         self._debouncer = Debouncer(window)
-        self.skip_synthetic = True
-        self.skip_opened = True
         super().__init__(self._debouncer, callback)
 
         def skip_open(event: FileSystemEvent):
-            if event.event_type == 'opened' and self.skip_opened:
+            if event.event_type == 'opened' or event.event_type == 'closed_no_write':
                 return
-            if event.is_synthetic and self.skip_synthetic:
+            if event.is_synthetic:
                 return
 
             e = Event(event.event_type, event.is_directory, event.src_path, event.dest_path)
