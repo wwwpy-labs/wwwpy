@@ -1,5 +1,6 @@
 import base64
 import builtins
+import dataclasses
 import enum
 import importlib
 import json
@@ -15,10 +16,8 @@ from wwwpy.common import result
 
 T = TypeVar('T')
 
-
 class SerializationError(Exception):
     """Custom exception for serialization errors with path tracking."""
-
     def __init__(self, message: str, path: List[str]):
         self.path = path
         path_str = ".".join(str(p) for p in path) if path else "root"
@@ -245,7 +244,6 @@ def _get_optional_type(cls):
 
 class DeserializationError(Exception):
     """Custom exception for deserialization errors with path tracking."""
-
     def __init__(self, message: str, path: List[str]):
         self.path = path
         path_str = ".".join(str(p) for p in path) if path else "root"
@@ -431,38 +429,33 @@ def _deserialize_dataclass(data: dict, cls: Type, path: List[str]) -> Any:
     args = {}
     field_types = typing.get_type_hints(cls)
 
-    # Check for missing required fields
-    missing_fields = [field for field in field_types if field not in data]
+    # Get dataclass fields to check for default values
+    dc_fields = {field.name: field for field in dataclasses.fields(cls)}
+
+    # Check for missing required fields (those without default values)
+    missing_fields = [
+        field for field in field_types
+        if field not in data and field in dc_fields and
+           not dc_fields[field].default is dataclasses.MISSING and
+           not dc_fields[field].default_factory is dataclasses.MISSING
+    ]
+
     if missing_fields:
         raise DeserializationError(
             f"Missing required fields: {', '.join(missing_fields)}", path
         )
 
-    # Process each field
-    for name, value in data.items():
-        if name not in field_types:
-            raise DeserializationError(
-                f"Unknown field '{name}' for {cls.__name__}", path
-            )
+    # Process available fields
+    for field_name, field_type in field_types.items():
+        if field_name in data:
+            field_path = path + [field_name]
+            args[field_name] = deserialize(data[field_name], field_type, field_path)
 
-        field_path = path + [name]
-        try:
-            args[name] = deserialize(value, field_types[name], field_path)
-        except Exception as e:
-            if not isinstance(e, DeserializationError):
-                raise DeserializationError(
-                    f"Failed to deserialize field '{name}'", field_path
-                ) from e
-            raise
-
+    # Create the dataclass instance
     try:
-        instance = cls(**args)
-        return instance
-    except Exception as e:
-        raise DeserializationError(
-            f"Failed to instantiate {cls.__name__}: {str(e)}", path
-        ) from e
-
+        return cls(**args)
+    except TypeError as e:
+        raise DeserializationError(f"Failed to create dataclass: {str(e)}", path) from e
 
 def _deserialize_list(data: list, cls: Type, path: List[str]) -> list:
     """Handle deserialization of list objects."""
@@ -552,7 +545,17 @@ def _deserialize_subclass_list(data: list, cls: Type, path: List[str]) -> Any:
             f"Expected list for {cls.__name__}, got {type(data).__name__}", path
         )
 
-    item_type = get_args(cls)[0]
+    # Handle both generic List[T] and direct list subclasses
+    if hasattr(cls, '__origin__') and cls.__origin__ == list:
+        item_type = get_args(cls)[0]
+        actual_cls = cls.__origin__ if not issubclass(get_origin(cls), list) else get_origin(cls)
+    elif issubclass(cls, list):
+        # For direct subclasses that aren't generic (CustomList vs CustomList[int])
+        item_type = get_args(cls)[0] if get_args(cls) else Any
+        actual_cls = cls
+    else:
+        raise DeserializationError(f"Unexpected list-like type: {cls}", path)
+
     deserialized_items = []
 
     for i, item in enumerate(data):
@@ -567,7 +570,7 @@ def _deserialize_subclass_list(data: list, cls: Type, path: List[str]) -> Any:
             raise
 
     try:
-        return cls(deserialized_items)
+        return actual_cls(deserialized_items)
     except Exception as e:
         raise DeserializationError(
             f"Failed to instantiate {cls.__name__}: {str(e)}", path
