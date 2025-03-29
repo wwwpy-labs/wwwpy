@@ -295,14 +295,7 @@ def deserialize(data: Any, cls: Type[T], path: Optional[List[str]] = None) -> T:
         elif origin == dict or cls == dict:
             return _deserialize_dict(data, cls, path)
         elif isinstance(data, list):
-            # Check for list subclasses (with better detection)
-            if origin is not None and issubclass(origin, list):
-                return _deserialize_subclass_list(data, cls, path)
-            # Also check for direct list subclasses that aren't parameterized
-            elif origin is None and issubclass(cls, list):
-                # For non-generic subclasses of list
-                item_type = get_args(cls)[0] if get_args(cls) else Any
-                return cls([deserialize(item, item_type, path + [str(i)]) for i, item in enumerate(data)])
+            return _deserialize_subclass_list(data, cls, origin, path)
         elif cls == datetime:
             try:
                 return datetime.fromisoformat(data)
@@ -544,34 +537,22 @@ def _deserialize_dict(data: dict, cls: Type, path: List[str]) -> dict:
     return result
 
 
-def _deserialize_subclass_list(data: list, cls: Type, path: List[str]) -> Any:
+def _deserialize_subclass_list(data: list, cls: Type, origin, path: List[str]) -> Any:
     """Handle deserialization of list subclasses."""
-    if not isinstance(data, list):
+    # Check if cls is a subclass of list or has origin that is a subclass of list
+    ok = (origin is not None and issubclass(origin, list)) or (origin is None and issubclass(cls, list))
+    if ok:
+        # For subclasses of list
+        item_type = get_args(cls)[0] if get_args(cls) else Any
+        items = [deserialize(item, item_type, path + [str(i)]) for i, item in enumerate(data)]
+        # If origin is None, use cls directly
+        list_class = origin if origin is not None else cls
+        return list_class(items)
+    else:
+        # If cls is not a subclass of list, raise an error
         raise DeserializationError(
-            f"Expected list for {cls.__name__}, got {type(data).__name__}", path
+            f"Expected a subclass of list, got {cls.__name__}", path
         )
-
-    origin = get_origin(cls) or cls
-    item_type = get_args(cls)[0] if get_args(cls) else Any
-    deserialized_items = []
-
-    for i, item in enumerate(data):
-        item_path = path + [str(i)]
-        try:
-            deserialized_items.append(deserialize(item, item_type, item_path))
-        except Exception as e:
-            if not isinstance(e, DeserializationError):
-                raise DeserializationError(
-                    f"Failed to deserialize list item at index {i}", item_path
-                ) from e
-            raise
-
-    try:
-        return origin(deserialized_items)
-    except Exception as e:
-        raise DeserializationError(
-            f"Failed to instantiate {cls.__name__}: {str(e)}", path
-        ) from e
 
 def _get_type_from_string(type_str):
     """Convert a string representation of a type to the actual type object."""
