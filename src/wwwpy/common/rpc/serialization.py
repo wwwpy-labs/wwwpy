@@ -39,8 +39,7 @@ def serialize(obj: T, cls: Type[T], path: Optional[List[str]] = None) -> Any:
     Raises:
         SerializationError: If serialization fails with detailed path information
     """
-    if path is None:
-        path = []
+    path = path or [f"{cls}"]
 
     try:
         optional_type = _get_optional_type(cls)
@@ -265,8 +264,7 @@ def deserialize(data: Any, cls: Type[T], path: Optional[List[str]] = None) -> T:
     Raises:
         DeserializationError: If deserialization fails with detailed path information
     """
-    if path is None:
-        path = []
+    path = path or [f"{cls}"]
 
     try:
         optional_type = _get_optional_type(cls)
