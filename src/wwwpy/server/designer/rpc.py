@@ -71,7 +71,7 @@ async def quickstart_apply(quickstart_name: str) -> str:
     from wwwpy.server import custom_str
     root = custom_str.get_root_folder_or_fail()
     from wwwpy.common import quickstart
-    quickstart.setup_quickstart(Path(root), quickstart_name)
+    await _run_sync_in_thread(lambda: quickstart.setup_quickstart(Path(root), quickstart_name))
     logger.info(f'Quickstart applied {quickstart_name} to {root}')
     return 'Quickstart applied'
 
@@ -82,3 +82,27 @@ async def quickstart_possible() -> bool:
     root = custom_str.get_root_folder_or_fail()
     emtpy = quickstart.is_empty_project(root)
     return emtpy
+
+
+import asyncio
+import concurrent.futures
+from typing import TypeVar, Callable
+
+T = TypeVar('T')
+
+
+async def _run_sync_in_thread(func: Callable[[], T]) -> T:
+    """
+    Run a synchronous function in a separate thread without blocking the event loop.
+
+    Args:
+        func: A callable that takes no arguments and returns a result of type T
+
+    Returns:
+        The result of the function execution
+
+    Example:
+        result = await run_sync_in_thread(lambda: time_consuming_sync_function(arg1, arg2))
+    """
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        return await asyncio.get_event_loop().run_in_executor(executor, func)
