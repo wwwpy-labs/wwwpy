@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import logging
+
+import js
 from js import Array, Element, document
+
 from wwwpy.common.designer.element_path import ElementPath, Origin
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.remote.component import get_component
+
+logger = logging.getLogger(__name__)
 
 
 def element_path(element: Element) -> ElementPath | None:
@@ -11,6 +17,8 @@ def element_path(element: Element) -> ElementPath | None:
 
     path = []
     while element:
+        if is_instance_of(element, js.ShadowRoot):
+            element = element.host
         component = get_component(element)
         if component:
             clazz = component.__class__
@@ -25,3 +33,10 @@ def element_path(element: Element) -> ElementPath | None:
         element = parent
 
     return None
+
+
+_instanceof = js.eval('(i,t) => i instanceof t')
+
+
+def is_instance_of(instance, js_type):
+    return _instanceof(instance, js_type)
