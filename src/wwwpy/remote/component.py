@@ -140,8 +140,11 @@ class Component:
     def adoptedCallback(self):
         pass
 
-    def attributeChangedCallback(self, name: str, oldValue: str, newValue: str):
-        pass
+    def attributeChangedCallback(self, name: str, oldValue: str | None, newValue: str | None):
+        """
+        This is called when an attribute is changed. The name is the name of the attribute, oldValue is the old value
+        and newValue is the new value. The default implementation does nothing.
+        """
 
     def root_element(self):
         """This is used to locate the child elements"""
