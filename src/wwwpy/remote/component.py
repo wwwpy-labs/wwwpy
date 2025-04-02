@@ -104,7 +104,7 @@ class Component:
 
         for name, value in cls.__dict__.items():
             if isinstance(value, attribute):
-                cls.component_metadata.observed_attributes.add(name)
+                cls.component_metadata.observed_attributes.add(value.name)
 
         if auto_define:
             cls.component_metadata.define_element()
@@ -278,13 +278,14 @@ window.$ClassName = $ClassName;
 # PUBLIC-API
 class attribute:
 
-    def __init__(self):
-        self.name = None
+    def __init__(self, name: str | None = None):
+        self.name = name
 
     def __set_name__(self, owner, name):
         if not issubclass(owner, Component):
             raise Exception(f'attribute {name} must be in a subclass of {Component.__qualname__}')
-        self.name = name
+        if self.name is None:
+            self.name = name
 
     def __get__(self, obj: Component, objtype=None):
         return obj.element.getAttribute(self.name)

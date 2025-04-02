@@ -290,6 +290,7 @@ class TestElement:
 
         assert comp.div1 is None
 
+
 class TestElementEventBinding:
 
     def test_simple_bind(self):
@@ -433,25 +434,30 @@ class TestAttributes:
         comp.setAttribute('attr1', 'x')
         assert 'Comp9b' == comp.innerHTML
 
-    # def test_attribute__present(self):
-    #     class Comp11(Component):
-    #         attr1 = attribute()
-    #
-    #     comp = Comp11()
-    #
-    #     assert not comp.attr1.present
-    #     comp.attr1 = 'x'
-    #     assert comp.attr1.present
-    #
-    # def test_attribute__toggle(self):
-    #     class Comp11(Component):
-    #         attr1:Attribute = attribute()
-    #
-    #     comp = Comp11()
-    #
-    #     comp.attr1.toggle()
-    #     assert comp.attr1.present
-    #
-    #     assert not comp.attr1.present
-    #     comp.attr1 = 'x'
-    #     assert comp.attr1.present
+    def test_custom_name(self):
+        class Comp1(Component):
+            class_: str = attribute(name='class')
+
+        comp = Comp1()
+
+        comp.element.setAttribute('class', 'some-class')
+
+        assert 'some-class' == comp.class_
+
+    def test_custom_name__should_be_used_for_observed(self):
+        calls = []
+
+        class Comp1(Component):
+            class_: str = attribute(name='class')
+
+            def attributeChangedCallback(self, name, oldValue, newValue):
+                calls.append((name, oldValue, newValue))
+
+        comp = Comp1()
+        comp.class_ = 'abc'
+
+        assert calls == [('class', None, 'abc')]
+        calls.clear()
+
+        comp.element.setAttribute('class', 'def')
+        assert calls == [('class', 'abc', 'def')]
