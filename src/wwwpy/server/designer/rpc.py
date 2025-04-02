@@ -72,7 +72,6 @@ async def quickstart_apply(quickstart_name: str) -> str:
     root = custom_str.get_root_folder_or_fail()
     from wwwpy.common import quickstart
     await _run_sync_in_thread(lambda: quickstart.setup_quickstart(Path(root), quickstart_name))
-    await asyncio.sleep(0.3)
     logger.info(f'Quickstart applied {quickstart_name} to {root}')
     return 'Quickstart applied'
 

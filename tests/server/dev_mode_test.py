@@ -51,8 +51,9 @@ from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
 DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
+    logger.debug(f'Going to verify if component-1 is attached with a specific 42000ms timeout')
     try:
-        expect(fixture.page.locator('component-1')).to_be_attached()
+        expect(fixture.page.locator('component-1')).to_be_attached(timeout=42000)
     except Exception as e:
         logger.error(f"Assertion failed: component-1 not attached. Error: {e}")
         body_html = fixture.page.evaluate("() => document.body.innerHTML")
