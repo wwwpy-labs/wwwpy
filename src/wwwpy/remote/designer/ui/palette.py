@@ -26,16 +26,127 @@ class PaletteItem:
         raise NotImplemented()
 
 
-
-
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.element.shadowRoot.innerHTML = """
-        <style>
+        self.element.shadowRoot.innerHTML = """        
+    <div class="container">
+        <div class="palette" data-name="_item_container">
+        </div>
+    </div>
+        """
+        self.element.shadowRoot.innerHTML += _css_styles
+        self._selected_item: PaletteItem | None = None
+        # self._items: List[PaletteItemComponent] = []
+
+    @property
+    def selected_item(self) -> PaletteItem | None:
+        """Return the currently selected item."""
+        return self._selected_item
+
+    @selected_item.setter
+    def selected_item(self, value: PaletteItem | None):
+        """Set the currently selected item."""
+        msg = ''
+        sel = self.selected_item
+        if sel:
+            sel.selected = False
+            msg += f' (deselecting {sel})'
+
+        self._selected_item = value
+        msg += f' (selecting {value})'
+        if value:
+            value.selected = True
+
+        logger.debug(msg)
+
+    # @property
+    # def items(self) -> Tuple[PaletteItem, ...]:
+    #     """Return the tuple of items in the palette."""
+    #     # return self._items
+    #     return tuple(self._items)
+
+    def add_item(self, key: any, label: str) -> PaletteItem:
+        """Add an item to the palette."""
+        item = PaletteItemComponent()
+        item.key = key
+        item.label = label
+        item.element.classList.add('palette-item')
+        # self._items.append(item)
+        self._item_container.appendChild(item.element)
+        item.element.addEventListener('click', create_proxy(lambda e: self._item_click(e, item)))
+        return item
+
+    def _item_click(self, e, item: PaletteItem):
+        logger.debug(f'Item clicked: {item}')
+        if item == self.selected_item:
+            self.selected_item = None
+            return
+
+        self.selected_item = item
+        item.selected = True
+
+
+class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):
+    _label: js.HTMLLabelElement = wpc.element()
+
+    # override magic method so the f strings get a nice representation
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.key}, {self.label})'
+
+    def init_component(self):
+        # language=html
+        self.element.innerHTML = """
+        
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
+                <line x1="12" y1="12" x2="12" y2="12"></line>
+            </svg>
+            <label data-name="_label"></label>
+        </div>
+    </div>
+        """
+        self.key = None
+        self._selected = False
+
+    @property
+    def label(self) -> str:
+        return self._label.innerText
+
+    @label.setter
+    def label(self, value: str):
+        self._label.innerText = value
+
+    @property
+    def selected(self) -> bool:
+        return self._selected
+
+    @selected.setter
+    def selected(self, value: bool):
+        self._selected = value
+        if value:
+            self.element.classList.add('selected')
+        else:
+            self.element.classList.remove('selected')
+
+
+class GestureManager:
+    """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
+
+    def install(self):
+        """Install the gesture manager"""
+
+    def uninstall(self):
+        """Uninstall the gesture manager"""
+
+
+# language=html
+_css_styles = """
+<style>
         :host {
             --primary-color: #6366f1;
             --primary-hover: #818cf8;
@@ -186,111 +297,4 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
             font-size: 12px;
         }
     </style>
-    <div class="container">
-        <div class="palette" data-name="_item_container">
-        </div>
-    </div>
-
-        """
-        self._selected_item: PaletteItem | None = None
-        # self._items: List[PaletteItemComponent] = []
-
-    @property
-    def selected_item(self) -> PaletteItem | None:
-        """Return the currently selected item."""
-        return self._selected_item
-
-    @selected_item.setter
-    def selected_item(self, value: PaletteItem | None):
-        """Set the currently selected item."""
-        msg = ''
-        sel = self.selected_item
-        if sel:
-            sel.selected = False
-            msg += f' (deselecting {sel})'
-
-        self._selected_item = value
-        msg += f' (selecting {value})'
-        if value:
-            value.selected = True
-
-        logger.debug(msg)
-
-    # @property
-    # def items(self) -> Tuple[PaletteItem, ...]:
-    #     """Return the tuple of items in the palette."""
-    #     # return self._items
-    #     return tuple(self._items)
-
-    def add_item(self, key: any, label: str) -> PaletteItem:
-        """Add an item to the palette."""
-        item = PaletteItemComponent()
-        item.key = key
-        item.label = label
-        item.element.classList.add('palette-item')
-        # self._items.append(item)
-        self._item_container.appendChild(item.element)
-        item.element.addEventListener('click', create_proxy(lambda e: self._item_click(e, item)))
-        return item
-
-    def _item_click(self, e, item: PaletteItem):
-        logger.debug(f'Item clicked: {item}')
-        if item == self.selected_item:
-            self.selected_item = None
-            return
-
-        self.selected_item = item
-        item.selected = True
-
-
-class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):
-    _label: js.HTMLLabelElement = wpc.element()
-
-    # override magic method so the f strings get a nice representation
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.key}, {self.label})'
-
-    def init_component(self):
-        # language=html
-        self.element.innerHTML = """
-        
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
-                <line x1="12" y1="12" x2="12" y2="12"></line>
-            </svg>
-            <label data-name="_label"></label>
-        </div>
-    </div>
-        """
-        self.key = None
-        self._selected = False
-
-    @property
-    def label(self) -> str:
-        return self._label.innerText
-
-    @label.setter
-    def label(self, value: str):
-        self._label.innerText = value
-
-    @property
-    def selected(self) -> bool:
-        return self._selected
-
-    @selected.setter
-    def selected(self, value: bool):
-        self._selected = value
-        if value:
-            self.element.classList.add('selected')
-        else:
-            self.element.classList.remove('selected')
-
-class GestureManager:
-    """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
-
-    def install(self):
-        """Install the gesture manager"""
-
-    def uninstall(self):
-        """Uninstall the gesture manager"""
+"""
