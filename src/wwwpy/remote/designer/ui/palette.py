@@ -18,6 +18,9 @@ class PaletteItem:
     label: str
     """Label to be displayed in the palette item."""
 
+    selected: bool
+    """True if the item is selected, False otherwise."""
+
     @property
     def element(self) -> js.HTMLElement:
         """Return the element to be displayed in the palette item."""
@@ -75,12 +78,21 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         return item
 
     def _item_click(self, e, item: PaletteItem):
-        """Handle the click event on the item."""
-        # if self.selected_item:
-        #     self.selected_item.element.classList.remove('selected')
+
+        if item == self.selected_item:
+            self._deselect()
+            return
+
+        self._deselect()
+
         self.selected_item = item
-        # self.selected_item.element.classList.add('selected')
-        # logger.info(f"Selected item: {item.key}")
+        item.selected = True
+
+    def _deselect(self):
+        sel = self.selected_item
+        if sel:
+            self.selected_item = None
+            sel.selected = False
 
 
 class GestureManager:
