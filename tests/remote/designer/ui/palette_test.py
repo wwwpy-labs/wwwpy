@@ -79,6 +79,19 @@ async def test_externally_deselect_item(target):
     assert not item1.selected
 
 
+class TestPaletteItem:
+
+    def test_selected_should_have_class_selected(self):
+        item = palette.PaletteItemComponent()
+        item.selected = True
+        assert item.element.classList.contains('selected')
+
+    def test_selected_deselected_should_not_have_class_selected(self):
+        item = palette.PaletteItemComponent()
+        item.selected = True
+        item.selected = False
+        assert not item.element.classList.contains('selected')
+
 @pytest.fixture
 def target():
     target = palette.PaletteComponent()
