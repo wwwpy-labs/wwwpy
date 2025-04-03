@@ -57,8 +57,24 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         # language=html
         self.element.shadowRoot.innerHTML = """
         """
-        self.selected_item: PaletteItem | None = None
+        self._selected_item: PaletteItem | None = None
         # self._items: List[PaletteItemComponent] = []
+
+    @property
+    def selected_item(self) -> PaletteItem | None:
+        """Return the currently selected item."""
+        return self._selected_item
+
+    @selected_item.setter
+    def selected_item(self, value: PaletteItem | None):
+        """Set the currently selected item."""
+        sel = self.selected_item
+        if sel:
+            sel.selected = False
+
+        self._selected_item = value
+        if value:
+            value.selected = True
 
     # @property
     # def items(self) -> Tuple[PaletteItem, ...]:
@@ -79,19 +95,13 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     def _item_click(self, e, item: PaletteItem):
 
         if item == self.selected_item:
-            self._deselect()
+            self.selected_item = None
             return
 
-        self._deselect()
+        self.selected_item = None
 
         self.selected_item = item
         item.selected = True
-
-    def _deselect(self):
-        sel = self.selected_item
-        if sel:
-            self.selected_item = None
-            sel.selected = False
 
 
 class GestureManager:

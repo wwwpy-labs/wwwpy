@@ -46,6 +46,38 @@ async def test_palette_should_put_elements_on_screen(target):
     assert item3.element.isConnected is True
 
 
+async def test_externally_select_item(target):
+    item1 = target.add_item('item1-key', 'item1')
+    item2 = target.add_item('item2-key', 'item2')
+
+    target.selected_item = item1
+
+    assert target.selected_item == item1
+    assert item1.selected
+
+
+async def test_externally_select_different_item(target):
+    item1 = target.add_item('item1-key', 'item1')
+    item2 = target.add_item('item2-key', 'item2')
+
+    target.selected_item = item1
+    target.selected_item = item2
+
+    assert target.selected_item == item2
+    assert not item1.selected
+    assert item2.selected
+
+
+async def test_externally_deselect_item(target):
+    item1 = target.add_item('item1-key', 'item1')
+    item2 = target.add_item('item2-key', 'item2')
+
+    target.selected_item = item1
+    target.selected_item = None
+
+    assert target.selected_item is None
+    assert not item1.selected
+
 
 @pytest.fixture
 def target():
