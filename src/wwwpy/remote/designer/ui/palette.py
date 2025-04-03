@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
+from typing import Callable
 
 import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js
+from wwwpy.remote import dict_to_js, dict_to_py
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,44 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         """
         self.element.shadowRoot.innerHTML += _css_styles
         self._selected_item: PaletteItem | None = None
+        self._destination_accept = lambda ev: None
+
+        def local_destination_accept(gesture_event: GestureEvent):
+            # test if the gesture event is inside the palette
+            js_event = gesture_event.event
+            if not js_event.target:
+                logger.debug(f'No target in event: {js_event}')
+                return
+
+            if self.element.contains(js_event.target):
+                logger.debug(f'Event target is inside palette: {js_event.target}')
+                return
+
+            logger.debug(f'Forwarding event to destination_accept: {dict_to_py(js_event)}')
+            self._destination_accept(gesture_event)
+            if gesture_event.accepted:
+                logger.debug(f'Event accepted: {js_event.target}')
+                self.selected_item = None
+
+        self._gesture_manager = GestureManager(local_destination_accept)
+
         # self._items: List[PaletteItemComponent] = []
+
+    @property
+    def destination_accept(self):
+        """Return the function to accept a destination for the gesture."""
+        raise ValueError('destination_accept is read-only')
+
+    @destination_accept.setter
+    def destination_accept(self, value: Callable[[GestureEvent], bool]):
+        """Set the function to accept a destination for the gesture."""
+        self._destination_accept = value
+
+    def connectedCallback(self):
+        self._gesture_manager.install()
+
+    def disconnectedCallback(self):
+        self._gesture_manager.uninstall()
 
     @property
     def selected_item(self) -> PaletteItem | None:
@@ -134,14 +173,37 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
             self.element.classList.remove('selected')
 
 
+@dataclass
+class GestureEvent:
+    event: js.Event
+    accepted: bool = False
+
+    def accept(self):
+        self.accepted = True
+
+
 class GestureManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
+    def __init__(self, destination_accept):
+        self._event_counter = 0
+        self.destination_accept = destination_accept
+        self._click_handler = create_proxy(self._click_handler)
+
     def install(self):
-        """Install the gesture manager"""
+        js.window.addEventListener('click', self._click_handler)
 
     def uninstall(self):
-        """Uninstall the gesture manager"""
+        js.window.removeEventListener('click', self._click_handler)
+
+    def _click_handler(self, event):
+        self._event_counter += 1
+        logger.debug(f'Click event: {event} counter={self._event_counter}')
+        gesture_event = GestureEvent(event)
+        self.destination_accept(gesture_event)
+        if gesture_event.accepted:
+            logger.debug(f'Click event accepted: {event}')
+            return
 
 
 # language=html

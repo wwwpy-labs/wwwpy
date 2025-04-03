@@ -2,6 +2,7 @@ import js
 import pytest
 
 from wwwpy.remote.designer.ui import palette  # noqa - import custom element
+from wwwpy.remote.designer.ui.palette import GestureEvent
 
 
 async def test_palette_no_selected_item(target):
@@ -79,6 +80,51 @@ async def test_externally_deselect_item(target):
     assert not item1.selected
 
 
+class TestUseSelection:
+    def test_selection_and_click__reject_should_not_deselect(self, target):
+        # GIVEN
+        item1 = target.add_item('item1-key', 'item1')
+        target.selected_item = item1
+        accept_calls = []
+
+        def destination_accept(gesture_event):
+            accept_calls.append(gesture_event)
+            return False
+
+        target.destination_accept = destination_accept
+
+        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
+
+        # WHEN
+        js.document.getElementById('div1').click()
+
+        # THEN
+        assert len(accept_calls) == 1
+        assert target.selected_item is item1
+
+    async def test_selection_and_click__accept_should_deselect(self, target):
+        # GIVEN
+        item1 = target.add_item('item1-key', 'item1')
+        target.selected_item = item1
+        accept_calls = []
+
+        def destination_accept(gesture_event: GestureEvent):
+            accept_calls.append(gesture_event)
+            gesture_event.accept()
+
+        target.destination_accept = destination_accept
+
+        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
+
+        # WHEN
+        js.document.getElementById('div1').click()
+
+        # THEN
+        # await asyncio.sleep(100000)
+        assert len(accept_calls) == 1
+        assert target.selected_item is None
+
+
 class TestPaletteItem:
 
     def test_selected_should_have_class_selected(self):
@@ -91,6 +137,7 @@ class TestPaletteItem:
         item.selected = True
         item.selected = False
         assert not item.element.classList.contains('selected')
+
 
 @pytest.fixture
 def target():
