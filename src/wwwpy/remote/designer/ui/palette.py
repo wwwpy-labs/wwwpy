@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Tuple
 
 import js
 from pyodide.ffi import create_proxy
@@ -59,13 +58,13 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self.element.shadowRoot.innerHTML = """
         """
         self.selected_item: PaletteItem | None = None
-        self._items: List[PaletteItemComponent] = []
+        # self._items: List[PaletteItemComponent] = []
 
-    @property
-    def items(self) -> Tuple[PaletteItem, ...]:
-        """Return the tuple of items in the palette."""
-        # return self._items
-        return tuple(self._items)
+    # @property
+    # def items(self) -> Tuple[PaletteItem, ...]:
+    #     """Return the tuple of items in the palette."""
+    #     # return self._items
+    #     return tuple(self._items)
 
     def add_item(self, key: any, label: str) -> PaletteItem:
         """Add an item to the palette."""
@@ -73,7 +72,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         item.key = key
         item.label = label
         # self._items.append(item)
-        # self.element.shadowRoot.appendChild(item.element)
+        self.element.shadowRoot.appendChild(item.element)
         item.element.addEventListener('click', create_proxy(lambda e: self._item_click(e, item)))
         return item
 

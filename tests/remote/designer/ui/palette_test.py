@@ -36,6 +36,17 @@ async def test_palette_selecting_different_item__should_deselect_previous(target
     assert item2.selected
 
 
+async def test_palette_should_put_elements_on_screen(target):
+    item1 = target.add_item('item1-key', 'item1')
+    item2 = target.add_item('item2-key', 'item2')
+    item3 = target.add_item('item3-key', 'item3')
+
+    assert item1.element.isConnected is True
+    assert item2.element.isConnected is True
+    assert item3.element.isConnected is True
+
+
+
 @pytest.fixture
 def target():
     target = palette.PaletteComponent()
