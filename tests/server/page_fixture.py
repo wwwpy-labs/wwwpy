@@ -1,3 +1,4 @@
+import logging
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -6,10 +7,9 @@ from time import sleep
 import pytest
 from playwright.sync_api import Page
 
+from tests.server.convention_fixture import start_test_convention
 from wwwpy.bootstrap import wrap_in_tryexcept
 from wwwpy.common import reloader
-from tests.server.convention_fixture import start_test_convention
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,8 @@ class PageFixture:
         return self.page.evaluate(f'pyodide.runPythonAsync(`{safe_python}`)')
 
     def evaluate(self, python: str):
+        if '`' in python:
+            raise ValueError('` is not allowed in evaluate')
         return self.page.evaluate(f'pyodide.runPythonAsync(`{python}`)')
 
     def assert_evaluate(self, python: str):
@@ -49,6 +51,8 @@ class PageFixture:
     def assert_evaluate_retry(self, python: str, millis=5000):
         """Assert on the evaluated python expression. So the evaluated expression should return a Tuple[bool, str]
         This pass through javascript so, beware of using `` separators"""
+        if '`' in python:
+            raise ValueError('` is not allowed in assert_evaluate_retry')
         __tracebackhide__ = True
         from tests.timeouts import timeout_multiplier
         millis = millis * timeout_multiplier()
