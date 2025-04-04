@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import js
@@ -12,6 +13,7 @@ from wwwpy.remote import dict_to_js, dict_to_py
 logger = logging.getLogger(__name__)
 
 
+# this could have a supertype called ActionItem
 class PaletteItem:
     key: any
     """Unique object to identify the item in the palette."""
@@ -46,13 +48,13 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     </div>
         """
         self.element.shadowRoot.innerHTML += _css_styles
-        self.gesture_manager = GestureManager()
+        self.action_manager = ActionManager()
 
     def connectedCallback(self):
-        self.gesture_manager.install()
+        self.action_manager.install()
 
     def disconnectedCallback(self):
-        self.gesture_manager.uninstall()
+        self.action_manager.uninstall()
 
     def add_item(self, key: any, label: str) -> PaletteItem:
         """Add an item to the palette."""
@@ -61,7 +63,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         item.label = label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
-        item.element.addEventListener('click', create_proxy(lambda e: self.gesture_manager._item_click(e, item)))
+        item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._item_click(e, item)))
         return item
 
 
@@ -109,6 +111,7 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
             self.element.classList.remove('selected')
 
 
+# this could be called ActionEvent
 @dataclass
 class GestureEvent:
     event: js.Event
@@ -118,7 +121,7 @@ class GestureEvent:
         self.accepted = True
 
 
-class GestureManager:
+class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
@@ -126,7 +129,7 @@ class GestureManager:
         self._click_handler = create_proxy(self._click_handler)
         self._selected_item: PaletteItem | None = None
         self._install_count = 0
-        self.destination_accept = lambda ev: None
+        self.destination_accept: Callable[[GestureEvent], None] = lambda ev: None
 
     def local_destination_accept(self, gesture_event: GestureEvent):
         # test if the gesture event is inside the palette
