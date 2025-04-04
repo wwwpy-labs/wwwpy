@@ -7,34 +7,34 @@ from wwwpy.remote.designer.ui import palette  # noqa - import custom element
 from wwwpy.remote.designer.ui.palette import GestureEvent, GestureManager, PaletteComponent
 
 
-async def test_palette_no_selected_item(target):
-    assert target.selected_item is None
+async def test_palette_no_selected_item(fixture):
+    assert fixture.gesture_manager.selected_item is None
 
 
-async def test_palette_click_item__should_be_selected(target):
-    item = target.add_item('item1-key', 'item1')
+async def test_palette_click_item__should_be_selected(fixture):
+    item = fixture.palette.add_item('item1-key', 'item1')
     item.element.click()
 
-    assert target.selected_item == item
+    assert fixture.gesture_manager.selected_item == item
     assert item.selected
 
 
-async def test_palette_click_twice_item__should_be_deselected(target):
-    item = target.add_item('item1-key', 'item1')
+async def test_palette_click_twice_item__should_be_deselected(fixture):
+    item = fixture.palette.add_item('item1-key', 'item1')
     item.element.click()
     item.element.click()
 
-    assert target.selected_item is None
+    assert fixture.gesture_manager.selected_item is None
     assert not item.selected
 
 
-async def test_palette_selecting_different_item__should_deselect_previous(target):
-    item1 = target.add_item('item1-key', 'item1')
-    item2 = target.add_item('item2-key', 'item2')
+async def test_palette_selecting_different_item__should_deselect_previous(fixture):
+    item1 = fixture.palette.add_item('item1-key', 'item1')
+    item2 = fixture.palette.add_item('item2-key', 'item2')
     item1.element.click()
     item2.element.click()
 
-    assert target.selected_item == item2
+    assert fixture.gesture_manager.selected_item == item2
     assert not item1.selected
     assert item2.selected
 
@@ -49,24 +49,26 @@ async def test_palette_should_put_elements_on_screen(target):
     assert item3.element.isConnected is True
 
 
-async def test_externally_select_item(target):
+async def test_externally_select_item(fixture, ):
+    target = fixture.palette
+    gesture_manager = fixture.gesture_manager
     item1 = target.add_item('item1-key', 'item1')
     item2 = target.add_item('item2-key', 'item2')
 
-    target.selected_item = item1
+    gesture_manager.selected_item = item1
 
-    assert target.selected_item == item1
+    assert gesture_manager.selected_item == item1
     assert item1.selected
 
 
-async def test_externally_select_different_item(target):
+async def test_externally_select_different_item(target, gesture_manager):
     item1 = target.add_item('item1-key', 'item1')
     item2 = target.add_item('item2-key', 'item2')
 
-    target.selected_item = item1
-    target.selected_item = item2
+    gesture_manager.selected_item = item1
+    gesture_manager.selected_item = item2
 
-    assert target.selected_item == item2
+    assert gesture_manager.selected_item == item2
     assert not item1.selected
     assert item2.selected
 
@@ -110,7 +112,7 @@ class TestUseSelection:
 
         # GIVEN
         item1 = target.add_item('item1-key', 'item1')
-        target.selected_item = item1
+        fixture.gesture_manager.selected_item = item1
         accept_calls = []
 
         def destination_accept(gesture_event: GestureEvent):
@@ -127,7 +129,7 @@ class TestUseSelection:
         # THEN
         # await asyncio.sleep(100000)
         assert len(accept_calls) == 1
-        assert target.selected_item is None
+        assert fixture.gesture_manager.selected_item is None
 
 
 class TestPaletteItem:

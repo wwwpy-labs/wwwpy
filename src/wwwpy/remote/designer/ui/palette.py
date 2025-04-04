@@ -54,14 +54,6 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     def disconnectedCallback(self):
         self.gesture_manager.uninstall()
 
-    @property
-    def selected_item(self) -> PaletteItem | None:
-        return self.gesture_manager.selected_item
-
-    @selected_item.setter
-    def selected_item(self, value: PaletteItem | None):
-        self.gesture_manager.selected_item = value
-
     def add_item(self, key: any, label: str) -> PaletteItem:
         """Add an item to the palette."""
         item = PaletteItemComponent()
