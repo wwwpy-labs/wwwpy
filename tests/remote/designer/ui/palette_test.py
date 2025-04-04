@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.palette import GestureEvent, ActionManager, PaletteComponent, PaletteItemComponent
+from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent
 from wwwpy.server.rpc4tests import rpctst_exec
 
 
@@ -93,7 +93,7 @@ class TestUseSelection:
             accept_calls.append(gesture_event)
             return False
 
-        action_manager.destination_accept = destination_accept
+        action_manager.on_events = destination_accept
 
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
@@ -110,11 +110,11 @@ class TestUseSelection:
         action_manager.selected_item = item1
         accept_calls = []
 
-        def destination_accept(gesture_event: GestureEvent):
+        def destination_accept(gesture_event: ActionEvent):
             accept_calls.append(gesture_event)
             gesture_event.accept()
 
-        action_manager.destination_accept = destination_accept
+        action_manager.on_events = destination_accept
 
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
@@ -151,7 +151,7 @@ class TestDrag:
         item1.element.id = 'item1'
         action_manager.selected_item = item1
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
-        action_manager.destination_accept = lambda event: event.accept()
+        action_manager.on_events = lambda event: event.accept()
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")

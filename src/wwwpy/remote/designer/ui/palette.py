@@ -111,9 +111,8 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
             self.element.classList.remove('selected')
 
 
-# this could be called ActionEvent
 @dataclass
-class GestureEvent:
+class ActionEvent:
     event: js.Event
     accepted: bool = False
 
@@ -129,9 +128,9 @@ class ActionManager:
         self._click_handler = create_proxy(self._click_handler)
         self._selected_item: PaletteItem | None = None
         self._install_count = 0
-        self.destination_accept: Callable[[GestureEvent], None] = lambda ev: None
+        self.on_events: Callable[[ActionEvent], None] = lambda ev: None
 
-    def local_destination_accept(self, gesture_event: GestureEvent):
+    def local_destination_accept(self, gesture_event: ActionEvent):
         # test if the gesture event is inside the palette
         js_event = gesture_event.event
         if not js_event.target:
@@ -147,7 +146,7 @@ class ActionManager:
         #     return
 
         logger.debug(f'Forwarding event to destination_accept: {dict_to_py(js_event)}')
-        self.destination_accept(gesture_event)
+        self.on_events(gesture_event)
         if gesture_event.accepted:
             logger.debug(f'Event accepted: {js_event.target}')
             self.selected_item = None
@@ -188,8 +187,8 @@ class ActionManager:
     def _click_handler(self, event):
         self._event_counter += 1
         logger.debug(f'Click event: {event} counter={self._event_counter}')
-        gesture_event = GestureEvent(event)
-        self.destination_accept(gesture_event)
+        gesture_event = ActionEvent(event)
+        self.on_events(gesture_event)
         if gesture_event.accepted:
             logger.debug(f'Click event accepted: {event}')
             self.selected_item = None
