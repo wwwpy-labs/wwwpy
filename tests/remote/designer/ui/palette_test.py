@@ -4,6 +4,7 @@ import js
 import pytest
 
 from wwwpy.remote.designer.ui.palette import GestureEvent, GestureManager, PaletteComponent, PaletteItemComponent
+from wwwpy.server.rpc4tests import rpctst_exec
 
 
 async def test_palette_no_selected_item(gesture_manager):
@@ -138,6 +139,24 @@ class TestPaletteItem:
         item.selected = True
         item.selected = False
         assert not item.element.classList.contains('selected')
+
+
+class TestDrag:
+
+    async def test_selected_drag__accepted_should_deselect(self, palette, gesture_manager):
+        # GIVEN
+        item1 = palette.add_item('item1-key', 'item1')
+        item1.element.id = 'item1'
+        gesture_manager.selected_item = item1
+        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
+        gesture_manager.destination_accept = lambda event: event.accept()
+
+        # WHEN
+        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+
+        # THEN
+        assert gesture_manager.selected_item is None
+        assert not item1.selected
 
 
 @pytest.fixture
