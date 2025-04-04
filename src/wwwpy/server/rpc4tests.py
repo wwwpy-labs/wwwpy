@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+from tests.timeouts import timeout_multiplier
+
 logger = logging.getLogger(__name__)
 
 
@@ -8,7 +10,7 @@ async def rpctst_echo(msg: str) -> str:
     return f'echo {msg}'
 
 
-async def rpctst_exec(source: str):
+async def rpctst_exec(source: str, timeout_secs: int = 1) -> None:
     """Example:
     page.mouse.click(100, 100)
     page.locator('input').fill('foo1')
@@ -28,5 +30,21 @@ async def rpctst_exec(source: str):
     gl = {'page': pwb.page}
     loop = asyncio.get_running_loop()
     done = asyncio.Event()
-    args.queue.put(lambda: [exec(source, gl), loop.call_soon_threadsafe(done.set)])
-    await done.wait()
+    ex = []
+
+    def _execute():
+        try:
+            exec(source, gl)
+        except Exception as e:
+            logger.error(f'Error executing source: {e}')
+            ex.append(e)
+        loop.call_soon_threadsafe(done.set)
+
+    args.queue.put(_execute)
+    timeout = timeout_secs * timeout_multiplier()
+    try:
+        await asyncio.wait_for(done.wait(), timeout=timeout)
+    except asyncio.TimeoutError:
+        raise TimeoutError(f"Execution timed out after {timeout} seconds for code `{source}`")
+
+    if ex: raise ex[0]
