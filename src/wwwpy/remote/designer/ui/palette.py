@@ -46,21 +46,21 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     </div>
         """
         self.element.shadowRoot.innerHTML += _css_styles
-        self._gesture_manager = GestureManager()
+        self.gesture_manager = GestureManager()
 
     def connectedCallback(self):
-        self._gesture_manager.install()
+        self.gesture_manager.install()
 
     def disconnectedCallback(self):
-        self._gesture_manager.uninstall()
+        self.gesture_manager.uninstall()
 
     @property
     def selected_item(self) -> PaletteItem | None:
-        return self._gesture_manager.selected_item
+        return self.gesture_manager.selected_item
 
     @selected_item.setter
     def selected_item(self, value: PaletteItem | None):
-        self._gesture_manager.selected_item = value
+        self.gesture_manager.selected_item = value
 
     def add_item(self, key: any, label: str) -> PaletteItem:
         """Add an item to the palette."""
@@ -74,7 +74,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         return item
 
     def _item_click(self, e, item: PaletteItem):
-        self._gesture_manager.palette_item_click(e, item)
+        self.gesture_manager.palette_item_click(e, item)
 
 
 class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):

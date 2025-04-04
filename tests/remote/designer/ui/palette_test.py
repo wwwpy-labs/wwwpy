@@ -160,7 +160,7 @@ class Fixture:
     gesture_manager: GestureManager = field(default_factory=GestureManager)
 
     def __post_init__(self):
-        self.palette._gesture_manager = self.gesture_manager
+        self.palette.gesture_manager = self.gesture_manager
 
 
 @pytest.fixture()
