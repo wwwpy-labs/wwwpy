@@ -22,13 +22,19 @@ class PaletteItem:
     selected: bool
     """True if the item is selected, False otherwise."""
 
+    # palette: Palette NotImplemented yet
+
     @property
     def element(self) -> js.HTMLElement:
         """Return the element to be displayed in the palette item."""
         raise NotImplemented()
 
 
-class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
+class Palette:
+    selected_item: PaletteItem | None
+
+
+class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
 
     def init_component(self):
@@ -83,30 +89,11 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 
     @property
     def selected_item(self) -> PaletteItem | None:
-        """Return the currently selected item."""
-        return self._selected_item
+        return self._gesture_manager.selected_item
 
     @selected_item.setter
     def selected_item(self, value: PaletteItem | None):
-        """Set the currently selected item."""
-        msg = ''
-        sel = self.selected_item
-        if sel:
-            sel.selected = False
-            msg += f' (deselecting {sel})'
-
-        self._selected_item = value
-        msg += f' (selecting {value})'
-        if value:
-            value.selected = True
-
-        logger.debug(msg)
-
-    # @property
-    # def items(self) -> Tuple[PaletteItem, ...]:
-    #     """Return the tuple of items in the palette."""
-    #     # return self._items
-    #     return tuple(self._items)
+        self._gesture_manager.selected_item = value
 
     def add_item(self, key: any, label: str) -> PaletteItem:
         """Add an item to the palette."""
@@ -120,13 +107,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         return item
 
     def _item_click(self, e, item: PaletteItem):
-        logger.debug(f'Item clicked: {item}')
-        if item == self.selected_item:
-            self.selected_item = None
-            return
-
-        self.selected_item = item
-        item.selected = True
+        self._gesture_manager.palette_item_click(e, item)
 
 
 class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):
@@ -189,12 +170,34 @@ class GestureManager:
         self._event_counter = 0
         self.destination_accept = destination_accept
         self._click_handler = create_proxy(self._click_handler)
+        self._selected_item: PaletteItem | None = None
 
     def install(self):
         js.window.addEventListener('click', self._click_handler)
 
     def uninstall(self):
         js.window.removeEventListener('click', self._click_handler)
+
+    @property
+    def selected_item(self) -> PaletteItem | None:
+        """Return the currently selected item."""
+        return self._selected_item
+
+    @selected_item.setter
+    def selected_item(self, value: PaletteItem | None):
+        """Set the currently selected item."""
+        msg = ''
+        sel = self.selected_item
+        if sel:
+            sel.selected = False
+            msg += f' (deselecting {sel})'
+
+        self._selected_item = value
+        msg += f' (selecting {value})'
+        if value:
+            value.selected = True
+
+        logger.debug(msg)
 
     def _click_handler(self, event):
         self._event_counter += 1
@@ -204,6 +207,15 @@ class GestureManager:
         if gesture_event.accepted:
             logger.debug(f'Click event accepted: {event}')
             return
+
+    def palette_item_click(self, e, item: PaletteItem):
+        logger.debug(f'Item clicked: {item}')
+        if item == self.selected_item:
+            self.selected_item = None
+            return
+
+        self.selected_item = item
+        item.selected = True
 
 
 # language=html
