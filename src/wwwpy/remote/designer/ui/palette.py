@@ -47,29 +47,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     </div>
         """
         self.element.shadowRoot.innerHTML += _css_styles
-        self._selected_item: PaletteItem | None = None
-        self._destination_accept = lambda ev: None
-
-        def local_destination_accept(gesture_event: GestureEvent):
-            # test if the gesture event is inside the palette
-            js_event = gesture_event.event
-            if not js_event.target:
-                logger.debug(f'No target in event: {js_event}')
-                return
-
-            if self.element.contains(js_event.target):
-                logger.debug(f'Event target is inside palette: {js_event.target}')
-                return
-
-            logger.debug(f'Forwarding event to destination_accept: {dict_to_py(js_event)}')
-            self._destination_accept(gesture_event)
-            if gesture_event.accepted:
-                logger.debug(f'Event accepted: {js_event.target}')
-                self.selected_item = None
-
-        self._gesture_manager = GestureManager(local_destination_accept)
-
-        # self._items: List[PaletteItemComponent] = []
+        self._gesture_manager = GestureManager()
 
     @property
     def destination_accept(self):
@@ -79,7 +57,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     @destination_accept.setter
     def destination_accept(self, value: Callable[[GestureEvent], bool]):
         """Set the function to accept a destination for the gesture."""
-        self._destination_accept = value
+        self._gesture_manager.destination_accept = value
 
     def connectedCallback(self):
         self._gesture_manager.install()
@@ -166,11 +144,33 @@ class GestureEvent:
 class GestureManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
-    def __init__(self, destination_accept):
+    def __init__(self):
         self._event_counter = 0
-        self.destination_accept = destination_accept
         self._click_handler = create_proxy(self._click_handler)
         self._selected_item: PaletteItem | None = None
+
+        self.destination_accept = lambda ev: None
+
+    def local_destination_accept(self, gesture_event: GestureEvent):
+        # test if the gesture event is inside the palette
+        js_event = gesture_event.event
+        if not js_event.target:
+            logger.debug(f'No target in event: {js_event}')
+            return
+        if hasattr(js_event.target, 'closest'):
+            item = js_event.target.closest('.palette-item')
+            if not item:
+                logger.debug(f'No closest item found: {js_event.target}')
+                return
+        # if self.element.contains(js_event.target):
+        #     logger.debug(f'Event target is inside palette: {js_event.target}')
+        #     return
+
+        logger.debug(f'Forwarding event to destination_accept: {dict_to_py(js_event)}')
+        self.destination_accept(gesture_event)
+        if gesture_event.accepted:
+            logger.debug(f'Event accepted: {js_event.target}')
+            self.selected_item = None
 
     def install(self):
         js.window.addEventListener('click', self._click_handler)
@@ -206,7 +206,7 @@ class GestureManager:
         self.destination_accept(gesture_event)
         if gesture_event.accepted:
             logger.debug(f'Click event accepted: {event}')
-            return
+            self.selected_item = None
 
     def palette_item_click(self, e, item: PaletteItem):
         logger.debug(f'Item clicked: {item}')
@@ -215,7 +215,6 @@ class GestureManager:
             return
 
         self.selected_item = item
-        item.selected = True
 
 
 # language=html
