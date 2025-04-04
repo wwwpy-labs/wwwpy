@@ -60,13 +60,9 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         item.key = key
         item.label = label
         item.element.classList.add('palette-item')
-        # self._items.append(item)
         self._item_container.appendChild(item.element)
-        item.element.addEventListener('click', create_proxy(lambda e: self._item_click(e, item)))
+        item.element.addEventListener('click', create_proxy(lambda e: self.gesture_manager._item_click(e, item)))
         return item
-
-    def _item_click(self, e, item: PaletteItem):
-        self.gesture_manager.palette_item_click(e, item)
 
 
 class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):
@@ -195,7 +191,7 @@ class GestureManager:
             logger.debug(f'Click event accepted: {event}')
             self.selected_item = None
 
-    def palette_item_click(self, e, item: PaletteItem):
+    def _item_click(self, e, item: PaletteItem):
         logger.debug(f'Item clicked: {item}')
         if item == self.selected_item:
             self.selected_item = None
