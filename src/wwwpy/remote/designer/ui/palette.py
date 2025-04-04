@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Callable
 
 import js
 from pyodide.ffi import create_proxy
@@ -48,16 +47,6 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         """
         self.element.shadowRoot.innerHTML += _css_styles
         self._gesture_manager = GestureManager()
-
-    @property
-    def destination_accept(self):
-        """Return the function to accept a destination for the gesture."""
-        raise ValueError('destination_accept is read-only')
-
-    @destination_accept.setter
-    def destination_accept(self, value: Callable[[GestureEvent], bool]):
-        """Set the function to accept a destination for the gesture."""
-        self._gesture_manager.destination_accept = value
 
     def connectedCallback(self):
         self._gesture_manager.install()
@@ -148,7 +137,7 @@ class GestureManager:
         self._event_counter = 0
         self._click_handler = create_proxy(self._click_handler)
         self._selected_item: PaletteItem | None = None
-
+        self._install_count = 0
         self.destination_accept = lambda ev: None
 
     def local_destination_accept(self, gesture_event: GestureEvent):
@@ -173,9 +162,15 @@ class GestureManager:
             self.selected_item = None
 
     def install(self):
+        self._install_count += 1
+        if self._install_count > 1:
+            return
         js.window.addEventListener('click', self._click_handler)
 
     def uninstall(self):
+        self._install_count -= 1
+        if self._install_count > 0:
+            return
         js.window.removeEventListener('click', self._click_handler)
 
     @property

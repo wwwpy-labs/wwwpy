@@ -1,8 +1,10 @@
+from dataclasses import dataclass, field
+
 import js
 import pytest
 
 from wwwpy.remote.designer.ui import palette  # noqa - import custom element
-from wwwpy.remote.designer.ui.palette import GestureEvent
+from wwwpy.remote.designer.ui.palette import GestureEvent, GestureManager, PaletteComponent
 
 
 async def test_palette_no_selected_item(target):
@@ -81,7 +83,8 @@ async def test_externally_deselect_item(target):
 
 
 class TestUseSelection:
-    def test_selection_and_click__reject_should_not_deselect(self, target):
+    def test_selection_and_click__reject_should_not_deselect(self, fixture):
+        target = fixture.palette
         # GIVEN
         item1 = target.add_item('item1-key', 'item1')
         target.selected_item = item1
@@ -91,7 +94,7 @@ class TestUseSelection:
             accept_calls.append(gesture_event)
             return False
 
-        target.destination_accept = destination_accept
+        fixture.gesture_manager.destination_accept = destination_accept
 
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
@@ -102,7 +105,9 @@ class TestUseSelection:
         assert len(accept_calls) == 1
         assert target.selected_item is item1
 
-    async def test_selection_and_click__accept_should_deselect(self, target):
+    async def test_selection_and_click__accept_should_deselect(self, fixture):
+        target = fixture.palette
+
         # GIVEN
         item1 = target.add_item('item1-key', 'item1')
         target.selected_item = item1
@@ -112,7 +117,7 @@ class TestUseSelection:
             accept_calls.append(gesture_event)
             gesture_event.accept()
 
-        target.destination_accept = destination_accept
+        fixture.gesture_manager.destination_accept = destination_accept
 
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
@@ -140,11 +145,30 @@ class TestPaletteItem:
 
 
 @pytest.fixture
-def target():
-    target = palette.PaletteComponent()
-    js.document.body.innerHTML = ''
-    js.document.body.appendChild(target.element)
+def target(fixture):
+    yield fixture.palette
+
+
+@pytest.fixture
+def gesture_manager(fixture):
+    yield fixture.gesture_manager
+
+
+@dataclass
+class Fixture:
+    palette: PaletteComponent = field(default_factory=PaletteComponent)
+    gesture_manager: GestureManager = field(default_factory=GestureManager)
+
+    def __post_init__(self):
+        self.palette._gesture_manager = self.gesture_manager
+
+
+@pytest.fixture()
+def fixture():
     try:
-        yield target
+        f = Fixture()
+        js.document.body.innerHTML = ''
+        js.document.body.appendChild(f.palette.element)
+        yield f
     finally:
         js.document.body.innerHTML = ''
