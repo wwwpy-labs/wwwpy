@@ -8,7 +8,7 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js, dict_to_py
+from wwwpy.remote import dict_to_js
 
 logger = logging.getLogger(__name__)
 
@@ -115,54 +115,34 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
 @dataclass
 class ActionEvent:
     event: js.Event
-    accepted: bool = False
+    is_spent: bool = False
+    """Flag to indicate if the action has been spent/used"""
 
-    def accept(self):
-        self.accepted = True
+    def spend(self):
+        self.is_spent = True
 
 
 class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
-        self._event_counter = 0
-        self._click_handler = create_proxy(self._click_handler)
+        self._js_window__click = create_proxy(self._js_window__click)
         self._selected_item: ActionItem | None = None
         self._install_count = 0
         self.on_events: Callable[[ActionEvent], None] = lambda ev: None
 
-    def local_destination_accept(self, gesture_event: ActionEvent):
-        # test if the gesture event is inside the palette
-        js_event = gesture_event.event
-        if not js_event.target:
-            logger.debug(f'No target in event: {js_event}')
-            return
-        if hasattr(js_event.target, 'closest'):
-            item = js_event.target.closest('.palette-item')
-            if not item:
-                logger.debug(f'No closest item found: {js_event.target}')
-                return
-        # if self.element.contains(js_event.target):
-        #     logger.debug(f'Event target is inside palette: {js_event.target}')
-        #     return
-
-        logger.debug(f'Forwarding event to destination_accept: {dict_to_py(js_event)}')
-        self.on_events(gesture_event)
-        if gesture_event.accepted:
-            logger.debug(f'Event accepted: {js_event.target}')
-            self.selected_action = None
 
     def install(self):
         self._install_count += 1
         if self._install_count > 1:
             return
-        js.window.addEventListener('click', self._click_handler)
+        js.window.addEventListener('click', self._js_window__click)
 
     def uninstall(self):
         self._install_count -= 1
         if self._install_count > 0:
             return
-        js.window.removeEventListener('click', self._click_handler)
+        js.window.removeEventListener('click', self._js_window__click)
 
     @property
     def selected_action(self) -> ActionItem | None:
@@ -185,12 +165,10 @@ class ActionManager:
 
         logger.debug(msg)
 
-    def _click_handler(self, event):
-        self._event_counter += 1
-        logger.debug(f'Click event: {event} counter={self._event_counter}')
+    def _js_window__click(self, event):
         gesture_event = ActionEvent(event)
         self.on_events(gesture_event)
-        if gesture_event.accepted:
+        if gesture_event.is_spent:
             logger.debug(f'Click event accepted: {event}')
             self.selected_action = None
 

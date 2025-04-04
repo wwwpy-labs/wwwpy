@@ -112,7 +112,7 @@ class TestUseSelection:
 
         def destination_accept(gesture_event: ActionEvent):
             accept_calls.append(gesture_event)
-            gesture_event.accept()
+            gesture_event.spend()
 
         action_manager.on_events = destination_accept
 
@@ -151,7 +151,7 @@ class TestDrag:
         item1.element.id = 'item1'
         action_manager.selected_action = item1
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
-        action_manager.on_events = lambda event: event.accept()
+        action_manager.on_events = lambda event: event.spend()
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
