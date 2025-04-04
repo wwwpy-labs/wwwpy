@@ -8,14 +8,14 @@ from wwwpy.server.rpc4tests import rpctst_exec
 
 
 async def test_palette_no_selected_item(action_manager):
-    assert action_manager.selected_item is None
+    assert action_manager.selected_action is None
 
 
 async def test_palette_click_item__should_be_selected(palette, action_manager):
     item = palette.add_item('item1-key', 'item1')
     item.element.click()
 
-    assert action_manager.selected_item == item
+    assert action_manager.selected_action == item
     assert item.selected
 
 
@@ -24,7 +24,7 @@ async def test_palette_click_twice_item__should_be_deselected(palette, action_ma
     item.element.click()
     item.element.click()
 
-    assert action_manager.selected_item is None
+    assert action_manager.selected_action is None
     assert not item.selected
 
 
@@ -34,7 +34,7 @@ async def test_palette_selecting_different_item__should_deselect_previous(palett
     item1.element.click()
     item2.element.click()
 
-    assert action_manager.selected_item == item2
+    assert action_manager.selected_action == item2
     assert not item1.selected
     assert item2.selected
 
@@ -53,9 +53,9 @@ async def test_externally_select_item(palette, action_manager):
     item1 = palette.add_item('item1-key', 'item1')
     item2 = palette.add_item('item2-key', 'item2')
 
-    action_manager.selected_item = item1
+    action_manager.selected_action = item1
 
-    assert action_manager.selected_item == item1
+    assert action_manager.selected_action == item1
     assert item1.selected
 
 
@@ -63,10 +63,10 @@ async def test_externally_select_different_item(palette, action_manager):
     item1 = palette.add_item('item1-key', 'item1')
     item2 = palette.add_item('item2-key', 'item2')
 
-    action_manager.selected_item = item1
-    action_manager.selected_item = item2
+    action_manager.selected_action = item1
+    action_manager.selected_action = item2
 
-    assert action_manager.selected_item == item2
+    assert action_manager.selected_action == item2
     assert not item1.selected
     assert item2.selected
 
@@ -107,7 +107,7 @@ class TestUseSelection:
     async def test_selection_and_click__accept_should_deselect(self, palette, action_manager):
         # GIVEN
         item1 = palette.add_item('item1-key', 'item1')
-        action_manager.selected_item = item1
+        action_manager.selected_action = item1
         accept_calls = []
 
         def destination_accept(gesture_event: ActionEvent):
@@ -124,7 +124,7 @@ class TestUseSelection:
         # THEN
         # await asyncio.sleep(100000)
         assert len(accept_calls) == 1
-        assert action_manager.selected_item is None
+        assert action_manager.selected_action is None
 
 
 class TestPaletteItem:
@@ -149,7 +149,7 @@ class TestDrag:
         # GIVEN
         item1 = palette.add_item('item1-key', 'item1')
         item1.element.id = 'item1'
-        action_manager.selected_item = item1
+        action_manager.selected_action = item1
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
         action_manager.on_events = lambda event: event.accept()
 
@@ -157,7 +157,7 @@ class TestDrag:
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
 
         # THEN
-        assert action_manager.selected_item is None
+        assert action_manager.selected_action is None
         assert not item1.selected
 
 

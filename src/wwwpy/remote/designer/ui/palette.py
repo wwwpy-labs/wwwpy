@@ -13,17 +13,18 @@ from wwwpy.remote import dict_to_js, dict_to_py
 logger = logging.getLogger(__name__)
 
 
-# this could have a supertype called ActionItem
-class PaletteItem:
+class ActionItem:
     key: any
     """Unique object to identify the item in the palette."""
+
     label: str
     """Label to be displayed in the palette item."""
 
     selected: bool
     """True if the item is selected, False otherwise."""
 
-    # palette: Palette NotImplemented yet
+
+class PaletteItem(ActionItem):
 
     @property
     def element(self) -> js.HTMLElement:
@@ -63,7 +64,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         item.label = label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
-        item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._item_click(e, item)))
+        item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._action_item_click(item)))
         return item
 
 
@@ -126,7 +127,7 @@ class ActionManager:
     def __init__(self):
         self._event_counter = 0
         self._click_handler = create_proxy(self._click_handler)
-        self._selected_item: PaletteItem | None = None
+        self._selected_item: ActionItem | None = None
         self._install_count = 0
         self.on_events: Callable[[ActionEvent], None] = lambda ev: None
 
@@ -149,7 +150,7 @@ class ActionManager:
         self.on_events(gesture_event)
         if gesture_event.accepted:
             logger.debug(f'Event accepted: {js_event.target}')
-            self.selected_item = None
+            self.selected_action = None
 
     def install(self):
         self._install_count += 1
@@ -164,15 +165,15 @@ class ActionManager:
         js.window.removeEventListener('click', self._click_handler)
 
     @property
-    def selected_item(self) -> PaletteItem | None:
+    def selected_action(self) -> ActionItem | None:
         """Return the currently selected item."""
         return self._selected_item
 
-    @selected_item.setter
-    def selected_item(self, value: PaletteItem | None):
+    @selected_action.setter
+    def selected_action(self, value: ActionItem | None):
         """Set the currently selected item."""
         msg = ''
-        sel = self.selected_item
+        sel = self.selected_action
         if sel:
             sel.selected = False
             msg += f' (deselecting {sel})'
@@ -191,15 +192,15 @@ class ActionManager:
         self.on_events(gesture_event)
         if gesture_event.accepted:
             logger.debug(f'Click event accepted: {event}')
-            self.selected_item = None
+            self.selected_action = None
 
-    def _item_click(self, e, item: PaletteItem):
+    def _action_item_click(self, item: ActionItem):
         logger.debug(f'Item clicked: {item}')
-        if item == self.selected_item:
-            self.selected_item = None
+        if item == self.selected_action:
+            self.selected_action = None
             return
 
-        self.selected_item = item
+        self.selected_action = item
 
 
 # language=html
