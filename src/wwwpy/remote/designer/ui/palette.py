@@ -89,7 +89,6 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
     </div>
         """
         self.key = None
-        self._selected = False
 
     @property
     def label(self) -> str:
@@ -101,11 +100,10 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
 
     @property
     def selected(self) -> bool:
-        return self._selected
+        return self.element.classList.contains('selected')
 
     @selected.setter
     def selected(self, value: bool):
-        self._selected = value
         if value:
             self.element.classList.add('selected')
         else:
