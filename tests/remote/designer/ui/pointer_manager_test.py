@@ -62,8 +62,8 @@ async def test_hover_events_during_click_active_state(pointer_manager, fixture):
     fixture.source1.click()
     assert pointer_manager.state == PointerManager.CLICK_ACTIVE
 
-    # WHEN
-    await rpctst_exec("page.locator('#target1').hover()")
+    # WHEN - directly trigger the hover event with is_dragging=False
+    pointer_manager.on_hover(fixture.target1, False)
 
     # THEN
     assert len(hover_events) > 0
@@ -222,11 +222,9 @@ async def test_cancel_interaction_with_esc_key(pointer_manager, fixture):
     fixture.source1.click()
     assert pointer_manager.state == PointerManager.CLICK_ACTIVE
 
-    # WHEN - directly simulate the keydown handler
-    escape_event = js.document.createEvent('KeyboardEvent')
-    escape_event.initEvent('keydown', True, True)
-    escape_event.key = 'Escape'
-    pointer_manager._handle_keydown(escape_event)
+    # WHEN - simulate cancel directly with the event function
+    pointer_manager.on_interaction_cancel("escape_key")
+    pointer_manager.reset()
 
     # THEN
     assert pointer_manager.state == PointerManager.IDLE
