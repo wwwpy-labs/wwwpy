@@ -39,7 +39,8 @@ async def test_idle_to_drag_active_state_transition(pointer_manager, fixture):
     pointer_manager.on_source_validation = lambda element: element.id == 'source1'
 
     # WHEN
-    await rpctst_exec("page.locator('#source1').mouse_down()")
+    await rpctst_exec("page.locator('#source1').hover()")  # First hover over the element
+    await rpctst_exec("page.mouse.down()")  # Then press mouse down
     await rpctst_exec("page.mouse.move(100, 100)")  # Move enough to trigger drag
 
     # THEN
@@ -81,7 +82,8 @@ async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
     pointer_manager.on_hover = on_hover
 
     # Put in drag-active state
-    await rpctst_exec("page.locator('#source1').mouse_down()")
+    await rpctst_exec("page.locator('#source1').hover()")
+    await rpctst_exec("page.mouse.down()")
     await rpctst_exec("page.mouse.move(100, 100)")  # Move enough to trigger drag
     assert pointer_manager.state == PointerManager.DRAG_ACTIVE
 
@@ -133,7 +135,8 @@ async def test_successful_interaction_completion_drag_mode(pointer_manager, fixt
     pointer_manager.on_interaction_complete = on_completion
 
     # Put in drag-active state
-    await rpctst_exec("page.locator('#source1').mouse_down()")
+    await rpctst_exec("page.locator('#source1').hover()")
+    await rpctst_exec("page.mouse.down()")
     await rpctst_exec("page.mouse.move(100, 100)")  # Move enough to trigger drag
     assert pointer_manager.state == PointerManager.DRAG_ACTIVE
 
@@ -153,7 +156,6 @@ async def test_deselection_by_clicking_source_again(pointer_manager, fixture):
     pointer_manager.on_source_validation = lambda element: element.id == 'source1'
 
     cancel_events = []
-
     def on_cancel(reason):
         cancel_events.append(reason)
 
@@ -213,7 +215,6 @@ async def test_cancel_interaction_with_esc_key(pointer_manager, fixture):
     pointer_manager.on_source_validation = lambda element: element.id == 'source1'
 
     cancel_events = []
-
     def on_cancel(reason):
         cancel_events.append(reason)
 
