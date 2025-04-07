@@ -132,7 +132,6 @@ class TestDrag:
 
     async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1):
         # GIVEN
-        item1.element.id = 'item1'
         action_manager.selected_action = item1
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
         action_manager.on_events = lambda event: event.spend()
@@ -150,7 +149,6 @@ class TestHover:
     async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, palette, action_manager, item1, item2):
         # GIVEN
         action_manager.selected_action = item1
-        item2.element.id = 'item2'
 
         def on_events(event: ActionEvent):
             if isinstance(event, HoverEvent):
@@ -188,7 +186,6 @@ class TestHover:
 
     async def test_drag_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1):
         # GIVEN
-        item1.element.id = 'item1'
         action_manager.selected_action = item1
         events = []
 
@@ -242,22 +239,27 @@ class Fixture:
     def __post_init__(self):
         self.palette.action_manager = self.action_manager
 
+    def _add_item(self, label: str) -> PaletteItem:
+        item = self.palette.add_item(f'{label}-key', label)
+        item.element.id = label
+        return item
+
     @property
     def item1(self) -> PaletteItem:
         if self._item1 is None:
-            self._item1 = self.palette.add_item('item1-key', 'item1')
+            self._item1 = self._add_item('item1')
         return self._item1
 
     @property
     def item2(self) -> PaletteItem:
         if self._item2 is None:
-            self._item2 = self.palette.add_item('item2-key', 'item2')
+            self._item2 = self._add_item('item2')
         return self._item2
 
     @property
     def item3(self) -> PaletteItem:
         if self._item3 is None:
-            self._item3 = self.palette.add_item('item3-key', 'item3')
+            self._item3 = self._add_item('item3')
         return self._item3
 
 
