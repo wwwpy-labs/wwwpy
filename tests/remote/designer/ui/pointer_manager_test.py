@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, Cancelled
 from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
@@ -169,7 +169,7 @@ async def test_deselection_by_clicking_source_again(pointer_manager, fixture):
     # THEN
     assert pointer_manager.state == PointerManager.IDLE
     assert len(cancel_events) == 1
-    assert cancel_events[0] == "source_reselected"
+    assert cancel_events[0] == Cancelled.source_reselected
 
 
 async def test_reset_pointer_manager_programmatically(pointer_manager, fixture):
@@ -223,13 +223,13 @@ async def test_cancel_interaction_with_esc_key(pointer_manager, fixture):
     assert pointer_manager.state == PointerManager.CLICK_ACTIVE
 
     # WHEN - simulate cancel directly with the event function
-    pointer_manager.on_interaction_cancel("escape_key")
+    pointer_manager.on_interaction_cancel(Cancelled.escape_key)
     pointer_manager.reset()
 
     # THEN
     assert pointer_manager.state == PointerManager.IDLE
     assert len(cancel_events) == 1
-    assert cancel_events[0] == "escape_key"
+    assert cancel_events[0] == Cancelled.escape_key
 
 
 @pytest.fixture

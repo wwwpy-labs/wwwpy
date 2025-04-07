@@ -35,6 +35,12 @@ class InteractionEvent(PointerEvent):
     target_element: Optional[js.HTMLElement] = None
 
 
+class Cancelled:
+    source_reselected = "source_reselected"
+    invalid_target = "invalid_target"
+    escape_key = "escape_key"
+
+
 class PointerManager:
     """
     Manages pointer state and interactions (click or drag) between source and target elements.
@@ -129,7 +135,8 @@ class PointerManager:
             # If clicking the same source again, deselect
             if target_element == self.source_element:
                 logger.debug("Source clicked again, deselecting")
-                self.on_interaction_cancel("source_reselected")
+                # self.on_interaction_cancel("source_reselected")
+                self.on_interaction_cancel(Cancelled.source_reselected)
                 self.reset()
                 event.stopPropagation()
                 return
@@ -194,7 +201,7 @@ class PointerManager:
                 self.on_interaction_complete(self.source_element, target_element)
             else:
                 logger.debug("Drag released on invalid target")
-                self.on_interaction_cancel("invalid_target")
+                self.on_interaction_cancel(Cancelled.invalid_target)
 
             self.reset()
 
@@ -203,7 +210,7 @@ class PointerManager:
         logger.debug(f"Keydown event: {event.key}")
         if self.state != self.IDLE and event.key == "Escape":
             logger.debug("Escape key pressed, cancelling interaction")
-            self.on_interaction_cancel("escape_key")
+            self.on_interaction_cancel(Cancelled.escape_key)
             self.reset()
             event.preventDefault()
             event.stopPropagation()
