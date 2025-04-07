@@ -70,7 +70,7 @@ async def test_externally_deselect_item(palette, item1, item2):
 
 
 class TestUseSelection:
-    def test_selection_and_click__reject_should_not_deselect(self, palette, action_manager, item1):
+    def test_selection_and_click__reject_should_not_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         palette.selected_item = item1
         accept_calls = []
@@ -81,8 +81,6 @@ class TestUseSelection:
 
         action_manager.on_events = destination_accept
 
-        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
-
         # WHEN
         js.document.getElementById('div1').click()
 
@@ -90,7 +88,7 @@ class TestUseSelection:
         assert len(accept_calls) == 1
         assert palette.selected_item is item1
 
-    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1):
+    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
         accept_calls = []
@@ -100,8 +98,6 @@ class TestUseSelection:
             gesture_event.spend()
 
         action_manager.on_events = destination_accept
-
-        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
         # WHEN
         js.document.getElementById('div1').click()
@@ -130,10 +126,9 @@ class TestDrag:
     # see Playwright cancel drag here https://github.com/danielwiehl/playwright-bug-reproducer-dnd-cancel/blob/master/tests/reproducer.spec.ts
     # and generally https://chatgpt.com/share/67efcda6-9890-8006-8542-3634aa9249bf
 
-    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1):
+    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
-        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
         action_manager.on_events = lambda event: event.spend()
 
         # WHEN
@@ -162,7 +157,7 @@ class TestHover:
         # THEN
         assert action_manager.selected_action is item1  # should still be selected
 
-    async def test_selected_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1):
+    async def test_selected_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
         events = []
@@ -171,8 +166,6 @@ class TestHover:
             events.append(event)
 
         action_manager.on_events = on_events
-
-        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
         # WHEN
         await rpctst_exec("page.locator('#div1').hover()")
@@ -184,7 +177,7 @@ class TestHover:
         logger.debug(f'hover_events={hover_events}')
         assert hover_events != [], 'hover event not emitted'
 
-    async def test_drag_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1):
+    async def test_drag_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
         events = []
@@ -193,8 +186,6 @@ class TestHover:
             events.append(event)
 
         action_manager.on_events = on_events
-
-        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
 
         # WHEN
         page_commands = ["page.locator('#item1').hover()", "page.mouse.down()", "page.locator('#div1').hover()"]
@@ -228,6 +219,10 @@ def item2(fixture): yield fixture.item2
 def item3(fixture): yield fixture.item3
 
 
+@pytest.fixture
+def div1(fixture): yield fixture.div1
+
+
 @dataclass
 class Fixture:
     palette: PaletteComponent = field(default_factory=PaletteComponent)
@@ -235,6 +230,7 @@ class Fixture:
     _item1: PaletteItem = None
     _item2: PaletteItem = None
     _item3: PaletteItem = None
+    _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
         self.palette.action_manager = self.action_manager
@@ -261,6 +257,15 @@ class Fixture:
         if self._item3 is None:
             self._item3 = self._add_item('item3')
         return self._item3
+
+    @property
+    def div1(self) -> js.HTMLDivElement:
+        if self._div1 is None:
+            self._div1 = js.document.createElement('div')
+            self._div1.id = 'div1'
+            self._div1.textContent = 'hello'
+            js.document.body.appendChild(self._div1)
+        return self._div1
 
 
 @pytest.fixture()
