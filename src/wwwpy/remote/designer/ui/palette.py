@@ -120,27 +120,34 @@ class ActionEvent:
         self.is_spent = True
 
 
+@dataclass
+class HoverEvent(ActionEvent):
+    pass
+
+
 class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
         self._js_window__click = create_proxy(self._js_window__click)
+        self._js_window__pointermove = create_proxy(self._js_window__pointermove)
         self._selected_item: ActionItem | None = None
         self._install_count = 0
         self.on_events: Callable[[ActionEvent], None] = lambda ev: None
-
 
     def install(self):
         self._install_count += 1
         if self._install_count > 1:
             return
         js.window.addEventListener('click', self._js_window__click)
+        js.window.addEventListener('pointermove', self._js_window__pointermove)
 
     def uninstall(self):
         self._install_count -= 1
         if self._install_count > 0:
             return
         js.window.removeEventListener('click', self._js_window__click)
+        js.window.removeEventListener('pointermove', self._js_window__pointermove)
 
     @property
     def selected_action(self) -> ActionItem | None:
@@ -169,6 +176,11 @@ class ActionManager:
         if gesture_event.is_spent:
             logger.debug(f'Click event accepted: {event}')
             self.selected_action = None
+
+    def _js_window__pointermove(self, event):
+        hover_event = HoverEvent(event)
+        self.on_events(hover_event)
+
 
     def _action_item_click(self, item: ActionItem):
         logger.debug(f'Item clicked: {item}')

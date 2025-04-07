@@ -4,7 +4,7 @@ import js
 import pytest
 
 from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
-    PaletteItem
+    PaletteItem, HoverEvent
 from wwwpy.server.rpc4tests import rpctst_exec
 
 
@@ -141,6 +141,46 @@ class TestDrag:
         assert action_manager.selected_action is None
         assert not item1.selected
 
+
+class TestHover:
+
+    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, palette, action_manager, item1, item2):
+        # GIVEN
+        action_manager.selected_action = item1
+        item2.element.id = 'item2'
+
+        def on_events(event: ActionEvent):
+            if isinstance(event, HoverEvent):
+                raise Exception(f'hover not expected {event}')
+
+        action_manager.on_events = on_events
+
+        # WHEN
+        await rpctst_exec("page.locator('#item2').hover()")
+
+        # THEN
+        assert action_manager.selected_action is item1  # should still be selected
+
+    async def test_selected_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1):
+        # GIVEN
+        action_manager.selected_action = item1
+        events = []
+
+        def on_events(event: ActionEvent):
+            events.append(event)
+
+        action_manager.on_events = on_events
+
+        js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
+
+        # WHEN
+        await rpctst_exec("page.locator('#div1').hover()")
+
+        # THEN
+        hover_events = [event for event in events if isinstance(event, HoverEvent)]
+
+        assert action_manager.selected_action is item1  # should still be selected
+        assert hover_events != [], 'hover event not emitted'
 
 @pytest.fixture
 def palette(fixture):
