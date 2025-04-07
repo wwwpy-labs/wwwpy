@@ -3,7 +3,8 @@ from dataclasses import dataclass, field
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent
+from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
+    PaletteItem
 from wwwpy.server.rpc4tests import rpctst_exec
 
 
@@ -11,26 +12,22 @@ async def test_palette_no_selected_item(action_manager):
     assert action_manager.selected_action is None
 
 
-async def test_palette_click_item__should_be_selected(palette, action_manager):
-    item = palette.add_item('item1-key', 'item1')
-    item.element.click()
+async def test_palette_click_item__should_be_selected(palette, action_manager, item1):
+    item1.element.click()
 
-    assert action_manager.selected_action == item
-    assert item.selected
+    assert action_manager.selected_action == item1
+    assert item1.selected
 
 
-async def test_palette_click_twice_item__should_be_deselected(palette, action_manager):
-    item = palette.add_item('item1-key', 'item1')
-    item.element.click()
-    item.element.click()
+async def test_palette_click_twice_item__should_be_deselected(palette, action_manager, item1):
+    item1.element.click()
+    item1.element.click()
 
     assert action_manager.selected_action is None
-    assert not item.selected
+    assert not item1.selected
 
 
-async def test_palette_selecting_different_item__should_deselect_previous(palette, action_manager):
-    item1 = palette.add_item('item1-key', 'item1')
-    item2 = palette.add_item('item2-key', 'item2')
+async def test_palette_selecting_different_item__should_deselect_previous(palette, action_manager, item1, item2):
     item1.element.click()
     item2.element.click()
 
@@ -39,30 +36,20 @@ async def test_palette_selecting_different_item__should_deselect_previous(palett
     assert item2.selected
 
 
-async def test_palette_should_put_elements_on_screen(palette):
-    item1 = palette.add_item('item1-key', 'item1')
-    item2 = palette.add_item('item2-key', 'item2')
-    item3 = palette.add_item('item3-key', 'item3')
-
+async def test_palette_should_put_elements_on_screen(palette, item1, item2, item3):
     assert item1.element.isConnected is True
     assert item2.element.isConnected is True
     assert item3.element.isConnected is True
 
 
-async def test_externally_select_item(palette, action_manager):
-    item1 = palette.add_item('item1-key', 'item1')
-    item2 = palette.add_item('item2-key', 'item2')
-
+async def test_externally_select_item(palette, action_manager, item1, item2):
     action_manager.selected_action = item1
 
     assert action_manager.selected_action == item1
     assert item1.selected
 
 
-async def test_externally_select_different_item(palette, action_manager):
-    item1 = palette.add_item('item1-key', 'item1')
-    item2 = palette.add_item('item2-key', 'item2')
-
+async def test_externally_select_different_item(action_manager, item1, item2):
     action_manager.selected_action = item1
     action_manager.selected_action = item2
 
@@ -71,10 +58,7 @@ async def test_externally_select_different_item(palette, action_manager):
     assert item2.selected
 
 
-async def test_externally_deselect_item(palette):
-    item1 = palette.add_item('item1-key', 'item1')
-    item2 = palette.add_item('item2-key', 'item2')
-
+async def test_externally_deselect_item(palette, item1, item2):
     palette.selected_item = item1
     palette.selected_item = None
 
@@ -83,9 +67,8 @@ async def test_externally_deselect_item(palette):
 
 
 class TestUseSelection:
-    def test_selection_and_click__reject_should_not_deselect(self, palette, action_manager):
+    def test_selection_and_click__reject_should_not_deselect(self, palette, action_manager, item1):
         # GIVEN
-        item1 = palette.add_item('item1-key', 'item1')
         palette.selected_item = item1
         accept_calls = []
 
@@ -104,9 +87,8 @@ class TestUseSelection:
         assert len(accept_calls) == 1
         assert palette.selected_item is item1
 
-    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager):
+    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1):
         # GIVEN
-        item1 = palette.add_item('item1-key', 'item1')
         action_manager.selected_action = item1
         accept_calls = []
 
@@ -145,9 +127,8 @@ class TestDrag:
     # see Playwright cancel drag here https://github.com/danielwiehl/playwright-bug-reproducer-dnd-cancel/blob/master/tests/reproducer.spec.ts
     # and generally https://chatgpt.com/share/67efcda6-9890-8006-8542-3634aa9249bf
 
-    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager):
+    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1):
         # GIVEN
-        item1 = palette.add_item('item1-key', 'item1')
         item1.element.id = 'item1'
         action_manager.selected_action = item1
         js.document.body.insertAdjacentHTML('beforeend', '<div id="div1">hello</div>')
@@ -171,13 +152,46 @@ def action_manager(fixture):
     yield fixture.action_manager
 
 
+@pytest.fixture
+def item1(fixture): yield fixture.item1
+
+
+@pytest.fixture
+def item2(fixture): yield fixture.item2
+
+
+@pytest.fixture
+def item3(fixture): yield fixture.item3
+
+
 @dataclass
 class Fixture:
     palette: PaletteComponent = field(default_factory=PaletteComponent)
     action_manager: ActionManager = field(default_factory=ActionManager)
+    _item1: PaletteItem = None
+    _item2: PaletteItem = None
+    _item3: PaletteItem = None
 
     def __post_init__(self):
         self.palette.action_manager = self.action_manager
+
+    @property
+    def item1(self) -> PaletteItem:
+        if self._item1 is None:
+            self._item1 = self.palette.add_item('item1-key', 'item1')
+        return self._item1
+
+    @property
+    def item2(self) -> PaletteItem:
+        if self._item2 is None:
+            self._item2 = self.palette.add_item('item2-key', 'item2')
+        return self._item2
+
+    @property
+    def item3(self) -> PaletteItem:
+        if self._item3 is None:
+            self._item3 = self.palette.add_item('item3-key', 'item3')
+        return self._item3
 
 
 @pytest.fixture()
