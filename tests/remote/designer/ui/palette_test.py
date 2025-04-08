@@ -156,7 +156,7 @@ class TestDrag:
 
 class TestHover:
 
-    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, palette, action_manager, item1, item2):
+    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, item1, item2):
         # GIVEN
         action_manager.selected_action = item1
 
@@ -172,15 +172,9 @@ class TestHover:
         # THEN
         assert action_manager.selected_action is item1  # should still be selected
 
-    async def test_selected_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1, div1):
+    async def test_selected_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-        events = []
-
-        def on_events(event: ActionEvent):
-            events.append(event)
-
-        action_manager.on_events = on_events
 
         # WHEN
         await rpctst_exec("page.locator('#div1').hover()")
@@ -188,30 +182,18 @@ class TestHover:
         # THEN
         assert action_manager.selected_action is item1  # should still be selected
 
-        hover_events = [event for event in events if isinstance(event, HoverEvent)]
-        logger.debug(f'hover_events={hover_events}')
-        assert hover_events != [], 'hover event not emitted'
-        # assert hover_events[0].dragging is False
+        assert events.hover_events != [], 'hover event not emitted'
 
-    async def test_drag_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1, div1):
+    async def test_drag_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-        events = []
-
-        def on_events(event: ActionEvent):
-            events.append(event)
-
-        action_manager.on_events = on_events
 
         # WHEN
         page_commands = ["page.locator('#item1').hover()", "page.mouse.down()", "page.locator('#div1').hover()"]
         for page_cmd in page_commands: await rpctst_exec(page_cmd)
 
         # THEN
-        hover_events = [event for event in events if isinstance(event, HoverEvent)]
-        logger.debug(f'hover_events={hover_events}')
-        assert hover_events != [], 'hover event not emitted'
-        # assert hover_events[0].dragging is True
+        assert events.hover_events != [], 'hover event not emitted'
 
 
 @pytest.fixture
@@ -260,6 +242,11 @@ class EventFixture:
     @property
     def drop_events(self) -> list[DropEvent]:
         return self.filter(DropEvent)
+
+    @property
+    def hover_events(self) -> list[HoverEvent]:
+        return self.filter(HoverEvent)
+
 
 @dataclass
 class Fixture:
@@ -312,6 +299,7 @@ class Fixture:
             self._events = EventFixture()
             self.action_manager.on_events = self._events.add
         return self._events
+
 
 @pytest.fixture()
 def fixture():
