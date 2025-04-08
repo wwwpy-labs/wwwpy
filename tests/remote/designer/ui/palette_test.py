@@ -1,11 +1,12 @@
 import logging
 from dataclasses import dataclass, field
+from typing import TypeVar
 
 import js
 import pytest
 
 from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
-    PaletteItem, HoverEvent
+    PaletteItem, HoverEvent, DropEvent
 from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
@@ -138,6 +139,20 @@ class TestDrag:
         assert action_manager.selected_action is None
         assert not item1.selected
 
+    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, palette, action_manager, item1, div1,
+                                                                     events):
+        # GIVEN
+        #
+
+        # WHEN
+        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+
+        # THEN
+        assert action_manager.selected_action is None
+
+        assert len(events.drop_events) == 1, 'one drag event expected'
+        assert events.drop_events[0].drop_target is div1
+
 
 class TestHover:
 
@@ -176,6 +191,7 @@ class TestHover:
         hover_events = [event for event in events if isinstance(event, HoverEvent)]
         logger.debug(f'hover_events={hover_events}')
         assert hover_events != [], 'hover event not emitted'
+        # assert hover_events[0].dragging is False
 
     async def test_drag_and_hover_on_div1__should_emit_Hover(self, palette, action_manager, item1, div1):
         # GIVEN
@@ -195,6 +211,7 @@ class TestHover:
         hover_events = [event for event in events if isinstance(event, HoverEvent)]
         logger.debug(f'hover_events={hover_events}')
         assert hover_events != [], 'hover event not emitted'
+        # assert hover_events[0].dragging is True
 
 
 @pytest.fixture
@@ -223,10 +240,32 @@ def item3(fixture): yield fixture.item3
 def div1(fixture): yield fixture.div1
 
 
+@pytest.fixture
+def events(fixture): yield fixture.events
+
+
+_AE = TypeVar('_AE', bound=ActionEvent)
+
+
+class EventFixture:
+    def __init__(self):
+        self._events = []
+
+    def add(self, event):
+        self._events.append(event)
+
+    def filter(self, event_type: type[_AE]) -> list[_AE]:
+        return [event for event in self._events if isinstance(event, event_type)]
+
+    @property
+    def drop_events(self) -> list[DropEvent]:
+        return self.filter(DropEvent)
+
 @dataclass
 class Fixture:
     palette: PaletteComponent = field(default_factory=PaletteComponent)
     action_manager: ActionManager = field(default_factory=ActionManager)
+    _events: EventFixture = None
     _item1: PaletteItem = None
     _item2: PaletteItem = None
     _item3: PaletteItem = None
@@ -267,6 +306,12 @@ class Fixture:
             js.document.body.appendChild(self._div1)
         return self._div1
 
+    @property
+    def events(self) -> EventFixture:
+        if self._events is None:
+            self._events = EventFixture()
+            self.action_manager.on_events = self._events.add
+        return self._events
 
 @pytest.fixture()
 def fixture():

@@ -8,7 +8,7 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js
+from wwwpy.remote import dict_to_js, eventlib
 
 logger = logging.getLogger(__name__)
 
@@ -122,15 +122,18 @@ class ActionEvent:
 
 @dataclass
 class HoverEvent(ActionEvent):
-    pass
+    is_dragging: bool = False
+
+
+@dataclass
+class DropEvent(ActionEvent):
+    drop_target: js.HTMLElement | None = None
 
 
 class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
-        self._js_window__click = create_proxy(self._js_window__click)
-        self._js_window__pointermove = create_proxy(self._js_window__pointermove)
         self._selected_item: ActionItem | None = None
         self._install_count = 0
         self.on_events: Callable[[ActionEvent], None] = lambda ev: None
@@ -139,15 +142,13 @@ class ActionManager:
         self._install_count += 1
         if self._install_count > 1:
             return
-        js.window.addEventListener('click', self._js_window__click)
-        js.window.addEventListener('pointermove', self._js_window__pointermove)
+        eventlib.add_event_listeners(self)
 
     def uninstall(self):
         self._install_count -= 1
         if self._install_count > 0:
             return
-        js.window.removeEventListener('click', self._js_window__click)
-        js.window.removeEventListener('pointermove', self._js_window__pointermove)
+        eventlib.remove_event_listeners(self)
 
     @property
     def selected_action(self) -> ActionItem | None:
@@ -180,7 +181,6 @@ class ActionManager:
     def _js_window__pointermove(self, event):
         hover_event = HoverEvent(event)
         self.on_events(hover_event)
-
 
     def _action_item_click(self, item: ActionItem):
         logger.debug(f'Item clicked: {item}')
