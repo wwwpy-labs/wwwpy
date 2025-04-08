@@ -225,7 +225,7 @@ def pointer_manager(fixture):
 
 
 @pytest.fixture
-def fixture():
+async def fixture():
     try:
         f = Fixture()
         js.document.body.innerHTML = ''
@@ -236,6 +236,7 @@ def fixture():
         js.document.body.appendChild(f.invalid_target)
         yield f
     finally:
+        # await asyncio.sleep(10)
         js.document.body.innerHTML = ''
 
 

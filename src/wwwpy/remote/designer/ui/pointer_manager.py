@@ -54,8 +54,7 @@ class PointerManager:
     CLICK_ACTIVE = "click_active"
     DRAG_ACTIVE = "drag_active"
 
-    # Drag threshold (in pixels)
-    DRAG_THRESHOLD = 5
+    DRAG_THRESHOLD_PX = 5
 
     def __init__(self):
         """Initialize the PointerManager with default state and callbacks."""
@@ -175,7 +174,7 @@ class PointerManager:
             dx = abs(event.clientX - self.drag_start_x)
             dy = abs(event.clientY - self.drag_start_y)
 
-            if dx > self.DRAG_THRESHOLD or dy > self.DRAG_THRESHOLD:
+            if dx > self.DRAG_THRESHOLD_PX or dy > self.DRAG_THRESHOLD_PX:
                 logger.debug("Drag threshold exceeded, entering DRAG_ACTIVE state")
                 self.state = self.DRAG_ACTIVE
 
