@@ -70,7 +70,7 @@ class PointerManager:
         self._install_count = 0
 
         # Event callbacks
-        self.on_source_validation = lambda element: False  # Default rejects all
+        self.on_source_validation = lambda event, element: False  # Default rejects all
         self.on_target_validation = lambda element: False  # Default rejects all
         self.on_hover = lambda element, is_dragging: None  # Just emits events
         self.on_interaction_complete = lambda source, target: None
@@ -109,7 +109,7 @@ class PointerManager:
 
         # If we're in idle state, check if this is a valid source
         if self.state == self.IDLE:
-            if self.on_source_validation(target_element):
+            if self.on_source_validation(event, target_element):
                 logger.debug(f"Valid source clicked: {target_element.id}")
                 self.state = self.CLICK_ACTIVE
                 self.source_element = target_element
@@ -140,7 +140,7 @@ class PointerManager:
         target_element = event.target
 
         # Only process in idle state and for valid sources
-        if self.state == self.IDLE and self.on_source_validation(target_element):
+        if self.state == self.IDLE and self.on_source_validation(event, target_element):
             logger.debug(f"Pointer down on valid source: {target_element.id}")
             self.source_element = target_element
             self.drag_start_x = event.clientX

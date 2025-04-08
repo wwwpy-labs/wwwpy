@@ -19,7 +19,7 @@ async def test_idle_to_click_active_state_transition(pointer_manager, fixture):
     # GIVEN
     source_validated_elements = []
 
-    def validate_source(element):
+    def validate_source(event, element):
         source_validated_elements.append(element)
         return element.id == 'source1'
 
@@ -36,7 +36,7 @@ async def test_idle_to_click_active_state_transition(pointer_manager, fixture):
 
 async def test_idle_to_drag_active_state_transition(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
 
     # WHEN
     await rpctst_exec("page.locator('#source1').hover()")  # First hover over the element
@@ -50,7 +50,7 @@ async def test_idle_to_drag_active_state_transition(pointer_manager, fixture):
 
 async def test_hover_events_during_click_active_state(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     hover_events = []
 
     pointer_manager.on_hover = lambda element, is_dragging: hover_events.append((element, is_dragging))
@@ -70,7 +70,7 @@ async def test_hover_events_during_click_active_state(pointer_manager, fixture):
 
 async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     hover_events = []
 
     pointer_manager.on_hover = lambda element, is_dragging: hover_events.append((element, is_dragging))
@@ -91,7 +91,7 @@ async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
 
 async def test_successful_interaction_completion_click_mode(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     pointer_manager.on_target_validation = lambda element: element.id == 'target1'
 
     completion_events = []
@@ -114,7 +114,7 @@ async def test_successful_interaction_completion_click_mode(pointer_manager, fix
 
 async def test_successful_interaction_completion_drag_mode(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     pointer_manager.on_target_validation = lambda element: element.id == 'target1'
 
     completion_events = []
@@ -139,7 +139,7 @@ async def test_successful_interaction_completion_drag_mode(pointer_manager, fixt
 
 async def test_deselection_by_clicking_source_again(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
 
     cancel_events = []
 
@@ -160,7 +160,7 @@ async def test_deselection_by_clicking_source_again(pointer_manager, fixture):
 
 async def test_reset_pointer_manager_programmatically(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
 
     # Put in click-active state
     fixture.source1.click()
@@ -176,7 +176,7 @@ async def test_reset_pointer_manager_programmatically(pointer_manager, fixture):
 
 async def test_invalid_target_click_doesnt_complete_interaction(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     pointer_manager.on_target_validation = lambda element: element.id == 'target1'
 
     completion_events = []
@@ -196,7 +196,7 @@ async def test_invalid_target_click_doesnt_complete_interaction(pointer_manager,
 
 async def test_cancel_interaction_with_esc_key(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda element: element.id == 'source1'
+    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
 
     cancel_events = []
 
