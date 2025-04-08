@@ -51,6 +51,7 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         """
         self.element.shadowRoot.innerHTML += _css_styles
         self.action_manager = ActionManager()
+        self.action_manager.register(self)
 
     def connectedCallback(self):
         self.action_manager.install()
@@ -151,10 +152,23 @@ class ActionManager:
         pm.on_source_validation = _js_window__click
 
         def _js_window__pointermove(event, element, is_dragging):
+            if self._in_palette(event.target, element):
+                return
             hover_event = HoverEvent(event)
             self.on_events(hover_event)
 
         pm.on_hover = _js_window__pointermove
+
+    def _in_palette(self, target: js.HTMLElement, element) -> bool:
+        return target.closest(PaletteComponent.component_metadata.tag_name) is not None
+        # ptag = PaletteComponent.component_metadata.tag_name
+        # logger.debug(f'target.tagName={target.tagName} ptag={ptag}')
+        # is_pal = element.tagName.casefold() == ptag.casefold()
+        # logger.debug(f'is in palette: {is_pal}')
+        # return is_pal
+
+    def register(self, palette: Palette):
+        pass
 
     def install(self):
         self._pm.install()

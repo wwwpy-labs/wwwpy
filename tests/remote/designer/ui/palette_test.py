@@ -156,21 +156,16 @@ class TestDrag:
 
 class TestHover:
 
-    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, item1, item2):
+    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, item1, item2, events):
         # GIVEN
         action_manager.selected_action = item1
-
-        def on_events(event: ActionEvent):
-            if isinstance(event, HoverEvent):
-                raise Exception(f'hover not expected {event}')
-
-        action_manager.on_events = on_events
 
         # WHEN
         await rpctst_exec("page.locator('#item2').hover()")
 
         # THEN
         assert action_manager.selected_action is item1  # should still be selected
+        assert events.hover_events == [], 'hover event emitted'
 
     async def test_selected_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
         # GIVEN
@@ -251,7 +246,7 @@ class EventFixture:
 @dataclass
 class Fixture:
     palette: PaletteComponent = field(default_factory=PaletteComponent)
-    action_manager: ActionManager = field(default_factory=ActionManager)
+    action_manager: ActionManager = None
     _events: EventFixture = None
     _item1: PaletteItem = None
     _item2: PaletteItem = None
@@ -259,7 +254,7 @@ class Fixture:
     _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
-        self.palette.action_manager = self.action_manager
+        self.action_manager = self.palette.action_manager
 
     def _add_item(self, label: str) -> PaletteItem:
         item = self.palette.add_item(f'{label}-key', label)
