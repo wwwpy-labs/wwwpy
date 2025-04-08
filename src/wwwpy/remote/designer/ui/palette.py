@@ -8,7 +8,8 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js, eventlib
+from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 
 logger = logging.getLogger(__name__)
 
@@ -137,18 +138,29 @@ class ActionManager:
         self._selected_item: ActionItem | None = None
         self._install_count = 0
         self.on_events: Callable[[ActionEvent], None] = lambda ev: None
+        pm = PointerManager()
+        self._pm = pm
+
+        def _js_window__click(event, element):
+            gesture_event = ActionEvent(event)
+            self.on_events(gesture_event)
+            if gesture_event.is_spent:
+                logger.debug(f'Click event accepted: {event}')
+                self.selected_action = None
+
+        pm.on_source_validation = _js_window__click
+
+        def _js_window__pointermove(event, element, is_dragging):
+            hover_event = HoverEvent(event)
+            self.on_events(hover_event)
+
+        pm.on_hover = _js_window__pointermove
 
     def install(self):
-        self._install_count += 1
-        if self._install_count > 1:
-            return
-        eventlib.add_event_listeners(self)
+        self._pm.install()
 
     def uninstall(self):
-        self._install_count -= 1
-        if self._install_count > 0:
-            return
-        eventlib.remove_event_listeners(self)
+        self._pm.uninstall()
 
     @property
     def selected_action(self) -> ActionItem | None:
@@ -170,17 +182,6 @@ class ActionManager:
             value.selected = True
 
         logger.debug(msg)
-
-    def _js_window__click(self, event):
-        gesture_event = ActionEvent(event)
-        self.on_events(gesture_event)
-        if gesture_event.is_spent:
-            logger.debug(f'Click event accepted: {event}')
-            self.selected_action = None
-
-    def _js_window__pointermove(self, event):
-        hover_event = HoverEvent(event)
-        self.on_events(hover_event)
 
     def _action_item_click(self, item: ActionItem):
         logger.debug(f'Item clicked: {item}')
