@@ -7,6 +7,8 @@ from typing import Optional
 import js
 from pyodide.ffi import create_proxy
 
+from wwwpy.remote import eventlib
+
 logger = logging.getLogger(__name__)
 
 
@@ -74,13 +76,6 @@ class PointerManager:
         self.on_interaction_complete = lambda source, target: None
         self.on_interaction_cancel = lambda reason: None
 
-        # Create JS event handlers with proper binding
-        self._js_window__click = create_proxy(self._handle_click)
-        self._js_window__pointerdown = create_proxy(self._handle_pointer_down)
-        self._js_window__pointermove = create_proxy(self._handle_pointer_move)
-        self._js_window__pointerup = create_proxy(self._handle_pointer_up)
-        self._js_window__keydown = create_proxy(self._handle_keydown)
-
     def install(self):
         """Install event listeners to track pointer interactions."""
         self._install_count += 1
@@ -89,11 +84,7 @@ class PointerManager:
             return
 
         logger.debug("Installing PointerManager event listeners")
-        js.window.addEventListener('click', self._js_window__click)
-        js.window.addEventListener('pointerdown', self._js_window__pointerdown)
-        js.window.addEventListener('pointermove', self._js_window__pointermove)
-        js.window.addEventListener('pointerup', self._js_window__pointerup)
-        js.window.addEventListener('keydown', self._js_window__keydown)
+        eventlib.add_event_listeners(self)
 
     def uninstall(self):
         """Remove event listeners."""
@@ -103,11 +94,7 @@ class PointerManager:
             return
 
         logger.debug("Uninstalling PointerManager event listeners")
-        js.window.removeEventListener('click', self._js_window__click)
-        js.window.removeEventListener('pointerdown', self._js_window__pointerdown)
-        js.window.removeEventListener('pointermove', self._js_window__pointermove)
-        js.window.removeEventListener('pointerup', self._js_window__pointerup)
-        js.window.removeEventListener('keydown', self._js_window__keydown)
+        eventlib.remove_event_listeners(self)
 
     def reset(self):
         """Reset to idle state without triggering any events."""
@@ -116,7 +103,7 @@ class PointerManager:
         self.source_element = None
         self.current_target = None
 
-    def _handle_click(self, event):
+    def _js_window__click(self, event):
         """Handle click events for selection and interaction completion."""
         target_element = event.target
 
@@ -148,7 +135,7 @@ class PointerManager:
                 event.stopPropagation()
                 return
 
-    def _handle_pointer_down(self, event):
+    def _js_window__pointerdown(self, event):
         """Handle pointer down events to initiate potential drag operations."""
         target_element = event.target
 
@@ -166,7 +153,7 @@ class PointerManager:
             # Mark the event as handled
             event.stopPropagation()
 
-    def _handle_pointer_move(self, event):
+    def _js_window__pointermove(self, event):
         """Handle pointer move events for dragging and hovering."""
         # If we have a source element and are in CLICK_ACTIVE state
         if self.source_element and self.state == self.CLICK_ACTIVE:
@@ -190,7 +177,7 @@ class PointerManager:
                     f"Hover event: {target_element.id if hasattr(target_element, 'id') else 'unknown'}, dragging={is_dragging}")
                 self.on_hover(target_element, is_dragging)
 
-    def _handle_pointer_up(self, event):
+    def _js_window__pointerup(self, event):
         """Handle pointer up events to complete drag operations."""
         if self.state == self.DRAG_ACTIVE:
             target_element = self._get_element_at(event.clientX, event.clientY)
@@ -204,7 +191,7 @@ class PointerManager:
 
             self.reset()
 
-    def _handle_keydown(self, event):
+    def _js_window__keydown(self, event):
         """Handle keydown events for cancellation (Escape key)."""
         logger.debug(f"Keydown event: {event.key}")
         if self.state != self.IDLE and event.key == "Escape":
