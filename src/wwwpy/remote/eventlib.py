@@ -39,6 +39,26 @@ def convention_accept(name: str) -> Accept | None:
     return Accept(target_obj, event_type)
 
 
+def _process_event_listeners(target, action_func, accept=convention_accept):
+    """
+    Helper function to process event listeners for methods in target.
+
+    Args:
+        target: The object containing methods to process
+        action_func: Function to call with (target, event_type, method) for matched methods
+        accept: A function that determines if a method matches the event handler pattern
+    """
+    for name in dir(target):
+        if name.startswith('__'):
+            continue
+
+        attr = getattr(target, name)
+        if callable(attr):
+            accepted = accept(name)
+            if accepted is not None:
+                action_func(accepted.target, accepted.type, attr)
+
+
 def add_event_listeners(target, accept=convention_accept):
     """
     Add event listeners to methods in target that match the naming convention.
@@ -47,21 +67,7 @@ def add_event_listeners(target, accept=convention_accept):
         target: The object containing methods to be used as event handlers
         accept: A function that determines if a method should be used as an event handler
     """
-
-    # Get all attributes (potential methods) of the target
-    for name in dir(target):
-        # Skip special methods
-        if name.startswith('__'):
-            continue
-
-        attr = getattr(target, name)
-        # Check if it's callable (a method)
-        if callable(attr):
-            # Use the accept function to check if this method should be an event handler
-            accepted = accept(name)
-            if accepted is not None:
-                # Create a proxy of the method for JavaScript
-                add_event_listener(accepted.target, accepted.type, attr)
+    _process_event_listeners(target, add_event_listener, accept)
 
 
 def remove_event_listeners(target, accept=convention_accept):
@@ -72,17 +78,4 @@ def remove_event_listeners(target, accept=convention_accept):
         target: The object containing methods that were used as event handlers
         accept: A function that determines if a method was used as an event handler
     """
-    # Get all attributes (potential methods) of the target
-    for name in dir(target):
-        # Skip special methods
-        if name.startswith('__'):
-            continue
-
-        attr = getattr(target, name)
-        # Check if it's callable (a method)
-        if callable(attr):
-            # Use the accept function to check if this method was an event handler
-            accepted = accept(name)
-            if accepted is not None:
-                # Remove the event listener
-                remove_event_listener(accepted.target, accepted.type, attr)
+    _process_event_listeners(target, remove_event_listener, accept)

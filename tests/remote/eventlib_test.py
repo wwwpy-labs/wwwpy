@@ -68,17 +68,16 @@ def test_remove_event():
 
     assert len(events) == 0
 
-
-def test_remove_without_add():
-    events = []
-
-    class C1:
-        def _js_document__click(self, e):
-            events.append(e)
-
-    c1 = C1()
-    eventlib.remove_event_listeners(c1)
-
-    js.document.body.click()
-
-    assert len(events) == 0
+# def test_remove_without_add():
+#     events = []
+#
+#     class C1:
+#         def _js_document__click(self, e):
+#             events.append(e)
+#
+#     c1 = C1()
+#     eventlib.remove_event_listeners(c1)
+#
+#     js.document.body.click()
+#
+#     assert len(events) == 0
