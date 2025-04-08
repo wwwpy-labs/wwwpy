@@ -72,7 +72,7 @@ class PointerManager:
         # Event callbacks
         self.on_source_validation = lambda event, element: False  # Default rejects all
         self.on_target_validation = lambda element: False  # Default rejects all
-        self.on_hover = lambda element, is_dragging: None  # Just emits events
+        self.on_hover = lambda event, element, is_dragging: None  # Just emits events
         self.on_interaction_complete = lambda source, target: None
         self.on_interaction_cancel = lambda reason: None
 
@@ -166,16 +166,16 @@ class PointerManager:
                 self.state = self.DRAG_ACTIVE
 
         # Handle hover events in active states
-        if self.state in [self.CLICK_ACTIVE, self.DRAG_ACTIVE]:
-            target_element = self._get_element_at(event.clientX, event.clientY)
-            is_dragging = (self.state == self.DRAG_ACTIVE)
+        # if self.state in [self.CLICK_ACTIVE, self.DRAG_ACTIVE]:
+        target_element = self._get_element_at(event.clientX, event.clientY)
+        is_dragging = (self.state == self.DRAG_ACTIVE)
 
-            # Always emit hover events during tests
-            self.current_target = target_element
-            if target_element:
-                logger.debug(
-                    f"Hover event: {target_element.id if hasattr(target_element, 'id') else 'unknown'}, dragging={is_dragging}")
-                self.on_hover(target_element, is_dragging)
+        # Always emit hover events during tests
+        self.current_target = target_element
+        if target_element:
+            logger.debug(
+                f"Hover event: {target_element.id if hasattr(target_element, 'id') else 'unknown'}, dragging={is_dragging}")
+            self.on_hover(event, target_element, is_dragging)
 
     def _js_window__pointerup(self, event):
         """Handle pointer up events to complete drag operations."""

@@ -53,14 +53,14 @@ async def test_hover_events_during_click_active_state(pointer_manager, fixture):
     pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     hover_events = []
 
-    pointer_manager.on_hover = lambda element, is_dragging: hover_events.append((element, is_dragging))
+    pointer_manager.on_hover = lambda event, element, is_dragging: hover_events.append((element, is_dragging))
 
     # Put in click-active state
     fixture.source1.click()
     assert pointer_manager.state == PointerManager.CLICK_ACTIVE
 
     # WHEN - directly trigger the hover event with is_dragging=False
-    pointer_manager.on_hover(fixture.target1, False)
+    pointer_manager.on_hover(None, fixture.target1, False)
 
     # THEN
     assert len(hover_events) > 0
@@ -73,7 +73,7 @@ async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
     pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
     hover_events = []
 
-    pointer_manager.on_hover = lambda element, is_dragging: hover_events.append((element, is_dragging))
+    pointer_manager.on_hover = lambda event, element, is_dragging: hover_events.append((element, is_dragging))
 
     # Manually set up drag state since browser simulation is tricky
     fixture.source1.click()
@@ -81,7 +81,7 @@ async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
 
     # WHEN
     # Directly trigger the hover event
-    pointer_manager.on_hover(fixture.target1, True)
+    pointer_manager.on_hover(None, fixture.target1, True)
 
     # THEN
     assert len(hover_events) > 0
