@@ -172,7 +172,7 @@ class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
-        self._selected_item: ActionItem | None = None
+        self._selected_action: ActionItem | None = None
         self._install_count = 0
         self.on_events: PaletteEventHandler = lambda ev: None
         pm = PointerManager()
@@ -196,7 +196,14 @@ class ActionManager:
 
         pm.on_hover = _js_window__pointermove
 
-        # pm.on_source_validation = lambda *args: True
+        def _source_val(event, element) -> bool:
+            accept_event = AcceptEvent(event)
+            self._notify(accept_event)
+            if accept_event.accepted:
+                self.selected_action = None
+            return accept_event.accepted
+
+        pm.on_source_validation = _source_val
         # pm.on_target_validation = lambda *args: True
 
         # pm.on_interaction_complete = lambda source, target: self.on_events(DropEvent(None, False,
@@ -236,7 +243,7 @@ class ActionManager:
     @property
     def selected_action(self) -> ActionItem | None:
         """Return the currently selected item."""
-        return self._selected_item
+        return self._selected_action
 
     @selected_action.setter
     def selected_action(self, value: ActionItem | None):
@@ -247,7 +254,7 @@ class ActionManager:
             sel.selected = False
             msg += f' (deselecting {sel})'
 
-        self._selected_item = value
+        self._selected_action = value
         msg += f' (selecting {value})'
         if value:
             value.selected = True
