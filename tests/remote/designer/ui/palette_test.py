@@ -1,12 +1,11 @@
 import logging
 from dataclasses import dataclass, field
-from typing import TypeVar
 
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.palette import PaletteEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
-    PaletteItem, HoverEvent, DropEvent
+from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
+    PaletteItem, HoverEvent, DropEvent, AcceptEvent, _PE
 from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
@@ -94,11 +93,11 @@ class TestUseSelection:
         action_manager.selected_action = item1
         accept_calls = []
 
-        def destination_accept(gesture_event: PaletteEvent):
+        def destination_accept(gesture_event: AcceptEvent):
             accept_calls.append(gesture_event)
             gesture_event.accept()
 
-        action_manager.on_events = destination_accept
+        action_manager.listeners_for(AcceptEvent).add(destination_accept)
 
         # WHEN
         js.document.getElementById('div1').click()
@@ -221,9 +220,6 @@ def div1(fixture): yield fixture.div1
 def events(fixture): yield fixture.events
 
 
-_AE = TypeVar('_AE', bound=PaletteEvent)
-
-
 class EventFixture:
     def __init__(self):
         self._events = []
@@ -231,7 +227,7 @@ class EventFixture:
     def add(self, event):
         self._events.append(event)
 
-    def filter(self, event_type: type[_AE]) -> list[_AE]:
+    def filter(self, event_type: type[_PE]) -> list[_PE]:
         return [event for event in self._events if isinstance(event, event_type)]
 
     @property

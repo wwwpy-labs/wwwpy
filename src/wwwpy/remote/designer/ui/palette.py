@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TypeVar
 
 import js
 from pyodide.ffi import create_proxy
@@ -117,6 +118,9 @@ class PaletteEvent:
     pass
 
 
+_PE = TypeVar('_PE', bound=PaletteEvent)
+
+
 @dataclass
 class AcceptEvent(PaletteEvent):
     event: js.Event
@@ -139,19 +143,45 @@ class DropEvent(PaletteEvent):
     target_element: js.HTMLElement | None = None
 
 
+PaletteEventHandler = Callable[[_PE], None]
+
+
+class TypeListeners(list[PaletteEventHandler]):
+    """A list of event handlers for a specific event type."""
+
+    def __init__(self, event_type: type[_PE]):
+        super().__init__()
+        self.event_type = event_type
+
+    def add(self, handler: PaletteEventHandler):
+        self.append(handler)
+
+    def remove(self, handler: PaletteEventHandler):
+        self.remove(handler)
+
+    def notify(self, event: _PE):
+        """Notify all listeners of the event."""
+        if not isinstance(event, self.event_type):
+            raise TypeError(f'Handler must be of type {self.event_type}')
+
+        for handler in self:
+            handler(event)
+
+
 class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
         self._selected_item: ActionItem | None = None
         self._install_count = 0
-        self.on_events: Callable[[PaletteEvent], None] = lambda ev: None
+        self.on_events: PaletteEventHandler = lambda ev: None
         pm = PointerManager()
         self._pm = pm
+        self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
 
         def _js_window__click(event, element):
             gesture_event = AcceptEvent(event)
-            self.on_events(gesture_event)
+            self._notify(gesture_event)
             if gesture_event.accepted:
                 logger.debug(f'Click event accepted: {event}')
                 self.selected_action = None
@@ -162,7 +192,7 @@ class ActionManager:
             if self._in_palette(event.target, element):
                 return
             hover_event = HoverEvent(event)
-            self.on_events(hover_event)
+            self._notify(hover_event)
 
         pm.on_hover = _js_window__pointermove
 
@@ -171,6 +201,20 @@ class ActionManager:
 
         # pm.on_interaction_complete = lambda source, target: self.on_events(DropEvent(None, False,
         #                                                                              source, target))
+
+    def _notify(self, event: _PE):
+        """Notify all listeners of the event."""
+        listeners = self.listeners_for(type(event))
+        if listeners:
+            listeners.notify(event)
+        self.on_events(event)
+
+    def listeners_for(self, event_type: type[_PE]) -> TypeListeners[_PE]:
+        res = self._listeners.get(event_type)
+        if res is None:
+            res = TypeListeners(event_type)
+            self._listeners[event_type] = res
+        return res
 
     def _in_palette(self, target: js.HTMLElement, element) -> bool:
         return target.closest(PaletteComponent.component_metadata.tag_name) is not None
