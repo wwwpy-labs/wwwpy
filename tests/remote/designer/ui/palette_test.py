@@ -88,23 +88,16 @@ class TestUseSelection:
         assert len(accept_calls) == 1
         assert palette.selected_item is item1
 
-    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1, div1):
+    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-        accept_calls = []
-
-        def destination_accept(gesture_event: AcceptEvent):
-            accept_calls.append(gesture_event)
-            gesture_event.accept()
-
-        action_manager.listeners_for(AcceptEvent).add(destination_accept)
+        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
 
         # WHEN
         js.document.getElementById('div1').click()
 
         # THEN
-        # await asyncio.sleep(100000)
-        assert len(accept_calls) == 1
+        assert len(events.accept_events) == 1
         assert action_manager.selected_action is None
 
 
@@ -237,6 +230,10 @@ class EventFixture:
     @property
     def hover_events(self) -> list[HoverEvent]:
         return self.filter(HoverEvent)
+
+    @property
+    def accept_events(self) -> list[AcceptEvent]:
+        return self.filter(AcceptEvent)
 
 
 @dataclass
