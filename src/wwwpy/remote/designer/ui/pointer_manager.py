@@ -66,9 +66,6 @@ class PointerManager:
         self.drag_start_x = 0
         self.drag_start_y = 0
 
-        # Install tracking
-        self._install_count = 0
-
         # Event callbacks
         self.on_source_validation = lambda event, element: False  # Default rejects all
         self.on_target_validation = lambda element: False  # Default rejects all
@@ -77,23 +74,9 @@ class PointerManager:
         self.on_interaction_cancel = lambda reason: None
 
     def install(self):
-        """Install event listeners to track pointer interactions."""
-        self._install_count += 1
-        if self._install_count > 1:
-            logger.debug("PointerManager already installed, skipping")
-            return
-
-        logger.debug("Installing PointerManager event listeners")
         eventlib.add_event_listeners(self)
 
     def uninstall(self):
-        """Remove event listeners."""
-        self._install_count -= 1
-        if self._install_count > 0:
-            logger.debug("PointerManager still in use, not uninstalling")
-            return
-
-        logger.debug("Uninstalling PointerManager event listeners")
         eventlib.remove_event_listeners(self)
 
     def reset(self):
