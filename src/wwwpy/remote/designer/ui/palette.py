@@ -11,7 +11,6 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, eventlib, dict_to_py
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 
 logger = logging.getLogger(__name__)
 
@@ -175,39 +174,7 @@ class ActionManager:
     def __init__(self):
         self._selected_action: ActionItem | None = None
         self.on_events: PaletteEventHandler = lambda ev: None
-        pm = PointerManager()
-        self._pm = pm
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
-
-        def _js_window__click(event, element):
-            gesture_event = AcceptEvent(event)
-            self._notify(gesture_event)
-            if gesture_event.accepted:
-                logger.debug(f'Click event accepted: {event}')
-                self.selected_action = None
-
-        pm.on_source_validation = _js_window__click
-
-        def _js_window__pointermove(event, element, is_dragging):
-            if self._in_palette(event.target, element):
-                return
-            hover_event = HoverEvent(event)
-            self._notify(hover_event)
-
-        pm.on_hover = _js_window__pointermove
-
-        def _source_val(event, element) -> bool:
-            accept_event = AcceptEvent(event)
-            self._notify(accept_event)
-            if accept_event.accepted:
-                self.selected_action = None
-            return accept_event.accepted
-
-        pm.on_source_validation = _source_val
-        # pm.on_target_validation = lambda *args: True
-
-        # pm.on_interaction_complete = lambda source, target: self.on_events(DropEvent(None, False,
-        #                                                                              source, target))
 
     def _js_window__click(self, event):
         palette_item = _find_palette_item(event)
@@ -254,13 +221,9 @@ class ActionManager:
 
     def install(self):
         eventlib.add_event_listeners(self)
-        return
-        self._pm.install()
 
     def uninstall(self):
         eventlib.remove_event_listeners(self)
-        return
-        self._pm.uninstall()
 
     @property
     def selected_action(self) -> ActionItem | None:
