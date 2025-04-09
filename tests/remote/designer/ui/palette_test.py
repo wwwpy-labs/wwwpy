@@ -70,26 +70,25 @@ async def test_externally_deselect_item(palette, item1, item2):
 
 
 class TestUseSelection:
-    def test_selection_and_click__reject_should_not_deselect(self, palette, action_manager, item1, div1, events):
+    def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-
         action_manager.listeners_for(AcceptEvent).add(lambda ev: None)
 
         # WHEN
-        js.document.getElementById('div1').click()
+        div1.click()
 
         # THEN
         assert len(events.accept_events) == 1
         assert action_manager.selected_action is item1
 
-    async def test_selection_and_click__accept_should_deselect(self, palette, action_manager, item1, div1, events):
+    async def test_selection_and_click__accept_should_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
         action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
 
         # WHEN
-        js.document.getElementById('div1').click()
+        div1.click()
 
         # THEN
         assert len(events.accept_events) == 1
