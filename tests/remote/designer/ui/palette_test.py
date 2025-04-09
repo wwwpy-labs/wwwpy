@@ -5,7 +5,7 @@ from typing import TypeVar
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.palette import ActionEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
+from wwwpy.remote.designer.ui.palette import PaletteEvent, ActionManager, PaletteComponent, PaletteItemComponent, \
     PaletteItem, HoverEvent, DropEvent
 from wwwpy.server.rpc4tests import rpctst_exec
 
@@ -94,9 +94,9 @@ class TestUseSelection:
         action_manager.selected_action = item1
         accept_calls = []
 
-        def destination_accept(gesture_event: ActionEvent):
+        def destination_accept(gesture_event: PaletteEvent):
             accept_calls.append(gesture_event)
-            gesture_event.spend()
+            gesture_event.accept()
 
         action_manager.on_events = destination_accept
 
@@ -130,7 +130,7 @@ class TestDrag:
     async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.on_events = lambda event: event.spend()
+        action_manager.on_events = lambda event: event.accept()
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
@@ -139,8 +139,7 @@ class TestDrag:
         assert action_manager.selected_action is None
         assert not item1.selected
 
-    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, palette, action_manager, item1, div1,
-                                                                     events):
+    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, action_manager, item1, div1, events):
         # GIVEN
         #
 
@@ -151,7 +150,8 @@ class TestDrag:
         assert action_manager.selected_action is None
 
         assert len(events.drop_events) == 1, 'one drag event expected'
-        assert events.drop_events[0].drop_target is div1
+        assert events.drop_events[0].source_element is item1
+        assert events.drop_events[0].target_element is div1
 
 
 class TestHover:
@@ -221,7 +221,7 @@ def div1(fixture): yield fixture.div1
 def events(fixture): yield fixture.events
 
 
-_AE = TypeVar('_AE', bound=ActionEvent)
+_AE = TypeVar('_AE', bound=PaletteEvent)
 
 
 class EventFixture:

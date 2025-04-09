@@ -113,23 +113,30 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
 
 
 @dataclass
-class ActionEvent:
-    event: js.Event
-    is_spent: bool = False
-    """Flag to indicate if the action has been spent/used"""
-
-    def spend(self):
-        self.is_spent = True
+class PaletteEvent:
+    pass
 
 
 @dataclass
-class HoverEvent(ActionEvent):
+class AcceptEvent(PaletteEvent):
+    event: js.Event
+
+    accepted: bool = False
+    """Flag to indicate if the action has been spent/used"""
+
+    def accept(self):
+        self.accepted = True
+
+
+@dataclass
+class HoverEvent(PaletteEvent):
     is_dragging: bool = False
 
 
 @dataclass
-class DropEvent(ActionEvent):
-    drop_target: js.HTMLElement | None = None
+class DropEvent(PaletteEvent):
+    source_element: js.HTMLElement | None = None
+    target_element: js.HTMLElement | None = None
 
 
 class ActionManager:
@@ -138,14 +145,14 @@ class ActionManager:
     def __init__(self):
         self._selected_item: ActionItem | None = None
         self._install_count = 0
-        self.on_events: Callable[[ActionEvent], None] = lambda ev: None
+        self.on_events: Callable[[PaletteEvent], None] = lambda ev: None
         pm = PointerManager()
         self._pm = pm
 
         def _js_window__click(event, element):
-            gesture_event = ActionEvent(event)
+            gesture_event = AcceptEvent(event)
             self.on_events(gesture_event)
-            if gesture_event.is_spent:
+            if gesture_event.accepted:
                 logger.debug(f'Click event accepted: {event}')
                 self.selected_action = None
 
@@ -158,6 +165,12 @@ class ActionManager:
             self.on_events(hover_event)
 
         pm.on_hover = _js_window__pointermove
+
+        # pm.on_source_validation = lambda *args: True
+        # pm.on_target_validation = lambda *args: True
+
+        # pm.on_interaction_complete = lambda source, target: self.on_events(DropEvent(None, False,
+        #                                                                              source, target))
 
     def _in_palette(self, target: js.HTMLElement, element) -> bool:
         return target.closest(PaletteComponent.component_metadata.tag_name) is not None
