@@ -140,6 +140,37 @@ class TestDrag:
         assert action_manager.selected_action is None
         assert not item1.selected
 
+    async def test_no_select_start_drag__should_select_palette_item(self, action_manager, item1, div1):
+        # GIVEN
+        action_manager.selected_action = None
+
+        # WHEN
+        await _rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+
+        # THEN
+        assert action_manager.selected_action is item1
+
+    async def test_item1_sel_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+        # GIVEN
+        action_manager.selected_action = item1
+
+        # WHEN
+        await _rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+
+        # THEN
+        assert action_manager.selected_action is item2
+
+    async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, item1, div1, events):
+        # GIVEN
+        action_manager.selected_action = None
+        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
+
+        # WHEN
+        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+
+        # THEN
+        assert action_manager.selected_action is None
+
     async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, action_manager, item1, div1, events):
         # GIVEN
         #
@@ -307,3 +338,8 @@ def fixture():
         yield f
     finally:
         js.document.body.innerHTML = ''
+
+
+async def _rpctst_exec(commands: list[str]):
+    for command in commands:
+        await rpctst_exec(command)

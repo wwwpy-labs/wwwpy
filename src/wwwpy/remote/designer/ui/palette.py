@@ -194,6 +194,12 @@ class ActionManager:
         hover_event = HoverEvent(event)
         self._notify(hover_event)
 
+    def _js_window__pointerdown(self, event):
+        item = _find_palette_item(event)
+        if item:
+            self.selected_action = item
+            return
+
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""
         listeners = self.listeners_for(type(event))
