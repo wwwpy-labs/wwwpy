@@ -53,7 +53,7 @@ async def test_externally_select_item(palette, action_manager, item1, item2):
 
 
 async def test_externally_select_different_item(action_manager, item1, item2):
-    action_manager.selected_action = item1
+    item1.element.click()
     action_manager.selected_action = item2
 
     assert action_manager.selected_action == item2
