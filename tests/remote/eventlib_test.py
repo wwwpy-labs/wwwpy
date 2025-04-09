@@ -4,6 +4,13 @@ from pyodide.ffi import create_proxy
 from wwwpy.remote import eventlib
 
 
+def test_win_eq():
+    assert js.window == js.window
+    assert getattr(js, 'window') == getattr(js, 'window')
+    assert getattr(js, 'window').js_id == getattr(js, 'window').js_id
+    assert getattr(js, 'document').js_id == getattr(js, 'document').js_id
+
+
 def test_create_proxy_assumptions():
     class C1:
         def m1(self):
@@ -51,6 +58,73 @@ def test_add_event():
     # js.document.body.click()
 
     # assert len(events) == 0
+
+
+def test_add_remove():
+    events = []
+
+    class C1:
+        def _js_document__click(self, e):
+            events.append(e)
+
+    c1 = C1()
+    eventlib.add_event_listeners(c1)
+    eventlib.remove_event_listeners(c1)
+
+    js.document.body.click()
+
+    assert len(events) == 0
+
+
+def test_double_add_event():
+    events = []
+
+    class C1:
+        def _js_document__click(self, e):
+            events.append(e)
+
+    c1 = C1()
+    eventlib.add_event_listeners(c1)
+    eventlib.add_event_listeners(c1)
+
+    js.document.body.click()
+
+    assert len(events) == 1
+
+
+def test_double_add_event_and_one_remove():
+    events = []
+
+    class C1:
+        def _js_document__click(self, e):
+            events.append(e)
+
+    c1 = C1()
+    eventlib.add_event_listeners(c1)
+    eventlib.add_event_listeners(c1)
+    eventlib.remove_event_listeners(c1)
+
+    js.document.body.click()
+
+    assert len(events) == 1
+
+
+def test_double_remove_event():
+    events = []
+
+    class C1:
+        def _js_document__click(self, e):
+            events.append(e)
+
+    c1 = C1()
+    eventlib.add_event_listeners(c1)
+    eventlib.add_event_listeners(c1)
+    eventlib.remove_event_listeners(c1)
+    eventlib.remove_event_listeners(c1)
+
+    js.document.body.click()
+
+    assert len(events) == 0
 
 
 def test_remove_event():

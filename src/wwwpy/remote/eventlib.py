@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 import js
 from pyodide.ffi import create_proxy
-from pyodide.ffi.wrappers import add_event_listener, remove_event_listener
+from pyodide.ffi.wrappers import add_event_listener, remove_event_listener, EVENT_LISTENERS
 
 
 @dataclass
 class Accept:
     target: js.EventTarget
     type: str
+
+
+_js_attrs = dict()
 
 
 def convention_accept(name: str) -> Accept | None:
@@ -36,6 +42,15 @@ def convention_accept(name: str) -> Accept | None:
     if target_obj is None:
         return None
 
+    target_obj_stored = _js_attrs.get(target_name, None)
+    if target_obj_stored is None:
+        _js_attrs[target_name] = target_obj
+    else:
+        if target_obj.js_id != target_obj_stored.js_id:
+            msg = f'js_id mismatch for {target_name}: {target_obj.js_id} != {target_obj.js_id}'
+            raise RuntimeError(msg)
+
+    logger.debug(f'target_name={target_name} target_obj.js_id={target_obj.js_id} event_type={event_type}')
     return Accept(target_obj, event_type)
 
 
@@ -56,7 +71,13 @@ def _process_event_listeners(target, action_func, accept=convention_accept):
         if callable(attr):
             accepted = accept(name)
             if accepted is not None:
-                action_func(accepted.target, accepted.type, attr)
+                logger.debug(f'calling {action_func.__name__} for {name} js_id={accepted.target.js_id}')
+                try:
+                    action_func(accepted.target, accepted.type, attr)
+                except KeyError as e:
+                    logger.error(f'KeyError: {e} for {name}')
+                    logger.info(f'target=`{target.__class__.__name__}` has no event listener for {name}')
+                logger.info(f'EVENT_LISTENERS=`{EVENT_LISTENERS}`')
 
 
 def add_event_listeners(target, accept=convention_accept):
@@ -67,6 +88,13 @@ def add_event_listeners(target, accept=convention_accept):
         target: The object containing methods to be used as event handlers
         accept: A function that determines if a method should be used as an event handler
     """
+    c = _counter(target)
+    _counter(target, 1)
+
+    if c > 0:
+        logger.debug(f'target={target.__class__.__name__} already has {c} event listeners installed, skipping')
+        return
+    logger.debug(f'target={target.__class__.__name__} has no event listeners installed, adding')
     _process_event_listeners(target, add_event_listener, accept)
 
 
@@ -78,4 +106,16 @@ def remove_event_listeners(target, accept=convention_accept):
         target: The object containing methods that were used as event handlers
         accept: A function that determines if a method was used as an event handler
     """
+    c = _counter(target, -1)
+    if c != 0:
+        logger.debug(f'target={target.__class__.__name__} still has {c} event listeners installed, not removing')
+        return
+    logger.debug(f'target={target.__class__.__name__} has no event listeners installed, removing')
     _process_event_listeners(target, remove_event_listener, accept)
+
+
+def _counter(target, amount=0) -> int:
+    if not hasattr(target, '_install_count'):
+        target._install_count = 0
+    target._install_count += amount
+    return target._install_count
