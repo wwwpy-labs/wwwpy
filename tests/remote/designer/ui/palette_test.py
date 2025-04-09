@@ -5,7 +5,7 @@ import js
 import pytest
 
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
-    PaletteItem, HoverEvent, DropEvent, AcceptEvent, _PE
+    HoverEvent, DropEvent, AcceptEvent, _PE
 from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,13 @@ async def test_palette_no_selected_item(action_manager):
 
 async def test_palette_click_item__should_be_selected(palette, action_manager, item1):
     item1.element.click()
+
+    assert action_manager.selected_action == item1
+    assert item1.selected
+
+
+async def test_palette_click_item_label__should_be_selected(palette, action_manager, item1):
+    item1._label.click()
 
     assert action_manager.selected_action == item1
     assert item1.selected
@@ -69,6 +76,28 @@ async def test_externally_deselect_item(palette, item1, item2):
     assert not item1.selected
 
 
+class TestPaletteItem:
+
+    def test_selected_should_have_class_selected(self):
+        item = PaletteItemComponent()
+        item.selected = True
+        assert item.element.classList.contains('selected')
+
+    def test_selected_deselected_should_not_have_class_selected(self):
+        item = PaletteItemComponent()
+        item.selected = True
+        item.selected = False
+        assert not item.element.classList.contains('selected')
+
+
+# class TestFindItemFromElement:
+#     def test_find_item_from_element(self, item1):
+#         assert find_item_from_element(item1._label) == item1
+#
+#     def test_find_item_from_element_not_found(self, item1, div1):
+#         assert find_item_from_element(div1) is None
+
+
 class TestUseSelection:
     def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
         # GIVEN
@@ -93,20 +122,6 @@ class TestUseSelection:
         # THEN
         assert len(events.accept_events) == 1
         assert action_manager.selected_action is None
-
-
-class TestPaletteItem:
-
-    def test_selected_should_have_class_selected(self):
-        item = PaletteItemComponent()
-        item.selected = True
-        assert item.element.classList.contains('selected')
-
-    def test_selected_deselected_should_not_have_class_selected(self):
-        item = PaletteItemComponent()
-        item.selected = True
-        item.selected = False
-        assert not item.element.classList.contains('selected')
 
 
 class TestDrag:
@@ -235,33 +250,33 @@ class Fixture:
     palette: PaletteComponent = field(default_factory=PaletteComponent)
     action_manager: ActionManager = None
     _events: EventFixture = None
-    _item1: PaletteItem = None
-    _item2: PaletteItem = None
-    _item3: PaletteItem = None
+    _item1: PaletteItemComponent = None
+    _item2: PaletteItemComponent = None
+    _item3: PaletteItemComponent = None
     _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
         self.action_manager = self.palette.action_manager
 
-    def _add_item(self, label: str) -> PaletteItem:
+    def _add_item(self, label: str) -> PaletteItemComponent:
         item = self.palette.add_item(f'{label}-key', label)
         item.element.id = label
         return item
 
     @property
-    def item1(self) -> PaletteItem:
+    def item1(self) -> PaletteItemComponent:
         if self._item1 is None:
             self._item1 = self._add_item('item1')
         return self._item1
 
     @property
-    def item2(self) -> PaletteItem:
+    def item2(self) -> PaletteItemComponent:
         if self._item2 is None:
             self._item2 = self._add_item('item2')
         return self._item2
 
     @property
-    def item3(self) -> PaletteItem:
+    def item3(self) -> PaletteItemComponent:
         if self._item3 is None:
             self._item3 = self._add_item('item3')
         return self._item3

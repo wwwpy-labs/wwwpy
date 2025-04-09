@@ -9,7 +9,8 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js
+from wwwpy.remote import dict_to_js, eventlib, dict_to_py
+from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 
 logger = logging.getLogger(__name__)
@@ -60,14 +61,14 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     def disconnectedCallback(self):
         self.action_manager.uninstall()
 
-    def add_item(self, key: any, label: str) -> PaletteItem:
+    def add_item(self, key: any, label: str) -> PaletteItemComponent:
         """Add an item to the palette."""
         item = PaletteItemComponent()
         item.key = key
         item.label = label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
-        item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._action_item_click(item)))
+        # item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._action_item_click(item)))
         return item
 
 
@@ -209,6 +210,18 @@ class ActionManager:
         # pm.on_interaction_complete = lambda source, target: self.on_events(DropEvent(None, False,
         #                                                                              source, target))
 
+    def _js_window__click(self, event):
+        palette_item = _find_palette_item(event)
+        if palette_item:
+            logger.debug(f'Palette item clicked: {palette_item}')
+            self._action_item_click(palette_item)
+            return
+        gesture_event = AcceptEvent(event)
+        self._notify(gesture_event)
+        if gesture_event.accepted:
+            logger.debug(f'Click event accepted: {event}')
+            self.selected_action = None
+
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""
         listeners = self.listeners_for(type(event))
@@ -235,9 +248,13 @@ class ActionManager:
         pass
 
     def install(self):
+        eventlib.add_event_listeners(self)
+        return
         self._pm.install()
 
     def uninstall(self):
+        eventlib.remove_event_listeners(self)
+        return
         self._pm.uninstall()
 
     @property
@@ -268,6 +285,17 @@ class ActionManager:
             return
 
         self.selected_action = item
+
+
+def _find_palette_item(event: js.Event) -> PaletteItem | None:
+    logger.debug(f'_find_palette_item event={dict_to_py(event)}')
+    path = event.composedPath()
+    target = path[0] if path and len(path) > 0 else event.target
+    logger.debug(f'_find_palette_item target={dict_to_py(target)}')
+    res = target.closest(PaletteItemComponent.component_metadata.tag_name)
+    if res:
+        return get_component(res)
+    return None
 
 
 # language=html
