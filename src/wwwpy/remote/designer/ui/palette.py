@@ -174,7 +174,6 @@ class ActionManager:
 
     def __init__(self):
         self._selected_action: ActionItem | None = None
-        self._install_count = 0
         self.on_events: PaletteEventHandler = lambda ev: None
         pm = PointerManager()
         self._pm = pm
@@ -221,6 +220,12 @@ class ActionManager:
         if gesture_event.accepted:
             logger.debug(f'Click event accepted: {event}')
             self.selected_action = None
+
+    def _js_window__pointermove(self, event):
+        if _find_palette_item(event):
+            return
+        hover_event = HoverEvent(event)
+        self._notify(hover_event)
 
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""
