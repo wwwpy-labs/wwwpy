@@ -4,8 +4,8 @@ from dataclasses import dataclass
 import js
 import pytest
 
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, Cancelled
-from wwwpy.server.rpc4tests import rpctst_exec
+from tests.remote.rpc4tests_helper import rpctst_exec
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 
 logger = logging.getLogger(__name__)
 
@@ -15,106 +15,73 @@ async def test_initial_state_is_idle(pointer_manager):
     assert pointer_manager.source_element is None
 
 
-async def test_idle_to_click_active_state_transition(pointer_manager, fixture):
+async def test_idle_to_drag_ready_state_transition(pointer_manager, fixture):
     # GIVEN
-    source_validated_elements = []
-
-    def validate_source(event, element):
-        source_validated_elements.append(element)
-        return element.id == 'source1'
-
-    pointer_manager.on_source_validation = validate_source
+    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     # WHEN
-    fixture.source1.click()
+    await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-    assert pointer_manager.source_element == fixture.source1
-    assert source_validated_elements == [fixture.source1]
-
-
-async def test_idle_to_drag_active_state_transition(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-
-    # WHEN
-    await rpctst_exec("page.locator('#source1').hover()")  # First hover over the element
-    await rpctst_exec("page.mouse.down()")  # Then press mouse down
-    await rpctst_exec("page.mouse.move(100, 100)")  # Move enough to trigger drag
-
-    # THEN
-    assert pointer_manager.state == PointerManager.DRAG_ACTIVE
+    assert pointer_manager.state == PointerManager.DRAGGING
     assert pointer_manager.source_element == fixture.source1
 
 
-async def test_hover_events_during_click_active_state(pointer_manager, fixture):
+async def test_mousedown_accepted__should_go_in_ready(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-    hover_events = []
-
-    pointer_manager.on_hover = lambda event, element, is_dragging: hover_events.append((element, is_dragging))
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-
-    # WHEN - directly trigger the hover event with is_dragging=False
-    pointer_manager.on_hover(None, fixture.target1, False)
-
-    # THEN
-    assert len(hover_events) > 0
-    assert hover_events[-1][0] == fixture.target1
-    assert hover_events[-1][1] is False  # Not dragging
-
-
-async def test_hover_events_during_drag_active_state(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-    hover_events = []
-
-    pointer_manager.on_hover = lambda event, element, is_dragging: hover_events.append((element, is_dragging))
-
-    # Manually set up drag state since browser simulation is tricky
-    fixture.source1.click()
-    pointer_manager.state = PointerManager.DRAG_ACTIVE
+    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     # WHEN
-    # Directly trigger the hover event
-    pointer_manager.on_hover(None, fixture.target1, True)
+    await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert len(hover_events) > 0
-    assert hover_events[-1][0] == fixture.target1
-    assert hover_events[-1][1] is True  # Is dragging
+    assert pointer_manager.state == PointerManager.READY
 
 
-async def test_successful_interaction_completion_click_mode(pointer_manager, fixture):
+async def test_mousedown_rejected__should_stay_in_idle(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-    pointer_manager.on_target_validation = lambda element: element.id == 'target1'
-
-    completion_events = []
-
-    pointer_manager.on_interaction_complete = lambda source, target: completion_events.append((source, target))
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
+    pointer_manager.on_pointerdown_accept = lambda event, element: False
 
     # WHEN
-    fixture.target1.click()
+    await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
     assert pointer_manager.state == PointerManager.IDLE
-    assert len(completion_events) == 1
-    assert completion_events[0][0] == fixture.source1
-    assert completion_events[0][1] == fixture.target1
+
+
+async def test_move_not_enough_for_drag__should_go_in_ready(pointer_manager, fixture):
+    # GIVEN
+    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+
+    rect = fixture.source1.getBoundingClientRect()
+    x = rect.x + rect.width / 2
+    y = rect.y + rect.height / 2
+
+    # WHEN
+    await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
+
+    # THEN
+    assert pointer_manager.state == PointerManager.READY
+
+
+async def test_move_enough_for_drag__should_go_in_dragging(pointer_manager, fixture):
+    # GIVEN
+    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+
+    rect = fixture.source1.getBoundingClientRect()
+    x = rect.x + rect.width / 2
+    y = rect.y + rect.height / 2
+
+    # WHEN
+    await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
+
+    # THEN
+    assert pointer_manager.state == PointerManager.DRAGGING
 
 
 async def test_successful_interaction_completion_drag_mode(pointer_manager, fixture):
     # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
+    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
     pointer_manager.on_target_validation = lambda element: element.id == 'target1'
 
     completion_events = []
@@ -124,7 +91,7 @@ async def test_successful_interaction_completion_drag_mode(pointer_manager, fixt
     # Manually set up the drag state to avoid test complexity
     fixture.source1.click()  # Select the source
     pointer_manager.source_element = fixture.source1
-    pointer_manager.state = PointerManager.DRAG_ACTIVE
+    pointer_manager.state = PointerManager.DRAGGING
 
     # WHEN - simulate drop by calling handler directly
     pointer_manager.on_interaction_complete(fixture.source1, fixture.target1)
@@ -135,85 +102,6 @@ async def test_successful_interaction_completion_drag_mode(pointer_manager, fixt
     assert len(completion_events) == 1
     assert completion_events[0][0] == fixture.source1
     assert completion_events[0][1] == fixture.target1
-
-
-async def test_deselection_by_clicking_source_again(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-
-    cancel_events = []
-
-    pointer_manager.on_interaction_cancel = lambda reason: cancel_events.append(reason)
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-
-    # WHEN
-    fixture.source1.click()  # Click the source again
-
-    # THEN
-    assert pointer_manager.state == PointerManager.IDLE
-    assert len(cancel_events) == 1
-    assert cancel_events[0] == Cancelled.source_reselected
-
-
-async def test_reset_pointer_manager_programmatically(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-
-    # WHEN
-    pointer_manager.reset()
-
-    # THEN
-    assert pointer_manager.state == PointerManager.IDLE
-    assert pointer_manager.source_element is None
-
-
-async def test_invalid_target_click_doesnt_complete_interaction(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-    pointer_manager.on_target_validation = lambda element: element.id == 'target1'
-
-    completion_events = []
-    pointer_manager.on_interaction_complete = lambda source, target: completion_events.append((source, target))
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-
-    # WHEN
-    fixture.invalid_target.click()
-
-    # THEN
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE  # Still active
-    assert len(completion_events) == 0  # No completion
-
-
-async def test_cancel_interaction_with_esc_key(pointer_manager, fixture):
-    # GIVEN
-    pointer_manager.on_source_validation = lambda event, element: element.id == 'source1'
-
-    cancel_events = []
-
-    pointer_manager.on_interaction_cancel = lambda reason: cancel_events.append(reason)
-
-    # Put in click-active state
-    fixture.source1.click()
-    assert pointer_manager.state == PointerManager.CLICK_ACTIVE
-
-    # WHEN - simulate cancel directly with the event function
-    pointer_manager.on_interaction_cancel(Cancelled.escape_key)
-    pointer_manager.reset()
-
-    # THEN
-    assert pointer_manager.state == PointerManager.IDLE
-    assert len(cancel_events) == 1
-    assert cancel_events[0] == Cancelled.escape_key
 
 
 @pytest.fixture
