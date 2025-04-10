@@ -4,9 +4,9 @@ from dataclasses import dataclass, field
 import js
 import pytest
 
+from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
     HoverEvent, DropEvent, AcceptEvent, _PE
-from wwwpy.server.rpc4tests import rpctst_exec
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +145,7 @@ class TestDrag:
         action_manager.selected_action = None
 
         # WHEN
-        await _rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+        await rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
         # THEN
         assert action_manager.selected_action is item1
@@ -155,7 +155,7 @@ class TestDrag:
         action_manager.selected_action = item1
 
         # WHEN
-        await _rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+        await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
         # THEN
         assert action_manager.selected_action is item2
@@ -338,8 +338,3 @@ def fixture():
         yield f
     finally:
         js.document.body.innerHTML = ''
-
-
-async def _rpctst_exec(commands: list[str]):
-    for command in commands:
-        await rpctst_exec(command)
