@@ -340,3 +340,31 @@ class TestEventBus:
 
         # Verify none were received by Pet subscriber
         assert len(received_pets) == 0, "Direct publishing should not trigger base type subscribers"
+
+    def test_exception_isolation(self):
+        """Test that exceptions in one handler don't prevent others from being called."""
+        bus = EventBus()
+        called_handlers = []
+
+        def handler1(pet: Pet):
+            called_handlers.append("handler1")
+
+        def handler2(pet: Pet):
+            called_handlers.append("handler2")
+            raise Exception("Intentional exception in handler2")
+
+        def handler3(pet: Pet):
+            called_handlers.append("handler3")
+
+        bus.subscribe(handler1)
+        bus.subscribe(handler2)
+        bus.subscribe(handler3)
+
+        # This should not raise an exception
+        bus.publish(Pet("Test"))
+
+        # Verify all handlers were called despite the exception in handler2
+        assert "handler1" in called_handlers
+        assert "handler2" in called_handlers
+        assert "handler3" in called_handlers
+        assert len(called_handlers) == 3

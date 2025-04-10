@@ -4,7 +4,7 @@ import inspect
 import uuid
 import weakref
 from collections import defaultdict
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, get_type_hints
+from typing import Callable, Dict, Optional, Type, TypeVar, get_type_hints
 
 T = TypeVar('T')
 
@@ -79,29 +79,33 @@ class EventBus:
         self._subscribers[event_type][callback_id] = callback
         return Subscription(self, event_type, callback_id)
 
-    def publish(self, event: Any, *, on: Optional[Type] = None) -> int:
+    def publish(self, event: any, *, on: Optional[Type] = None) -> int:
         """
-        Publish an event to all subscribers of its type.
+        Publish an event to all subscribed handlers.
 
         Args:
             event: The event object to publish
-            on: Optional specific type to publish on. If None, uses event's actual type.
+            on: Optional type to publish as (must be compatible with event's type)
 
         Returns:
-            Number of callbacks notified
+            int: Number of handlers notified
         """
-        event_type = on if on is not None else type(event)
+        event_type = type(event) if on is None else on
 
-        # Ensure the event is actually of the specified type
         if on is not None and not isinstance(event, on):
-            raise TypeError(f"Event {event} is not an instance of specified type {on}")
+            raise TypeError(f"Cannot publish {type(event)} as {on}")
 
         count = 0
-        # Direct subscribers to this exact type
         if event_type in self._subscribers:
-            for callback in self._subscribers[event_type].values():
-                callback(event)
-                count += 1
+            for callback in list(self._subscribers[event_type].values()):
+                try:
+                    callback(event)
+                    count += 1
+                except Exception as e:
+                    # Log exception but continue with other handlers
+                    import logging
+                    logging.exception(f"Error in event handler {callback}: {e}")
+                    count += 1  # Still count this as a notification attempt
 
         return count
 
