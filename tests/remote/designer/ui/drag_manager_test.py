@@ -5,13 +5,13 @@ import js
 import pytest
 
 from tests.remote.rpc4tests_helper import rpctst_exec
-from wwwpy.remote.designer.ui.drag_manager import DragManager
+from wwwpy.remote.designer.ui.drag_manager import DragManager, DragFsm
 
 logger = logging.getLogger(__name__)
 
 
 async def test_initial_state_is_idle(drag_manager):
-    assert drag_manager.state == DragManager.IDLE
+    assert drag_manager.state == DragFsm.IDLE
 
 
 async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
@@ -22,7 +22,7 @@ async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
     # THEN
-    assert drag_manager.state == DragManager.DRAGGING
+    assert drag_manager.state == DragFsm.DRAGGING
 
 
 async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
@@ -33,7 +33,7 @@ async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert drag_manager.state == DragManager.READY
+    assert drag_manager.state == DragFsm.READY
 
 
 async def test_mousedown_rejected__should_stay_in_idle(drag_manager, fixture):
@@ -44,7 +44,7 @@ async def test_mousedown_rejected__should_stay_in_idle(drag_manager, fixture):
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert drag_manager.state == DragManager.IDLE
+    assert drag_manager.state == DragFsm.IDLE
 
 
 async def test_move_not_enough_for_drag__should_go_in_ready(drag_manager, fixture):
@@ -59,7 +59,7 @@ async def test_move_not_enough_for_drag__should_go_in_ready(drag_manager, fixtur
     await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
 
     # THEN
-    assert drag_manager.state == DragManager.READY
+    assert drag_manager.state == DragFsm.READY
 
 
 async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture):
@@ -74,7 +74,7 @@ async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture
     await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
 
     # THEN
-    assert drag_manager.state == DragManager.DRAGGING
+    assert drag_manager.state == DragFsm.DRAGGING
 
 
 async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
@@ -86,7 +86,7 @@ async def test_successful_interaction_completion_drag_mode(drag_manager, fixture
     await rpctst_exec("page.locator('#source1').drag_to(page.locator('#target1'))")
 
     # THEN
-    assert drag_manager.state == DragManager.IDLE
+    assert drag_manager.state == DragFsm.IDLE
 
 
 async def test_successful_interaction_completion_drag_mode__detailed_page_control(drag_manager, fixture):
@@ -98,19 +98,19 @@ async def test_successful_interaction_completion_drag_mode__detailed_page_contro
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert drag_manager.state == DragManager.READY
+    assert drag_manager.state == DragFsm.READY
 
     # WHEN
     await rpctst_exec(["page.locator('#target1').hover()"])
 
     # THEN
-    assert drag_manager.state == DragManager.DRAGGING
+    assert drag_manager.state == DragFsm.DRAGGING
 
     # WHEN
     await rpctst_exec(["page.mouse.up()"])
 
     # THEN
-    assert drag_manager.state == DragManager.IDLE
+    assert drag_manager.state == DragFsm.IDLE
 
 
 @pytest.fixture
