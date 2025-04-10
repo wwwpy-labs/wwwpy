@@ -43,7 +43,7 @@ class Cancelled:
     escape_key = "escape_key"
 
 
-class PointerManager:
+class DragManager:
     """
     Manages pointer state and interactions (click or drag) between source and target elements.
 

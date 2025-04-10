@@ -5,53 +5,53 @@ import js
 import pytest
 
 from tests.remote.rpc4tests_helper import rpctst_exec
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager
+from wwwpy.remote.designer.ui.drag_manager import DragManager
 
 logger = logging.getLogger(__name__)
 
 
-async def test_initial_state_is_idle(pointer_manager):
-    assert pointer_manager.state == PointerManager.IDLE
-    assert pointer_manager.source_element is None
+async def test_initial_state_is_idle(drag_manager):
+    assert drag_manager.state == DragManager.IDLE
+    assert drag_manager.source_element is None
 
 
-async def test_idle_to_drag_ready_state_transition(pointer_manager, fixture):
+async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.DRAGGING
-    assert pointer_manager.source_element == fixture.source1
+    assert drag_manager.state == DragManager.DRAGGING
+    assert drag_manager.source_element == fixture.source1
 
 
-async def test_mousedown_accepted__should_go_in_ready(pointer_manager, fixture):
+async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.READY
+    assert drag_manager.state == DragManager.READY
 
 
-async def test_mousedown_rejected__should_stay_in_idle(pointer_manager, fixture):
+async def test_mousedown_rejected__should_stay_in_idle(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: False
+    drag_manager.on_pointerdown_accept = lambda event, element: False
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.IDLE
+    assert drag_manager.state == DragManager.IDLE
 
 
-async def test_move_not_enough_for_drag__should_go_in_ready(pointer_manager, fixture):
+async def test_move_not_enough_for_drag__should_go_in_ready(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     rect = fixture.source1.getBoundingClientRect()
     x = rect.x + rect.width / 2
@@ -61,12 +61,12 @@ async def test_move_not_enough_for_drag__should_go_in_ready(pointer_manager, fix
     await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.READY
+    assert drag_manager.state == DragManager.READY
 
 
-async def test_move_enough_for_drag__should_go_in_dragging(pointer_manager, fixture):
+async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
 
     rect = fixture.source1.getBoundingClientRect()
     x = rect.x + rect.width / 2
@@ -76,37 +76,37 @@ async def test_move_enough_for_drag__should_go_in_dragging(pointer_manager, fixt
     await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
 
     # THEN
-    assert pointer_manager.state == PointerManager.DRAGGING
+    assert drag_manager.state == DragManager.DRAGGING
 
 
-async def test_successful_interaction_completion_drag_mode(pointer_manager, fixture):
+async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
     # GIVEN
-    pointer_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
-    pointer_manager.on_target_validation = lambda element: element.id == 'target1'
+    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_target_validation = lambda element: element.id == 'target1'
 
     completion_events = []
 
-    pointer_manager.on_interaction_complete = lambda source, target: completion_events.append((source, target))
+    drag_manager.on_interaction_complete = lambda source, target: completion_events.append((source, target))
 
     # Manually set up the drag state to avoid test complexity
     fixture.source1.click()  # Select the source
-    pointer_manager.source_element = fixture.source1
-    pointer_manager.state = PointerManager.DRAGGING
+    drag_manager.source_element = fixture.source1
+    drag_manager.state = DragManager.DRAGGING
 
     # WHEN - simulate drop by calling handler directly
-    pointer_manager.on_interaction_complete(fixture.source1, fixture.target1)
-    pointer_manager.reset()
+    drag_manager.on_interaction_complete(fixture.source1, fixture.target1)
+    drag_manager.reset()
 
     # THEN
-    assert pointer_manager.state == PointerManager.IDLE
+    assert drag_manager.state == DragManager.IDLE
     assert len(completion_events) == 1
     assert completion_events[0][0] == fixture.source1
     assert completion_events[0][1] == fixture.target1
 
 
 @pytest.fixture
-def pointer_manager(fixture):
-    manager = PointerManager()
+def drag_manager(fixture):
+    manager = DragManager()
     manager.install()
     yield manager
     manager.uninstall()
