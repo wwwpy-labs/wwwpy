@@ -27,8 +27,7 @@ class DragManager:
     def __init__(self):
         """Initialize the PointerManager with default state and callbacks."""
         self.state = self.IDLE
-        self.drag_start_x = 0
-        self.drag_start_y = 0
+        self.drag_start = (-1, -1)
 
         # Event callbacks
         self.on_pointerdown_accept = lambda event: False  # Default rejects all
@@ -44,6 +43,7 @@ class DragManager:
         """Reset to idle state without triggering any events."""
         logger.debug(f"Resetting PointerManager from state {self.state}")
         self.state = self.IDLE
+        self.drag_start = (-1, -1)
 
     def _js_window__pointerdown(self, event):
         """Handle pointer down events to initiate potential drag operations."""
@@ -51,8 +51,7 @@ class DragManager:
         # Only process in idle state and for valid sources
         if self.state == self.IDLE and self.on_pointerdown_accept(event):
             logger.debug(f"Pointer down on valid source")
-            self.drag_start_x = event.clientX
-            self.drag_start_y = event.clientY
+            self.drag_start = (event.clientX, event.clientY)
             self.state = self.READY
             event.stopPropagation()
 
@@ -60,8 +59,8 @@ class DragManager:
         """Handle pointer move events for dragging and hovering."""
         if self.state == self.READY:
             # Check if we've moved enough to consider this a drag
-            dx = abs(event.clientX - self.drag_start_x)
-            dy = abs(event.clientY - self.drag_start_y)
+            dx = abs(event.clientX - self.drag_start[0])
+            dy = abs(event.clientY - self.drag_start[1])
 
             if dx > self.DRAG_THRESHOLD_PX or dy > self.DRAG_THRESHOLD_PX:
                 logger.debug("Drag threshold exceeded, entering DRAG_ACTIVE state")
