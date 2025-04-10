@@ -82,26 +82,37 @@ async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture
 async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
     # GIVEN
     drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
-    drag_manager.on_pointerup_accept = lambda element: element.id == 'target1'
+    drag_manager.on_pointerup_accept = lambda event: event.target.id == 'target1'
 
-    completion_events = []
-
-    drag_manager.on_interaction_complete = lambda source, target: completion_events.append((source, target))
-
-    # Manually set up the drag state to avoid test complexity
-    fixture.source1.click()  # Select the source
-    drag_manager.source_element = fixture.source1
-    drag_manager.state = DragManager.DRAGGING
-
-    # WHEN - simulate drop by calling handler directly
-    drag_manager.on_interaction_complete(fixture.source1, fixture.target1)
-    drag_manager.reset()
+    # WHEN
+    await rpctst_exec("page.locator('#source1').drag_to(page.locator('#target1'))")
 
     # THEN
     assert drag_manager.state == DragManager.IDLE
-    assert len(completion_events) == 1
-    assert completion_events[0][0] == fixture.source1
-    assert completion_events[0][1] == fixture.target1
+
+
+async def test_successful_interaction_completion_drag_mode__detailed_page_control(drag_manager, fixture):
+    # GIVEN
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
+    drag_manager.on_pointerup_accept = lambda event: event.target.id == 'target1'
+
+    # WHEN
+    await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
+
+    # THEN
+    assert drag_manager.state == DragManager.READY
+
+    # WHEN
+    await rpctst_exec(["page.locator('#target1').hover()"])
+
+    # THEN
+    assert drag_manager.state == DragManager.DRAGGING
+
+    # WHEN
+    await rpctst_exec(["page.mouse.up()"])
+
+    # THEN
+    assert drag_manager.state == DragManager.IDLE
 
 
 @pytest.fixture

@@ -68,7 +68,7 @@ class DragManager:
 
         # Event callbacks
         self.on_pointerdown_accept = lambda event: False  # Default rejects all
-        self.on_pointerup_accept = lambda element: False  # Default rejects all
+        self.on_pointerup_accept = lambda event: False  # Default rejects all
         self.on_interaction_complete = lambda source, target: None
         self.on_interaction_cancel = lambda reason: None
 
@@ -119,15 +119,7 @@ class DragManager:
     def _js_window__pointerup(self, event):
         """Handle pointer up events to complete drag operations."""
         if self.state == self.DRAGGING:
-            target_element = self._get_element_at(event.clientX, event.clientY)
-
-            if target_element and self.on_pointerup_accept(target_element):
-                logger.debug(f"Drag completed on valid target: {target_element.id}")
-                self.on_interaction_complete(self.source_element, target_element)
-            else:
-                logger.debug("Drag released on invalid target")
-                self.on_interaction_cancel(Cancelled.invalid_target)
-
+            self.on_pointerup_accept(event)
             self.reset()
 
     def _js_window__keydown(self, event):
