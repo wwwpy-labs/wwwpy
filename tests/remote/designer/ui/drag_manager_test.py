@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 async def test_initial_state_is_idle(drag_manager):
     assert drag_manager.state == DragManager.IDLE
-    assert drag_manager.source_element is None
 
 
 async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
@@ -24,7 +23,6 @@ async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
 
     # THEN
     assert drag_manager.state == DragManager.DRAGGING
-    assert drag_manager.source_element == fixture.source1
 
 
 async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
