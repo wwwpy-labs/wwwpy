@@ -82,7 +82,7 @@ async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture
 async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
     # GIVEN
     drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
-    drag_manager.on_target_validation = lambda element: element.id == 'target1'
+    drag_manager.on_pointerup_accept = lambda element: element.id == 'target1'
 
     completion_events = []
 

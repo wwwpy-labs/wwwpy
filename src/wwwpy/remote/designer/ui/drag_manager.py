@@ -68,8 +68,7 @@ class DragManager:
 
         # Event callbacks
         self.on_pointerdown_accept = lambda event, element: False  # Default rejects all
-        self.on_target_validation = lambda element: False  # Default rejects all
-        self.on_hover = lambda event, element, is_dragging: None  # Just emits events
+        self.on_pointerup_accept = lambda element: False  # Default rejects all
         self.on_interaction_complete = lambda source, target: None
         self.on_interaction_cancel = lambda reason: None
 
@@ -122,7 +121,7 @@ class DragManager:
         if self.state == self.DRAGGING:
             target_element = self._get_element_at(event.clientX, event.clientY)
 
-            if target_element and self.on_target_validation(target_element):
+            if target_element and self.on_pointerup_accept(target_element):
                 logger.debug(f"Drag completed on valid target: {target_element.id}")
                 self.on_interaction_complete(self.source_element, target_element)
             else:
