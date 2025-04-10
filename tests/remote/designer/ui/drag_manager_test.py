@@ -17,7 +17,7 @@ async def test_initial_state_is_idle(drag_manager):
 
 async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
@@ -29,7 +29,7 @@ async def test_idle_to_drag_ready_state_transition(drag_manager, fixture):
 
 async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
@@ -40,7 +40,7 @@ async def test_mousedown_accepted__should_go_in_ready(drag_manager, fixture):
 
 async def test_mousedown_rejected__should_stay_in_idle(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: False
+    drag_manager.on_pointerdown_accept = lambda event: False
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
@@ -51,7 +51,7 @@ async def test_mousedown_rejected__should_stay_in_idle(drag_manager, fixture):
 
 async def test_move_not_enough_for_drag__should_go_in_ready(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
 
     rect = fixture.source1.getBoundingClientRect()
     x = rect.x + rect.width / 2
@@ -66,7 +66,7 @@ async def test_move_not_enough_for_drag__should_go_in_ready(drag_manager, fixtur
 
 async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
 
     rect = fixture.source1.getBoundingClientRect()
     x = rect.x + rect.width / 2
@@ -81,7 +81,7 @@ async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture
 
 async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
     # GIVEN
-    drag_manager.on_pointerdown_accept = lambda event, element: element.id == 'source1'
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
     drag_manager.on_pointerup_accept = lambda element: element.id == 'target1'
 
     completion_events = []

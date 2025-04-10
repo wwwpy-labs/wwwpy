@@ -67,7 +67,7 @@ class DragManager:
         self.drag_start_y = 0
 
         # Event callbacks
-        self.on_pointerdown_accept = lambda event, element: False  # Default rejects all
+        self.on_pointerdown_accept = lambda event: False  # Default rejects all
         self.on_pointerup_accept = lambda element: False  # Default rejects all
         self.on_interaction_complete = lambda source, target: None
         self.on_interaction_cancel = lambda reason: None
@@ -90,7 +90,7 @@ class DragManager:
         target_element = event.target
 
         # Only process in idle state and for valid sources
-        if self.state == self.IDLE and self.on_pointerdown_accept(event, target_element):
+        if self.state == self.IDLE and self.on_pointerdown_accept(event):
             logger.debug(f"Pointer down on valid source: {target_element.id}")
             self.source_element = target_element
             self.drag_start_x = event.clientX
