@@ -32,7 +32,7 @@ class DragFsm:
             self.state = self.READY
             event.stopPropagation()
 
-    def pointerdown(self, event):
+    def pointermove(self, event) -> str:
         if self.state == self.READY:
             # Check if we've moved enough to consider this a drag
             dx = abs(event.clientX - self.drag_start[0])
@@ -41,6 +41,13 @@ class DragFsm:
             if dx > self.DRAG_THRESHOLD_PX or dy > self.DRAG_THRESHOLD_PX:
                 logger.debug("Drag threshold exceeded, entering DRAG_ACTIVE state")
                 self.state = self.DRAGGING
+        return self.state
+
+    def transitioned_to_dragging(self, event) -> bool:
+        if self.state != self.READY:
+            return False
+        self.pointermove(event)
+        return self.state == self.DRAGGING
 
     def pointerup(self, event):
         if self.state == self.DRAGGING:
@@ -79,7 +86,7 @@ class DragManager:
 
     def _js_window__pointermove(self, event):
         """Handle pointer move events for dragging and hovering."""
-        self._fsm.pointerdown(event)
+        self._fsm.pointermove(event)
 
     def _js_window__pointerup(self, event):
         """Handle pointer up events to complete drag operations."""

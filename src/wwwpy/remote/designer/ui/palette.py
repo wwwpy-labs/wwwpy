@@ -11,6 +11,7 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, eventlib, dict_to_py
 from wwwpy.remote.component import get_component
+from wwwpy.remote.designer.ui.drag_manager import DragFsm
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +176,7 @@ class ActionManager:
         self._selected_action: ActionItem | None = None
         self.on_events: PaletteEventHandler = lambda ev: None
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
+        self._drag_fsm = DragFsm()
 
     def _js_window__click(self, event):
         palette_item = _find_palette_item(event)
@@ -188,17 +190,22 @@ class ActionManager:
             logger.debug(f'Click event accepted: {event}')
             self.selected_action = None
 
-    def _js_window__pointermove(self, event):
-        if _find_palette_item(event):
-            return
-        hover_event = HoverEvent(event)
-        self._notify(hover_event)
-
     def _js_window__pointerdown(self, event):
         item = _find_palette_item(event)
         if item:
-            self.selected_action = item
-            return
+            self._ready_item = item
+            self._drag_fsm.pointerdown_accepted(event)
+
+    def _js_window__pointermove(self, event):
+        if self._drag_fsm.transitioned_to_dragging(event):
+            self.selected_action = self._ready_item
+            logger.debug(f'_js_window__pointermove transitioned_to_dragging: {event}')
+
+        if _find_palette_item(event):
+            return logger.debug(f'_js_window__pointermove in palette: {event}')
+        hover_event = HoverEvent(event)
+        self._notify(hover_event)
+        logger.debug(f'_js_window__pointermove hover_event: {hover_event}')
 
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""

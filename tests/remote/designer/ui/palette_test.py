@@ -185,6 +185,30 @@ class TestDrag:
         assert events.drop_events[0].source_element is item1
         assert events.drop_events[0].target_element is div1
 
+    async def test_no_select_not_enough_drag__should_not_select(self, action_manager, item1):
+        # GIVEN
+        rect = item1.element.getBoundingClientRect()
+        x = rect.x + rect.width / 2
+        y = rect.y + rect.height / 2
+
+        # WHEN
+        await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
+
+        # THEN
+        assert action_manager.selected_action is None
+
+    async def test_enough_drag__should_select(self, action_manager, item1):
+        # GIVEN
+        rect = item1.element.getBoundingClientRect()
+        x = rect.x + rect.width / 2
+        y = rect.y + rect.height / 2
+
+        # WHEN
+        await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
+
+        # THEN
+        assert action_manager.selected_action is item1
+
 
 class TestHover:
 
@@ -212,12 +236,12 @@ class TestHover:
         assert events.hover_events != [], 'hover event not emitted'
 
     async def test_drag_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
+
         # GIVEN
-        action_manager.selected_action = item1
+        await rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()"])
 
         # WHEN
-        page_commands = ["page.locator('#item1').hover()", "page.mouse.down()", "page.locator('#div1').hover()"]
-        for page_cmd in page_commands: await rpctst_exec(page_cmd)
+        await rpctst_exec(["page.locator('#div1').hover()"])
 
         # THEN
         assert events.hover_events != [], 'hover event not emitted'
