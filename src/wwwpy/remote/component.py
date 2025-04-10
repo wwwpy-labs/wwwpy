@@ -155,7 +155,9 @@ class Component:
         root = self.root_element()
         selector = root.querySelector(f'[data-name="{name}"]')
         if selector is None:
-            msg = f'Not found data-name: [{name}] html: [{root.outerHTML}]'
+            html_hint = root.outerHTML if hasattr(root, 'outerHTML') else (
+                root.innerHTML if hasattr(root, 'innerHTML') else '--no-html-av--')
+            msg = f'Not found data-name: [{name}] html: [{html_hint}]'
             if self.element_not_found_raises:
                 raise ElementNotFound(msg)
             else:
