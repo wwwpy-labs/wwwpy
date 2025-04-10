@@ -59,22 +59,15 @@ class DragManager:
     def __init__(self):
         """Initialize the PointerManager with default state and callbacks."""
         self._fsm = DragFsm()
-        self.drag_start = (-1, -1)
 
         # Event callbacks
         self.on_pointerdown_accept = lambda event: False  # Default rejects all
-        self.on_pointerup_accept = lambda event: False  # Default rejects all
 
     def install(self):
         eventlib.add_event_listeners(self)
 
     def uninstall(self):
         eventlib.remove_event_listeners(self)
-
-    def reset(self):
-        """Reset to idle state without triggering any events."""
-        logger.debug(f"Resetting PointerManager from state {self.state}")
-        self.drag_start = (-1, -1)
 
     @property
     def state(self):

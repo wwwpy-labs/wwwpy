@@ -80,7 +80,6 @@ async def test_move_enough_for_drag__should_go_in_dragging(drag_manager, fixture
 async def test_successful_interaction_completion_drag_mode(drag_manager, fixture):
     # GIVEN
     drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
-    drag_manager.on_pointerup_accept = lambda event: event.target.id == 'target1'
 
     # WHEN
     await rpctst_exec("page.locator('#source1').drag_to(page.locator('#target1'))")
@@ -92,7 +91,6 @@ async def test_successful_interaction_completion_drag_mode(drag_manager, fixture
 async def test_successful_interaction_completion_drag_mode__detailed_page_control(drag_manager, fixture):
     # GIVEN
     drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
-    drag_manager.on_pointerup_accept = lambda event: event.target.id == 'target1'
 
     # WHEN
     await rpctst_exec(["page.locator('#source1').hover()", "page.mouse.down()"])
