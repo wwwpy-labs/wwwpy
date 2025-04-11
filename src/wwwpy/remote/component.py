@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Dict
+from typing import Dict, overload
 
 import js
 from js import HTMLElement, console
@@ -115,13 +115,21 @@ class Component:
         else:
             self.element = element_from_js
 
-        self.init_component()
+        try:
+            self.init_component()
+        except Exception as e:
+            logger.exception(f'Error in init_component: {e}')
+
         self._bind_events()
 
         if asyncio.iscoroutinefunction(self.after_init_component):
             asyncio.create_task(self.after_init_component())
         else:
             self.after_init_component()
+
+    @overload
+    def after_init_component(self):
+        ...
 
     async def after_init_component(self):
         """This is called after init_component, it can be async or called synchronously if it is a normal method.
@@ -225,6 +233,8 @@ class Component:
 
         for name in members:
             if name.startswith('__'):
+                continue
+            if name.startswith('_js_'):  # fixme # this is a hack to be compatible with eventlib.py
                 continue
             parts = name.split('__')
             if len(parts) != 2:

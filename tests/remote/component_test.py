@@ -3,7 +3,7 @@ import asyncio
 from js import document, HTMLElement, Event, HTMLDivElement
 
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.component import Component, attribute, element
+from wwwpy.remote.component import Component, attribute, element, get_component
 
 
 def test_component_metadata():
@@ -461,3 +461,24 @@ class TestAttributes:
 
         comp.element.setAttribute('class', 'def')
         assert calls == [('class', 'abc', 'def')]
+
+
+class Test_InitComponent_that_throws:
+    def test_should_call_after_init_anyway(self):
+        class Comp1(Component):
+            def init_component(self):
+                raise Exception('testing error')
+
+            def after_init_component(self):
+                self.element.innerHTML = '<div>hello</div>'
+
+        comp = Comp1()
+        assert 'hello' in comp.element.innerHTML
+
+    def test_get_component__should_not_return_none(self):
+        class Comp1(Component):
+            def init_component(self):
+                raise Exception('testing error')
+
+        comp = Comp1()
+        assert get_component(comp.element) is comp
