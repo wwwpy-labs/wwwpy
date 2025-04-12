@@ -35,8 +35,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._window_monitor = WindowMonitor(lambda: self._selected_element is not None)
         self._window_monitor.listeners.append(lambda: self.update_highlight_no_transitions())
         self.highlight_overlay.transition = True
-        # Initialize MutationObserver instead of ResizeObserver
-        self._observer = None
         # Add tracking variables for position monitoring
         self._position_tracking_active = False
         self._raf_id = None
@@ -47,17 +45,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         logger.debug(f'has_py_comp: {has_py_comp}')
         self._window_monitor.install()
 
-    def _on_element_mutate(self, mutations, observer):
-        """Called when the observed element's attributes change (size or position)"""
-        logger.debug(f'on_element_mutate: {len(mutations)} mutations')
-        self.update_highlight()
-
     def disconnectedCallback(self):
         self._window_monitor.uninstall()
-        # Clean up MutationObserver
-        if self._observer and self._selected_element:
-            self._observer.disconnect()
-            self._observer = None
         # Stop position tracking
         self._stop_position_tracking()
 
@@ -72,23 +61,13 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         if self._selected_element == element:
             return
 
-        # Clean up previous observer and tracking
-        if self._observer and self._selected_element:
-            self._observer.disconnect()
+        # Clean up previous tracking
         self._stop_position_tracking()
 
         self._selected_element = element
 
-        # Setup new observer and position tracking for the selected element
+        # Start position tracking for the new element
         if element:
-            if not self._observer:
-                self._observer = js.MutationObserver.new(create_proxy(self._on_element_mutate))
-            # Observe attribute changes (style changes will affect size and position)
-            self._observer.observe(element, dict_to_js({
-                'attributes': True,
-                'attributeFilter': ['style', 'class']
-            }))
-            # Start position tracking
             self._start_position_tracking()
 
         self.update_highlight()
