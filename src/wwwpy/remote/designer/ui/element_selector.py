@@ -29,7 +29,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <toolbar-button data-name="toolbar_button"></toolbar-button>
         """
         self.check_position = create_proxy(self.check_position)
-        self.last_rect_tuple = None
         self.toolbar_element = self.toolbar_button.element
         self._selected_element: js.HTMLElement | None = None
 
@@ -92,12 +91,11 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         rect = self._selected_element.getBoundingClientRect()
         current_pos = (rect.top, rect.left, rect.width, rect.height)
 
-        # Compare with last position
         if self._last_position != current_pos:
-            if self._last_position is not None:
-                self.update_highlight_no_transitions()
-            else:
-                self.update_highlight()
+            first = self._last_position is None
+            # todo, remove redundancy: getBoundingClientRect() is called twice, here
+            #  just above and inside update_highlight
+            self.update_highlight(skip_transition=first)
             self._last_position = current_pos
 
         # Continue tracking
@@ -111,22 +109,20 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self._raf_id = None
         self._last_position = None
 
-    def update_highlight_no_transitions(self):
-        self.highlight_overlay.transition = False
-        self.update_highlight()
-        self.highlight_overlay.transition = True
-
-    def update_highlight(self):
+    def update_highlight(self, skip_transition=False):
         if not self._selected_element:
             self.highlight_overlay.hide()
             self.toolbar_button.hide()
             return
 
         rect = self._selected_element.getBoundingClientRect()
-        self.last_rect_tuple = (rect.top, rect.left, rect.width, rect.height)
+
+        if skip_transition: self.highlight_overlay.transition = False
 
         self.highlight_overlay.show(rect)
         self.toolbar_button.show(rect)
+
+        if skip_transition: self.highlight_overlay.transition = True
 
 
 class WindowMonitor:

@@ -82,7 +82,7 @@ class TestElementSelector:
 def _assert_geometry_ok(div1, target):
     dr = div1.getBoundingClientRect()
     expect = (dr.top, dr.left, dr.width, dr.height)
-    actual = target.last_rect_tuple
+    actual = target._last_position
     assert actual == expect
 
 
