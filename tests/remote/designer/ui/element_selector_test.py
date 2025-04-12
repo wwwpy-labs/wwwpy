@@ -12,16 +12,7 @@ logger = logging.getLogger(__name__)
 class TestElementSelector:
     async def test_selected_element_should_be_highlighted(self, target, div1):
         # GIVEN
-        # set absolute position to div1
-        # div1 = js.document.createElement('div')
-        # js.document.body.append(div1)
-        div1.style.position = 'absolute'
-        div1.style.top = '30px'
-        div1.style.left = '40px'
-        div1.style.width = '100px'
-        div1.style.height = '70px'
-        # set border red
-        div1.style.border = '2px solid red'
+        # div1
 
         # WHEN
         target.set_selected_element(div1)
@@ -36,15 +27,7 @@ class TestElementSelector:
 
     async def test_resize_element_should_update_highlight(self, target, div1):
         # GIVEN
-        # set absolute position to div1
-        div1.style.position = 'absolute'
-        div1.style.top = '30px'
-        div1.style.left = '40px'
-        div1.style.width = '100px'
-        div1.style.height = '70px'
-        # set border red
-        div1.style.border = '2px solid red'
-
+        # div1 and
         target.set_selected_element(div1)
 
         # WHEN
@@ -63,15 +46,7 @@ class TestElementSelector:
 
     async def test_move_element_should_update_highlight(self, target, div1):
         # GIVEN
-        # set absolute position to div1
-        div1.style.position = 'absolute'
-        div1.style.top = '30px'
-        div1.style.left = '40px'
-        div1.style.width = '100px'
-        div1.style.height = '70px'
-        # set border red
-        div1.style.border = '2px solid red'
-
+        # div1 and
         target.set_selected_element(div1)
         await waitAnimationFrame()
 
@@ -100,8 +75,19 @@ class Fixture:
     def div1(self):
         if not self._div1:
             self._div1 = js.document.createElement('div')
+            _setup_div(self._div1)
             js.document.body.append(self._div1)
         return self._div1
+
+
+def _setup_div(div1):
+    div1.style.position = 'absolute'
+    div1.style.top = '30px'
+    div1.style.left = '40px'
+    div1.style.width = '100px'
+    div1.style.height = '70px'
+    # set border red
+    div1.style.border = '2px solid red'
 
 
 @pytest.fixture
