@@ -53,17 +53,67 @@ async def waitAnimationFrame():
     await event.wait()
 
 
-def is_descendant_of_container(target, container):
+# def is_contained(target, container):
+#     """Determines if target is a descendant of container, accounting for shadow DOM and slots."""
+#     if target is None:
+#         raise ValueError(f'target is None')
+#     if container is None:
+#         raise ValueError(f'container is None')
+#     logger.debug(f'target: `{_pretty(target)}` container: `{_pretty(container)}`')
+#     node = target
+#     while node:
+#         if node == container:
+#             return True
+#
+#         # Check if node is assigned to a slot
+#         if hasattr(node, "assignedSlot") and node.assignedSlot:
+#             node = node.assignedSlot
+#             logger.debug(f'assignedSlot: {_pretty(node)}')
+#             continue
+#
+#         # Attempt to retrieve the root node (to check if we're in a shadow DOM)
+#         root = node.getRootNode() if hasattr(node, "getRootNode") else None
+#         # If in a shadow tree (i.e., root has a host), move to the host element.
+#         if root is not None and hasattr(root, "host"):
+#             node = root.host
+#             logger.debug(f'host: {_pretty(node)}')
+#         else:
+#             # Otherwise, move up in the light DOM.
+#             node = node.parentNode
+#             logger.debug(f'node: {_pretty(node)}')
+#     return False
+
+def is_contained(target, container):
+    """Determines if target is a descendant of container, accounting for shadow DOM and slots."""
+    if target is None:
+        raise ValueError(f'target is None')
+    if container is None:
+        raise ValueError(f'container is None')
+    logger.debug(f'target: `{_pretty(target)}` container: `{_pretty(container)}`')
     node = target
     while node:
         if node == container:
             return True
-        # Attempt to retrieve the root node (to check if we're in a shadow DOM)
-        root = node.getRootNode() if hasattr(node, "getRootNode") else None
+
+        # Check if node is assigned to a slot
+        if hasattr(node, "assignedSlot") and node.assignedSlot:
+            node = node.assignedSlot
+            logger.debug(f'assignedSlot: {_pretty(node)}')
+            continue
+
         # If in a shadow tree (i.e., root has a host), move to the host element.
-        if root is not None and hasattr(root, "host"):
-            node = root.host
+        if hasattr(node, "host"):
+            node = node.host
+            logger.debug(f'host: {_pretty(node)}')
         else:
             # Otherwise, move up in the light DOM.
             node = node.parentNode
+            logger.debug(f'parentNode: {_pretty(node)}')
+
     return False
+
+
+def _pretty(node):
+    if hasattr(node, 'tagName'):
+        return f'{node.tagName.lower()}#{node.id}.{node.className}'
+    return str(node)
