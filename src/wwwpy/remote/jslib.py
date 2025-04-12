@@ -4,6 +4,7 @@ import random
 
 import js
 from js import document
+from pyodide.ffi import create_once_callable
 from pyodide.ffi import create_proxy
 
 logger = logging.getLogger(__name__)
@@ -44,3 +45,9 @@ async def script_load_once(src: str, script_type='', **kwargs) -> bool:
     await script.__async_event.wait()
     logger.debug(f'{marker}  event set: need_load={need_load} {src}')
     return need_load
+
+
+async def waitAnimationFrame():
+    event = asyncio.Event()
+    js.window.requestAnimationFrame(create_once_callable(lambda *_: event.set()))
+    await event.wait()
