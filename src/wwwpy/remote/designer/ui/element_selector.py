@@ -16,6 +16,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
     highlight_overlay: HighlightOverlay = wpc.element()
     toolbar_button: ToolbarButton = wpc.element()
 
+    # _eventbus: EventBus = inject()
+
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
 
@@ -30,8 +32,11 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._window_monitor = WindowMonitor(lambda: self._selected_element is not None)
         self._window_monitor.listeners.append(lambda: self.update_highlight_no_transitions())
         self.highlight_overlay.transition = True
+        # self._eventbus.subscribe()
 
     def connectedCallback(self):
+        has_py_comp = hasattr(self.element, '_python_component')
+        logger.debug(f'has_py_comp: {has_py_comp}')
         self._window_monitor.install()
 
     def disconnectedCallback(self):
@@ -123,6 +128,7 @@ class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
             } 
         </style>      
         """
+        self.last_rect_tuple = None
 
     @property
     def transition(self) -> bool:
@@ -135,10 +141,16 @@ class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
         else:
             self.element.style.transition = 'none'
 
+    @property
+    def visible(self) -> bool:
+        return self.element.style.display == 'block'
+
     def hide(self):
         self.element.style.display = 'none'
 
     def show(self, rect: js.DOMRect):
+        self.last_rect_tuple = (rect.top, rect.left, rect.width, rect.height)
+
         bs = 2  # Adjust this value to match the border size in CSS
 
         rect = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
