@@ -28,6 +28,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <highlight-overlay data-name="highlight_overlay"></highlight-overlay>
         <toolbar-button data-name="toolbar_button"></toolbar-button>
         """
+        self.check_position = create_proxy(self.check_position)
         self.last_rect_tuple = None
         self.toolbar_element = self.toolbar_button.element
         self._selected_element: js.HTMLElement | None = None
@@ -70,8 +71,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         if element:
             self._start_position_tracking()
 
-        self.update_highlight()
-
     def get_selected_element(self):
         return self._selected_element
 
@@ -82,25 +81,27 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         self._position_tracking_active = True
         self._last_position = None
+        self._raf_id = js.window.requestAnimationFrame(self.check_position)
 
-        def check_position(timestamp):
-            if not self._position_tracking_active or not self._selected_element:
-                self._raf_id = None
-                return
+    def check_position(self, timestamp):
+        if not self._position_tracking_active or not self._selected_element:
+            self._raf_id = None
+            return
 
-            # Get current position
-            rect = self._selected_element.getBoundingClientRect()
-            current_pos = (rect.top, rect.left, rect.width, rect.height)
+        # Get current position
+        rect = self._selected_element.getBoundingClientRect()
+        current_pos = (rect.top, rect.left, rect.width, rect.height)
 
-            # Compare with last position
-            if self._last_position != current_pos:
-                self._last_position = current_pos
+        # Compare with last position
+        if self._last_position != current_pos:
+            if self._last_position is not None:
                 self.update_highlight_no_transitions()
+            else:
+                self.update_highlight()
+            self._last_position = current_pos
 
-            # Continue tracking
-            self._raf_id = js.window.requestAnimationFrame(create_proxy(check_position))
-
-        self._raf_id = js.window.requestAnimationFrame(create_proxy(check_position))
+        # Continue tracking
+        self._raf_id = js.window.requestAnimationFrame(self.check_position)
 
     def _stop_position_tracking(self):
         """Stop tracking the element's position"""

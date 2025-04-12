@@ -17,6 +17,7 @@ class TestElementSelector:
 
         # WHEN
         target.set_selected_element(div1)
+        await waitAnimationFrame()
 
         # THEN
         _assert_geometry_ok(div1, target)
