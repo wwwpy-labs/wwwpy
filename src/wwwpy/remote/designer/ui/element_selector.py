@@ -8,7 +8,7 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, dict_to_py
-from wwwpy.remote.jslib import is_descendant_of_container
+from wwwpy.remote.jslib import is_contained
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +56,11 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self._observer = None
 
     def is_selectable(self, element) -> bool:
-        ok = not is_descendant_of_container(element, self.element)
+        ok = not is_contained(element, self.element)
         return ok
 
     def set_selected_element(self, element):
-        if not self.is_selectable(element):
+        if element is not None and not self.is_selectable(element):
             raise ValueError(f'Element is not selectable `{dict_to_py(element)}`')
 
         if self._selected_element == element:
