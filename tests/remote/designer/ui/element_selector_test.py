@@ -50,6 +50,21 @@ class TestElementSelector:
         # THEN
         _assert_geometry_ok(div1, target)
 
+    async def test_move_by_another_element(self, target, div1, div2):
+        # GIVEN
+        # div1 and div2
+        target.set_selected_element(div2)
+        await waitAnimationFrame()
+
+        # WHEN
+        # move div2 trough div1
+        div1.style.top = '50px'
+        div1.style.left = '60px'
+        await waitAnimationFrame()
+
+        # THEN
+        _assert_geometry_ok(div2, target)
+
     async def test_set_inner_element_should_raise(self, target):
         # GIVEN
         inner_elements = (target.element,
@@ -75,6 +90,7 @@ class Fixture:
         self.target = ElementSelector()
         js.document.body.append(self.target.element)
         self._div1 = None
+        self._div2 = None  # it will be child of div1
 
     @property
     def div1(self):
@@ -83,6 +99,13 @@ class Fixture:
             _setup_div(self._div1)
             js.document.body.append(self._div1)
         return self._div1
+
+    @property
+    def div2(self):
+        if not self._div2:
+            self._div2 = js.document.createElement('div')
+            self.div1.appendChild(self._div2)
+        return self._div2
 
 
 def _setup_div(div1):
@@ -99,6 +122,10 @@ def _setup_div(div1):
 def div1(fixture):
     return fixture.div1
 
+
+@pytest.fixture
+def div2(fixture):
+    return fixture.div2
 
 @pytest.fixture
 def target(fixture):

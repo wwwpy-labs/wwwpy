@@ -37,6 +37,10 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self.highlight_overlay.transition = True
         # Initialize MutationObserver instead of ResizeObserver
         self._observer = None
+        # Add tracking variables for position monitoring
+        self._position_tracking_active = False
+        self._raf_id = None
+        self._last_position = None
 
     def connectedCallback(self):
         has_py_comp = hasattr(self.element, '_python_component')
@@ -54,6 +58,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         if self._observer and self._selected_element:
             self._observer.disconnect()
             self._observer = None
+        # Stop position tracking
+        self._stop_position_tracking()
 
     def is_selectable(self, element) -> bool:
         ok = not is_contained(element, self.element)
@@ -66,13 +72,14 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         if self._selected_element == element:
             return
 
-        # Clean up previous observer
+        # Clean up previous observer and tracking
         if self._observer and self._selected_element:
             self._observer.disconnect()
+        self._stop_position_tracking()
 
         self._selected_element = element
 
-        # Setup new observer for the selected element
+        # Setup new observer and position tracking for the selected element
         if element:
             if not self._observer:
                 self._observer = js.MutationObserver.new(create_proxy(self._on_element_mutate))
@@ -81,11 +88,48 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
                 'attributes': True,
                 'attributeFilter': ['style', 'class']
             }))
+            # Start position tracking
+            self._start_position_tracking()
 
         self.update_highlight()
 
     def get_selected_element(self):
         return self._selected_element
+
+    def _start_position_tracking(self):
+        """Start tracking the element's position using requestAnimationFrame"""
+        if self._position_tracking_active:
+            return
+
+        self._position_tracking_active = True
+        self._last_position = None
+
+        def check_position(timestamp):
+            if not self._position_tracking_active or not self._selected_element:
+                self._raf_id = None
+                return
+
+            # Get current position
+            rect = self._selected_element.getBoundingClientRect()
+            current_pos = (rect.top, rect.left, rect.width, rect.height)
+
+            # Compare with last position
+            if self._last_position != current_pos:
+                self._last_position = current_pos
+                self.update_highlight_no_transitions()
+
+            # Continue tracking
+            self._raf_id = js.window.requestAnimationFrame(create_proxy(check_position))
+
+        self._raf_id = js.window.requestAnimationFrame(create_proxy(check_position))
+
+    def _stop_position_tracking(self):
+        """Stop tracking the element's position"""
+        self._position_tracking_active = False
+        if self._raf_id is not None:
+            js.window.cancelAnimationFrame(self._raf_id)
+            self._raf_id = None
+        self._last_position = None
 
     def update_highlight_no_transitions(self):
         self.highlight_overlay.transition = False
