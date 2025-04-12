@@ -33,7 +33,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._window_monitor = WindowMonitor(lambda: self._selected_element is not None)
         self._window_monitor.listeners.append(lambda: self.update_highlight_no_transitions())
         self.highlight_overlay.transition = True
-        # Initialize ResizeObserver
+        # Initialize MutationObserver instead of ResizeObserver
         self._observer = None
 
     def connectedCallback(self):
@@ -41,16 +41,16 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         logger.debug(f'has_py_comp: {has_py_comp}')
         self._window_monitor.install()
 
-    def _on_element_change(self, entries, observer):
-        """Called when the observed element changes size or position"""
-        logger.debug(f'on_element_change: {entries}')
+    def _on_element_mutate(self, mutations, observer):
+        """Called when the observed element's attributes change (size or position)"""
+        logger.debug(f'on_element_mutate: {len(mutations)} mutations')
         self.update_highlight()
 
     def disconnectedCallback(self):
         self._window_monitor.uninstall()
-        # Clean up ResizeObserver
+        # Clean up MutationObserver
         if self._observer and self._selected_element:
-            self._observer.unobserve(self._selected_element)
+            self._observer.disconnect()
             self._observer = None
 
     def set_selected_element(self, element):
@@ -59,15 +59,19 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         # Clean up previous observer
         if self._observer and self._selected_element:
-            self._observer.unobserve(self._selected_element)
+            self._observer.disconnect()
 
         self._selected_element = element
 
         # Setup new observer for the selected element
         if element:
             if not self._observer:
-                self._observer = js.ResizeObserver.new(create_proxy(self._on_element_change))
-            self._observer.observe(element)
+                self._observer = js.MutationObserver.new(create_proxy(self._on_element_mutate))
+            # Observe attribute changes (style changes will affect size and position)
+            self._observer.observe(element, dict_to_js({
+                'attributes': True,
+                'attributeFilter': ['style', 'class']
+            }))
 
         self.update_highlight()
 

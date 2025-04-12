@@ -34,8 +34,7 @@ class TestElementSelector:
         actual = target.highlight_overlay.last_rect_tuple
         assert actual == expect
 
-    async def test_move_element_should_update_highlight(self, target, div1):
-        # todo, now add test after moving the element (implementation may use a ResizeObserver)
+    async def test_resize_element_should_update_highlight(self, target, div1):
         # GIVEN
         # set absolute position to div1
         div1.style.position = 'absolute'
@@ -50,10 +49,8 @@ class TestElementSelector:
 
         # WHEN
         # move the element
-        div1.style.top = '1px'
-        div1.style.left = '2px'
-        div1.style.width = '60px'
-        div1.style.height = '70px'
+        div1.style.width = '50px'
+        div1.style.height = '60px'
         await waitAnimationFrame()
 
         # THEN
@@ -64,6 +61,33 @@ class TestElementSelector:
         actual = target.highlight_overlay.last_rect_tuple
         assert actual == expect
 
+    async def test_move_element_should_update_highlight(self, target, div1):
+        # GIVEN
+        # set absolute position to div1
+        div1.style.position = 'absolute'
+        div1.style.top = '30px'
+        div1.style.left = '40px'
+        div1.style.width = '100px'
+        div1.style.height = '70px'
+        # set border red
+        div1.style.border = '2px solid red'
+
+        target.set_selected_element(div1)
+        await waitAnimationFrame()
+
+        # WHEN
+        # move the element
+        div1.style.top = '50px'
+        div1.style.left = '60px'
+        await waitAnimationFrame()
+
+        # THEN
+        # check that the highlight overlay is shown and that it has the same size as div1
+        assert target.highlight_overlay.visible
+        dr = div1.getBoundingClientRect()
+        expect = (dr.top, dr.left, dr.width, dr.height)
+        actual = target.highlight_overlay.last_rect_tuple
+        assert actual == expect
 
 
 class Fixture:
