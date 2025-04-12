@@ -22,7 +22,7 @@ class TestElementSelector:
         assert target.highlight_overlay.visible
         dr = div1.getBoundingClientRect()
         expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.highlight_overlay.last_rect_tuple
+        actual = target.last_rect_tuple
         assert actual == expect
 
     async def test_resize_element_should_update_highlight(self, target, div1):
@@ -41,7 +41,7 @@ class TestElementSelector:
         assert target.highlight_overlay.visible
         dr = div1.getBoundingClientRect()
         expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.highlight_overlay.last_rect_tuple
+        actual = target.last_rect_tuple
         assert actual == expect
 
     async def test_move_element_should_update_highlight(self, target, div1):
@@ -61,7 +61,7 @@ class TestElementSelector:
         assert target.highlight_overlay.visible
         dr = div1.getBoundingClientRect()
         expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.highlight_overlay.last_rect_tuple
+        actual = target.last_rect_tuple
         assert actual == expect
 
 

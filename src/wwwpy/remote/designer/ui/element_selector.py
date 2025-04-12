@@ -27,6 +27,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <highlight-overlay data-name="highlight_overlay"></highlight-overlay>
         <toolbar-button data-name="toolbar_button"></toolbar-button>
         """
+        self.last_rect_tuple = None
         self.toolbar_element = self.toolbar_button.element
         self._selected_element: js.HTMLElement | None = None
 
@@ -90,6 +91,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             return
 
         rect = self._selected_element.getBoundingClientRect()
+        self.last_rect_tuple = (rect.top, rect.left, rect.width, rect.height)
 
         self.highlight_overlay.show(rect)
         self.toolbar_button.show(rect)
@@ -155,7 +157,6 @@ class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
             } 
         </style>      
         """
-        self.last_rect_tuple = None
 
     @property
     def transition(self) -> bool:
@@ -176,8 +177,6 @@ class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
         self.element.style.display = 'none'
 
     def show(self, rect: js.DOMRect):
-        self.last_rect_tuple = (rect.top, rect.left, rect.width, rect.height)
-
         bs = 2  # Adjust this value to match the border size in CSS
 
         rect = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
