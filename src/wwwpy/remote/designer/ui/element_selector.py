@@ -7,7 +7,8 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.remote import dict_to_js
+from wwwpy.remote import dict_to_js, dict_to_py
+from wwwpy.remote.jslib import is_descendant_of_container
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,14 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self._observer.disconnect()
             self._observer = None
 
+    def is_selectable(self, element) -> bool:
+        ok = not is_descendant_of_container(element, self.element)
+        return ok
+
     def set_selected_element(self, element):
+        if not self.is_selectable(element):
+            raise ValueError(f'Element is not selectable `{dict_to_py(element)}`')
+
         if self._selected_element == element:
             return
 
@@ -112,6 +120,7 @@ class WindowMonitor:
         js.window.removeEventListener('resize', create_proxy(self._handle_event))
         js.window.removeEventListener('scroll', create_proxy(self._handle_event))
 
+        # todo remove
         if self._raf_id is not None:
             js.window.cancelAnimationFrame(self._raf_id)
             self._raf_id = None

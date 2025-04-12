@@ -3,6 +3,7 @@ import logging
 import js
 import pytest
 
+from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.jslib import waitAnimationFrame
 
@@ -48,6 +49,18 @@ class TestElementSelector:
 
         # THEN
         _assert_geometry_ok(div1, target)
+
+    async def test_set_inner_element_should_raise(self, target):
+        # GIVEN
+        inner_elements = (target.element,
+                          target.highlight_overlay.element,
+                          target.toolbar_button.element,
+                          ) + tuple(target.toolbar_button.element.shadowRoot.children)
+
+        for ele in inner_elements:
+            logger.debug(f'inner element: `{dict_to_py(ele)}`')
+            with pytest.raises(ValueError):
+                target.set_selected_element(ele)
 
 
 def _assert_geometry_ok(div1, target):

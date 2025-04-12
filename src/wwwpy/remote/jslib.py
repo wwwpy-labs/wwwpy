@@ -51,3 +51,19 @@ async def waitAnimationFrame():
     event = asyncio.Event()
     js.window.requestAnimationFrame(create_once_callable(lambda *_: event.set()))
     await event.wait()
+
+
+def is_descendant_of_container(target, container):
+    node = target
+    while node:
+        if node == container:
+            return True
+        # Attempt to retrieve the root node (to check if we're in a shadow DOM)
+        root = node.getRootNode() if hasattr(node, "getRootNode") else None
+        # If in a shadow tree (i.e., root has a host), move to the host element.
+        if root is not None and hasattr(root, "host"):
+            node = root.host
+        else:
+            # Otherwise, move up in the light DOM.
+            node = node.parentNode
+    return False
