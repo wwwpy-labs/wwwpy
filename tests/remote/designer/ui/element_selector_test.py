@@ -18,12 +18,7 @@ class TestElementSelector:
         target.set_selected_element(div1)
 
         # THEN
-        # check that the highlight overlay is shown and that it has the same size as div1
-        assert target.highlight_overlay.visible
-        dr = div1.getBoundingClientRect()
-        expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.last_rect_tuple
-        assert actual == expect
+        _assert_geometry_ok(div1, target)
 
     async def test_resize_element_should_update_highlight(self, target, div1):
         # GIVEN
@@ -37,12 +32,7 @@ class TestElementSelector:
         await waitAnimationFrame()
 
         # THEN
-        # check that the highlight overlay is shown and that it has the same size as div1
-        assert target.highlight_overlay.visible
-        dr = div1.getBoundingClientRect()
-        expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.last_rect_tuple
-        assert actual == expect
+        _assert_geometry_ok(div1, target)
 
     async def test_move_element_should_update_highlight(self, target, div1):
         # GIVEN
@@ -57,12 +47,14 @@ class TestElementSelector:
         await waitAnimationFrame()
 
         # THEN
-        # check that the highlight overlay is shown and that it has the same size as div1
-        assert target.highlight_overlay.visible
-        dr = div1.getBoundingClientRect()
-        expect = (dr.top, dr.left, dr.width, dr.height)
-        actual = target.last_rect_tuple
-        assert actual == expect
+        _assert_geometry_ok(div1, target)
+
+
+def _assert_geometry_ok(div1, target):
+    dr = div1.getBoundingClientRect()
+    expect = (dr.top, dr.left, dr.width, dr.height)
+    actual = target.last_rect_tuple
+    assert actual == expect
 
 
 class Fixture:
