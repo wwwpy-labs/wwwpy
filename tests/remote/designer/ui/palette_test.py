@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass, field
 
@@ -233,10 +235,9 @@ class TestHover:
         # THEN
         assert action_manager.selected_action is item1  # should still be selected
 
-        assert events.hover_events != [], 'hover event not emitted'
+        self._assert_hover_events_arrived_ok(events)
 
     async def test_drag_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
-
         # GIVEN
         await rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()"])
 
@@ -244,7 +245,13 @@ class TestHover:
         await rpctst_exec(["page.locator('#div1').hover()"])
 
         # THEN
+        self._assert_hover_events_arrived_ok(events)
+
+    def _assert_hover_events_arrived_ok(self, events: EventFixture):
         assert events.hover_events != [], 'hover event not emitted'
+        for e in events.hover_events:
+            assert e.js_event is not None, 'event should be set'
+            assert e.js_event.target is not None, 'target should be set'
 
 
 @pytest.fixture

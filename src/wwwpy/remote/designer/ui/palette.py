@@ -135,7 +135,7 @@ class AcceptEvent(PaletteEvent):
 
 @dataclass
 class HoverEvent(PaletteEvent):
-    is_dragging: bool = False
+    js_event: js.Event
 
 
 @dataclass
