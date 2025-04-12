@@ -5,7 +5,7 @@ import js
 import wwwpy.remote.component as wpc
 from tests.remote.remote_fixtures import clean_document
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.jslib import is_contained
+from wwwpy.remote.jslib import is_contained, is_instance_of
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,14 @@ class Test_is_descendant_of_container():
         slotted1 = root.slotted1.element
         inner = root.inner
         assert is_contained(inner, slotted1)
+
+    async def test_issue_with__accessing_host_attr(self, clean_document):
+        # anchors has a property 'host'
+
+        js.document.body.innerHTML = "<div id='outer'><a id='inner' href='https://some-host'>some</a></div>"
+        outer = js.document.getElementById('outer')
+        inner = js.document.getElementById('inner')
+        assert is_contained(inner, outer)
 
     async def test_with_shadow_on_outer(self, clean_document):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
@@ -102,3 +110,8 @@ class Test_is_descendant_of_container():
         outer = js.document.getElementById('outer')
         inner = js.document.getElementById('inner')
         assert is_contained(inner, outer)
+
+
+class Test_is_instance_of():
+    async def test_is_instance_of(self, clean_document):
+        assert is_instance_of(js.document, js.HTMLDocument)

@@ -53,35 +53,15 @@ async def waitAnimationFrame():
     await event.wait()
 
 
-# def is_contained(target, container):
-#     """Determines if target is a descendant of container, accounting for shadow DOM and slots."""
-#     if target is None:
-#         raise ValueError(f'target is None')
-#     if container is None:
-#         raise ValueError(f'container is None')
-#     logger.debug(f'target: `{_pretty(target)}` container: `{_pretty(container)}`')
-#     node = target
-#     while node:
-#         if node == container:
-#             return True
-#
-#         # Check if node is assigned to a slot
-#         if hasattr(node, "assignedSlot") and node.assignedSlot:
-#             node = node.assignedSlot
-#             logger.debug(f'assignedSlot: {_pretty(node)}')
-#             continue
-#
-#         # Attempt to retrieve the root node (to check if we're in a shadow DOM)
-#         root = node.getRootNode() if hasattr(node, "getRootNode") else None
-#         # If in a shadow tree (i.e., root has a host), move to the host element.
-#         if root is not None and hasattr(root, "host"):
-#             node = root.host
-#             logger.debug(f'host: {_pretty(node)}')
-#         else:
-#             # Otherwise, move up in the light DOM.
-#             node = node.parentNode
-#             logger.debug(f'node: {_pretty(node)}')
-#     return False
+_instanceof = js.eval('(i,t) => i instanceof t')
+
+
+def is_instance_of(instance, js_type):
+    """Check if the instance is of the given JavaScript type.
+    Example: is_instance_of(js.document, js.HTMLDocument) will return True.
+    """
+    return _instanceof(instance, js_type)
+
 
 def is_contained(target, container):
     """Determines if target is a descendant of container, accounting for shadow DOM and slots."""
@@ -102,11 +82,15 @@ def is_contained(target, container):
             continue
 
         # If in a shadow tree (i.e., root has a host), move to the host element.
-        if hasattr(node, "host"):
+        if is_instance_of(node, js.ShadowRoot):
             node = node.host
             logger.debug(f'host: {_pretty(node)}')
         else:
             # Otherwise, move up in the light DOM.
+            if not hasattr(node, 'parentNode'):
+                # logger.debug(f'node has no parentNode: {_pretty(node)}')
+                # break
+                raise ValueError(f'node has no parentNode: {_pretty(node)}')
             node = node.parentNode
             logger.debug(f'parentNode: {_pretty(node)}')
 
@@ -115,5 +99,5 @@ def is_contained(target, container):
 
 def _pretty(node):
     if hasattr(node, 'tagName'):
-        return f'{node.tagName.lower()}#{node.id}.{node.className}'
-    return str(node)
+        return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.outerHTML.strip()[:20]}…]'
+    return f'_pretty({node})'
