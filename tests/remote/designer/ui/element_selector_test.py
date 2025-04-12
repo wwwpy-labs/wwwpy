@@ -4,6 +4,7 @@ import js
 import pytest
 
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
+from wwwpy.remote.jslib import waitAnimationFrame
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,36 @@ class TestElementSelector:
         actual = target.highlight_overlay.last_rect_tuple
         assert actual == expect
 
-    # todo, now add test after moving the element (implementation may use a ResizeObserver)
+    async def test_move_element_should_update_highlight(self, target, div1):
+        # todo, now add test after moving the element (implementation may use a ResizeObserver)
+        # GIVEN
+        # set absolute position to div1
+        div1.style.position = 'absolute'
+        div1.style.top = '30px'
+        div1.style.left = '40px'
+        div1.style.width = '100px'
+        div1.style.height = '70px'
+        # set border red
+        div1.style.border = '2px solid red'
+
+        target.set_selected_element(div1)
+
+        # WHEN
+        # move the element
+        div1.style.top = '1px'
+        div1.style.left = '2px'
+        div1.style.width = '60px'
+        div1.style.height = '70px'
+        await waitAnimationFrame()
+
+        # THEN
+        # check that the highlight overlay is shown and that it has the same size as div1
+        assert target.highlight_overlay.visible
+        dr = div1.getBoundingClientRect()
+        expect = (dr.top, dr.left, dr.width, dr.height)
+        actual = target.highlight_overlay.last_rect_tuple
+        assert actual == expect
+
 
 
 class Fixture:

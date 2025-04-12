@@ -19,6 +19,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
     # _eventbus: EventBus = inject()
 
     def init_component(self):
+        # Existing code remains the same
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
 
         # language=html
@@ -32,20 +33,42 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._window_monitor = WindowMonitor(lambda: self._selected_element is not None)
         self._window_monitor.listeners.append(lambda: self.update_highlight_no_transitions())
         self.highlight_overlay.transition = True
-        # self._eventbus.subscribe()
+        # Initialize ResizeObserver
+        self._observer = None
 
     def connectedCallback(self):
         has_py_comp = hasattr(self.element, '_python_component')
         logger.debug(f'has_py_comp: {has_py_comp}')
         self._window_monitor.install()
 
+    def _on_element_change(self, entries, observer):
+        """Called when the observed element changes size or position"""
+        logger.debug(f'on_element_change: {entries}')
+        self.update_highlight()
+
     def disconnectedCallback(self):
         self._window_monitor.uninstall()
+        # Clean up ResizeObserver
+        if self._observer and self._selected_element:
+            self._observer.unobserve(self._selected_element)
+            self._observer = None
 
     def set_selected_element(self, element):
         if self._selected_element == element:
             return
+
+        # Clean up previous observer
+        if self._observer and self._selected_element:
+            self._observer.unobserve(self._selected_element)
+
         self._selected_element = element
+
+        # Setup new observer for the selected element
+        if element:
+            if not self._observer:
+                self._observer = js.ResizeObserver.new(create_proxy(self._on_element_change))
+            self._observer.observe(element)
+
         self.update_highlight()
 
     def get_selected_element(self):
