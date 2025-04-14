@@ -22,7 +22,7 @@ class TestElementSelector:
         # THEN
         _assert_geometry_ok(div1, target)
         assert target._update_count == 1
-        assert target.highlight_overlay.transition == True
+        assert target.selection_indicator.transition == True
 
     async def test_resize_element_should_update_highlight(self, target, div1):
         # GIVEN
@@ -68,12 +68,12 @@ class TestElementSelector:
         # THEN
         _assert_geometry_ok(div2, target)
         assert target._update_count == 2
-        assert target.highlight_overlay.transition == False
+        assert target.selection_indicator.transition == False
 
     async def test_set_inner_element_should_raise(self, target):
         # GIVEN
         inner_elements = (target.element,
-                          target.highlight_overlay.element,
+                          target.selection_indicator.element,
                           target.toolbar_button.element,
                           ) + tuple(target.toolbar_button.element.shadowRoot.children)
 
@@ -96,7 +96,7 @@ class TestElementSelector:
         # THEN
         _assert_geometry_ok(div2, target)
         assert target._update_count == 2
-        assert target.highlight_overlay.transition == True
+        assert target.selection_indicator.transition == True
 
     async def test_element_deselected_should_hide_highlight(self, target, div1):
         # GIVEN
@@ -108,7 +108,7 @@ class TestElementSelector:
         await waitAnimationFrame()
 
         # THEN
-        assert target.highlight_overlay.element.style.display == 'none'
+        assert target.selection_indicator.element.style.display == 'none'
         assert target.toolbar_button.element.style.display == 'none'
 
 def _assert_geometry_ok(div1, target):
