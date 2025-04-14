@@ -34,7 +34,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <action-band-tool data-name="toolbar_button"></action-band-tool>
         """
         self.check_position = create_proxy(self.check_position)
-        self.toolbar_element = self.toolbar_button.element
         self._selected_element: js.HTMLElement | None = None
 
         self.highlight_overlay.transition = True
