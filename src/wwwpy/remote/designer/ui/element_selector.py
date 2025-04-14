@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
 
 import js
 from pyodide.ffi import create_proxy
@@ -11,6 +10,7 @@ from wwwpy.remote import dict_to_js, dict_to_py
 from wwwpy.remote.jslib import is_contained
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Tool:
@@ -37,22 +37,18 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self.toolbar_element = self.toolbar_button.element
         self._selected_element: js.HTMLElement | None = None
 
-        self._window_monitor = WindowMonitor(lambda: self._selected_element is not None)
-        self._window_monitor.listeners.append(lambda: self.update_highlight_no_transitions())
         self.highlight_overlay.transition = True
         # Add tracking variables for position monitoring
         self._position_tracking_active = False
         self._raf_id = None
         self._last_position = None
+        self._update_count = 0
 
     def connectedCallback(self):
         has_py_comp = hasattr(self.element, '_python_component')
         logger.debug(f'has_py_comp: {has_py_comp}')
-        self._window_monitor.install()
 
     def disconnectedCallback(self):
-        self._window_monitor.uninstall()
-        # Stop position tracking
         self._stop_position_tracking()
 
     def is_selectable(self, element) -> bool:
@@ -97,10 +93,10 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         current_pos = (rect.top, rect.left, rect.width, rect.height)
 
         if self._last_position != current_pos:
-            first = self._last_position is None
+            skip_trans = self._last_position is not None
             # todo, remove redundancy: getBoundingClientRect() is called twice, here
             #  just above and inside update_highlight
-            self.update_highlight(skip_transition=first)
+            self.update_highlight(skip_transition=skip_trans)
             self._last_position = current_pos
 
         # Continue tracking
@@ -115,6 +111,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._last_position = None
 
     def update_highlight(self, skip_transition=False):
+        self._update_count += 1
+        logger.debug(f'update_highlight: {self._update_count} skip_transition: {skip_transition}')
         if not self._selected_element:
             self.highlight_overlay.hide()
             self.toolbar_button.hide()
@@ -122,56 +120,11 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         rect = self._selected_element.getBoundingClientRect()
 
-        if skip_transition: self.highlight_overlay.transition = False
+        self.highlight_overlay.transition = not skip_transition
 
         self.highlight_overlay.set_reference_geometry(rect)
         self.toolbar_button.set_reference_geometry(rect)
 
-        if skip_transition: self.highlight_overlay.transition = True
-
-
-class WindowMonitor:
-
-    def __init__(self, enable_notify: callable):
-        self._enable_notify = enable_notify
-        self.listeners: list[Callable] = []
-        self._raf_id = None
-
-    def install(self):
-        js.window.addEventListener('resize', create_proxy(self._handle_event))
-        js.window.addEventListener('scroll', create_proxy(self._handle_event), dict_to_js({'passive': True}))
-
-    def uninstall(self):
-        js.window.removeEventListener('resize', create_proxy(self._handle_event))
-        js.window.removeEventListener('scroll', create_proxy(self._handle_event))
-
-        # todo remove
-        if self._raf_id is not None:
-            js.window.cancelAnimationFrame(self._raf_id)
-            self._raf_id = None
-
-    async def _handle_event(self, event=None):
-        if not self._enable_notify():
-            return
-
-        self._fire_notify()
-        # if self._raf_id is not None:
-        #     js.window.cancelAnimationFrame(self._raf_id)
-
-        # def update_on_animation_frame(event):
-        #     self._fire_notify()
-        #     self._raf_id = None
-
-        # self._raf_id = js.window.requestAnimationFrame(create_proxy(update_on_animation_frame))
-
-    def _fire_notify(self):
-        if not self._enable_notify():
-            return
-        for listener in self.listeners:
-            try:
-                listener()
-            except Exception as e:
-                logger.error(f"Error in listener: {e}")
 
 
 class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):
