@@ -53,7 +53,11 @@ DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
     def print_server_fs():
-        print_tree(fixture.tmp_path / 'remote')
+        rem = fixture.tmp_path / 'remote'
+        if rem.exists():
+            print_tree(rem)
+        else:
+            logger.warning(f'remote folder not found in {fixture.tmp_path}')
 
     logger.debug(f'Going to verify if component-1 is attached with a specific 42000ms timeout')
     try:
