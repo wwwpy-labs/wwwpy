@@ -30,7 +30,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         # language=html
         self.element.shadowRoot.innerHTML = """
-        <selected-indicator-tool data-name="selection_indicator"></selected-indicator-tool>
+        <selection-indicator-tool data-name="selection_indicator"></selection-indicator-tool>
         <action-band-tool data-name="action_band"></action-band-tool>
         """
         self._selected_element: js.HTMLElement | None = None
@@ -88,7 +88,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self._last_position = rect_tup
 
 
-class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):
+class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selection-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
