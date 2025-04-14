@@ -74,8 +74,8 @@ class TestElementSelector:
         # GIVEN
         inner_elements = (target.element,
                           target.selection_indicator.element,
-                          target.toolbar_button.element,
-                          ) + tuple(target.toolbar_button.element.shadowRoot.children)
+                          target.action_band.element,
+                          ) + tuple(target.action_band.element.shadowRoot.children)
 
         for ele in inner_elements:
             logger.debug(f'inner element: `{dict_to_py(ele)}`')
@@ -109,7 +109,7 @@ class TestElementSelector:
 
         # THEN
         assert target.selection_indicator.element.style.display == 'none'
-        assert target.toolbar_button.element.style.display == 'none'
+        assert target.action_band.element.style.display == 'none'
 
 def _assert_geometry_ok(div1, target):
     dr = div1.getBoundingClientRect()

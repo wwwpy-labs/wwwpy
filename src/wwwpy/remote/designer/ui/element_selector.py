@@ -20,7 +20,7 @@ class Tool:
 
 class ElementSelector(wpc.Component, tag_name='element-selector'):
     selection_indicator: SelectionIndicatorTool = wpc.element()
-    toolbar_button: ActionBandTool = wpc.element()
+    action_band: ActionBandTool = wpc.element()
 
     # _eventbus: EventBus = inject()
 
@@ -31,7 +31,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         # language=html
         self.element.shadowRoot.innerHTML = """
         <selected-indicator-tool data-name="selection_indicator"></selected-indicator-tool>
-        <action-band-tool data-name="toolbar_button"></action-band-tool>
+        <action-band-tool data-name="action_band"></action-band-tool>
         """
         self._selected_element: js.HTMLElement | None = None
         self._last_position = None
@@ -64,7 +64,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self._animation_frame_tracker.start()
         else:
             self.selection_indicator.hide()
-            self.toolbar_button.hide()
+            self.action_band.hide()
 
     def get_selected_element(self):
         return self._selected_element
@@ -83,7 +83,7 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self.selection_indicator.transition = not skip_transition
 
         self.selection_indicator.set_reference_geometry(rect)
-        self.toolbar_button.set_reference_geometry(rect)
+        self.action_band.set_reference_geometry(rect)
 
         self._last_position = rect_tup
 
