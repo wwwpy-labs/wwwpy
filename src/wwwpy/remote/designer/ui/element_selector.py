@@ -85,7 +85,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             # todo, remove redundancy: getBoundingClientRect() is called twice, here
             #  just above and inside update_highlight
             self.update_highlight(skip_transition=skip_trans)
-            self._last_position = current_pos
 
 
     def update_highlight(self, skip_transition=False):
@@ -97,11 +96,15 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             return
 
         rect = self._selected_element.getBoundingClientRect()
+        rect_tup = (rect.top, rect.left, rect.width, rect.height)
 
         self.highlight_overlay.transition = not skip_transition
 
         self.highlight_overlay.set_reference_geometry(rect)
         self.toolbar_button.set_reference_geometry(rect)
+
+        self._last_position = rect_tup
+
 
 
 class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):
