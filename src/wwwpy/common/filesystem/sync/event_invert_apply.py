@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -6,6 +7,8 @@ from typing import List, Dict, Iterable, Optional
 
 from wwwpy.common import tree
 from wwwpy.common.filesystem.sync import Event
+
+logger = logging.getLogger(__name__)
 
 
 def events_invert(fs: Path, events: List[Event]) -> List[Event]:
@@ -28,6 +31,8 @@ def events_invert(fs: Path, events: List[Event]) -> List[Event]:
     def augment(event: Event) -> Event:
         fp = get_final_path(event)
         content = _get_content(fp)
+        if content is None:
+            logger.warning(f'Content is None for {fp}')
         aug = dataclasses.replace(event, content=content)
         return aug
 
@@ -115,6 +120,7 @@ def _event_apply(fs: Path, event: Event):
 
         path.parent.mkdir(parents=True, exist_ok=True)
         func(c)
+
 
 def _get_content(path: Path):
     assert path.exists(), f'Path does not exist: {path}'
