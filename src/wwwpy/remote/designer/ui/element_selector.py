@@ -33,16 +33,10 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <selected-indicator-tool data-name="highlight_overlay"></selected-indicator-tool>
         <action-band-tool data-name="toolbar_button"></action-band-tool>
         """
-        # self.check_position = create_proxy(self.check_position)
         self._selected_element: js.HTMLElement | None = None
-
-        self.highlight_overlay.transition = True
-        # Add tracking variables for position monitoring
-        # self._position_tracking_active = False
-        # self._raf_id = None
         self._last_position = None
         self._update_count = 0
-        self._animation_frame_tracker = AnimationFrameTracker(self.check_position)
+        self._animation_frame_tracker = AnimationFrameTracker(self._on_animation_frame)
 
     def connectedCallback(self):
         has_py_comp = hasattr(self.element, '_python_component')
@@ -72,22 +66,16 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
     def get_selected_element(self):
         return self._selected_element
 
-    def check_position(self, timestamp):
+    def _on_animation_frame(self, timestamp):
         if not self._animation_frame_tracker.is_tracking or not self._selected_element:
             return
-
-        # Get current position
         rect = self._selected_element.getBoundingClientRect()
-        current_pos = (rect.top, rect.left, rect.width, rect.height)
+        rect_tup = (rect.top, rect.left, rect.width, rect.height)
+        if self._last_position == rect_tup:
+            return
 
-        if self._last_position != current_pos:
-            skip_trans = self._last_position is not None
-            # todo, remove redundancy: getBoundingClientRect() is called twice, here
-            #  just above and inside update_highlight
-            self.update_highlight(skip_transition=skip_trans)
+        skip_transition = self._last_position is not None
 
-
-    def update_highlight(self, skip_transition=False):
         self._update_count += 1
         logger.debug(f'update_highlight: {self._update_count} skip_transition: {skip_transition}')
         if not self._selected_element:
@@ -95,8 +83,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self.toolbar_button.hide()
             return
 
-        rect = self._selected_element.getBoundingClientRect()
-        rect_tup = (rect.top, rect.left, rect.width, rect.height)
 
         self.highlight_overlay.transition = not skip_transition
 
@@ -158,8 +144,8 @@ class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-to
 class AnimationFrameTracker:
     """Tracks animation frames and calls a callback."""
 
-    def __init__(self, check_func):
-        self._check_func = check_func
+    def __init__(self, callback):
+        self._callback = callback
         self._raf_id = None
         self._on_animation_frame = create_proxy(self._on_animation_frame)
 
@@ -177,7 +163,7 @@ class AnimationFrameTracker:
             return
 
         self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
-        self._check_func(timestamp)
+        self._callback(timestamp)
 
     @property
     def is_tracking(self):
