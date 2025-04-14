@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class ElementSelector(wpc.Component, tag_name='element-selector'):
-    highlight_overlay: HighlightOverlay = wpc.element()
-    toolbar_button: ToolbarButton = wpc.element()
+    highlight_overlay: SelectedIndicatorTool = wpc.element()
+    toolbar_button: ActionBandTool = wpc.element()
 
     # _eventbus: EventBus = inject()
 
@@ -25,8 +25,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         # language=html
         self.element.shadowRoot.innerHTML = """
-        <highlight-overlay data-name="highlight_overlay"></highlight-overlay>
-        <toolbar-button data-name="toolbar_button"></toolbar-button>
+        <selected-indicator-tool data-name="highlight_overlay"></selected-indicator-tool>
+        <action-band-tool data-name="toolbar_button"></action-band-tool>
         """
         self.check_position = create_proxy(self.check_position)
         self.toolbar_element = self.toolbar_button.element
@@ -169,7 +169,7 @@ class WindowMonitor:
                 logger.error(f"Error in listener: {e}")
 
 
-class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
+class SelectedIndicatorTool(wpc.Component, tag_name='selected-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -218,7 +218,7 @@ class HighlightOverlay(wpc.Component, tag_name='highlight-overlay'):
 
 
 # this class is an extraction  of the toolbar above (refactoring)
-class ToolbarButton(wpc.Component, tag_name='toolbar-button'):
+class ActionBandTool(wpc.Component, tag_name='action-band-tool'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.
     """
