@@ -33,22 +33,23 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         <selected-indicator-tool data-name="highlight_overlay"></selected-indicator-tool>
         <action-band-tool data-name="toolbar_button"></action-band-tool>
         """
-        self.check_position = create_proxy(self.check_position)
+        # self.check_position = create_proxy(self.check_position)
         self._selected_element: js.HTMLElement | None = None
 
         self.highlight_overlay.transition = True
         # Add tracking variables for position monitoring
-        self._position_tracking_active = False
-        self._raf_id = None
+        # self._position_tracking_active = False
+        # self._raf_id = None
         self._last_position = None
         self._update_count = 0
+        self._animation_frame_tracker = AnimationFrameTracker(self.check_position)
 
     def connectedCallback(self):
         has_py_comp = hasattr(self.element, '_python_component')
         logger.debug(f'has_py_comp: {has_py_comp}')
 
     def disconnectedCallback(self):
-        self._stop_position_tracking()
+        self._animation_frame_tracker.stop()
 
     def is_selectable(self, element) -> bool:
         ok = not is_contained(element, self.element)
@@ -61,30 +62,18 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         if self._selected_element == element:
             return
 
-        # Clean up previous tracking
-        self._stop_position_tracking()
-
+        self._animation_frame_tracker.stop()
         self._selected_element = element
+        self._last_position = None
 
-        # Start position tracking for the new element
         if element:
-            self._start_position_tracking()
+            self._animation_frame_tracker.start()
 
     def get_selected_element(self):
         return self._selected_element
 
-    def _start_position_tracking(self):
-        """Start tracking the element's position using requestAnimationFrame"""
-        if self._position_tracking_active:
-            return
-
-        self._position_tracking_active = True
-        self._last_position = None
-        self._raf_id = js.window.requestAnimationFrame(self.check_position)
-
     def check_position(self, timestamp):
-        if not self._position_tracking_active or not self._selected_element:
-            self._raf_id = None
+        if not self._animation_frame_tracker.is_tracking or not self._selected_element:
             return
 
         # Get current position
@@ -98,16 +87,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
             self.update_highlight(skip_transition=skip_trans)
             self._last_position = current_pos
 
-        # Continue tracking
-        self._raf_id = js.window.requestAnimationFrame(self.check_position)
-
-    def _stop_position_tracking(self):
-        """Stop tracking the element's position"""
-        self._position_tracking_active = False
-        if self._raf_id is not None:
-            js.window.cancelAnimationFrame(self._raf_id)
-            self._raf_id = None
-        self._last_position = None
 
     def update_highlight(self, skip_transition=False):
         self._update_count += 1
@@ -123,7 +102,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         self.highlight_overlay.set_reference_geometry(rect)
         self.toolbar_button.set_reference_geometry(rect)
-
 
 
 class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):
@@ -174,7 +152,35 @@ class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-to
         self.element.style.height = f"{rect.height}px"
 
 
-# this class is an extraction  of the toolbar above (refactoring)
+class AnimationFrameTracker:
+    """Tracks animation frames and calls a callback."""
+
+    def __init__(self, check_func):
+        self._check_func = check_func
+        self._raf_id = None
+        self._on_animation_frame = create_proxy(self._on_animation_frame)
+
+    def start(self):
+        if self._raf_id is None:
+            self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
+
+    def stop(self):
+        if self._raf_id is not None:
+            js.window.cancelAnimationFrame(self._raf_id)
+            self._raf_id = None
+
+    def _on_animation_frame(self, timestamp):
+        if self._raf_id is None:
+            return
+
+        self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
+        self._check_func(timestamp)
+
+    @property
+    def is_tracking(self):
+        return self._raf_id is not None
+
+
 class ActionBandTool(wpc.Component, Tool, tag_name='action-band-tool'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.

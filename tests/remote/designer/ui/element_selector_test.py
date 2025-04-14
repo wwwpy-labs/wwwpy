@@ -82,6 +82,21 @@ class TestElementSelector:
             with pytest.raises(ValueError):
                 target.set_selected_element(ele)
 
+    async def test_change_selected_element_should_use_transition(self, target, div1, div2):
+        # GIVEN
+        # div1 and div2
+        target.set_selected_element(div1)
+        await waitAnimationFrame()
+
+        # WHEN
+        # move div2 trough div1
+        target.set_selected_element(div2)
+        await waitAnimationFrame()
+
+        # THEN
+        _assert_geometry_ok(div2, target)
+        assert target._update_count == 2
+        assert target.highlight_overlay.transition == True
 
 def _assert_geometry_ok(div1, target):
     dr = div1.getBoundingClientRect()
