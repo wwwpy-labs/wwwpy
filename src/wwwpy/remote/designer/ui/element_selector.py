@@ -62,13 +62,14 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         if element:
             self._animation_frame_tracker.start()
+        else:
+            self.highlight_overlay.hide()
+            self.toolbar_button.hide()
 
     def get_selected_element(self):
         return self._selected_element
 
     def _on_animation_frame(self, timestamp):
-        if not self._animation_frame_tracker.is_tracking or not self._selected_element:
-            return
         rect = self._selected_element.getBoundingClientRect()
         rect_tup = (rect.top, rect.left, rect.width, rect.height)
         if self._last_position == rect_tup:
@@ -78,11 +79,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         self._update_count += 1
         logger.debug(f'update_highlight: {self._update_count} skip_transition: {skip_transition}')
-        if not self._selected_element:
-            self.highlight_overlay.hide()
-            self.toolbar_button.hide()
-            return
-
 
         self.highlight_overlay.transition = not skip_transition
 
@@ -90,7 +86,6 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
         self.toolbar_button.set_reference_geometry(rect)
 
         self._last_position = rect_tup
-
 
 
 class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):

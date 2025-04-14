@@ -98,6 +98,19 @@ class TestElementSelector:
         assert target._update_count == 2
         assert target.highlight_overlay.transition == True
 
+    async def test_element_deselected_should_hide_highlight(self, target, div1):
+        # GIVEN
+        target.set_selected_element(div1)
+        await waitAnimationFrame()
+
+        # WHEN
+        target.set_selected_element(None)
+        await waitAnimationFrame()
+
+        # THEN
+        assert target.highlight_overlay.element.style.display == 'none'
+        assert target.toolbar_button.element.style.display == 'none'
+
 def _assert_geometry_ok(div1, target):
     dr = div1.getBoundingClientRect()
     expect = (dr.top, dr.left, dr.width, dr.height)
