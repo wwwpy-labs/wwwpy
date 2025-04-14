@@ -10,6 +10,7 @@ from tests.timeouts import timeout_multiplier
 from wwwpy.common import quickstart
 from wwwpy.common.files import get_all_paths_with_hashes
 from wwwpy.common.quickstart import is_empty_project
+from wwwpy.common.tree import print_tree
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,9 @@ from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
 DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
+    def print_server_fs():
+        print_tree(fixture.tmp_path / 'remote')
+
     logger.debug(f'Going to verify if component-1 is attached with a specific 42000ms timeout')
     try:
         # expect(fixture.page.locator('component-1')).to_be_attached(timeout=42000)
@@ -58,7 +62,7 @@ DevModeComponent.instance.quickstart.window.element.isConnected is False
         fixture.assert_evaluate_retry("""
 import js
 '<component-1>' in js.document.body.innerHTML , f'html=[[[{js.document.body.innerHTML}]]]'
-""")
+""", on_false_eval=print_server_fs)
     except Exception as e:
         logger.error(f"Assertion failed: component-1 not attached. Error: {e}")
         body_html = fixture.page.evaluate("() => document.body.innerHTML")
@@ -66,8 +70,9 @@ import js
         # language=python
         fixture.evaluate("""
 from wwwpy.common.tree import print_tree
-print_tree('/wwwpy_bundle')
+print_tree('/wwwpy_bundle/remote')
         """)
+        print_server_fs()
         raise
 
     # language=python

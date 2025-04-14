@@ -13,6 +13,7 @@ from wwwpy.common import reloader
 
 logger = logging.getLogger(__name__)
 
+
 class PageFixture:
     def __init__(self, page: Page, tmp_path: Path, webserver):
         self.page = page
@@ -48,7 +49,7 @@ class PageFixture:
         else:
             assert t
 
-    def assert_evaluate_retry(self, python: str, millis=5000):
+    def assert_evaluate_retry(self, python: str, millis=5000, on_false_eval=None):
         """Assert on the evaluated python expression. So the evaluated expression should return a Tuple[bool, str]
         This pass through javascript so, beware of using `` separators"""
         if '`' in python:
@@ -63,6 +64,8 @@ class PageFixture:
             expr = t[0] if isinstance(t, tuple) or isinstance(t, list) else t
             if expr:
                 return
+            if on_false_eval:
+                on_false_eval()
             sleep(0.2)
             if datetime.utcnow() - start > delta:
                 break

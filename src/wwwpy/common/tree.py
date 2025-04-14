@@ -21,7 +21,7 @@ class NodeProtocol(Protocol):
     def name(self) -> str: ...
 
 
-def tree(dir_path: NodeProtocol, prefix: str = ''):
+def tree(dir_path: NodeProtocol, prefix: str = '', file_size=False):
     """A recursive generator, given a directory Path object
     will yield a visual tree structure line by line
     with each line prefixed by the same characters
@@ -30,20 +30,21 @@ def tree(dir_path: NodeProtocol, prefix: str = ''):
     # contents each get pointers that are ├── with a final └── :
     pointers = [tee] * (len(contents) - 1) + [last]
     for pointer, path in zip(pointers, contents):
-        yield prefix + pointer + path.name
+        fs = '' if not file_size or path.is_dir() else f' ({path.stat().st_size})'
+        yield prefix + pointer + path.name + fs
         try:
             if path.is_dir():  # extend the prefix and recurse:
                 extension = branch if pointer == tee else space
                 # i.e. space because last, └── , above so no more |
-                yield from tree(path, prefix=prefix + extension)
+                yield from tree(path, prefix=prefix + extension, file_size=file_size)
         except Exception as e:
             yield prefix + f'Error: {e}'
 
 
-def print_tree(path, printer=print):
-    for line in tree(Path(path)):
+def print_tree(path, printer=print, file_size=True):
+    for line in tree(Path(path), file_size=file_size):
         printer(line)
 
 
 if __name__ == '__main__':
-    print_tree(Path(__file__).parent.parent)
+    print_tree(Path(__file__).parent.parent, file_size=True)
