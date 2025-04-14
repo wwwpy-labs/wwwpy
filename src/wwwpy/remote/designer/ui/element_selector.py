@@ -13,6 +13,11 @@ from wwwpy.remote.jslib import is_contained
 logger = logging.getLogger(__name__)
 
 
+class Tool:
+    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
+        """Set the geometry of the element that the tool is attached to."""
+
+
 class ElementSelector(wpc.Component, tag_name='element-selector'):
     highlight_overlay: SelectedIndicatorTool = wpc.element()
     toolbar_button: ActionBandTool = wpc.element()
@@ -119,8 +124,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         if skip_transition: self.highlight_overlay.transition = False
 
-        self.highlight_overlay.show(rect)
-        self.toolbar_button.show(rect)
+        self.highlight_overlay.set_reference_geometry(rect)
+        self.toolbar_button.set_reference_geometry(rect)
 
         if skip_transition: self.highlight_overlay.transition = True
 
@@ -169,7 +174,7 @@ class WindowMonitor:
                 logger.error(f"Error in listener: {e}")
 
 
-class SelectedIndicatorTool(wpc.Component, tag_name='selected-indicator-tool'):
+class SelectedIndicatorTool(wpc.Component, Tool, tag_name='selected-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -205,7 +210,7 @@ class SelectedIndicatorTool(wpc.Component, tag_name='selected-indicator-tool'):
     def hide(self):
         self.element.style.display = 'none'
 
-    def show(self, rect: js.DOMRect):
+    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
         bs = 2  # Adjust this value to match the border size in CSS
 
         rect = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
@@ -218,7 +223,7 @@ class SelectedIndicatorTool(wpc.Component, tag_name='selected-indicator-tool'):
 
 
 # this class is an extraction  of the toolbar above (refactoring)
-class ActionBandTool(wpc.Component, tag_name='action-band-tool'):
+class ActionBandTool(wpc.Component, Tool, tag_name='action-band-tool'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.
     """
@@ -302,7 +307,7 @@ class ActionBandTool(wpc.Component, tag_name='action-band-tool'):
     def hide(self):
         self.element.style.display = 'none'
 
-    def show(self, rect):
+    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
         # self._toolbar_dimensions = None
         # Only measure the toolbar once initially to avoid layout thrashing
         if not self._toolbar_dimensions:
