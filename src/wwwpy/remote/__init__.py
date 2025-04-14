@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Callable, Union, Awaitable
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # PUBLIC-API
@@ -33,10 +35,13 @@ def dict_to_py(js_obj):
             try:
                 value = getattr(js_obj, prop)
                 if not callable(value):  # Skip methods
+                    _ = str(value)  # some properties throw errors when accessed
                     py_dict[prop] = value
-            except Exception:
-                # Ignore properties that might throw errors when accessed
-                continue
+            except Exception as ex:
+                try:
+                    logger.warning(f'Error accessing property `{prop}` of {current}: {ex}')
+                except:
+                    pass
         current = js.Object.getPrototypeOf(current)
 
     return py_dict
