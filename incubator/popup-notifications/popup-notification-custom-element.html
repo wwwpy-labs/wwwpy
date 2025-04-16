@@ -50,52 +50,6 @@
             font-size: 0.9em;
         }
 
-        button {
-            padding: 8px 16px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        button.error {
-            background-color: #f44336;
-        }
-
-        button.error:hover {
-            background-color: #d32f2f;
-        }
-
-        button.warning {
-            background-color: #ff9800;
-        }
-
-        button.warning:hover {
-            background-color: #f57c00;
-        }
-
-        button.info {
-            background-color: #2196f3;
-        }
-
-        button.info:hover {
-            background-color: #1976d2;
-        }
-
-        .demo-section {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-
         .option-table {
             width: 100%;
             border-collapse: collapse;
@@ -119,16 +73,7 @@
     <p>A lightweight, customizable notification system implemented as a Web Component.</p>
 
     <h2>Demo</h2>
-    <div class="demo-section">
-        <button onclick="showBasicPopup()">Basic Popup</button>
-        <button class="info" onclick="showInfoPopup()">Info</button>
-        <button class="warning" onclick="showWarningPopup()">Warning</button>
-        <button class="error" onclick="showErrorPopup()">Error</button>
-        <button onclick="showSuccessPopup()">Success</button>
-        <button onclick="showCustomPopup()">Custom Popup</button>
-        <button onclick="showMultiplePopups()">Show Multiple</button>
-        <button onclick="closeAllPopups()">Close All</button>
-    </div>
+    <popup-demo></popup-demo>
 
     <h2>Installation</h2>
     <p>Include the JavaScript file in your HTML:</p>
@@ -150,17 +95,6 @@ popupEl.info('This is an info notification');
 popupEl.warning('This is a warning notification');
 popupEl.error('This is an error notification');
 popupEl.success('This is a success notification');</pre>
-
-    <h2>Global API</h2>
-    <p>For backward compatibility, a global PopupNotification object is also available:</p>
-    <pre>// Show a simple notification
-PopupNotification.show('This is a basic notification');
-
-// Show typed notifications
-PopupNotification.info('This is an info notification');
-PopupNotification.warning('This is a warning notification');
-PopupNotification.error('This is an error notification');
-PopupNotification.success('This is a success notification');</pre>
 
     <h2>Advanced Usage</h2>
     <pre>// Show with custom options
@@ -200,11 +134,9 @@ popupEl.show({
     </table>
 </div>
 
-<!-- Add the popup notification custom element -->
-<popup-notification position="right-bottom"></popup-notification>
-
-<!-- Popup Notification Custom Element Implementation -->
+<!-- Popup Notification and Demo Elements Implementation -->
 <script>
+    // PopupNotification Element
     class PopupNotificationElement extends HTMLElement {
         constructor() {
             super();
@@ -741,123 +673,183 @@ popupEl.show({
         }
     }
 
-    // Register the custom element
+    // Popup Demo custom element
+    class PopupDemoElement extends HTMLElement {
+        constructor() {
+            super();
+
+            // Create shadow DOM
+            this.attachShadow({mode: 'open'});
+
+            // Set up shadow DOM structure
+            this.render();
+
+            // Store reference to the local popup-notification element
+            this.popupNotification = this.shadowRoot.querySelector('popup-notification');
+
+            // Attach event listeners after shadow DOM is set up
+            this.attachEventListeners();
+        }
+
+        render() {
+            this.shadowRoot.innerHTML = `
+                <style>
+                    /* Demo section styles */
+                    .demo-section {
+                        border: 1px solid #ddd;
+                        padding: 15px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                    }
+
+                    button {
+                        padding: 8px 16px;
+                        margin: 5px;
+                        border: none;
+                        border-radius: 4px;
+                        background-color: #4CAF50;
+                        color: white;
+                        cursor: pointer;
+                        font-weight: bold;
+                    }
+
+                    button:hover {
+                        background-color: #45a049;
+                    }
+
+                    button.error {
+                        background-color: #f44336;
+                    }
+
+                    button.error:hover {
+                        background-color: #d32f2f;
+                    }
+
+                    button.warning {
+                        background-color: #ff9800;
+                    }
+
+                    button.warning:hover {
+                        background-color: #f57c00;
+                    }
+
+                    button.info {
+                        background-color: #2196f3;
+                    }
+
+                    button.info:hover {
+                        background-color: #1976d2;
+                    }
+                </style>
+
+                <!-- Local popup-notification element inside the demo -->
+                <popup-notification position="right-bottom"></popup-notification>
+
+                <div class="demo-section">
+                    <button id="basic-popup">Basic Popup</button>
+                    <button id="info-popup" class="info">Info</button>
+                    <button id="warning-popup" class="warning">Warning</button>
+                    <button id="error-popup" class="error">Error</button>
+                    <button id="success-popup">Success</button>
+                    <button id="custom-popup">Custom Popup</button>
+                    <button id="multiple-popups">Show Multiple</button>
+                    <button id="close-all-popups">Close All</button>
+                </div>
+            `;
+        }
+
+        attachEventListeners() {
+            this.shadowRoot.getElementById('basic-popup').addEventListener('click', this.showBasicPopup.bind(this));
+            this.shadowRoot.getElementById('info-popup').addEventListener('click', this.showInfoPopup.bind(this));
+            this.shadowRoot.getElementById('warning-popup').addEventListener('click', this.showWarningPopup.bind(this));
+            this.shadowRoot.getElementById('error-popup').addEventListener('click', this.showErrorPopup.bind(this));
+            this.shadowRoot.getElementById('success-popup').addEventListener('click', this.showSuccessPopup.bind(this));
+            this.shadowRoot.getElementById('custom-popup').addEventListener('click', this.showCustomPopup.bind(this));
+            this.shadowRoot.getElementById('multiple-popups').addEventListener('click', this.showMultiplePopups.bind(this));
+            this.shadowRoot.getElementById('close-all-popups').addEventListener('click', this.closeAllPopups.bind(this));
+        }
+
+        // Demo methods - now using the local popupNotification instance
+        showBasicPopup() {
+            console.log('Showing basic popup');
+            this.popupNotification.show('This is a basic notification');
+        }
+
+        showInfoPopup() {
+            console.log('Showing info popup');
+            this.popupNotification.info('This is an info notification with some details');
+        }
+
+        showWarningPopup() {
+            console.log('Showing warning popup');
+            this.popupNotification.warning({
+                message: 'Warning! Something needs your attention',
+                timeout: 7000
+            });
+        }
+
+        showErrorPopup() {
+            console.log('Showing error popup');
+            this.popupNotification.error({
+                message: 'Error: Something went wrong!',
+                timeout: 8000
+            });
+        }
+
+        showSuccessPopup() {
+            console.log('Showing success popup');
+            this.popupNotification.success('Success! Operation completed');
+        }
+
+        showCustomPopup() {
+            console.log('Showing custom popup');
+            this.popupNotification.show({
+                message: 'Custom notification with actions',
+                type: 'warning',
+                timeout: 0, // Disable auto-close
+                actions: [
+                    {
+                        label: 'Confirm',
+                        callback: () => console.log('Confirmed!'),
+                        closeOnClick: true,
+                        primary: true
+                    },
+                    {
+                        label: 'Cancel',
+                        callback: () => console.log('Cancelled!')
+                    }
+                ],
+                onAfterHide: () => console.log('Notification closed')
+            });
+        }
+
+        showMultiplePopups() {
+            console.log('Showing multiple popups');
+
+            // Show 5 notifications in quick succession
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const types = ['info', 'warning', 'error', 'success'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+
+                    const methodName = type;
+                    this.popupNotification[methodName]({
+                        message: `Notification #${i + 1} (${type})`,
+                        timeout: 8000 + (i * 500)
+                    });
+                }, i * 300);
+            }
+        }
+
+        closeAllPopups() {
+            console.log('Closing all popups');
+            this.popupNotification.closeAll();
+        }
+    }
+
+    // Register the custom elements
     customElements.define('popup-notification', PopupNotificationElement);
-
-    // Global API that works with the custom element
-    window.PopupNotification = (function () {
-        // Get or create the custom element
-        function getPopupElement() {
-            let element = document.querySelector('popup-notification');
-            if (!element) {
-                element = document.createElement('popup-notification');
-                element.setAttribute('position', 'right-bottom');
-                document.body.appendChild(element);
-            }
-            return element;
-        }
-
-        // API methods that delegate to the custom element
-        return {
-            show: function (options) {
-                return getPopupElement().show(options);
-            },
-            info: function (options) {
-                return getPopupElement().info(options);
-            },
-            warning: function (options) {
-                return getPopupElement().warning(options);
-            },
-            error: function (options) {
-                return getPopupElement().error(options);
-            },
-            success: function (options) {
-                return getPopupElement().success(options);
-            },
-            close: function (popup) {
-                return getPopupElement().close(popup);
-            },
-            closeAll: function () {
-                return getPopupElement().closeAll();
-            }
-        };
-    })();
-
-    // Demo functions
-    function showBasicPopup() {
-        console.log('Showing basic popup');
-        PopupNotification.show('This is a basic notification');
-    }
-
-    function showInfoPopup() {
-        console.log('Showing info popup');
-        PopupNotification.info('This is an info notification with some details');
-    }
-
-    function showWarningPopup() {
-        console.log('Showing warning popup');
-        PopupNotification.warning({
-            message: 'Warning! Something needs your attention',
-            timeout: 7000
-        });
-    }
-
-    function showErrorPopup() {
-        console.log('Showing error popup');
-        PopupNotification.error({
-            message: 'Error: Something went wrong!',
-            timeout: 8000
-        });
-    }
-
-    function showSuccessPopup() {
-        console.log('Showing success popup');
-        PopupNotification.success('Success! Operation completed');
-    }
-
-    function showCustomPopup() {
-        console.log('Showing custom popup');
-        PopupNotification.show({
-            message: 'Custom notification with actions',
-            type: 'warning',
-            timeout: 0, // Disable auto-close
-            actions: [
-                {
-                    label: 'Confirm',
-                    callback: () => console.log('Confirmed!'),
-                    closeOnClick: true,
-                    primary: true
-                },
-                {
-                    label: 'Cancel',
-                    callback: () => console.log('Cancelled!')
-                }
-            ],
-            onAfterHide: () => console.log('Notification closed')
-        });
-    }
-
-    function showMultiplePopups() {
-        console.log('Showing multiple popups');
-
-        // Show 5 notifications in quick succession
-        for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-                const types = ['info', 'warning', 'error', 'success'];
-                const type = types[Math.floor(Math.random() * types.length)];
-
-                PopupNotification[type]({
-                    message: `Notification #${i + 1} (${type})`,
-                    timeout: 8000 + (i * 500)
-                });
-            }, i * 300);
-        }
-    }
-
-    function closeAllPopups() {
-        console.log('Closing all popups');
-        PopupNotification.closeAll();
-    }
+    customElements.define('popup-demo', PopupDemoElement);
 
     // Initialization
     document.addEventListener('DOMContentLoaded', function () {
