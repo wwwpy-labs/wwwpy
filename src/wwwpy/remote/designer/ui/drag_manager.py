@@ -51,8 +51,12 @@ class DragFsm:
 
     def pointerup(self, event):
         if self.state == self.DRAGGING:
-            # self.on_pointerup_accept(event)
             self.reset()
+            logger.debug(f'Pointer up in DRAGGING state, resetting to IDLE')
+        else:
+            logger.debug(f'Pointer up in state {self.state}, resetting to IDLE')
+            # self.reset()
+
 
 
 class DragManager:

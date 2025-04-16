@@ -7,6 +7,7 @@ import js
 import pytest
 
 from tests.remote.rpc4tests_helper import rpctst_exec
+from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
     HoverEvent, DropEvent, AcceptEvent, _PE
 
@@ -141,6 +142,7 @@ class TestDrag:
         # THEN
         assert action_manager.selected_action is None
         assert not item1.selected
+        assert action_manager.drag_state == DragFsm.IDLE
 
     async def test_no_select_start_drag__should_select_palette_item(self, action_manager, item1, div1):
         # GIVEN
@@ -151,6 +153,7 @@ class TestDrag:
 
         # THEN
         assert action_manager.selected_action is item1
+        assert action_manager.drag_state == DragFsm.DRAGGING
 
     async def test_item1_sel_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
         # GIVEN
@@ -161,6 +164,7 @@ class TestDrag:
 
         # THEN
         assert action_manager.selected_action is item2
+        assert action_manager.drag_state == DragFsm.DRAGGING
 
     async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, item1, div1, events):
         # GIVEN
@@ -172,6 +176,7 @@ class TestDrag:
 
         # THEN
         assert action_manager.selected_action is None
+        assert action_manager.drag_state == DragFsm.IDLE
 
     async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, action_manager, item1, div1, events):
         # GIVEN

@@ -178,6 +178,10 @@ class ActionManager:
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
         self._drag_fsm = DragFsm()
 
+    @property
+    def drag_state(self):
+        return self._drag_fsm.state
+
     def _js_window__click(self, event):
         palette_item = _find_palette_item(event)
         if palette_item:
@@ -206,6 +210,9 @@ class ActionManager:
         hover_event = HoverEvent(event)
         self._notify(hover_event)
         logger.debug(f'_js_window__pointermove hover_event: {hover_event}')
+
+    def _js_window__pointerup(self, event):
+        self._drag_fsm.pointerup(event)
 
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""
