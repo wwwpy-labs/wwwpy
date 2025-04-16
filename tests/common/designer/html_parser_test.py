@@ -73,11 +73,13 @@ def test_attributes_with_escaped_values():
                       attributes_list=[CstAttribute('id', '<div1>', (5, 7), (8, 22), 0)])]
     assert actual == expect
 
+
 def test_attributes_two():
     actual = html_to_tree('<div id="div1" class="cls1"></div>')
     attrs = [CstAttribute('id', 'div1', (5, 7), (8, 14), 0), CstAttribute('class', 'cls1', (15, 20), (21, 27), 1)]
     expect = [CstNode(tag_name='div', span=(0, 34), attr_span=(4, 27), content_span=(28, 28), attributes_list=attrs)]
     assert actual == expect
+
 
 def test_issue20240727():
     # language=html
@@ -88,13 +90,13 @@ def test_issue20240727():
     assert actual == expect
     assert actual[0].content == '<input/>'
 
+
 def test_issue20250118_bday():
     # language=html
     actual = html_to_tree("""\n<div><sl-button data-name="slButton1">slButton1</sl-button></div>""")
     c00 = actual[0].children[0]
     assert c00.content_span == (39, 48)
     assert c00.content == 'slButton1'
-
 
 
 def test_child_index():
@@ -119,3 +121,18 @@ def _clean(tree: CstTree) -> CstTree:
         node.level = 0
         _clean(node.children)
     return tree
+
+
+def test_html_comment():
+    # language=html
+    actual = html_to_tree("""<!-- comment -->""")
+    expect = []
+    assert actual == expect
+
+
+def test_html_comment_something_before():
+    # language=html
+    actual = html_to_tree("""<!-- comment --><br>""")
+    expect = [CstNode(tag_name='br', span=(16, 20), attr_span=(19, 19)),
+              ]
+    assert actual == expect

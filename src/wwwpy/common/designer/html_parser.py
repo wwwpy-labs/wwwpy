@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from collections import UserList
 from dataclasses import dataclass, field
-from .html_parser_mod import HTMLParser
 from typing import Tuple, Dict, List
+
+from .html_parser_mod import HTMLParser
 
 
 @dataclass
@@ -136,6 +137,26 @@ class _PositionalHTMLParser(HTMLParser):
     def parse(self):
         self.feed(self.html)
         return self.nodes
+
+    def parse_comment(self, i):
+        # New implementation to support HTML comments.
+        comment_start = i
+        end = self.html.find("-->", i)
+        if end == -1:
+            comment_end = len(self.html)
+        else:
+            comment_end = end + 3
+        # node = CstNode(
+        #     tag_name='!--',
+        #     span=(comment_start, comment_end),
+        #     attr_span=(comment_start, comment_start),
+        #     content_span=(comment_start + 5, comment_end - 3),
+        #     html=self.html[comment_start:comment_end],
+        #     content=self.html[comment_start + 4:comment_end - 3]
+        # )
+        # self.nodes.append(node)
+        self.current_pos = comment_end
+        return comment_end
 
 
 def _complete_tree_data(html: str, tree: CstTree, parent: CstNode | None = None, level: int = 0):
