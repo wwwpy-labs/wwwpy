@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 from typing import Callable
 
 import libcst as cst
 
 from wwwpy.common import modlib
+
+logger = logging.getLogger(__name__)
 
 
 def html_string_edit(source_code: str, class_name: str, html_manipulator: Callable[[str], str]) -> str:
@@ -28,6 +31,8 @@ def html_from(module: str, class_name: str) -> str | None:
 
 def html_from_source(source_code: str, class_name: str) -> str | None:
     """This function extracts the HTML string from the source code."""
+    logger.debug(f'html_from_source {class_name} source_code=`{source_code}`')
+
     html_res = []
 
     def html_manipulator(html):

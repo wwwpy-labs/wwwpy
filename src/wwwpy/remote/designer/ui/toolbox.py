@@ -300,9 +300,10 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     def _restore_selected_element_path(self):
         element_path = self._toolbox_state.selected_element_path
         if element_path:
-            console.log(f'restoring selected element path: {element_path}')
+            logger.debug(f'restoring selected element path: {element_path}')
             if not element_path.valid():
                 element_path = None
+                logger.debug(f'invalid element path, setting to None')
 
         if element_path:
             self._select_clear_btn.style.visibility = 'visible'

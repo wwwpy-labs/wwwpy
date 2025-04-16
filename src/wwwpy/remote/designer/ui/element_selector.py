@@ -10,7 +10,9 @@ from wwwpy.remote import dict_to_js, dict_to_py
 from wwwpy.remote.jslib import is_contained
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+
+# logger.setLevel(logging.DEBUG)
 
 
 class Tool:

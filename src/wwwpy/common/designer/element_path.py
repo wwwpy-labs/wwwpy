@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import importlib
-import inspect
-from dataclasses import dataclass, field
-from typing import Any
-
-from wwwpy.common.designer.html_locator import NodePath, locate_span
-from wwwpy.common.modlib import _find_module_root
-from wwwpy.common import modlib
+import logging
+from dataclasses import dataclass
 from enum import Enum
+
+from wwwpy.common.designer.html_locator import NodePath
+
+logger = logging.getLogger(__name__)
 
 
 class Origin(str, Enum):
@@ -47,8 +45,12 @@ class ElementPath:
         return self.path[-1].attributes.get('data-name', None)
 
     def valid(self) -> bool:
-        from wwwpy.common.designer import code_strings as cs, html_parser as hp, html_locator as hl
+        from wwwpy.common.designer import code_strings as cs, html_locator as hl
         html = cs.html_from(self.class_module, self.class_name)
         if not html:
+            logger.debug(f'Cannot find html for {self.class_module}.{self.class_name}')
             return False
-        return hl.locate_span(html, self.path) is not None
+        span = hl.locate_span(html, self.path)
+        if not span:
+            logger.debug(f'Cannot locate span for {self.path} in html=`{html}`')
+        return span is not None

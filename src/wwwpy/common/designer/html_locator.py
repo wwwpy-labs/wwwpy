@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
 
 from wwwpy.common.designer.html_parser import html_to_tree, CstNode, CstTree
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass()
@@ -49,6 +52,7 @@ def node_path_deserialize(serialized: str) -> NodePath:
 def locate_node(html: str, path: NodePath) -> CstNode | None:
     cst_tree = html_to_tree(html)
     target_node = _locate_node_rec(cst_tree, path)
+    logger.debug(f'locate_node {path} -> {target_node} for html=```{html}```')
     return target_node
 
 
@@ -183,7 +187,7 @@ def node_similarity(node1: CstNode, node2: CstNode) -> float:
     total_keys = set(attr1.keys()) | set(attr2.keys())
 
     if not total_keys:  # both nodes have no attributes
-        return 1.0 # * level_penality
+        return 1.0  # * level_penalty
 
     common_keys = set(attr1.keys()) & set(attr2.keys())
 
