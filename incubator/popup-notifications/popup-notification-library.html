@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Notification System</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #444;
+            margin-top: 30px;
+        }
+
+        code {
+            background-color: #f7f7f7;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9em;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button.error {
+            background-color: #f44336;
+        }
+
+        button.error:hover {
+            background-color: #d32f2f;
+        }
+
+        button.warning {
+            background-color: #ff9800;
+        }
+
+        button.warning:hover {
+            background-color: #f57c00;
+        }
+
+        button.info {
+            background-color: #2196f3;
+        }
+
+        button.info:hover {
+            background-color: #1976d2;
+        }
+
+        .demo-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .option-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .option-table th, .option-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .option-table th {
+            background-color: #f7f7f7;
+        }
+
+        /* Popup notification styles */
+        #popup-container {
+            position: fixed;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        #popup-container.right-bottom {
+            bottom: 20px;
+            right: 20px;
+            align-items: flex-end;
+        }
+
+        #popup-container.left-bottom {
+            bottom: 20px;
+            left: 20px;
+            align-items: flex-start;
+        }
+
+        #popup-container.right-top {
+            top: 20px;
+            right: 20px;
+            align-items: flex-end;
+        }
+
+        #popup-container.left-top {
+            top: 20px;
+            left: 20px;
+            align-items: flex-start;
+        }
+
+        .popup-notification {
+            margin-top: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            max-width: 320px;
+            overflow: hidden;
+            pointer-events: auto;
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        .popup-notification.closing {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 12px 0 12px;
+        }
+
+        .popup-icon {
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .popup-title {
+            flex-grow: 1;
+            font-weight: bold;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .popup-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-close:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .popup-content {
+            padding: 8px 12px;
+            word-break: break-word;
+        }
+
+        .popup-actions {
+            display: flex;
+            padding: 8px 12px 12px;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .popup-action {
+            padding: 6px 12px;
+            border: none;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .popup-action:hover {
+            background-color: #e0e0e0;
+        }
+
+        .popup-action.primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .popup-action.primary:hover {
+            background-color: #1976D2;
+        }
+
+        .popup-progress {
+            height: 4px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .popup-progress-fill {
+            height: 100%;
+            width: 100%;
+            transform-origin: left;
+            transform: scaleX(1);
+            transition: transform linear;
+        }
+
+        /* Type-specific styles */
+        .popup-notification.info {
+            border-top: 3px solid #2196F3;
+        }
+
+        .popup-notification.info .popup-icon,
+        .popup-notification.info .popup-title,
+        .popup-notification.info .popup-progress-fill {
+            color: #2196F3;
+        }
+
+        .popup-notification.warning {
+            border-top: 3px solid #FF9800;
+        }
+
+        .popup-notification.warning .popup-icon,
+        .popup-notification.warning .popup-title,
+        .popup-notification.warning .popup-progress-fill {
+            color: #FF9800;
+        }
+
+        .popup-notification.error {
+            border-top: 3px solid #F44336;
+        }
+
+        .popup-notification.error .popup-icon,
+        .popup-notification.error .popup-title,
+        .popup-notification.error .popup-progress-fill {
+            color: #F44336;
+        }
+
+        .popup-notification.success {
+            border-top: 3px solid #4CAF50;
+        }
+
+        .popup-notification.success .popup-icon,
+        .popup-notification.success .popup-title,
+        .popup-notification.success .popup-progress-fill {
+            color: #4CAF50;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .popup-notification, .popup-notification.closing {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Popup Notification System</h1>
+    <p>A lightweight, customizable notification system for showing popup notifications with various options and
+        configurations.</p>
+
+    <h2>Demo</h2>
+    <div class="demo-section">
+        <button onclick="showBasicPopup()">Basic Popup</button>
+        <button class="info" onclick="showInfoPopup()">Info</button>
+        <button class="warning" onclick="showWarningPopup()">Warning</button>
+        <button class="error" onclick="showErrorPopup()">Error</button>
+        <button onclick="showSuccessPopup()">Success</button>
+        <button onclick="showCustomPopup()">Custom Popup</button>
+        <button onclick="showMultiplePopups()">Show Multiple</button>
+        <button onclick="closeAllPopups()">Close All</button>
+    </div>
+
+    <h2>Installation</h2>
+    <p>Include the JavaScript file in your HTML:</p>
+    <pre>&lt;script src="popup-notification.js"&gt;&lt;/script&gt;</pre>
+
+    <h2>Basic Usage</h2>
+    <p>Create the notification container with your preferred position:</p>
+    <pre>&lt;div id="popup-container" class="right-bottom"&gt;&lt;/div&gt;</pre>
+
+    <p>Then use JavaScript to show notifications:</p>
+    <pre>// Show a simple notification
+PopupNotification.show('This is a basic notification');
+
+// Show a typed notification
+PopupNotification.info('This is an info notification');
+PopupNotification.warning('This is a warning notification');
+PopupNotification.error('This is an error notification');
+PopupNotification.success('This is a success notification');</pre>
+
+    <h2>Advanced Usage</h2>
+    <pre>// Show with custom options
+PopupNotification.show({
+  message: 'Custom notification with actions',
+  type: 'warning',
+  timeout: 8000,
+  actions: [
+    {
+      label: 'Action',
+      callback: () => console.log('Action clicked'),
+      closeOnClick: true,
+      primary: true
+    },
+    {
+      label: 'Cancel',
+      callback: () => console.log('Cancel clicked')
+    }
+  ],
+  onAfterHide: () => console.log('Notification closed')
+});</pre>
+
+    <h2>API Reference</h2>
+    <h3>Container Options</h3>
+    <table class="option-table">
+        <thead>
+        <tr>
+            <th>Position Class</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>right-bottom</td>
+            <td>Notifications appear at the bottom right of the screen (default)</td>
+        </tr>
+        <tr>
+            <td>left-bottom</td>
+            <td>Notifications appear at the bottom left of the screen</td>
+        </tr>
+        <tr>
+            <td>right-top</td>
+            <td>Notifications appear at the top right of the screen</td>
+        </tr>
+        <tr>
+            <td>left-top</td>
+            <td>Notifications appear at the top left of the screen</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h3>Notification Options</h3>
+    <table class="option-table">
+        <thead>
+        <tr>
+            <th>Option</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>message</td>
+            <td>''</td>
+            <td>Content of the notification (string or HTML)</td>
+        </tr>
+        <tr>
+            <td>type</td>
+            <td>info</td>
+            <td>Type of notification: info, warning, error, success</td>
+        </tr>
+        <tr>
+            <td>timeout</td>
+            <td>5000</td>
+            <td>Auto-close timeout in ms (0 to disable)</td>
+        </tr>
+        <tr>
+            <td>autoClose</td>
+            <td>true</td>
+            <td>Whether to auto-close the notification</td>
+        </tr>
+        <tr>
+            <td>actions</td>
+            <td>[]</td>
+            <td>Array of action button configurations</td>
+        </tr>
+        <tr>
+            <td>onBeforeShow</td>
+            <td>null</td>
+            <td>Callback before showing the notification</td>
+        </tr>
+        <tr>
+            <td>onAfterShow</td>
+            <td>null</td>
+            <td>Callback after showing the notification</td>
+        </tr>
+        <tr>
+            <td>onBeforeHide</td>
+            <td>null</td>
+            <td>Callback before hiding the notification</td>
+        </tr>
+        <tr>
+            <td>onAfterHide</td>
+            <td>null</td>
+            <td>Callback after hiding the notification</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Add the notification container to the page -->
+<div id="popup-container" class="right-bottom"></div>
+
+<!-- Popup Notification Implementation Script -->
+<script>
+    // Create a namespace for our PopupNotification functionality
+    const PopupNotification = (function () {
+        // Private variables
+        const MAX_VISIBLE = 5;
+        const DEFAULT_TIMEOUT = 5000;
+        let activePopups = [];
+        let popupQueue = [];
+
+        // DOM references
+        const container = document.getElementById('popup-container');
+
+        // Verify container exists
+        if (!container) {
+            console.error('Popup container not found! Make sure to add <div id="popup-container" class="right-bottom"></div> to your HTML.');
+        }
+
+        // Helper functions
+        function getIconSvg(type) {
+            switch (type) {
+                case 'info':
+                    return '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>';
+                case 'warning':
+                    return '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>';
+                case 'error':
+                    return '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>';
+                case 'success':
+                    return '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+                default:
+                    return '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>';
+            }
+        }
+
+        function getTypeTitle(type) {
+            return type.charAt(0).toUpperCase() + type.slice(1);
+        }
+
+        function createPopupElement(options) {
+            // Create popup element
+            const popup = document.createElement('div');
+            popup.className = `popup-notification ${options.type}`;
+            popup.setAttribute('role', 'alert');
+            popup.setAttribute('aria-live', 'polite');
+
+            // Create header
+            const header = document.createElement('div');
+            header.className = 'popup-header';
+
+            const icon = document.createElement('div');
+            icon.className = 'popup-icon';
+            icon.innerHTML = getIconSvg(options.type);
+
+            const title = document.createElement('h3');
+            title.className = 'popup-title';
+            title.textContent = getTypeTitle(options.type);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'popup-close';
+            closeBtn.setAttribute('aria-label', 'Close');
+            closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+            closeBtn.addEventListener('click', () => closePopup(popup));
+
+            header.appendChild(icon);
+            header.appendChild(title);
+            header.appendChild(closeBtn);
+
+            // Create content
+            const content = document.createElement('div');
+            content.className = 'popup-content';
+
+            if (typeof options.message === 'string') {
+                content.innerHTML = options.message;
+            } else if (options.message instanceof HTMLElement) {
+                content.appendChild(options.message.cloneNode(true));
+            }
+
+            // Create actions if provided
+            let actions = null;
+            if (options.actions && options.actions.length > 0) {
+                actions = document.createElement('div');
+                actions.className = 'popup-actions';
+
+                options.actions.forEach(action => {
+                    const button = document.createElement('button');
+                    button.className = `popup-action ${action.primary ? 'primary' : ''}`;
+                    button.textContent = action.label;
+                    button.addEventListener('click', (e) => {
+                        if (action.callback && typeof action.callback === 'function') {
+                            action.callback(e);
+                        }
+                        if (action.closeOnClick !== false) {
+                            closePopup(popup);
+                        }
+                    });
+                    actions.appendChild(button);
+                });
+            }
+
+            // Create progress bar for auto-close
+            const progress = document.createElement('div');
+            progress.className = 'popup-progress';
+
+            const progressFill = document.createElement('div');
+            progressFill.className = 'popup-progress-fill';
+            progress.appendChild(progressFill);
+
+            // Build the popup
+            popup.appendChild(header);
+            popup.appendChild(content);
+            if (actions) {
+                popup.appendChild(actions);
+            }
+            popup.appendChild(progress);
+
+            // Setup auto-close
+            if (options.autoClose !== false && options.timeout > 0) {
+                progressFill.style.backgroundColor = 'currentColor';
+                progressFill.style.transition = `transform ${options.timeout / 1000}s linear`;
+
+                // Start the animation after a small delay
+                setTimeout(() => {
+                    progressFill.style.transform = 'scaleX(0)';
+                }, 10);
+
+                popup.timeoutId = setTimeout(() => {
+                    closePopup(popup);
+                }, options.timeout);
+
+                // Pause on hover/focus for accessibility
+                const pauseAutoClose = () => {
+                    clearTimeout(popup.timeoutId);
+                    progressFill.style.transitionProperty = 'none';
+                    popup.pausedAt = progressFill.getBoundingClientRect().width / progress.getBoundingClientRect().width;
+                    progressFill.style.transform = `scaleX(${popup.pausedAt})`;
+                };
+
+                const resumeAutoClose = () => {
+                    if (popup.pausedAt === undefined) return;
+
+                    const remainingTime = options.timeout * popup.pausedAt;
+                    progressFill.style.transition = `transform ${remainingTime / 1000}s linear`;
+                    progressFill.style.transform = 'scaleX(0)';
+
+                    popup.timeoutId = setTimeout(() => {
+                        closePopup(popup);
+                    }, remainingTime);
+                };
+
+                popup.addEventListener('mouseenter', pauseAutoClose);
+                popup.addEventListener('mouseleave', resumeAutoClose);
+                popup.addEventListener('focus', pauseAutoClose, true);
+                popup.addEventListener('blur', resumeAutoClose, true);
+            } else {
+                progress.style.display = 'none';
+            }
+
+            // Add keyboard accessibility
+            popup.tabIndex = 0;
+            popup.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closePopup(popup);
+                }
+            });
+
+            // Store callbacks
+            popup.callbacks = {
+                onBeforeShow: options.onBeforeShow,
+                onAfterShow: options.onAfterShow,
+                onBeforeHide: options.onBeforeHide,
+                onAfterHide: options.onAfterHide
+            };
+
+            return popup;
+        }
+
+        function showPopup(options) {
+            // Handle simple string case
+            if (typeof options === 'string') {
+                options = {message: options};
+            }
+
+            const config = {
+                message: '',
+                type: 'info',
+                timeout: DEFAULT_TIMEOUT,
+                autoClose: true,
+                actions: [],
+                ...options
+            };
+
+            // Check if we've hit the maximum number of visible popups
+            if (activePopups.length >= MAX_VISIBLE) {
+                popupQueue.push(config);
+                return null;
+            }
+
+            // Call before show callback
+            if (config.onBeforeShow && typeof config.onBeforeShow === 'function') {
+                config.onBeforeShow();
+            }
+
+            // Create and add the popup element
+            const popup = createPopupElement(config);
+            container.appendChild(popup);
+            activePopups.push(popup);
+
+            // Call after show callback
+            setTimeout(() => {
+                if (popup.callbacks.onAfterShow && typeof popup.callbacks.onAfterShow === 'function') {
+                    popup.callbacks.onAfterShow();
+                }
+            }, 300); // After animation
+
+            return popup;
+        }
+
+        function closePopup(popup) {
+            // Check if popup exists in active popups
+            const index = activePopups.indexOf(popup);
+            if (index === -1) return false;
+
+            // Clear any existing timeout
+            if (popup.timeoutId) {
+                clearTimeout(popup.timeoutId);
+            }
+
+            // Call before hide callback
+            if (popup.callbacks.onBeforeHide && typeof popup.callbacks.onBeforeHide === 'function') {
+                popup.callbacks.onBeforeHide();
+            }
+
+            // Add closing animation
+            popup.classList.add('closing');
+
+            // Wait for animation to complete, then remove
+            popup.addEventListener('animationend', () => {
+                // Remove from activePopups
+                const index = activePopups.indexOf(popup);
+                if (index !== -1) {
+                    activePopups.splice(index, 1);
+                }
+
+                // Remove from DOM
+                if (popup.parentNode) {
+                    popup.parentNode.removeChild(popup);
+                }
+
+                // Call after hide callback
+                if (popup.callbacks.onAfterHide && typeof popup.callbacks.onAfterHide === 'function') {
+                    popup.callbacks.onAfterHide();
+                }
+
+                // Process queue
+                processQueue();
+            }, {once: true});
+
+            return true;
+        }
+
+        function processQueue() {
+            if (popupQueue.length > 0 && activePopups.length < MAX_VISIBLE) {
+                const options = popupQueue.shift();
+                showPopup(options);
+            }
+        }
+
+        function closeAll() {
+            // Close all active popups
+            [...activePopups].forEach(popup => closePopup(popup));
+
+            // Clear queue
+            popupQueue = [];
+        }
+
+        // Type-specific show methods
+        function showInfo(options) {
+            if (typeof options === 'string') {
+                options = {message: options};
+            }
+            return showPopup({...options, type: 'info'});
+        }
+
+        function showWarning(options) {
+            if (typeof options === 'string') {
+                options = {message: options};
+            }
+            return showPopup({...options, type: 'warning'});
+        }
+
+        function showError(options) {
+            if (typeof options === 'string') {
+                options = {message: options};
+            }
+            return showPopup({...options, type: 'error'});
+        }
+
+        function showSuccess(options) {
+            if (typeof options === 'string') {
+                options = {message: options};
+            }
+            return showPopup({...options, type: 'success'});
+        }
+
+        // Public API
+        return {
+            show: showPopup,
+            info: showInfo,
+            warning: showWarning,
+            error: showError,
+            success: showSuccess,
+            close: closePopup,
+            closeAll: closeAll
+        };
+    })();
+
+    // Demo functions
+    function showBasicPopup() {
+        console.log('Showing basic popup');
+        PopupNotification.show('This is a basic notification');
+    }
+
+    function showInfoPopup() {
+        console.log('Showing info popup');
+        PopupNotification.info('This is an info notification with some details');
+    }
+
+    function showWarningPopup() {
+        console.log('Showing warning popup');
+        PopupNotification.warning({
+            message: 'Warning! Something needs your attention',
+            timeout: 7000
+        });
+    }
+
+    function showErrorPopup() {
+        console.log('Showing error popup');
+        PopupNotification.error({
+            message: 'Error: Something went wrong!',
+            timeout: 8000
+        });
+    }
+
+    function showSuccessPopup() {
+        console.log('Showing success popup');
+        PopupNotification.success('Success! Operation completed');
+    }
+
+    function showCustomPopup() {
+        console.log('Showing custom popup');
+        PopupNotification.show({
+            message: 'Custom notification with actions',
+            type: 'warning',
+            timeout: 0, // Disable auto-close
+            actions: [
+                {
+                    label: 'Confirm',
+                    callback: () => console.log('Confirmed!'),
+                    closeOnClick: true,
+                    primary: true
+                },
+                {
+                    label: 'Cancel',
+                    callback: () => console.log('Cancelled!')
+                }
+            ],
+            onAfterHide: () => console.log('Notification closed')
+        });
+    }
+
+    function showMultiplePopups() {
+        console.log('Showing multiple popups');
+
+        // Show 5 notifications in quick succession
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                const types = ['info', 'warning', 'error', 'success'];
+                const type = types[Math.floor(Math.random() * types.length)];
+
+                PopupNotification[type]({
+                    message: `Notification #${i + 1} (${type})`,
+                    timeout: 8000 + (i * 500)
+                });
+            }, i * 300);
+        }
+    }
+
+    function closeAllPopups() {
+        console.log('Closing all popups');
+        PopupNotification.closeAll();
+    }
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM loaded, popup system ready');
+    });
+</script>
+</body>
+</html>
