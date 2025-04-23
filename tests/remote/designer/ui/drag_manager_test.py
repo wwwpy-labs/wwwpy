@@ -6,6 +6,7 @@ import pytest
 
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote.designer.ui.drag_manager import DragManager, DragFsm
+from wwwpy.remote.jslib import waitAnimationFrame
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ async def test_successful_interaction_completion_drag_mode(drag_manager, fixture
 
     # WHEN
     await rpctst_exec("page.locator('#source1').drag_to(page.locator('#target1'))")
+    await waitAnimationFrame()  # blind fix for flickering test
 
     # THEN
     assert drag_manager.state == DragFsm.IDLE
