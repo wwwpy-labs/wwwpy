@@ -10,6 +10,7 @@ from . import element_path as ep
 from .code_edit import rename_class_attribute, add_class_attribute
 from .. import modlib
 from ..collectionlib import ListMap
+from ..escapelib import escape_string, unescape_string
 
 tag_inner_html_attr_name = 'inner HTML'
 tag_data_name_attr_name = 'data-name'
@@ -239,21 +240,3 @@ class ElementEditor:
             self._write_source(src)
 
         self._init()
-
-
-# Create a translation table for the specified characters
-escape_table = str.maketrans({
-    '\r': '\\r',  # Carriage return -> \r
-    '\n': '\\n',  # Newline (line feed) -> \n
-    '\t': '\\t',  # Tab -> \t
-    '\\': '\\\\'  # Backslash -> \\
-})
-
-
-def escape_string(s: str) -> str:
-    return s.translate(escape_table)
-
-
-def unescape_string(s: str) -> str:
-    escaped_bytes = s.encode('ascii', 'backslashreplace')
-    return escaped_bytes.decode('unicode_escape')
