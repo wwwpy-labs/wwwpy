@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 
+from wwwpy.common.escapelib import escape_string
 from wwwpy.common.rpc2.transport import Transport
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ try:
             return response
 
         async def send_async(self, payload: str | bytes):
-            logger.debug(f'send_async payload: {payload}')
+            logger.debug(f'send_async payload: `{escape_string(payload)}`')
             json_response = await js.fetch(self.rpc_url, method='POST', body=payload)
             text = await json_response.text()
             # response = RpcResponse.from_json(json_response)
