@@ -19,30 +19,29 @@ async def test_palette_no_selected_item(action_manager):
 
 
 async def test_palette_click_item__should_be_selected(palette, action_manager, item1):
-    item1.element.click()
+    await rpctst_exec("page.locator('#item1').click()")
 
     assert action_manager.selected_action == item1
     assert item1.selected
 
 
 async def test_palette_click_item_label__should_be_selected(palette, action_manager, item1):
-    item1._label.click()
+    await rpctst_exec("page.locator('#item1 > label').click()")
 
     assert action_manager.selected_action == item1
     assert item1.selected
 
 
 async def test_palette_click_twice_item__should_be_deselected(palette, action_manager, item1):
-    item1.element.click()
-    item1.element.click()
+    await rpctst_exec(["page.locator('#item1').click()", "page.locator('#item1').click()"])
 
     assert action_manager.selected_action is None
     assert not item1.selected
 
 
 async def test_palette_selecting_different_item__should_deselect_previous(palette, action_manager, item1, item2):
-    item1.element.click()
-    item2.element.click()
+    await rpctst_exec(["page.locator('#item1').click()", "page.locator('#item2').click()"])
+
 
     assert action_manager.selected_action == item2
     assert not item1.selected

@@ -277,166 +277,193 @@ class ActionManager:
 
 def _find_palette_item(event: js.Event) -> PaletteItem | None:
     logger.debug(f'_find_palette_item event={dict_to_py(event)}')
-    path = event.composedPath()
-    target = path[0] if path and len(path) > 0 else event.target
-    logger.debug(f'_find_palette_item target={dict_to_py(target)}')
+    target = _element_from_js_event(event)
+    logger.debug(f'_find_palette_item target={_pretty(target)}')
     res = target.closest(PaletteItemComponent.component_metadata.tag_name)
     if res:
         return get_component(res)
     return None
 
 
+def _element_from_js_event(event):
+    """
+    Get the deepest element at the event coordinates by recursively traversing shadow DOMs.
+    """
+
+    def get_deepest_element(root, x, y):
+        # Get element at point in current root context
+        element = root.elementFromPoint(x, y)
+
+        # If element has a shadow root, look deeper
+        if element and hasattr(element, 'shadowRoot') and element.shadowRoot:
+            # Recursively search in the shadow DOM
+            shadow_element = get_deepest_element(element.shadowRoot, x, y)
+            if shadow_element:
+                return shadow_element
+
+        return element
+
+    # Start from the document level and traverse down
+    return get_deepest_element(js.document, event.clientX, event.clientY)
+
+
 # language=html
 _css_styles = """
-<style>
-        :host {
-            --primary-color: #6366f1;
-            --primary-hover: #818cf8;
-            --secondary-color: #4f46e5;
-            --border-color: #4b5563;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --workspace-bg: #1e1e2e;
-            --palette-bg: #27293d;
-            --text-color: #e2e8f0;
-            --item-bg: #2d3748;
-            --item-hover-bg: #3a4358;
-            --selected-bg: #4c1d95;
-            --selected-border: #8b5cf6;
-        }
+              <style>
+                  :host {
+                      --primary-color: #6366f1;
+                      --primary-hover: #818cf8;
+                      --secondary-color: #4f46e5;
+                      --border-color: #4b5563;
+                      --shadow-color: rgba(0, 0, 0, 0.3);
+                      --workspace-bg: #1e1e2e;
+                      --palette-bg: #27293d;
+                      --text-color: #e2e8f0;
+                      --item-bg: #2d3748;
+                      --item-hover-bg: #3a4358;
+                      --selected-bg: #4c1d95;
+                      --selected-border: #8b5cf6;
+                  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #111827;
-            color: var(--text-color);
-        }
+                  body {
+                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                      margin: 0;
+                      padding: 0;
+                      display: flex;
+                      flex-direction: column;
+                      height: 100vh;
+                      background-color: #111827;
+                      color: var(--text-color);
+                  }
 
-        .header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 5px var(--shadow-color);
-        }
+                  .header {
+                      background-color: var(--primary-color);
+                      color: white;
+                      padding: 1rem;
+                      text-align: center;
+                      box-shadow: 0 2px 5px var(--shadow-color);
+                  }
 
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+                  .container {
+                      display: flex;
+                      flex: 1;
+                      overflow: hidden;
+                  }
 
-        .palette {
-            width: 220px;
-            background-color: var(--palette-bg);
-            padding: 1rem;
-            border-right: 1px solid var(--border-color);
-            box-shadow: 2px 0 5px var(--shadow-color);
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            align-content: start;
-            height: fit-content;
-            max-height: 100%;
-        }
+                  .palette {
+                      width: 220px;
+                      background-color: var(--palette-bg);
+                      padding: 1rem;
+                      border-right: 1px solid var(--border-color);
+                      box-shadow: 2px 0 5px var(--shadow-color);
+                      overflow-y: auto;
+                      display: grid;
+                      grid-template-columns: 1fr 1fr;
+                      gap: 10px;
+                      align-content: start;
+                      height: fit-content;
+                      max-height: 100%;
+                  }
 
-        .workspace {
-            flex: 1;
-            background-color: var(--workspace-bg);
-            padding: 2rem;
-            overflow: auto;
-            position: relative;
-        }
+                  .workspace {
+                      flex: 1;
+                      background-color: var(--workspace-bg);
+                      padding: 2rem;
+                      overflow: auto;
+                      position: relative;
+                  }
 
-        .palette-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-            background-color: var(--item-bg);
-            font-size: 12px;
-            color: var(--text-color);
-            touch-action: none;
-        }
+                  .palette-item {
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      justify-content: center;
+                      padding: 0.75rem 0.5rem;
+                      border: 1px solid var(--border-color);
+                      border-radius: 8px;
+                      cursor: pointer;
+                      transition: all 0.2s ease;
+                      user-select: none;
+                      background-color: var(--item-bg);
+                      font-size: 12px;
+                      color: var(--text-color);
+                      touch-action: none;
+                  }
 
-        .palette-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 5px var(--shadow-color);
-            background-color: var(--item-hover-bg);
-        }
+                  .palette-item:hover {
+                      transform: translateY(-2px);
+                      box-shadow: 0 3px 5px var(--shadow-color);
+                      background-color: var(--item-hover-bg);
+                  }
 
-        .palette-item.selected {
-            background-color: var(--selected-bg);
-            border: 1px solid var(--selected-border);
-            box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
-            position: relative;
-            transform: scale(1.05);
-        }
+                  .palette-item.selected {
+                      background-color: var(--selected-bg);
+                      border: 1px solid var(--selected-border);
+                      box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
+                      position: relative;
+                      transform: scale(1.05);
+                  }
 
-        .palette-item svg {
-            margin-bottom: 8px;
-            width: 36px;
-            height: 36px;
-        }
+                  .palette-item svg {
+                      margin-bottom: 8px;
+                      width: 36px;
+                      height: 36px;
+                  }
 
-        .log-panel {
-            padding: 1rem;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            max-height: 150px;
-            overflow-y: auto;
-            font-family: monospace;
-        }
+                  .log-panel {
+                      padding: 1rem;
+                      background-color: #2c3e50;
+                      color: #ecf0f1;
+                      max-height: 150px;
+                      overflow-y: auto;
+                      font-family: monospace;
+                  }
 
-        .log-entry {
-            margin-bottom: 5px;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 5px;
-        }
+                  .log-entry {
+                      margin-bottom: 5px;
+                      border-bottom: 1px solid #1e293b;
+                      padding-bottom: 5px;
+                  }
 
-        .log-entry:last-child {
-            border-bottom: none;
-        }
+                  .log-entry:last-child {
+                      border-bottom: none;
+                  }
 
-        /* Element previews in workspace */
-        .element-preview {
-            position: absolute;
-            border: 2px dashed var(--primary-color);
-            padding: 5px;
-            border-radius: 4px;
-            background-color: rgba(52, 152, 219, 0.1);
-            min-width: 100px;
-            min-height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: #666;
-        }
+                  /* Element previews in workspace */
+                  .element-preview {
+                      position: absolute;
+                      border: 2px dashed var(--primary-color);
+                      padding: 5px;
+                      border-radius: 4px;
+                      background-color: rgba(52, 152, 219, 0.1);
+                      min-width: 100px;
+                      min-height: 30px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 12px;
+                      color: #666;
+                  }
 
-        /* Dragging Element Preview */
-        .dragging-element {
-            position: absolute;
-            pointer-events: none;
-            opacity: 0.8;
-            z-index: 1000;
-            transform: translate(-50%, -50%);
-            background-color: var(--selected-bg);
-            border: 1px solid var(--selected-border);
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: white;
-            font-size: 12px;
-        }
-    </style>
-"""
+                  /* Dragging Element Preview */
+                  .dragging-element {
+                      position: absolute;
+                      pointer-events: none;
+                      opacity: 0.8;
+                      z-index: 1000;
+                      transform: translate(-50%, -50%);
+                      background-color: var(--selected-bg);
+                      border: 1px solid var(--selected-border);
+                      padding: 5px 10px;
+                      border-radius: 4px;
+                      color: white;
+                      font-size: 12px;
+                  }
+              </style> \
+              """
+
+
+def _pretty(node):
+    if hasattr(node, 'tagName'):
+        return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
+    return str(node)
