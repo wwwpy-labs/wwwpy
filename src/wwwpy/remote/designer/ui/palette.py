@@ -116,7 +116,7 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
 
 @dataclass
 class PaletteEvent:
-    pass
+    js_event: js.Event
 
 
 _PE = TypeVar('_PE', bound=PaletteEvent)
@@ -124,7 +124,7 @@ _PE = TypeVar('_PE', bound=PaletteEvent)
 
 @dataclass
 class AcceptEvent(PaletteEvent):
-    event: js.Event
+
 
     accepted: bool = False
     """Flag to indicate if the action has been spent/used"""
@@ -135,7 +135,7 @@ class AcceptEvent(PaletteEvent):
 
 @dataclass
 class HoverEvent(PaletteEvent):
-    js_event: js.Event
+    pass
 
 
 @dataclass
