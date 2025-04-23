@@ -49,7 +49,7 @@ def start_playwright(args: PlaywrightArgs) -> None:
     playwright = sync_playwright().start()
     launch_args = ['--enable-features=WebAssemblyExperimentalJSPI']
     browser = playwright.chromium.launch(headless=args.headless, args=launch_args)
-    page = browser.new_page()
+    page = browser.new_page(has_touch=True)
     playwright_setup_page_logger(page)
     page.goto(args.url)
     args.instance = PlaywrightBunch(playwright, page, browser)
