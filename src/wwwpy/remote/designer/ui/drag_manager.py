@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 
+import js
 from pyodide.ffi import create_proxy
 
 from wwwpy.remote import eventlib
@@ -10,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class DragFsm:
-    IDLE = "idle"
-    READY = "ready"
-    DRAGGING = "dragging"
+    IDLE = "IDLE"
+    READY = "READY"
+    DRAGGING = "DRAGGING"
 
     DRAG_THRESHOLD_PX = 5
 
@@ -25,14 +27,15 @@ class DragFsm:
         self.drag_start = (-1, -1)
 
     def pointerdown_accepted(self, event):
-
+        was = self.state
         if self.state == self.IDLE:
-            logger.debug(f"Pointer down on valid source")
+            # logger.debug(f"Pointer down on valid source")
             self.drag_start = (event.clientX, event.clientY)
             self.state = self.READY
             event.stopPropagation()
 
     def pointermove(self, event) -> str:
+        was = self.state
         if self.state == self.READY:
             # Check if we've moved enough to consider this a drag
             dx = abs(event.clientX - self.drag_start[0])
@@ -41,6 +44,7 @@ class DragFsm:
             if dx > self.DRAG_THRESHOLD_PX or dy > self.DRAG_THRESHOLD_PX:
                 logger.debug("Drag threshold exceeded, entering DRAG_ACTIVE state")
                 self.state = self.DRAGGING
+        logger.debug(f'pointermove was={was} now={self.state}')
         return self.state
 
     def transitioned_to_dragging(self, event) -> bool:
@@ -50,13 +54,12 @@ class DragFsm:
         return self.state == self.DRAGGING
 
     def pointerup(self, event):
-        if self.state == self.DRAGGING:
-            self.reset()
-            logger.debug(f'Pointer up in DRAGGING state, resetting to IDLE')
-        else:
-            logger.debug(f'Pointer up in state {self.state}, resetting to IDLE')
-            # self.reset()
+        was = self.state
+        self.reset()
+        logger.debug(f'pointerup was={was} now={self.state}')
 
+
+OnPointerDownAcceptType = Callable[[js.Event], bool]
 
 
 class DragManager:
@@ -67,12 +70,15 @@ class DragManager:
     It supports both click-based and drag-based interaction patterns.
     """
 
-    def __init__(self):
+    def __init__(self, on_pointerdown_accept: OnPointerDownAcceptType | None = None):
         """Initialize the PointerManager with default state and callbacks."""
         self._fsm = DragFsm()
 
         # Event callbacks
-        self.on_pointerdown_accept = lambda event: False  # Default rejects all
+        if on_pointerdown_accept is None:
+            on_pointerdown_accept = lambda event: False  # Default rejects all
+
+        self.on_pointerdown_accept: OnPointerDownAcceptType = on_pointerdown_accept
 
     def install(self):
         eventlib.add_event_listeners(self)

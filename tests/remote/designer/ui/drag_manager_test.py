@@ -113,6 +113,16 @@ async def test_successful_interaction_completion_drag_mode__detailed_page_contro
     assert drag_manager.state == DragFsm.IDLE
 
 
+async def test_plain_click__should_go_in_idle(drag_manager, fixture):
+    # GIVEN
+    drag_manager.on_pointerdown_accept = lambda event: event.target.id == 'source1'
+
+    # WHEN
+    await rpctst_exec(["page.locator('#source1').click()"])
+
+    # THEN
+    assert drag_manager.state == DragFsm.IDLE
+
 @pytest.fixture
 def drag_manager(fixture):
     manager = DragManager()
