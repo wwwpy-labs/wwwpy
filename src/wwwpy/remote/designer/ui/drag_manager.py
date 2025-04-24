@@ -32,7 +32,10 @@ class DragFsm:
             # logger.debug(f"Pointer down on valid source")
             self.drag_start = (event.clientX, event.clientY)
             self.state = self.READY
-            event.stopPropagation()
+            event.target.setPointerCapture(event.pointerId)
+            event.preventDefault()
+            # event.stopPropagation()
+        logger.debug(f'pointerdown_accepted was={was} now={self.state}')
 
     def pointermove(self, event) -> str:
         was = self.state
