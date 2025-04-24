@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 from wwwpy.server import rpc4tests
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from playwright.sync_api import Page  # noqa
@@ -18,8 +21,13 @@ async def rpctst_exec(source: str | list[str], timeout_secs: int = 1) -> None:
         raise TypeError(f"source must be str or list[str], got {type(source)}")
 
 
-async def rpctst_exec_touch_event(event: dict) -> None:
-    await rpc4tests.rpctst_exec(f'pwb.cdp.send("Input.dispatchTouchEvent", {event})')
+async def rpctst_exec_touch_event(events: dict | list[dict]) -> None:
+    if isinstance(events, dict):
+        events = [events]
+    for event in events:
+        cmd = f'pwb.cdp.send("Input.dispatchTouchEvent", {event})'
+        logger.debug(f'rpctst_exec_touch_event: `{cmd}`')
+        await rpc4tests.rpctst_exec(cmd)
 
 # class PlaywrightPageCallable(Protocol):
 #     def __call__(self, page: Page) -> None: ...
