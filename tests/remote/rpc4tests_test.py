@@ -6,7 +6,7 @@ import pytest
 from pyodide.ffi import create_proxy
 
 from tests.remote.remote_fixtures import clean_document
-from tests.remote.rpc4tests_helper import rpctst_exec
+from tests.remote.rpc4tests_helper import rpctst_exec_touch_event
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,11 @@ async def test_touch_event(div1):
 
     events = []
     div1.addEventListener('touchstart', create_proxy(lambda e: events.append(e)))
+
     # WHEN
+    await rpctst_exec_touch_event({'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]})
 
-    await rpctst_exec(
-        'pwb.cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{'  f'"x": {x}, "y": {y}' '}]})'
-    )
-
+    # THEN
     assert events != []
     assert len(events) == 1
     event = events[0]

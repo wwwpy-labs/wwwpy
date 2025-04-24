@@ -17,6 +17,10 @@ async def rpctst_exec(source: str | list[str], timeout_secs: int = 1) -> None:
     else:
         raise TypeError(f"source must be str or list[str], got {type(source)}")
 
+
+async def rpctst_exec_touch_event(event: dict) -> None:
+    await rpc4tests.rpctst_exec(f'pwb.cdp.send("Input.dispatchTouchEvent", {event})')
+
 # class PlaywrightPageCallable(Protocol):
 #     def __call__(self, page: Page) -> None: ...
 
