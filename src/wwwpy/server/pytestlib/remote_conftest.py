@@ -3,6 +3,8 @@ import asyncio
 import pytest
 from js import window
 
+from wwwpy.common.fetch_debug import fetch_debug
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -24,9 +26,7 @@ def pytest_xvirt_send_event(event_json):
 
 
 async def async_fetch_str(url: str, method: str = 'GET', data: str = '') -> str:
-    print(f'url={url}')
-    print(f'method={method}')
-    print(f'data=`{data[:100]}`')
+    print(__name__ + ' ' + fetch_debug(url, method, data))
     response = await window.fetch(url, method=method, body=data)
     text = await response.text()
     return text
