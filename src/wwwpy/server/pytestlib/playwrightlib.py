@@ -3,6 +3,7 @@ from __future__ import annotations
 import inspect
 import os
 from dataclasses import dataclass, field
+from functools import cached_property
 from queue import Queue
 from threading import Thread
 from types import FunctionType
@@ -19,6 +20,11 @@ class PlaywrightBunch:
     playwright: Playwright
     page: Page
     browser: Browser
+
+    @cached_property
+    def cdp(self):
+        return self.page.context.new_cdp_session(self.page)
+
 
 
 @dataclass

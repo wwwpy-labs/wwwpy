@@ -27,7 +27,7 @@ async def rpctst_exec(source: str, timeout_secs: int = 1) -> None:
     assert args is not None
     pwb: PlaywrightBunch = args.instance
     assert pwb is not None
-    gl = {'page': pwb.page}
+    gl = {'page': pwb.page, 'pwb': pwb}
     loop = asyncio.get_running_loop()
     done = asyncio.Event()
     ex = []
