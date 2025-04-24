@@ -42,7 +42,6 @@ async def test_palette_click_twice_item__should_be_deselected(palette, action_ma
 async def test_palette_selecting_different_item__should_deselect_previous(palette, action_manager, item1, item2):
     await rpctst_exec(["page.locator('#item1').click()", "page.locator('#item2').click()"])
 
-
     assert action_manager.selected_action == item2
     assert not item1.selected
     assert item2.selected
@@ -62,7 +61,7 @@ async def test_externally_select_item(palette, action_manager, item1, item2):
 
 
 async def test_externally_select_different_item(action_manager, item1, item2):
-    item1.element.click()
+    await rpctst_exec("page.locator('#item1').click()")
     action_manager.selected_action = item2
 
     assert action_manager.selected_action == item2
@@ -101,13 +100,13 @@ class TestPaletteItem:
 
 
 class TestUseSelection:
-    def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
+    async def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
         action_manager.listeners_for(AcceptEvent).add(lambda ev: None)
 
         # WHEN
-        div1.click()
+        await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
         assert len(events.accept_events) == 1
@@ -119,7 +118,7 @@ class TestUseSelection:
         action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
 
         # WHEN
-        div1.click()
+        await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
         assert len(events.accept_events) == 1
@@ -133,7 +132,7 @@ class TestDrag:
     async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.on_events = lambda event: event.accept()
+        action_manager.listeners_for(AcceptEvent).add(lambda event: event.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
@@ -160,6 +159,20 @@ class TestDrag:
 
         # WHEN
         await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+
+        # THEN
+        assert action_manager.selected_action is item2
+        assert action_manager.drag_state == DragFsm.DRAGGING
+
+    async def test_item1_click_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+        # GIVEN
+        await rpctst_exec(["page.locator('#item1').click()"])
+        rect = div1.getBoundingClientRect()
+        x = rect.x + rect.width / 2
+        y = rect.y + rect.height / 2
+        logger.debug(f'GIVEN phase done x={x} y={y}')
+        # WHEN
+        await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
 
         # THEN
         assert action_manager.selected_action is item2
