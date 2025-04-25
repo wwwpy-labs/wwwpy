@@ -303,6 +303,8 @@ class ActionManager:
 
 def _find_palette_item(event: js.Event) -> PaletteItem | None:
     target = _element_from_js_event(event)
+    if target is None:  # tests missing. It looks like it happens when the mouse exit the viewport or moves on the scrollbar
+        return None
     # logger.debug(f'_find_palette_item target={_pretty(target)}')
     res = target.closest(PaletteItemComponent.component_metadata.tag_name)
     if res:
@@ -310,7 +312,7 @@ def _find_palette_item(event: js.Event) -> PaletteItem | None:
     return None
 
 
-def _element_from_js_event(event: js.Event):
+def _element_from_js_event(event: js.Event) -> js.Element | None:
     """
     Get the deepest element at the event coordinates by recursively traversing shadow DOMs.
     """
