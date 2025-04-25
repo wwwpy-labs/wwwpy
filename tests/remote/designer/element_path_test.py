@@ -115,28 +115,28 @@ async def test_component_with_shadow_root(clean_document):
     assert actual.path == expected_path, f'actual.path=```\n{actual.path}\n``` != ```\n{expected_path}\n```'
 
 
-class SlottedWpc(wpc.Component):
-    def init_component(self):
-        self.element.attachShadow(dict_to_js({'mode': 'open'}))
-        self.element.shadowRoot.innerHTML = '<slot></slot>'
-
-
-class RootWpc(wpc.Component):
-    inner: js.HTMLElement = wpc.element()
-
-    def init_component(self):
-        self.element.attachShadow(dict_to_js({'mode': 'open'}))
-        # we avoid naming the component so we don't clash with other tests
-        html = '<br>' + (SlottedWpc.component_metadata
-                         .build_snippet({'data-name': 'slotted1'}, '<div data-name="inner">inner-div</div>'))
-        # html = """<br><slotted-wpc data-name="slotted1"><div data-name="inner">inner-div</div></slotted-wpc>"""
-        self.element.shadowRoot.innerHTML = html
-
-
 class TestSlottedComponent:
+    def _gen_classes(self):
+        # we need to generate the classes dynamically be sure we override the registered custom element tag_name
+        # other tests should do the same
+        class SlottedWpc(wpc.Component, tag_name='slotted-wpc'):
+            def init_component(self):
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = '<slot></slot>'
+
+        class RootWpc(wpc.Component):
+            inner: js.HTMLElement = wpc.element()
+
+            def init_component(self):
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = \
+                    """<br><slotted-wpc data-name="slotted1"><div data-name="inner">inner-div</div></slotted-wpc>"""
+
+        return RootWpc, SlottedWpc
 
     async def test_class_name(self, clean_document):
         # GIVEN
+        RootWpc, SlottedWpc = self._gen_classes()
 
         root_wpc = RootWpc()
         document.body.append(root_wpc.element)
@@ -153,6 +153,7 @@ class TestSlottedComponent:
 
     async def test_path(self, clean_document):
         # GIVEN
+        RootWpc, SlottedWpc = self._gen_classes()
 
         root_wpc = RootWpc()
         document.body.append(root_wpc.element)
@@ -162,7 +163,7 @@ class TestSlottedComponent:
 
         # THEN
         expected_path = [
-            Node(SlottedWpc.component_metadata.tag_name, 1, {'data-name': 'slotted1'}),
+            Node('slotted-wpc', 1, {'data-name': 'slotted1'}),
             Node("div", 0, {'data-name': 'inner'})]
 
         assert actual is not None
