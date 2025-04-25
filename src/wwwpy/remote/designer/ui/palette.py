@@ -47,11 +47,11 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
         self.element.shadowRoot.innerHTML = """
-                                            <div class="container">
-                                                <div class="palette" data-name="_item_container">
-                                                </div>
-                                            </div> \
-                                            """
+<div class="container">
+    <div class="palette" data-name="_item_container">
+    </div>
+</div>
+"""
         self.element.shadowRoot.innerHTML += _css_styles
         self.action_manager = ActionManager()
         self.action_manager.register(self)
@@ -83,18 +83,17 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                      stroke-linejoin="round">
-                                     <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
-                                     <line x1="12" y1="12" x2="12" y2="12"></line>
-                                 </svg>
-                                 <label data-name="_label"></label>
-                                 </div>
-                                 </div> \
-                                 """
+ <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+     <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
+     <line x1="12" y1="12" x2="12" y2="12"></line>
+ </svg>
+ <label data-name="_label"></label>
+ </div>
+ </div> 
+"""
         self.key = None
 
     @property
