@@ -45,12 +45,12 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.element.shadowRoot.innerHTML = """        
-    <div class="container">
-        <div class="palette" data-name="_item_container">
-        </div>
-    </div>
-        """
+        self.element.shadowRoot.innerHTML = """
+                                            <div class="container">
+                                                <div class="palette" data-name="_item_container">
+                                                </div>
+                                            </div> \
+                                            """
         self.element.shadowRoot.innerHTML += _css_styles
         self.action_manager = ActionManager()
         self.action_manager.register(self)
@@ -82,16 +82,18 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-        
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
-                <line x1="12" y1="12" x2="12" y2="12"></line>
-            </svg>
-            <label data-name="_label"></label>
-        </div>
-    </div>
-        """
+
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                      stroke-linejoin="round">
+                                     <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
+                                     <line x1="12" y1="12" x2="12" y2="12"></line>
+                                 </svg>
+                                 <label data-name="_label"></label>
+                                 </div>
+                                 </div> \
+                                 """
         self.key = None
 
     @property
@@ -124,8 +126,6 @@ _PE = TypeVar('_PE', bound=PaletteEvent)
 
 @dataclass
 class AcceptEvent(PaletteEvent):
-
-
     accepted: bool = False
     """Flag to indicate if the action has been spent/used"""
 
@@ -177,6 +177,9 @@ class ActionManager:
         self.on_events: PaletteEventHandler = lambda ev: None
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
         self._drag_fsm = DragFsm()
+        self._ready_item = None
+        # self._dm_palette = DragManager(self._in_palette)
+        # self._dm_canvas = DragManager(self._in_canvas)
 
     @property
     def drag_state(self):
@@ -184,9 +187,9 @@ class ActionManager:
 
     def _js_window__click(self, event):
         palette_item = _find_palette_item(event)
+        logger.debug(f'_js_window__click {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
         if palette_item:
-            logger.debug(f'Palette item clicked: {palette_item}')
-            self._action_item_click(palette_item)
+            self._toggle_selection(palette_item)
             return
         gesture_event = AcceptEvent(event)
         self._notify(gesture_event)
@@ -195,24 +198,40 @@ class ActionManager:
             self.selected_action = None
 
     def _js_window__pointerdown(self, event):
-        item = _find_palette_item(event)
-        if item:
-            self._ready_item = item
+        palette_item = _find_palette_item(event)
+        logger.debug(
+            f'_js_window__pointerdown {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
+        if palette_item:
+            self._ready_item = palette_item
             self._drag_fsm.pointerdown_accepted(event)
+        # else:
+        #     self._ready_item = None
 
     def _js_window__pointermove(self, event):
-        if self._drag_fsm.transitioned_to_dragging(event):
-            self.selected_action = self._ready_item
-            logger.debug(f'_js_window__pointermove transitioned_to_dragging: {event}')
+        palette_item = _find_palette_item(event)
+        dragging = self._drag_fsm.transitioned_to_dragging(event)
 
-        if _find_palette_item(event):
-            return logger.debug(f'_js_window__pointermove in palette: {event}')
+        msg = f'_js_window__pointermove {self._fsm_state()} pi={_pretty(palette_item)} ri={_pretty(self._ready_item)} dragging={dragging} event={dict_to_py(event)}'
+        logger.debug(msg)
+
+        if dragging:
+            self.selected_action = self._ready_item
+            self._ready_item = None
+
+        if palette_item:
+            return
+
         hover_event = HoverEvent(event)
         self._notify(hover_event)
         logger.debug(f'_js_window__pointermove hover_event: {hover_event}')
 
     def _js_window__pointerup(self, event):
+        logger.debug(f'_js_window__pointerup event={dict_to_py(event)}')
+        self._ready_item = None
         self._drag_fsm.pointerup(event)
+
+    def _fsm_state(self) -> str:
+        return f'fsm={self._drag_fsm.state}'
 
     def _notify(self, event: _PE):
         """Notify all listeners of the event."""
@@ -228,13 +247,17 @@ class ActionManager:
             self._listeners[event_type] = res
         return res
 
-    def _in_palette(self, target: js.HTMLElement, element) -> bool:
+    def _in_palette(self, event: js.Event) -> bool:
+        target = _element_from_js_event(event)
         return target.closest(PaletteComponent.component_metadata.tag_name) is not None
         # ptag = PaletteComponent.component_metadata.tag_name
         # logger.debug(f'target.tagName={target.tagName} ptag={ptag}')
         # is_pal = element.tagName.casefold() == ptag.casefold()
         # logger.debug(f'is in palette: {is_pal}')
         # return is_pal
+
+    def _in_canvas(self, event: js.Event) -> bool:
+        return not self._in_palette(event)
 
     def register(self, palette: Palette):
         pass
@@ -254,19 +277,22 @@ class ActionManager:
     def selected_action(self, value: ActionItem | None):
         """Set the currently selected item."""
         msg = ''
+        if self._ready_item:
+            msg += f' ri={self._ready_item.label}'
+
         sel = self.selected_action
         if sel:
             sel.selected = False
-            msg += f' (deselecting {sel})'
+            msg += f' (deselecting {sel.label})'
 
         self._selected_action = value
-        msg += f' (selecting {value})'
+        msg += f' (selecting {None if value is None else value.label})'
         if value:
             value.selected = True
 
         logger.debug(msg)
 
-    def _action_item_click(self, item: ActionItem):
+    def _toggle_selection(self, item: ActionItem):
         logger.debug(f'Item clicked: {item}')
         if item == self.selected_action:
             self.selected_action = None
@@ -276,16 +302,15 @@ class ActionManager:
 
 
 def _find_palette_item(event: js.Event) -> PaletteItem | None:
-    logger.debug(f'_find_palette_item event={dict_to_py(event)}')
     target = _element_from_js_event(event)
-    logger.debug(f'_find_palette_item target={_pretty(target)}')
+    # logger.debug(f'_find_palette_item target={_pretty(target)}')
     res = target.closest(PaletteItemComponent.component_metadata.tag_name)
     if res:
         return get_component(res)
     return None
 
 
-def _element_from_js_event(event):
+def _element_from_js_event(event: js.Event):
     """
     Get the deepest element at the event coordinates by recursively traversing shadow DOMs.
     """
@@ -464,6 +489,8 @@ _css_styles = """
 
 
 def _pretty(node):
+    if node is None:
+        return 'None'
     if hasattr(node, 'tagName'):
         return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)

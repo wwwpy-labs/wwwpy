@@ -224,6 +224,14 @@ class TestDrag:
         assert action_manager.selected_action is item1
 
 
+class TestDragTouch:
+    # TODO: implement touch drag tests
+    async def todo_item1_click_and_touch_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+        pass
+        # look at `test_item1_click_and_start_drag_on_item2__should_select_item2`
+        # look at rpc4tests_test.py how to send touch events
+
+
 class TestHover:
 
     async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, item1, item2, events):
