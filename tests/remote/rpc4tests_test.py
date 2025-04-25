@@ -16,10 +16,7 @@ logger = logging.getLogger(__name__)
 
 async def test_touch_apis__touchend(div1):
     # GIVEN
-    events = []
-    div1.addEventListener('touchstart', create_proxy(events.append))
-    div1.addEventListener('touchmove', create_proxy(events.append))
-    div1.addEventListener('touchend', create_proxy(events.append))
+    events = await _handle_touch_events(div1)
     x, y = element_xy_center(div1)
 
     # WHEN
@@ -37,10 +34,7 @@ async def test_touch_apis__touchend(div1):
 
 async def test_touch_apis__touchcancel(div1):
     # GIVEN
-    events = []
-    div1.addEventListener('touchstart', create_proxy(events.append))
-    div1.addEventListener('touchmove', create_proxy(events.append))
-    div1.addEventListener('touchcancel', create_proxy(events.append))
+    events = await _handle_touch_events(div1)
     x, y = element_xy_center(div1)
 
     # WHEN
@@ -101,6 +95,15 @@ async def _handle_pointer_events(div1):
     div1.addEventListener('pointermove', create_proxy(events.append))
     div1.addEventListener('pointerup', create_proxy(events.append))
     div1.addEventListener('pointercancel', create_proxy(events.append))
+    return events
+
+
+async def _handle_touch_events(div1):
+    events = []
+    div1.addEventListener('touchstart', create_proxy(events.append))
+    div1.addEventListener('touchmove', create_proxy(events.append))
+    div1.addEventListener('touchend', create_proxy(events.append))
+    div1.addEventListener('touchcancel', create_proxy(events.append))
     return events
 
 
