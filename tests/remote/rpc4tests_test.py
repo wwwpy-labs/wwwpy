@@ -66,6 +66,22 @@ async def test_pointer_apis__pointercancel(div1):
     assert targets == ['div1', 'div1', 'div1']
 
 
+async def test_pointer_apis__pointercancel_small_move(div1):
+    # GIVEN
+    events = await _handle_pointer_events(div1)
+    x, y = element_xy_center(div1)
+
+    # WHEN
+    await _send_touch_events(x, y, x + 5, y + 5, cancel=True)
+
+    # THEN
+    types = list(map(lambda e: e.type, events))
+    logger.debug(f'types={types}')
+    assert types == ['pointerdown', 'pointermove', 'pointercancel']
+    targets = list(map(lambda e: e.target.id, events))
+    assert targets == ['div1', 'div1', 'div1']
+
+
 async def test_pointer_apis__pointerup(div1):
     # GIVEN
     events = await _handle_pointer_events(div1)
