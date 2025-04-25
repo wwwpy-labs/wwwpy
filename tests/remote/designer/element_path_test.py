@@ -110,32 +110,35 @@ async def test_component_with_shadow_root(clean_document):
     # THEN
     expected_path = [Node("div", 1, {'data-name': 'div1'})]
     assert actual is not None
-    # assert actual.class_module == 'component1'  # this file itself
+    assert actual.class_module == __name__  # this file itself
     assert actual.class_name == 'ShadowWpc'
     assert actual.path == expected_path, f'actual.path=```\n{actual.path}\n``` != ```\n{expected_path}\n```'
 
 
+class SlottedWpc(wpc.Component):
+    def init_component(self):
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        self.element.shadowRoot.innerHTML = '<slot></slot>'
+
+
+class RootWpc(wpc.Component):
+    inner: js.HTMLElement = wpc.element()
+
+    def init_component(self):
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
+        # we avoid naming the component so we don't clash with other tests
+        html = '<br>' + (SlottedWpc.component_metadata
+                         .build_snippet({'data-name': 'slotted1'}, '<div data-name="inner">inner-div</div>'))
+        # html = """<br><slotted-wpc data-name="slotted1"><div data-name="inner">inner-div</div></slotted-wpc>"""
+        self.element.shadowRoot.innerHTML = html
+
+
 class TestSlottedComponent:
-    class SlottedWpc(wpc.Component, tag_name='slotted-wpc'):
-        def init_component(self):
-            self.element.attachShadow(dict_to_js({'mode': 'open'}))
-            self.element.shadowRoot.innerHTML = '<slot></slot>'
-
-    class RootWpc(wpc.Component, tag_name='root-wpc'):
-        inner: js.HTMLElement = wpc.element()
-
-        def init_component(self):
-            self.element.attachShadow(dict_to_js({'mode': 'open'}))
-            # we avoid naming the component so we don't clash with other tests
-            # snippet = (SlottedWpc.component_metadata
-            #            .build_snippet({'data-name': 'slotted1'}, '<span><div data-name="inner">inner-div</div></span>'))
-            html = """<br><slotted-wpc data-name="slotted1"><div data-name="inner">inner-div</div></slotted-wpc>"""
-            self.element.shadowRoot.innerHTML = html
 
     async def test_class_name(self, clean_document):
         # GIVEN
 
-        root_wpc = self.RootWpc()
+        root_wpc = RootWpc()
         document.body.append(root_wpc.element)
 
         # WHEN
@@ -151,7 +154,7 @@ class TestSlottedComponent:
     async def test_path(self, clean_document):
         # GIVEN
 
-        root_wpc = self.RootWpc()
+        root_wpc = RootWpc()
         document.body.append(root_wpc.element)
 
         # WHEN
@@ -159,9 +162,8 @@ class TestSlottedComponent:
 
         # THEN
         expected_path = [
-            Node("slotted-wpc", 1, {'data-name': 'slotted1'}),
+            Node(SlottedWpc.component_metadata.tag_name, 1, {'data-name': 'slotted1'}),
             Node("div", 0, {'data-name': 'inner'})]
 
-        # await asyncio.sleep(1000000)
         assert actual is not None
         assert actual.path == expected_path, f'actual.path=```\n{actual.path}\n``` != ```\n{expected_path}\n```'
