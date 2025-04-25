@@ -43,7 +43,7 @@ ed_pointermove = EventDef('pointermove', Help('The pointermove event is fired wh
 
 def _insert_common_to_all(elements: List[ElementDef]):
     attrs = list(reversed([ad_style, ad_class]))
-    events = list(reversed([ed_keydown, ed_keyup, ed_pointerdown, ed_pointerup, ed_pointermove, ]))
+    events = [ed_click, ed_pointermove, ed_pointerup, ed_pointerdown, ed_keyup, ed_keydown]
 
     for element in elements:
         ea = element.attributes
