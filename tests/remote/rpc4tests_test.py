@@ -102,16 +102,20 @@ async def test_touch_on_pointer_api_chatgpt(div1):
     x = rect.x + rect.width / 2
     y = rect.y + rect.height / 2
 
-    div1.style.touchAction = 'none'
+    # div1.style.touchAction = 'none'
     events = []
 
     def on_down(e):
         e.target.setPointerCapture(e.pointerId)
         events.append(e)
 
+    def on_up(e):
+        e.target.releasePointerCapture(e.pointerId)
+        events.append(e)
     div1.addEventListener('pointerdown', create_proxy(on_down))
     div1.addEventListener('pointermove', create_proxy(events.append))
-    div1.addEventListener('pointerup', create_proxy(events.append))
+    div1.addEventListener('pointerup', create_proxy(on_up))
+    div1.addEventListener('pointercancel', create_proxy(events.append))
 
     await rpctst_exec_touch_event([
         {'type': 'touchStart',
