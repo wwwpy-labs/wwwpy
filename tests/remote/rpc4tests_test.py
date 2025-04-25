@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # credits https://www.martin-grandrath.de/blog/2024-05-01_testing-touch-gestures-with-playwright.html
 
-async def test_touch_multiple(div1):
+async def test_touch_apis(div1):
     # GIVEN
     rect = div1.getBoundingClientRect()
     x = rect.x + rect.width / 2
@@ -37,11 +37,42 @@ async def test_touch_multiple(div1):
 
     # THEN
     types = list(map(lambda e: e.type, events))
+    logger.debug(f'types={types}')
     assert types == ['touchstart', 'touchmove', 'touchend']
     targets = list(map(lambda e: e.target.id, events))
     assert targets == ['div1', 'div1', 'div1']
     _verify_xy(events[0], x, y)
     _verify_xy(events[1], x + 20, y + 20)
+
+
+async def test_pointer_apis__cancel(div1):
+    # GIVEN
+    rect = div1.getBoundingClientRect()
+    x = rect.x + rect.width / 2
+    y = rect.y + rect.height / 2
+    logger.debug(f'GIVEN phase done x={x} y={y}')
+
+    events = []
+    div1.addEventListener('pointerdown', create_proxy(events.append))
+    div1.addEventListener('pointermove', create_proxy(events.append))
+    div1.addEventListener('pointerup', create_proxy(events.append))
+    div1.addEventListener('pointercancel', create_proxy(events.append))
+
+    # WHEN
+    await rpctst_exec_touch_event([
+        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
+        # touchmove event will only trigger when there's significant enough movement to be detected as an intentional gesture
+        {'type': 'touchMove', 'touchPoints': [{'x': x + 20, 'y': y + 20}]},
+        {'type': 'touchEnd', 'touchPoints': []},
+    ])
+
+    # THEN
+    types = list(map(lambda e: e.type, events))
+    logger.debug(f'types={types}')
+    assert types == ['pointerdown', 'pointermove', 'pointercancel']
+    targets = list(map(lambda e: e.target.id, events))
+    assert targets == ['div1', 'div1', 'div1']
+
 
 
 async def test_touch_on_pointer_api(div1):
