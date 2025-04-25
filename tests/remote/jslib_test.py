@@ -31,7 +31,7 @@ class Test_is_descendant_of_container():
         assert not is_contained(other, outer)
 
     async def test_reproduce_issue_20250412(self, clean_document):
-        class SlottedComponent(wpc.Component, tag_name='slotted-component'):
+        class SlottedComponent(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
                 self.element.shadowRoot.innerHTML = '<slot></slot>'
@@ -42,7 +42,10 @@ class Test_is_descendant_of_container():
 
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
-                self.element.shadowRoot.innerHTML = '<slotted-component data-name="slotted1"><span><div data-name="inner"></div></span></slotted-component>'
+                # we avoid naming the component so we don't clash with other tests
+                snippet = (SlottedComponent.component_metadata
+                           .build_snippet({'data-name': 'slotted1'}, '<span><div data-name="inner"></div></span>'))
+                self.element.shadowRoot.innerHTML = snippet
 
         root = CompRoot()
         js.document.body.append(root.element)
