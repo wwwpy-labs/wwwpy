@@ -7,6 +7,7 @@ import js
 import pytest
 
 from tests.remote.rpc4tests_helper import rpctst_exec
+from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
     HoverEvent, DropEvent, AcceptEvent, _PE
@@ -167,10 +168,8 @@ class TestDrag:
     async def test_item1_click_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
         # GIVEN
         await rpctst_exec(["page.locator('#item1').click()"])
-        rect = div1.getBoundingClientRect()
-        x = rect.x + rect.width / 2
-        y = rect.y + rect.height / 2
-        logger.debug(f'GIVEN phase done x={x} y={y}')
+        x, y = element_xy_center(div1)
+
         # WHEN
         await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
 
@@ -206,9 +205,7 @@ class TestDrag:
 
     async def test_no_select_not_enough_drag__should_not_select(self, action_manager, item1):
         # GIVEN
-        rect = item1.element.getBoundingClientRect()
-        x = rect.x + rect.width / 2
-        y = rect.y + rect.height / 2
+        x, y = element_xy_center(item1.element)
 
         # WHEN
         await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
@@ -218,9 +215,7 @@ class TestDrag:
 
     async def test_enough_drag__should_select(self, action_manager, item1):
         # GIVEN
-        rect = item1.element.getBoundingClientRect()
-        x = rect.x + rect.width / 2
-        y = rect.y + rect.height / 2
+        x, y = element_xy_center(item1.element)
 
         # WHEN
         await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
