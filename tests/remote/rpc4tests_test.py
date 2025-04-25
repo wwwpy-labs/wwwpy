@@ -37,12 +37,7 @@ async def test_touch_apis(div1):
 
 async def test_pointer_apis__pointercancel(div1):
     # GIVEN
-
-    events = []
-    div1.addEventListener('pointerdown', create_proxy(events.append))
-    div1.addEventListener('pointermove', create_proxy(events.append))
-    div1.addEventListener('pointerup', create_proxy(events.append))
-    div1.addEventListener('pointercancel', create_proxy(events.append))
+    events = await _handle_pointer_events(div1)
     x, y = element_xy_center(div1)
 
     # WHEN
@@ -58,11 +53,7 @@ async def test_pointer_apis__pointercancel(div1):
 
 async def test_pointer_apis__pointerup(div1):
     # GIVEN
-    events = []
-    div1.addEventListener('pointerdown', create_proxy(events.append))
-    div1.addEventListener('pointermove', create_proxy(events.append))
-    div1.addEventListener('pointerup', create_proxy(events.append))
-    div1.addEventListener('pointercancel', create_proxy(events.append))
+    events = await _handle_pointer_events(div1)
     x, y = element_xy_center(div1)
 
     # WHEN
@@ -81,6 +72,15 @@ def _verify_xy(event, x, y):
     item0 = event.touches.item(0)
     assert item0.clientX == x
     assert item0.clientY == y
+
+
+async def _handle_pointer_events(div1):
+    events = []
+    div1.addEventListener('pointerdown', create_proxy(events.append))
+    div1.addEventListener('pointermove', create_proxy(events.append))
+    div1.addEventListener('pointerup', create_proxy(events.append))
+    div1.addEventListener('pointercancel', create_proxy(events.append))
+    return events
 
 
 async def _send_touch_events(x, y, move_x, move_y):
