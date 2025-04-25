@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # credits https://www.martin-grandrath.de/blog/2024-05-01_testing-touch-gestures-with-playwright.html
 
-async def test_touch_apis(div1):
+async def test_touch_apis__touchend(div1):
     # GIVEN
     events = []
     div1.addEventListener('touchstart', create_proxy(events.append))
@@ -29,6 +29,31 @@ async def test_touch_apis(div1):
     types = list(map(lambda e: e.type, events))
     logger.debug(f'types={types}')
     assert types == ['touchstart', 'touchmove', 'touchend']
+    targets = list(map(lambda e: e.target.id, events))
+    assert targets == ['div1', 'div1', 'div1']
+    _verify_xy(events[0], x, y)
+    _verify_xy(events[1], x + 20, y + 20)
+
+
+async def test_touch_apis__touchcancel(div1):
+    # GIVEN
+    events = []
+    div1.addEventListener('touchstart', create_proxy(events.append))
+    div1.addEventListener('touchmove', create_proxy(events.append))
+    div1.addEventListener('touchcancel', create_proxy(events.append))
+    x, y = element_xy_center(div1)
+
+    # WHEN
+    await rpctst_exec_touch_event([
+        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
+        {'type': 'touchMove', 'touchPoints': [{'x': x + 20, 'y': y + 20}]},
+        {'type': 'touchCancel', 'touchPoints': []},
+    ])
+
+    # THEN
+    types = list(map(lambda e: e.type, events))
+    logger.debug(f'types={types}')
+    assert types == ['touchstart', 'touchmove', 'touchcancel']
     targets = list(map(lambda e: e.target.id, events))
     assert targets == ['div1', 'div1', 'div1']
     _verify_xy(events[0], x, y)
