@@ -44,11 +44,7 @@ async def test_touch_apis__touchcancel(div1):
     x, y = element_xy_center(div1)
 
     # WHEN
-    await rpctst_exec_touch_event([
-        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
-        {'type': 'touchMove', 'touchPoints': [{'x': x + 20, 'y': y + 20}]},
-        {'type': 'touchCancel', 'touchPoints': []},
-    ])
+    await _send_touch_events(x, y, x + 20, y + 20, cancel=True)
 
     # THEN
     types = list(map(lambda e: e.type, events))
@@ -108,12 +104,12 @@ async def _handle_pointer_events(div1):
     return events
 
 
-async def _send_touch_events(x, y, move_x, move_y):
+async def _send_touch_events(x, y, move_x, move_y, cancel=False):
     await rpctst_exec_touch_event([
         {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
         # touchmove event will only trigger when there's significant enough movement to be detected as an intentional gesture
         {'type': 'touchMove', 'touchPoints': [{'x': move_x, 'y': move_y}]},
-        {'type': 'touchEnd', 'touchPoints': []},
+        {'type': 'touchEnd' if not cancel else 'touchCancel', 'touchPoints': []},
     ])
 
 
