@@ -7,6 +7,7 @@ from pyodide.ffi import create_proxy, create_once_callable
 
 from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec_touch_event
+from wwwpy.remote._elementlib import element_xy_center
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +16,11 @@ logger = logging.getLogger(__name__)
 
 async def test_touch_apis(div1):
     # GIVEN
-    rect = div1.getBoundingClientRect()
-    x = rect.x + rect.width / 2
-    y = rect.y + rect.height / 2
-    logger.debug(f'GIVEN phase done x={x} y={y}')
-
     events = []
     div1.addEventListener('touchstart', create_proxy(events.append))
     div1.addEventListener('touchmove', create_proxy(events.append))
     div1.addEventListener('touchend', create_proxy(events.append))
+    x, y = element_xy_center(div1)
 
     # WHEN
     await rpctst_exec_touch_event([
@@ -45,16 +42,13 @@ async def test_touch_apis(div1):
 
 async def test_pointer_apis__pointercancel(div1):
     # GIVEN
-    rect = div1.getBoundingClientRect()
-    x = rect.x + rect.width / 2
-    y = rect.y + rect.height / 2
-    logger.debug(f'GIVEN phase done x={x} y={y}')
 
     events = []
     div1.addEventListener('pointerdown', create_proxy(events.append))
     div1.addEventListener('pointermove', create_proxy(events.append))
     div1.addEventListener('pointerup', create_proxy(events.append))
     div1.addEventListener('pointercancel', create_proxy(events.append))
+    x, y = element_xy_center(div1)
 
     # WHEN
     await rpctst_exec_touch_event([
@@ -74,16 +68,12 @@ async def test_pointer_apis__pointercancel(div1):
 
 async def test_pointer_apis__pointerup(div1):
     # GIVEN
-    rect = div1.getBoundingClientRect()
-    x = rect.x + rect.width / 2
-    y = rect.y + rect.height / 2
-    logger.debug(f'GIVEN phase done x={x} y={y}')
-
     events = []
     div1.addEventListener('pointerdown', create_proxy(events.append))
     div1.addEventListener('pointermove', create_proxy(events.append))
     div1.addEventListener('pointerup', create_proxy(events.append))
     div1.addEventListener('pointercancel', create_proxy(events.append))
+    x, y = element_xy_center(div1)
 
     # WHEN
     await rpctst_exec_touch_event([
@@ -105,6 +95,7 @@ def _verify_xy(event, x, y):
     item0 = event.touches.item(0)
     assert item0.clientX == x
     assert item0.clientY == y
+
 
 @pytest.fixture()
 def fixture(clean_document): yield Fixture()

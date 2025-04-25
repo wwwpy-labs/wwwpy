@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TypeVar, Type
 
 import js
@@ -35,3 +37,11 @@ def single_tag_instance(tag_name: str, global_id: str) -> js.HTMLElement:
         ele.id = global_id
         js.document.body.appendChild(ele)
     return ele
+
+
+def element_xy_center(element: js.HTMLElement) -> tuple[float, float]:
+    """Get the center x and y coordinates of the given element."""
+    rect = element.getBoundingClientRect()
+    x = rect.x + rect.width / 2
+    y = rect.y + rect.height / 2
+    return x, y
