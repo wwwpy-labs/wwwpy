@@ -5,7 +5,8 @@ import js
 import wwwpy.remote.component as wpc
 from tests.remote.remote_fixtures import clean_document
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.jslib import is_contained, is_instance_of
+from wwwpy.remote._elementlib import element_xy_center
+from wwwpy.remote.jslib import is_contained, is_instance_of, get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -115,3 +116,43 @@ class Test_is_descendant_of_container():
 class Test_is_instance_of():
     async def test_is_instance_of(self, clean_document):
         assert is_instance_of(js.document, js.HTMLDocument)
+
+
+class Test_get_deepest_element:
+
+    async def test_simple_div(self, clean_document):
+        js.document.body.innerHTML = """<div id="outer">div-outer</div>"""
+        outer = js.document.getElementById('outer')
+        x, y = element_xy_center(outer)
+        element = get_deepest_element(x, y)
+        assert element == outer
+
+    async def test_coordinates_that_coincide_with_div(self, clean_document):
+        class Comp1(wpc.Component):
+            def init_component(self):
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = '<div id="shadow">shadow</div>'
+
+        comp1 = Comp1()
+        js.document.body.append(comp1.element)
+        x, y = element_xy_center(comp1.element)
+        actual = get_deepest_element(x, y)
+        expect = comp1.element.shadowRoot.getElementById('shadow')
+
+        assert actual == expect
+
+    async def test_coordinates_that_has_only_the_shadow_dom_itself(self, clean_document):
+        class Comp1(wpc.Component):
+            def init_component(self):
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = 'shadow'
+
+        comp1 = Comp1()
+        js.document.body.append(comp1.element)
+
+        # await asyncio.sleep(100000)
+
+        x, y = element_xy_center(comp1.element)
+        actual = get_deepest_element(x, y)
+        expect = comp1.element
+        assert actual == expect

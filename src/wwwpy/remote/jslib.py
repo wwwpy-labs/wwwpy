@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import random
@@ -97,7 +99,38 @@ def is_contained(target, container):
     return False
 
 
-def _pretty(node):
+def get_deepest_element(x, y):
+    """
+    Get the deepest ele at the event coordinates by recursively traversing shadow DOMs.
+    """
+
+    def _rec(root):
+        ele = root.elementFromPoint(x, y)
+        ele_shadow = _shadow_root_of(ele)
+        if root == ele_shadow:
+            return root.host
+
+        if ele and ele_shadow:
+            rec = _rec(ele_shadow)
+            if rec:
+                return rec
+
+        return ele
+
+    return _rec(js.document)
+
+
+def _shadow_root_of(element) -> js.ShadowRoot | None:
+    if element is None:
+        return None
+
+    if hasattr(element, 'shadowRoot') and element.shadowRoot and is_instance_of(element.shadowRoot, js.ShadowRoot):
+        return element.shadowRoot
+    return None
+
+
+def _pretty(node: js.HTMLElement):
     if hasattr(node, 'tagName'):
-        return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.outerHTML.strip()[:20]}…]'
-    return f'_pretty({node})'
+        identifier = node.dataset.name if node.hasAttribute('data-name') else node.id
+        return f'{node.tagName.lower()}#{identifier}.{node.className}[{node.innerHTML.strip()[:20]}…]'
+    return str(node)

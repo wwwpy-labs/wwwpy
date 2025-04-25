@@ -12,6 +12,7 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, eventlib, dict_to_py
 from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
+from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -313,25 +314,7 @@ def _find_palette_item(event: js.Event) -> PaletteItem | None:
 
 
 def _element_from_js_event(event: js.Event) -> js.Element | None:
-    """
-    Get the deepest element at the event coordinates by recursively traversing shadow DOMs.
-    """
-
-    def get_deepest_element(root, x, y):
-        # Get element at point in current root context
-        element = root.elementFromPoint(x, y)
-
-        # If element has a shadow root, look deeper
-        if element and hasattr(element, 'shadowRoot') and element.shadowRoot:
-            # Recursively search in the shadow DOM
-            shadow_element = get_deepest_element(element.shadowRoot, x, y)
-            if shadow_element:
-                return shadow_element
-
-        return element
-
-    # Start from the document level and traverse down
-    return get_deepest_element(js.document, event.clientX, event.clientY)
+    return get_deepest_element(event.clientX, event.clientY)
 
 
 # language=html
