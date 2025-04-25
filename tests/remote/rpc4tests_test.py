@@ -23,12 +23,7 @@ async def test_touch_apis(div1):
     x, y = element_xy_center(div1)
 
     # WHEN
-    await rpctst_exec_touch_event([
-        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
-        # touchmove event will only trigger when there's significant enough movement to be detected as an intentional gesture
-        {'type': 'touchMove', 'touchPoints': [{'x': x + 20, 'y': y + 20}]},
-        {'type': 'touchEnd', 'touchPoints': []},
-    ])
+    await _send_touch_events(x, y, x + 20, y + 20)
 
     # THEN
     types = list(map(lambda e: e.type, events))
@@ -51,12 +46,7 @@ async def test_pointer_apis__pointercancel(div1):
     x, y = element_xy_center(div1)
 
     # WHEN
-    await rpctst_exec_touch_event([
-        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
-        # touchmove event will only trigger when there's significant enough movement to be detected as an intentional gesture
-        {'type': 'touchMove', 'touchPoints': [{'x': x + 20, 'y': y + 20}]},
-        {'type': 'touchEnd', 'touchPoints': []},
-    ])
+    await _send_touch_events(x, y, x + 20, y + 20)
 
     # THEN
     types = list(map(lambda e: e.type, events))
@@ -76,11 +66,7 @@ async def test_pointer_apis__pointerup(div1):
     x, y = element_xy_center(div1)
 
     # WHEN
-    await rpctst_exec_touch_event([
-        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
-        {'type': 'touchMove', 'touchPoints': [{'x': x + 5, 'y': y + 5}]},  # smaller movement
-        {'type': 'touchEnd', 'touchPoints': []},
-    ])
+    await _send_touch_events(x, y, x + 5, y + 5)
 
     # THEN
     types = list(map(lambda e: e.type, events))
@@ -95,6 +81,15 @@ def _verify_xy(event, x, y):
     item0 = event.touches.item(0)
     assert item0.clientX == x
     assert item0.clientY == y
+
+
+async def _send_touch_events(x, y, move_x, move_y):
+    await rpctst_exec_touch_event([
+        {'type': 'touchStart', 'touchPoints': [{'x': x, 'y': y}]},
+        # touchmove event will only trigger when there's significant enough movement to be detected as an intentional gesture
+        {'type': 'touchMove', 'touchPoints': [{'x': move_x, 'y': move_y}]},
+        {'type': 'touchEnd', 'touchPoints': []},
+    ])
 
 
 @pytest.fixture()
