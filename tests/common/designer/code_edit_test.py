@@ -190,14 +190,14 @@ path01 = [0, 1]
 def test_add_component():
     original_source = """
 class MyElement(wpc.Component):
-    def foo(self):
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
     expected_source = """
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
-    def foo(self):
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
 <btn data-name="btn1"></btn></div>'''
     """
@@ -210,15 +210,15 @@ class MyElement(wpc.Component):
 
 def test_add_component_gen_html():
     original_source = """
-class MyElement(wpc.Component):
-    def foo(self):
+class MyElement:
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
     expected_source = """
-class MyElement(wpc.Component):
+class MyElement:
     btn1: js.Some = wpc.element()
-    def foo(self):
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
 <btn data-name="btn1" attr1="bar"></btn></div>'''
     """
@@ -234,9 +234,8 @@ class MyElement(wpc.Component):
 
 def test_add_component_node_path__afterend():
     original_source = """
-import wwwpy.remote.component as wpc
-class MyElement(wpc.Component):
-    def foo(self):
+class MyElement:
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
@@ -252,9 +251,8 @@ class MyElement(wpc.Component):
 
 def test_add_component_node_path__beforebegin():
     original_source = """
-import wwwpy.remote.component as wpc
-class MyElement(wpc.Component):
-    def foo(self):
+class MyElement:
+    def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
@@ -270,7 +268,7 @@ class MyElement(wpc.Component):
 
 def test_add_method():
     original_source = """
-class MyElement1(wpc.Component):
+class MyElement1:
     btn1: js.Some = wpc.element()"""
 
     expected_source = original_source + """
@@ -284,7 +282,7 @@ class MyElement1(wpc.Component):
 
 def test_add_method_custom_code():
     original_source = """
-class MyElement1(wpc.Component):
+class MyElement1:
     btn1: js.Some = wpc.element()"""
 
     expected_source = original_source + """

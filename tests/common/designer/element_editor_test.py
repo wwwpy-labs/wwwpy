@@ -17,7 +17,7 @@ class TestEvents:
         # GIVEN
         target_fixture.source = '''
 class Component2: 
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1'>bar</button>"""
     '''
         # WHEN
@@ -34,7 +34,7 @@ class Component2:
         # GIVEN
         target_fixture.source = '''
 class Component2:     
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1'>bar</button>"""
 
     def button1__click(self, event):
@@ -58,7 +58,7 @@ class Component2:
         target_fixture.source = '''
 class Component2:
     some_prop = 1
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1'>bar</button>"""
 '''
 
@@ -77,7 +77,7 @@ class Component2:
 class Component2:
     some_prop = 1
     
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1'>bar</button>"""
 
     def button1__click(self, event): # could be async
@@ -99,7 +99,7 @@ class TestAttributes:
         target_fixture.source = '''
 class Component2():
 
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1'>bar</button>"""
     '''
 
@@ -118,7 +118,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1' name='foo'>bar</button>"""
     '''
 
@@ -137,7 +137,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1' name="<'&quot;&amp;>">bar</button>"""
     '''
 
@@ -152,7 +152,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button data-name='button1' name='foo'>bar</button>"""
     '''
         # WHEN
@@ -167,7 +167,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button name='foo'></button>"""
     '''
         # WHEN
@@ -183,7 +183,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button id='foo'>bar</button>"""
     '''
         # WHEN
@@ -198,7 +198,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<button id='foo' name="btn1">bar</button>"""
     '''
         # WHEN
@@ -217,7 +217,7 @@ class TestContentAkaInnerHTML:
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'>bar</div>"""
         '''
         # WHEN
@@ -232,7 +232,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'></div>"""
         '''
         # WHEN
@@ -247,7 +247,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'>bar</div>"""
         '''
         # WHEN
@@ -261,7 +261,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'>a\nb</div>"""
         '''
         # WHEN
@@ -276,7 +276,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'></div>"""
         '''
         # WHEN
@@ -290,7 +290,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<div data-name='d1'>bar</div>"""
         '''
         # WHEN
@@ -304,7 +304,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<br>"""
         '''
         # WHEN
@@ -325,7 +325,7 @@ class TestDataName:
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
         '''
 
@@ -339,7 +339,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
         '''
 
@@ -354,7 +354,7 @@ class Component2():
         # GIVEN
         target_fixture.source = '''
 class Component2():
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button>slButton1</sl-button>"""
         '''
 
@@ -370,7 +370,7 @@ class Component2():
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
         '''
         # WHEN
@@ -384,7 +384,7 @@ class Component2():
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">foo</sl-button>"""
         '''
         # WHEN
@@ -395,7 +395,7 @@ class Component2():
         assert _remove_import(target.current_python_source()) == '''
 class Component2():
     btnSend: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="btnSend">foo</sl-button>"""
         '''
 
@@ -404,7 +404,7 @@ class Component2():
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
         '''
         # WHEN
@@ -415,7 +415,7 @@ class Component2():
         assert _remove_import(target.current_python_source()) == '''
 class Component2():
     btnSend: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="btnSend">btnSend</sl-button>"""
         '''
 
@@ -424,7 +424,7 @@ class Component2():
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
             '''
 
@@ -442,7 +442,7 @@ class Component2():
         target_fixture.source = '''
 class Component2():
     slButton1: js.HTMLElement = wpc.element()
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """<sl-button data-name="slButton1">slButton1</sl-button>"""
             '''
 

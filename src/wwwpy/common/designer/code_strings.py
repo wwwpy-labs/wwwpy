@@ -53,6 +53,9 @@ class _HTMLStringUpdater(cst.CSTTransformer):
         self.html_manipulator = html_manipulator
         self.current_class = None
         self.current_method = None
+        self.in_assignment = False
+        self.is_innerHTML_target = False
+        self.found_assignment = False
 
     def visit_ClassDef(self, node: cst.ClassDef) -> None:
         self.current_class = node.name.value
@@ -63,17 +66,41 @@ class _HTMLStringUpdater(cst.CSTTransformer):
 
     def visit_FunctionDef(self, node: cst.FunctionDef) -> None:
         self.current_method = node.name.value
+        self.found_assignment = False
 
     def leave_FunctionDef(self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef) -> cst.CSTNode:
         self.current_method = None
         return updated_node
 
+    def visit_Assign(self, node: cst.Assign) -> None:
+        self.in_assignment = True
+        # Check if the target contains 'innerHTML'
+        for target in node.targets:
+            if isinstance(target.target, cst.Attribute):
+                attr = target.target
+                while isinstance(attr, cst.Attribute):
+                    if 'innerHTML' in attr.attr.value:
+                        self.is_innerHTML_target = True
+                        break
+                    attr = attr.value
+
+    def leave_Assign(self, original_node: cst.Assign, updated_node: cst.Assign) -> cst.CSTNode:
+        self.in_assignment = False
+        self.is_innerHTML_target = False
+        return updated_node
+
     def leave_SimpleString(self, original_node: cst.SimpleString, updated_node: cst.SimpleString) -> cst.CSTNode:
-        if self.current_class == self.class_name and self.current_method == "init_component":
+        if (self.current_class == self.class_name and
+                self.current_method == "init_component" and
+                self.in_assignment and
+                self.is_innerHTML_target and
+                not self.found_assignment):
+            
             if (original_node.value.startswith('"""') and original_node.value.endswith('"""')) or \
                     (original_node.value.startswith("'''") and original_node.value.endswith("'''")):
                 quote_type = original_node.value[:3]
                 original_html = original_node.value[3:-3]
                 modified_html = self.html_manipulator(original_html)
+                self.found_assignment = True
                 return updated_node.with_changes(value=f'{quote_type}{modified_html}{quote_type}')
         return updated_node

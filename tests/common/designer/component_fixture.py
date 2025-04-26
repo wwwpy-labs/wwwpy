@@ -14,7 +14,7 @@ class ComponentFixture:
     def write_component(self, path: str, class_name: str, html: str = '') -> Path:
         return self.dyn_sys_path.write_module2(path, f'''
 class {class_name}:
-    def connectedCallback(self):
+    def init_component(self):
         self.element.innerHTML = """{html}"""
 ''')
 

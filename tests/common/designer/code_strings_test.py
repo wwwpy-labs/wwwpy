@@ -71,3 +71,13 @@ def test_html_from_source__should_use_init_component():
 '''
     html = html_from_source(source, 'PushableSidebar')
     assert html == 'html1'
+
+
+def test_html_from_source__should_use_first_assignment():
+    source = '''class Class1:
+    def init_component(self):
+        """foo1"""
+        self.element.shadowRoot.innerHTML = """html1"""
+'''
+    html = html_from_source(source, 'Class1')
+    assert html == 'html1'
