@@ -46,11 +46,13 @@ def html_from_source(source_code: str, class_name: str) -> str | None:
 
 
 class _HTMLStringUpdater(cst.CSTTransformer):
+
     def __init__(self, class_name: str, html_manipulator: Callable[[str], str]):
         super().__init__()
         self.class_name = class_name
         self.html_manipulator = html_manipulator
         self.current_class = None
+        self.current_method = None
 
     def visit_ClassDef(self, node: cst.ClassDef) -> None:
         self.current_class = node.name.value
@@ -59,8 +61,15 @@ class _HTMLStringUpdater(cst.CSTTransformer):
         self.current_class = None
         return updated_node
 
+    def visit_FunctionDef(self, node: cst.FunctionDef) -> None:
+        self.current_method = node.name.value
+
+    def leave_FunctionDef(self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef) -> cst.CSTNode:
+        self.current_method = None
+        return updated_node
+
     def leave_SimpleString(self, original_node: cst.SimpleString, updated_node: cst.SimpleString) -> cst.CSTNode:
-        if self.current_class == self.class_name:
+        if self.current_class == self.class_name and self.current_method == "init_component":
             if (original_node.value.startswith('"""') and original_node.value.endswith('"""')) or \
                     (original_node.value.startswith("'''") and original_node.value.endswith("'''")):
                 quote_type = original_node.value[:3]

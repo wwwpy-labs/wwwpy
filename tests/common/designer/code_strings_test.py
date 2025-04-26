@@ -1,4 +1,4 @@
-from wwwpy.common.designer.code_strings import html_string_edit
+from wwwpy.common.designer.code_strings import html_string_edit, html_from_source
 
 
 def test_html_edit():
@@ -8,7 +8,7 @@ import wwwpy.remote.component as wpc
 # comment1
 class MyElement(wpc.Component): # comment2
     btn1: HTMLButtonElement = wpc.element()
-    def connectedCallback(self):        
+    def init_component(self):        
         self.element.innerHTML = %s
         <div>my-element5 a</div>
         <button data-name='btn1'>list async tasks</button>
@@ -29,12 +29,12 @@ def test_html_edit__two_classes():
     common_piece = '''
 import wwwpy.remote.component as wpc
 class MyElement0(wpc.Component):
-    def connectedCallback(self):        
+    def init_component(self):        
         self.element.innerHTML = """untouched"""
         
 class MyElement1(wpc.Component): 
     btn1: HTMLButtonElement = wpc.element()
-    def connectedCallback(self):        
+    def init_component(self):        
         self.element.innerHTML = """
         <div>my-element5 a</div>
         <button data-name='btn1'>list async tasks</button>
@@ -54,9 +54,20 @@ class MyElement1(wpc.Component):
 def test_html_from_source():
     source = '''
 class Component1:
-      def connectedCallback(self):        
+      def init_component(self):        
         self.element.innerHTML = """<div>foo</div>"""
 '''
-    from wwwpy.common.designer.code_strings import html_from_source
+
     html = html_from_source(source, 'Component1')
     assert html == '<div>foo</div>'
+
+
+def test_html_from_source__should_use_init_component():
+    source = '''class PushableSidebar:
+    def foo(self):
+        """foo1"""
+    def init_component(self):
+        self.element.shadowRoot.innerHTML = """html1"""
+'''
+    html = html_from_source(source, 'PushableSidebar')
+    assert html == 'html1'
