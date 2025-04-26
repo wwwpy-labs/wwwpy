@@ -48,9 +48,9 @@ class ElementPath:
         from wwwpy.common.designer import code_strings as cs, html_locator as hl
         html = cs.html_from(self.class_module, self.class_name)
         if not html:
-            logger.debug(f'Cannot find html for {self.class_module}.{self.class_name}')
+            logger.warning(f'Cannot find html for {self.class_module}.{self.class_name}')
             return False
         span = hl.locate_span(html, self.path)
         if not span:
-            logger.debug(f'Cannot locate span for {self.path} in html=`{html}`')
+            logger.warning(f'Cannot locate span for {self.path} in html=`{html}`')
         return span is not None
