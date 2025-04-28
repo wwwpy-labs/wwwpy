@@ -56,29 +56,33 @@ def convention_accept(name: str) -> Accept | None:
     return Accept(target_obj, event_type)
 
 
-def _process_event_listeners(target, action_func, accept=convention_accept):
+def _process_event_listeners(intance, action_func, accept=convention_accept):
     """
     Helper function to process event listeners for methods in target.
 
     Args:
-        target: The object containing methods to process
+        intance: The object containing methods to process
         action_func: Function to call with (target, event_type, method) for matched methods
         accept: A function that determines if a method matches the event handler pattern
     """
-    for name in dir(target):
+
+    for name in dir(intance):
         if name.startswith('__'):
             continue
 
-        attr = getattr(target, name)
-        if callable(attr):
+        bound_method: types.MethodType = getattr(intance, name)
+        if callable(bound_method):
             accepted = accept(name)
             if accepted is not None:
-                logger.debug(f'calling {action_func.__name__} for {name} js_id={accepted.target.js_id}')
+                logger.debug(f'calling {action_func} for {name} js_id={accepted.target.js_id}')
+                if not _has_handler_options(bound_method.__func__):
+                    _get_or_create_handler_options(bound_method.__func__, accepted.target, accepted.type)
+                h = handler(bound_method)
                 try:
-                    action_func(accepted.target, accepted.type, attr)
+                    getattr(h, action_func)()
                 except KeyError as e:
                     logger.error(f'KeyError: {e} for {name}')
-                    logger.info(f'target=`{target.__class__.__name__}` has no event listener for {name}')
+                    logger.info(f'target=`{intance.__class__.__name__}` has no event listener for {name}')
                 logger.info(f'EVENT_LISTENERS=`{EVENT_LISTENERS}`')
 
 
@@ -97,7 +101,7 @@ def add_event_listeners(target, accept=convention_accept):
         logger.debug(f'target={target.__class__.__name__} already has {c} event listeners installed, skipping')
         return
     logger.debug(f'target={target.__class__.__name__} has no event listeners installed, adding')
-    _process_event_listeners(target, add_event_listener, accept)
+    _process_event_listeners(target, 'install', accept)
 
 
 def remove_event_listeners(target, accept=convention_accept):
@@ -113,7 +117,7 @@ def remove_event_listeners(target, accept=convention_accept):
         logger.debug(f'target={target.__class__.__name__} still has {c} event listeners installed, not removing')
         return
     logger.debug(f'target={target.__class__.__name__} has no event listeners installed, removing')
-    _process_event_listeners(target, remove_event_listener, accept)
+    _process_event_listeners(target, 'uninstall', accept)
 
 
 def _counter(target, amount=0) -> int:
@@ -134,15 +138,26 @@ class HandlerOptions:
 
 
 def _get_handler_options(func) -> HandlerOptions:
-    if not hasattr(func, '_handler_options'):
+    if not _has_handler_options(func):
         raise ValueError('handler_options not set for this function')
+    return func._handler_options
+
+
+def _has_handler_options(func) -> bool:
+    return hasattr(func, '_handler_options')
+
+
+def _get_or_create_handler_options(func, target, type):
+    if not _has_handler_options(func):
+        func._handler_options = HandlerOptions(func, target, type)
     return func._handler_options
 
 
 def handler_options(target, type):
     def decorator(func):
-        # only class type methods (not class instance methods here)
-        func._handler_options = HandlerOptions(func, target, type)
+        if _has_handler_options(func):
+            raise ValueError('handler_options already set for this function')
+        func._handler_options = _get_or_create_handler_options(func, target, type)
         return func
 
     return decorator

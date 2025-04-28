@@ -52,13 +52,6 @@ def test_add_event():
     js.document.body.click()
 
     assert len(events) == 1
-    # events.clear()
-
-    # eventlib.remove_event_listeners(c1)
-
-    # js.document.body.click()
-
-    # assert len(events) == 0
 
 
 def test_add_remove():
