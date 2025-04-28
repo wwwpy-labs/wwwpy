@@ -169,14 +169,18 @@ class Handler:
         return bm
 
     def install(self):
-        ho = _get_handler_options(self._class_func)
-        c = _counter(self, 1)
-        logger.debug(f'target={ho.__class__.__name__} counter={c} for {ho.type}')
+        if self._proxy is not None:
+            raise RuntimeError(f"handler already installed for {self._class_func.__name__}")
 
-        if c > 1:
-            return
         self._proxy = create_proxy(self.bound_method)  # this will create a circular reference, to avoid gc of func
+        ho = _get_handler_options(self._class_func)
         ho.target.addEventListener(ho.type, self._proxy)
+
+    def uninstall(self):
+        if self._proxy is None:
+            raise RuntimeError(f"handler not installed for {self._class_func.__name__}")
+        ho = _get_handler_options(self._class_func)
+        ho.target.removeEventListener(ho.type, self._proxy)
 
 
 from weakref import WeakKeyDictionary

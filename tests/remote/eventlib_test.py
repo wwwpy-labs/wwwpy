@@ -1,4 +1,5 @@
 import js
+import pytest
 from pyodide.ffi import create_proxy
 
 from wwwpy.remote import eventlib
@@ -143,21 +144,6 @@ def test_remove_event():
     assert len(events) == 0
 
 
-# def test_remove_without_add():
-#     events = []
-#
-#     class C1:
-#         def _js_document__click(self, e):
-#             events.append(e)
-#
-#     c1 = C1()
-#     eventlib.remove_event_listeners(c1)
-#
-#     js.document.body.click()
-#
-#     assert len(events) == 0
-
-
 class TestHandler:
 
     async def test_install(self):
@@ -191,11 +177,10 @@ class TestHandler:
 
         # WHEN
         eventlib.handler(c1.handler1).install()
-        eventlib.handler(c1.handler1).install()
-        js.document.body.click()
 
         # THEN
-        assert len(events) == 1
+        with pytest.raises(Exception):
+            eventlib.handler(c1.handler1).install()
 
     async def test_handler_same_instance(self):
         # GIVEN
@@ -213,3 +198,38 @@ class TestHandler:
         # THEN
         assert h1 is h2
         assert c1.handler1
+
+    async def test_uninstall(self):
+        # GIVEN
+        events = []
+
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e):
+                events.append(e)
+
+        c1 = C1()
+
+        # WHEN
+        h = eventlib.handler(c1.handler1)
+        h.install()
+        h.uninstall()
+        js.document.body.click()
+
+        # THEN
+        assert len(events) == 0
+
+    async def test_uninstall_without_install(self):
+        # GIVEN
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e): ...
+
+        c1 = C1()
+
+        # WHEN
+        h = eventlib.handler(c1.handler1)
+
+        # THEN
+        with pytest.raises(Exception):
+            h.uninstall()
