@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 import js
 import pytest
+from pyodide.ffi import create_proxy
 
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
@@ -273,6 +274,25 @@ class TestHover:
             assert e.js_event is not None, 'event should be set'
             assert e.js_event.target is not None, 'target should be set'
 
+
+class TestStopEvents:
+    # the following test should select item1 and define a button (btn1) and an event handler, the click on btn1 should not fire the btn1 event
+    async def test_stop_event(self, action_manager, item1):
+        # GIVEN
+        action_manager.selected_action = item1
+        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
+        btn1 = js.document.createElement('button')
+        btn1.id = 'btn1'
+        btn1.textContent = 'btn1'
+        js.document.body.appendChild(btn1)
+        btn1_events = []
+        btn1.addEventListener('click', create_proxy(lambda ev: btn1_events.append(ev)))
+
+        # WHEN
+        await rpctst_exec("page.locator('#btn1').click()")
+
+        # THEN
+        assert btn1_events == [], 'btn1 event should not be fired'
 
 @pytest.fixture
 def palette(fixture):

@@ -12,6 +12,7 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, eventlib, dict_to_py
 from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
+from wwwpy.remote.eventlib import handler_options
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -178,13 +179,18 @@ class ActionManager:
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
         self._drag_fsm = DragFsm()
         self._ready_item = None
-        # self._dm_palette = DragManager(self._in_palette)
-        # self._dm_canvas = DragManager(self._in_canvas)
+
+    def install(self):
+        eventlib.add_event_listeners(self)
+
+    def uninstall(self):
+        eventlib.remove_event_listeners(self)
 
     @property
     def drag_state(self):
         return self._drag_fsm.state
 
+    @handler_options(capture=True)
     def _js_window__click(self, event):
         palette_item = _find_palette_item(event)
         logger.debug(f'_js_window__click {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
@@ -194,6 +200,11 @@ class ActionManager:
         gesture_event = AcceptEvent(event)
         self._notify(gesture_event)
         if gesture_event.accepted:
+            if self.selected_action:
+                event.stopPropagation()
+                event.preventDefault()
+                event.stopImmediatePropagation()
+
             logger.debug(f'Click event accepted: {event}')
             self.selected_action = None
 
@@ -262,12 +273,6 @@ class ActionManager:
     def register(self, palette: Palette):
         pass
 
-    def install(self):
-        eventlib.add_event_listeners(self)
-
-    def uninstall(self):
-        eventlib.remove_event_listeners(self)
-
     @property
     def selected_action(self) -> ActionItem | None:
         """Return the currently selected item."""
@@ -317,158 +322,157 @@ def _element_from_js_event(event: js.Event) -> js.Element | None:
 
 
 # language=html
-_css_styles = """
-              <style>
-                  :host {
-                      --primary-color: #6366f1;
-                      --primary-hover: #818cf8;
-                      --secondary-color: #4f46e5;
-                      --border-color: #4b5563;
-                      --shadow-color: rgba(0, 0, 0, 0.3);
-                      --workspace-bg: #1e1e2e;
-                      --palette-bg: #27293d;
-                      --text-color: #e2e8f0;
-                      --item-bg: #2d3748;
-                      --item-hover-bg: #3a4358;
-                      --selected-bg: #4c1d95;
-                      --selected-border: #8b5cf6;
-                  }
+_css_styles = """<style>
+    :host {
+        --primary-color: #6366f1;
+        --primary-hover: #818cf8;
+        --secondary-color: #4f46e5;
+        --border-color: #4b5563;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --workspace-bg: #1e1e2e;
+        --palette-bg: #27293d;
+        --text-color: #e2e8f0;
+        --item-bg: #2d3748;
+        --item-hover-bg: #3a4358;
+        --selected-bg: #4c1d95;
+        --selected-border: #8b5cf6;
+    }
 
-                  body {
-                      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                      margin: 0;
-                      padding: 0;
-                      display: flex;
-                      flex-direction: column;
-                      height: 100vh;
-                      background-color: #111827;
-                      color: var(--text-color);
-                  }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #111827;
+        color: var(--text-color);
+    }
 
-                  .header {
-                      background-color: var(--primary-color);
-                      color: white;
-                      padding: 1rem;
-                      text-align: center;
-                      box-shadow: 0 2px 5px var(--shadow-color);
-                  }
+    .header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 5px var(--shadow-color);
+    }
 
-                  .container {
-                      display: flex;
-                      flex: 1;
-                      overflow: hidden;
-                  }
+    .container {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
 
-                  .palette {
-                      width: 220px;
-                      background-color: var(--palette-bg);
-                      padding: 1rem;
-                      border-right: 1px solid var(--border-color);
-                      box-shadow: 2px 0 5px var(--shadow-color);
-                      overflow-y: auto;
-                      display: grid;
-                      grid-template-columns: 1fr 1fr;
-                      gap: 10px;
-                      align-content: start;
-                      height: fit-content;
-                      max-height: 100%;
-                  }
+    .palette {
+        width: 220px;
+        background-color: var(--palette-bg);
+        padding: 1rem;
+        border-right: 1px solid var(--border-color);
+        box-shadow: 2px 0 5px var(--shadow-color);
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        align-content: start;
+        height: fit-content;
+        max-height: 100%;
+    }
 
-                  .workspace {
-                      flex: 1;
-                      background-color: var(--workspace-bg);
-                      padding: 2rem;
-                      overflow: auto;
-                      position: relative;
-                  }
+    .workspace {
+        flex: 1;
+        background-color: var(--workspace-bg);
+        padding: 2rem;
+        overflow: auto;
+        position: relative;
+    }
 
-                  .palette-item {
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      justify-content: center;
-                      padding: 0.75rem 0.5rem;
-                      border: 1px solid var(--border-color);
-                      border-radius: 8px;
-                      cursor: pointer;
-                      transition: all 0.2s ease;
-                      user-select: none;
-                      background-color: var(--item-bg);
-                      font-size: 12px;
-                      color: var(--text-color);
-                      touch-action: none;
-                  }
+    .palette-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        background-color: var(--item-bg);
+        font-size: 12px;
+        color: var(--text-color);
+        touch-action: none;
+    }
 
-                  .palette-item:hover {
-                      transform: translateY(-2px);
-                      box-shadow: 0 3px 5px var(--shadow-color);
-                      background-color: var(--item-hover-bg);
-                  }
+    .palette-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 5px var(--shadow-color);
+        background-color: var(--item-hover-bg);
+    }
 
-                  .palette-item.selected {
-                      background-color: var(--selected-bg);
-                      border: 1px solid var(--selected-border);
-                      box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
-                      position: relative;
-                      transform: scale(1.05);
-                  }
+    .palette-item.selected {
+        background-color: var(--selected-bg);
+        border: 1px solid var(--selected-border);
+        box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
+        position: relative;
+        transform: scale(1.05);
+    }
 
-                  .palette-item svg {
-                      margin-bottom: 8px;
-                      width: 36px;
-                      height: 36px;
-                  }
+    .palette-item svg {
+        margin-bottom: 8px;
+        width: 36px;
+        height: 36px;
+    }
 
-                  .log-panel {
-                      padding: 1rem;
-                      background-color: #2c3e50;
-                      color: #ecf0f1;
-                      max-height: 150px;
-                      overflow-y: auto;
-                      font-family: monospace;
-                  }
+    .log-panel {
+        padding: 1rem;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        max-height: 150px;
+        overflow-y: auto;
+        font-family: monospace;
+    }
 
-                  .log-entry {
-                      margin-bottom: 5px;
-                      border-bottom: 1px solid #1e293b;
-                      padding-bottom: 5px;
-                  }
+    .log-entry {
+        margin-bottom: 5px;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 5px;
+    }
 
-                  .log-entry:last-child {
-                      border-bottom: none;
-                  }
+    .log-entry:last-child {
+        border-bottom: none;
+    }
 
-                  /* Element previews in workspace */
-                  .element-preview {
-                      position: absolute;
-                      border: 2px dashed var(--primary-color);
-                      padding: 5px;
-                      border-radius: 4px;
-                      background-color: rgba(52, 152, 219, 0.1);
-                      min-width: 100px;
-                      min-height: 30px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 12px;
-                      color: #666;
-                  }
+    /* Element previews in workspace */
+    .element-preview {
+        position: absolute;
+        border: 2px dashed var(--primary-color);
+        padding: 5px;
+        border-radius: 4px;
+        background-color: rgba(52, 152, 219, 0.1);
+        min-width: 100px;
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #666;
+    }
 
-                  /* Dragging Element Preview */
-                  .dragging-element {
-                      position: absolute;
-                      pointer-events: none;
-                      opacity: 0.8;
-                      z-index: 1000;
-                      transform: translate(-50%, -50%);
-                      background-color: var(--selected-bg);
-                      border: 1px solid var(--selected-border);
-                      padding: 5px 10px;
-                      border-radius: 4px;
-                      color: white;
-                      font-size: 12px;
-                  }
-              </style> \
+    /* Dragging Element Preview */
+    .dragging-element {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0.8;
+        z-index: 1000;
+        transform: translate(-50%, -50%);
+        background-color: var(--selected-bg);
+        border: 1px solid var(--selected-border);
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+    }
+</style> 
               """
 
 
