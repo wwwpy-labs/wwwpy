@@ -190,24 +190,25 @@ class ActionManager:
     def drag_state(self):
         return self._drag_fsm.state
 
+    # @handler_options(capture=True)
+    # def _js_window__click(self, event):
+    #     palette_item = _find_palette_item(event)
+    #     logger.debug(f'_js_window__click {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
+    #     if palette_item:
+    #         self._toggle_selection(palette_item)
+    #         return
+    #     gesture_event = AcceptEvent(event)
+    #     self._notify(gesture_event)
+    #     if gesture_event.accepted:
+    #         if self.selected_action:
+    #             event.stopPropagation()
+    #             event.preventDefault()
+    #             event.stopImmediatePropagation()
+    #
+    #         logger.debug(f'Click event accepted: {event}')
+    #         self.selected_action = None
+
     @handler_options(capture=True)
-    def _js_window__click(self, event):
-        palette_item = _find_palette_item(event)
-        logger.debug(f'_js_window__click {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
-        if palette_item:
-            self._toggle_selection(palette_item)
-            return
-        gesture_event = AcceptEvent(event)
-        self._notify(gesture_event)
-        if gesture_event.accepted:
-            if self.selected_action:
-                event.stopPropagation()
-                event.preventDefault()
-                event.stopImmediatePropagation()
-
-            logger.debug(f'Click event accepted: {event}')
-            self.selected_action = None
-
     def _js_window__pointerdown(self, event):
         palette_item = _find_palette_item(event)
         logger.debug(
@@ -215,6 +216,15 @@ class ActionManager:
         if palette_item:
             self._ready_item = palette_item
             self._drag_fsm.pointerdown_accepted(event)
+        else:
+            gesture_event = AcceptEvent(event)
+            self._notify(gesture_event)
+            if gesture_event.accepted:
+                if self.selected_action is not None:
+                    event.stopPropagation()
+                    event.preventDefault()
+                    event.stopImmediatePropagation()
+                self.selected_action = None
         # else:
         #     self._ready_item = None
 
@@ -239,6 +249,16 @@ class ActionManager:
     def _js_window__pointerup(self, event):
         logger.debug(f'_js_window__pointerup event={dict_to_py(event)}')
         self._ready_item = None
+        if self._drag_fsm.state == DragFsm.READY:
+            # If the drag was not accepted, we can assume it was a click
+            palette_item = _find_palette_item(event)
+            if palette_item:
+                self._toggle_selection(palette_item)
+        if self._drag_fsm.state == DragFsm.DRAGGING:
+            gesture_event = AcceptEvent(event)
+            self._notify(gesture_event)
+            if gesture_event.accepted:
+                self.selected_action = None
         self._drag_fsm.pointerup(event)
 
     def _fsm_state(self) -> str:
