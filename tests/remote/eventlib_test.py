@@ -142,6 +142,7 @@ def test_remove_event():
 
     assert len(events) == 0
 
+
 # def test_remove_without_add():
 #     events = []
 #
@@ -155,3 +156,60 @@ def test_remove_event():
 #     js.document.body.click()
 #
 #     assert len(events) == 0
+
+
+class TestHandler:
+
+    async def test_install(self):
+        # GIVEN
+        events = []
+
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e):
+                events.append(e)
+
+        c1 = C1()
+
+        # WHEN
+        eventlib.handler(c1.handler1).install()
+        js.document.body.click()
+
+        # THEN
+        assert len(events) == 1
+
+    async def test_double_install(self):
+        # GIVEN
+        events = []
+
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e):
+                events.append(e)
+
+        c1 = C1()
+
+        # WHEN
+        eventlib.handler(c1.handler1).install()
+        eventlib.handler(c1.handler1).install()
+        js.document.body.click()
+
+        # THEN
+        assert len(events) == 1
+
+    async def test_handler_same_instance(self):
+        # GIVEN
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e):
+                pass
+
+        c1 = C1()
+
+        # WHEN
+        h1 = eventlib.handler(c1.handler1)
+        h2 = eventlib.handler(c1.handler1)
+
+        # THEN
+        assert h1 is h2
+        assert c1.handler1

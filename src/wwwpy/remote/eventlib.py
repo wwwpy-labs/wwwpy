@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import types
+import weakref
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -119,3 +121,86 @@ def _counter(target, amount=0) -> int:
         target._install_count = 0
     target._install_count += amount
     return target._install_count
+
+
+class HandlerOptions:
+    def __init__(self, func: callable, target: js.EventTarget, type: str):
+        self.func = func
+        self.target: js.EventTarget = target
+        self.type: str = type
+
+    def install_event(self, h: Handler):
+        self.target.addEventListener(self.type, h.proxy)
+
+
+def _get_handler_options(func) -> HandlerOptions:
+    if not hasattr(func, '_handler_options'):
+        raise ValueError('handler_options not set for this function')
+    return func._handler_options
+
+
+def handler_options(target, type):
+    def decorator(func):
+        # only class type methods (not class instance methods here)
+        func._handler_options = HandlerOptions(func, target, type)
+        return func
+
+    return decorator
+
+
+class Handler:
+    _instance: weakref.ref
+    _class_func: types.FunctionType
+
+    def __init__(self, instance, class_func: callable):
+        self._instance = weakref.ref(instance)
+        self._class_func = class_func
+        # Only bound methods: wrap in WeakMethod
+        self._install_count = 0
+        self._strong_ref = None
+        self._proxy = None
+
+    @property
+    def bound_method(self) -> callable:
+        inst = self._instance()
+        if inst is None:
+            raise ReferenceError(f"target instance has been garbage‑collected; func={self._class_func.__name__}")
+        bm = self._class_func.__get__(inst, self._class_func.__class__)
+        return bm
+
+    def install(self):
+        ho = _get_handler_options(self._class_func)
+        c = _counter(self, 1)
+        logger.debug(f'target={ho.__class__.__name__} counter={c} for {ho.type}')
+
+        if c > 1:
+            return
+        self._proxy = create_proxy(self.bound_method)  # this will create a circular reference, to avoid gc of func
+        ho.target.addEventListener(ho.type, self._proxy)
+
+
+from weakref import WeakKeyDictionary
+
+_instances: WeakKeyDictionary[object, dict] = WeakKeyDictionary()
+
+
+def _instances_dict(instance: object) -> dict:
+    i = _instances.get(instance, None)
+    if i is None:
+        i = dict()
+        _instances[instance] = i
+    return i
+
+
+def handler(bound_method: types.MethodType | callable) -> Handler:
+    assert isinstance(bound_method, types.MethodType), "method_storage() requires a bound method"
+    # only class instance methods (not class type methods here)
+    instance = bound_method.__self__
+    instance_dict = _instances_dict(instance)
+    mf = bound_method.__func__
+    handler = instance_dict.get(mf, None)
+    if handler is None:
+        handler = Handler(instance, mf)
+        instance_dict[mf] = handler
+
+    return handler
