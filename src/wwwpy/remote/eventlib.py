@@ -4,6 +4,7 @@ import logging
 import types
 import weakref
 from dataclasses import dataclass
+from functools import cached_property
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ class Accept:
 
 
 _js_attrs = dict()
+
+BY_CONVENTION = object()
 
 
 def convention_accept(name: str) -> Accept | None:
@@ -75,8 +78,6 @@ def _process_event_listeners(intance, action_func, accept=convention_accept):
             accepted = accept(name)
             if accepted is not None:
                 logger.debug(f'calling {action_func} for {name} js_id={accepted.target.js_id}')
-                if not _has_handler_options(bound_method.__func__):
-                    _get_or_create_handler_options(bound_method.__func__, accepted.target, accepted.type)
                 h = handler(bound_method)
                 try:
                     getattr(h, action_func)()
@@ -128,10 +129,22 @@ def _counter(target, amount=0) -> int:
 
 
 class HandlerOptions:
-    def __init__(self, func: callable, target: js.EventTarget, type: str):
-        self.func = func
+    def __init__(self, func: callable, target: js.EventTarget = BY_CONVENTION, type: str = BY_CONVENTION,
+                 capture: bool = False):
+        self.func = func  # assign so self._convention can be used
+        if target is BY_CONVENTION: target = self._convention.target
+        if type is BY_CONVENTION: type = self._convention.type
+
         self.target: js.EventTarget = target
         self.type: str = type
+        self.capture = capture
+
+    @cached_property
+    def _convention(self) -> Accept:
+        accept = convention_accept(self.func.__name__)
+        if accept is None:
+            raise ValueError(f"Unable to determine convention for for `{self.func.__name__}`")
+        return accept
 
     def install_event(self, h: Handler):
         self.target.addEventListener(self.type, h.proxy)
@@ -139,7 +152,7 @@ class HandlerOptions:
 
 def _get_handler_options(func) -> HandlerOptions:
     if not _has_handler_options(func):
-        raise ValueError('handler_options not set for this function')
+        raise ValueError(f'handler_options not set for this function {func.__name__}')
     return func._handler_options
 
 
@@ -147,17 +160,11 @@ def _has_handler_options(func) -> bool:
     return hasattr(func, '_handler_options')
 
 
-def _get_or_create_handler_options(func, target, type):
-    if not _has_handler_options(func):
-        func._handler_options = HandlerOptions(func, target, type)
-    return func._handler_options
-
-
-def handler_options(target, type):
+def handler_options(target=BY_CONVENTION, type=BY_CONVENTION, capture=False):
     def decorator(func):
         if _has_handler_options(func):
             raise ValueError('handler_options already set for this function')
-        func._handler_options = _get_or_create_handler_options(func, target, type)
+        func._handler_options = HandlerOptions(func, target, type, capture)
         return func
 
     return decorator
@@ -184,18 +191,46 @@ class Handler:
         return bm
 
     def install(self):
+        func_name = self._class_func.__name__
         if self._proxy is not None:
-            raise RuntimeError(f"handler already installed for {self._class_func.__name__}")
+            raise RuntimeError(f"handler already installed for {func_name}")
 
         self._proxy = create_proxy(self.bound_method)  # this will create a circular reference, to avoid gc of func
-        ho = _get_handler_options(self._class_func)
-        ho.target.addEventListener(ho.type, self._proxy)
+        # self._execute_method(True)
+        ho = self._ho()
+        if ho.capture:
+            ho.target.addEventListener(ho.type, self._proxy, ho.capture)
+        else:
+            ho.target.addEventListener(ho.type, self._proxy)
+
+    def _execute_method(self, install: bool):
+        method_name = 'addEventListener' if install else 'removeEventListener'
+        ho = self._ho()
+        m = ho.target.addEventListener if install else ho.target.removeEventListener
+        if ho.capture:
+            logger.debug(
+                f'executing {method_name} for {self._class_func.__name__} target={ho.target.js_id} type={ho.type}, capture=YES')
+            m(ho.type, self._proxy, ho.capture)
+        else:
+            logger.debug(
+                f'executing {method_name} for {self._class_func.__name__} target={ho.target.js_id} type={ho.type}, capture=NO')
+            m(ho.type, self._proxy)
 
     def uninstall(self):
+        func_name = self._class_func.__name__
         if self._proxy is None:
-            raise RuntimeError(f"handler not installed for {self._class_func.__name__}")
-        ho = _get_handler_options(self._class_func)
-        ho.target.removeEventListener(ho.type, self._proxy)
+            raise RuntimeError(f"handler not installed for {func_name}")
+        # ho = self._ho()
+        # ho.target.removeEventListener(ho.type, self._proxy, ho.capture)
+        self._execute_method(False)
+        self._proxy = None
+
+    def _ho(self):
+        if not _has_handler_options(self._class_func):
+            ho = HandlerOptions(self._class_func)
+        else:
+            ho = _get_handler_options(self._class_func)
+        return ho
 
 
 from weakref import WeakKeyDictionary

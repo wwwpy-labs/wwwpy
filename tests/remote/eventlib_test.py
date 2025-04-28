@@ -2,6 +2,8 @@ import js
 import pytest
 from pyodide.ffi import create_proxy
 
+from tests.remote.remote_fixtures import clean_document
+from wwwpy.common.exitlib import on_exit
 from wwwpy.remote import eventlib
 
 
@@ -121,6 +123,57 @@ def test_double_remove_event():
     assert len(events) == 0
 
 
+async def test_capture(clean_document):
+    btn1 = js.document.createElement('button')
+    btn1.id = 'btn1'
+    btn1.textContent = 'btn1'
+    js.document.body.appendChild(btn1)
+    btn1_events = []
+    btn1.addEventListener('click', create_proxy(lambda ev: btn1_events.append(ev)))
+
+    class C1:
+        @eventlib.handler_options(capture=True)
+        def _js_document__click(self, e):
+            e.stopPropagation()
+            e.preventDefault()
+            e.stopImmediatePropagation()
+
+    c1 = C1()
+    eventlib.add_event_listeners(c1)
+    on_exit(lambda: eventlib.remove_event_listeners(c1))  # otherwise the listener will stay on document
+
+    # WHEN
+    btn1.click()
+
+    # THEN
+    assert len(btn1_events) == 0
+
+
+async def test_capture2(clean_document):
+    btn1 = js.document.createElement('button')
+    btn1.id = 'btn1'
+    btn1.textContent = 'btn1'
+    js.document.body.appendChild(btn1)
+    btn1_events = []
+    btn1.addEventListener('click', create_proxy(lambda ev: btn1_events.append(ev)))
+
+    def stop(e):
+        e.stopPropagation()
+        e.preventDefault()
+        e.stopImmediatePropagation()
+
+    stop = create_proxy(stop)
+
+    js.document.addEventListener('click', stop, True)
+    on_exit(lambda: js.document.removeEventListener('click', stop, True))
+
+    # WHEN
+    btn1.click()
+
+    # THEN
+    assert len(btn1_events) == 0
+
+
 def test_remove_event():
     events = []
 
@@ -211,6 +264,23 @@ class TestHandler:
 
         # THEN
         assert len(events) == 0
+
+    async def test_install_and_uninstall_twice_should_raise(self):
+        # GIVEN
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e): ...
+
+        c1 = C1()
+
+        # WHEN
+        h = eventlib.handler(c1.handler1)
+        h.install()
+        h.uninstall()
+
+        # THEN
+        with pytest.raises(Exception):
+            h.uninstall()
 
     async def test_uninstall_without_install(self):
         # GIVEN
