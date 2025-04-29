@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Optional, Callable, Literal, Protocol
+from typing import Generic, TypeVar, Callable, Literal, Protocol
 
 import js
 
@@ -67,11 +67,11 @@ THasSelected = TypeVar("THasSelected", bound=HasSelected)
 
 class PointerManager(Generic[THasSelected]):
     def __init__(self) -> None:
-        self._selected_action: Optional[THasSelected] = None
+        self._selected_action: THasSelected | None = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None
         self._listeners: dict[type[PMEvent], TypeListeners] = {}
         self._drag_fsm = DragFsm()
-        self._ready_item: Optional[THasSelected] = None
+        self._ready_item: THasSelected | None = None
         self._stopped = False
         self._stop_next_click = False
 
@@ -178,11 +178,11 @@ class PointerManager(Generic[THasSelected]):
         self._drag_fsm.pointerup(event)
 
     @property
-    def selected_action(self) -> Optional[THasSelected]:
+    def selected_action(self) -> THasSelected | None:
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, action: Optional[THasSelected]) -> None:
+    def selected_action(self, action: THasSelected | None) -> None:
         old = self._selected_action
         if old is not None and getattr(old, 'selected', False):
             old.selected = False
