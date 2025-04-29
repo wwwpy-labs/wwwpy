@@ -179,6 +179,7 @@ class ActionManager:
         self._listeners = dict[type[_PE], list[PaletteEventHandler]]()
         self._drag_fsm = DragFsm()
         self._ready_item = None
+        self._stopped = False
 
     def install(self):
         eventlib.add_event_listeners(self)
@@ -190,23 +191,9 @@ class ActionManager:
     def drag_state(self):
         return self._drag_fsm.state
 
-    # @handler_options(capture=True)
-    # def _js_window__click(self, event):
-    #     palette_item = _find_palette_item(event)
-    #     logger.debug(f'_js_window__click {self._fsm_state()} pi={_pretty(palette_item)} event={dict_to_py(event)}')
-    #     if palette_item:
-    #         self._toggle_selection(palette_item)
-    #         return
-    #     gesture_event = AcceptEvent(event)
-    #     self._notify(gesture_event)
-    #     if gesture_event.accepted:
-    #         if self.selected_action:
-    #             event.stopPropagation()
-    #             event.preventDefault()
-    #             event.stopImmediatePropagation()
-    #
-    #         logger.debug(f'Click event accepted: {event}')
-    #         self.selected_action = None
+    @handler_options(capture=True)
+    def _js_window__click(self, event):
+        pass
 
     @handler_options(capture=True)
     def _js_window__pointerdown(self, event):
@@ -221,9 +208,8 @@ class ActionManager:
             self._notify(gesture_event)
             if gesture_event.accepted:
                 if self.selected_action is not None:
-                    event.stopPropagation()
-                    event.preventDefault()
-                    event.stopImmediatePropagation()
+                    self._stop(event)
+                    self._stopped = True
                 self.selected_action = None
         # else:
         #     self._ready_item = None
@@ -246,8 +232,12 @@ class ActionManager:
         self._notify(hover_event)
         logger.debug(f'_js_window__pointermove hover_event: {hover_event}')
 
+    @handler_options(capture=True)
     def _js_window__pointerup(self, event):
-        logger.debug(f'_js_window__pointerup event={dict_to_py(event)}')
+        logger.debug(f'_js_window__pointerup _stopped={self._stopped} event={dict_to_py(event)}')
+        if self._stopped:
+            self._stop(event)
+            self._stopped = False
         self._ready_item = None
         if self._drag_fsm.state == DragFsm.READY:
             # If the drag was not accepted, we can assume it was a click
@@ -286,6 +276,11 @@ class ActionManager:
         # is_pal = element.tagName.casefold() == ptag.casefold()
         # logger.debug(f'is in palette: {is_pal}')
         # return is_pal
+
+    def _stop(self, event):
+        event.stopPropagation()
+        event.preventDefault()
+        event.stopImmediatePropagation()
 
     def _in_canvas(self, event: js.Event) -> bool:
         return not self._in_palette(event)
