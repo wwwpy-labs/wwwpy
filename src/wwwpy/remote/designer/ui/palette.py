@@ -7,9 +7,20 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.ui.action_manager import ActionManager, ActionItem
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent
 
 logger = logging.getLogger(__name__)
+
+
+class ActionItem:
+    key: any
+    """Unique object to identify the item in the palette."""
+
+    label: str
+    """Label to be displayed in the palette item."""
+
+    selected: bool
+    """True if the item is selected, False otherwise."""
 
 
 class PaletteItem(ActionItem):
@@ -97,6 +108,57 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
             self.element.classList.add('selected')
         else:
             self.element.classList.remove('selected')
+
+
+class ActionManager:
+    """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
+
+    def __init__(self):
+        self.pointer_manager: PointerManager[ActionItem] = PointerManager()
+        self.pointer_manager.listeners_for(IdentifyEvent).add(self._identify_event)
+
+    def _identify_event(self, event: IdentifyEvent):
+        event.action = _find_palette_item(event.js_event)
+        event.identified_as = 'action' if event.action else 'canvas'
+
+    def install(self):
+        # eventlib.add_event_listeners(self)
+        self.pointer_manager.install()
+
+    def uninstall(self):
+        # eventlib.remove_event_listeners(self)
+        self.pointer_manager.uninstall()
+
+    @property
+    def drag_state(self):
+        return self.pointer_manager.drag_state
+
+    def listeners_for(self, event_type: type[TPE]) -> TypeListeners[TPE]:
+        return self.pointer_manager.listeners_for(event_type)
+
+    @property
+    def selected_action(self) -> ActionItem | None:
+        return self.pointer_manager.selected_action
+
+    @selected_action.setter
+    def selected_action(self, value: ActionItem | None):
+        self.selected_action = value
+
+
+def _find_palette_item(event: js.Event) -> PaletteItem | None:
+    target = _element_from_js_event(event)
+    if target is None:  # tests missing. It looks like it happens when the mouse exit the viewport or moves on the scrollbar
+        return None
+    # logger.debug(f'_find_palette_item target={_pretty(target)}')
+    import wwwpy.remote.designer.ui.palette as palette
+    res = target.closest(palette.PaletteItemComponent.component_metadata.tag_name)
+    if res:
+        return get_component(res)
+    return None
+
+
+def _element_from_js_event(event: js.Event) -> js.Element | None:
+    return get_deepest_element(event.clientX, event.clientY)
 
 
 # language=html
