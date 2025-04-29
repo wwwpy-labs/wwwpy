@@ -182,14 +182,22 @@ class PointerManager(Generic[THasSelected]):
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, action: THasSelected | None) -> None:
-        old = self._selected_action
-        if old is not None and getattr(old, 'selected', False):
-            old.selected = False
-        self._selected_action = action
-        if action is not None and getattr(action, 'selected', False) is False:
-            action.selected = True
-        logger.debug(f'PointerManager.selected_action → {action}')
+    def selected_action(self, value: THasSelected | None) -> None:
+        msg = ''
+        if self._ready_item:
+            msg += f' ri={self._ready_item}'
+
+        sel = self.selected_action
+        if sel:
+            sel.selected = False
+            msg += f' (deselecting {sel})'
+
+        self._selected_action = value
+        msg += f' (selecting {None if value is None else value})'
+        if value:
+            value.selected = True
+
+        logger.debug(msg)
 
 
 def _pretty(node):
