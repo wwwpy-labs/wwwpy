@@ -19,93 +19,92 @@ from wwwpy.remote.jslib import get_deepest_element
 logger = logging.getLogger(__name__)
 
 
-async def test_palette_no_selected_item(action_manager):
+async def test_palette_no_selected_action(action_manager):
     assert action_manager.selected_action is None
 
 
-# todo rename all item1 to action1 (as well as item2, item3)
-async def test_palette_click_item__should_be_selected(palette, action_manager, item1):
-    await rpctst_exec("page.locator('#item1').click()")
+async def test_palette_click_action__should_be_selected(palette, action_manager, action1):
+    await rpctst_exec("page.locator('#action1').click()")
 
-    assert action_manager.selected_action == item1
-    assert item1.selected
-
-
-async def test_palette_click_item_label__should_be_selected(palette, action_manager, item1):
-    await rpctst_exec("page.locator('#item1 > label').click()")
-
-    assert action_manager.selected_action == item1
-    assert item1.selected
+    assert action_manager.selected_action == action1
+    assert action1.selected
 
 
-async def test_manual_selection(action_manager, item1):
-    action_manager.selected_action = item1
+async def test_palette_click_action_label__should_be_selected(palette, action_manager, action1):
+    await rpctst_exec("page.locator('#action1 > label').click()")
 
-    assert action_manager.selected_action == item1
-    assert item1.selected
+    assert action_manager.selected_action == action1
+    assert action1.selected
 
 
-async def test_palette_click_twice_item__should_be_deselected(palette, action_manager, item1):
-    await rpctst_exec(["page.locator('#item1').click()", "page.locator('#item1').click()"])
+async def test_manual_selection(action_manager, action1):
+    action_manager.selected_action = action1
+
+    assert action_manager.selected_action == action1
+    assert action1.selected
+
+
+async def test_palette_click_twice_action__should_be_deselected(palette, action_manager, action1):
+    await rpctst_exec(["page.locator('#action1').click()", "page.locator('#action1').click()"])
 
     assert action_manager.selected_action is None
-    assert not item1.selected
+    assert not action1.selected
 
 
-async def test_palette_selecting_different_item__should_deselect_previous(palette, action_manager, item1, item2):
-    await rpctst_exec(["page.locator('#item1').click()", "page.locator('#item2').click()"])
+async def test_palette_selecting_different_action__should_deselect_previous(palette, action_manager, action1, action2):
+    await rpctst_exec(["page.locator('#action1').click()", "page.locator('#action2').click()"])
 
-    assert action_manager.selected_action == item2
-    assert not item1.selected
-    assert item2.selected
-
-
-async def test_palette_should_put_elements_on_screen(palette, item1, item2):
-    assert item1.element.isConnected is True
-    assert item2.element.isConnected is True
+    assert action_manager.selected_action == action2
+    assert not action1.selected
+    assert action2.selected
 
 
-async def test_externally_select_item(palette, action_manager, item1, item2):
-    action_manager.selected_action = item1
-
-    assert action_manager.selected_action == item1
-    assert item1.selected
+async def test_palette_should_put_elements_on_screen(palette, action1, action2):
+    assert action1.element.isConnected is True
+    assert action2.element.isConnected is True
 
 
-async def test_externally_select_different_item(action_manager, item1, item2):
+async def test_externally_select_action(palette, action_manager, action1, action2):
+    action_manager.selected_action = action1
+
+    assert action_manager.selected_action == action1
+    assert action1.selected
+
+
+async def test_externally_select_different_action(action_manager, action1, action2):
     # pytest.fail(f'innerHTML: `{js.document.body.innerHTML}`')
-    # js.document.body.innerHTML =  '<button id="item1">hello</button>'
-    await rpctst_exec("page.locator('#item1').click()")
-    action_manager.selected_action = item2
+    # js.document.body.innerHTML =  '<button id="action1">hello</button>'
+    await rpctst_exec("page.locator('#action1').click()")
+    action_manager.selected_action = action2
 
-    assert action_manager.selected_action == item2
-    assert not item1.selected
-    assert item2.selected
+    assert action_manager.selected_action == action2
+    assert not action1.selected
+    assert action2.selected
 
 
-async def test_externally_deselect_item(palette, item1, item2):
-    palette.selected_item = item1
-    palette.selected_item = None
+async def test_externally_deselect_action(palette, action1, action2):
+    palette.selected_action = action1
+    palette.selected_action = None
 
-    assert palette.selected_item is None
-    assert not item1.selected
+    assert palette.selected_action is None
+    assert not action1.selected
 
 
 class TestUseSelection:
-    async def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
+    async def test_selection_and_click__reject_should_not_deselect(self, action_manager, action1, div1, events):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
         assert len(events.accept_events) == 1
-        assert action_manager.selected_action is item1
+        assert action_manager.selected_action is action1
 
-    async def test_selection_and_click__accept_should_deselect(self, action_manager, item1, div1, events):
+    async def test_selection_and_click__accept_should_deselect(self, action_manager, action1, div1, events):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
         action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
@@ -120,82 +119,84 @@ class TestDrag:
     # see Playwright cancel drag here https://github.com/danielwiehl/playwright-bug-reproducer-dnd-cancel/blob/master/tests/reproducer.spec.ts
     # and generally https://chatgpt.com/share/67efcda6-9890-8006-8542-3634aa9249bf
 
-    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1, div1):
+    async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, action1, div1):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
         action_manager.listeners_for(DeselectEvent).add(lambda event: event.accept())
 
         # WHEN
-        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+        await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
 
         # THEN
         assert action_manager.selected_action is None
-        assert not item1.selected
+        assert not action1.selected
         assert action_manager.drag_state == DragFsm.IDLE
 
-    async def test_no_select_start_drag__should_select_palette_item(self, action_manager, item1, div1):
+    async def test_no_select_start_drag__should_select_palette_action(self, action_manager, action1, div1):
         # GIVEN
         action_manager.selected_action = None
 
         # WHEN
-        await rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+        await rpctst_exec(["page.locator('#action1').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
         # THEN
-        assert action_manager.selected_action is item1
+        assert action_manager.selected_action is action1
         assert action_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_item1_sel_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+    async def test_action1_sel_and_start_drag_on_action2__should_select_action2(self, action_manager, action1, action2,
+                                                                                div1):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
 
         # WHEN
-        await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
+        await rpctst_exec(["page.locator('#action2').hover()", "page.mouse.down()", "page.mouse.move(100, 100)"])
 
         # THEN
-        assert action_manager.selected_action is item2
+        assert action_manager.selected_action is action2
         assert action_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_item1_click_and_start_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+    async def test_action1_click_and_start_drag_on_action2__should_select_action2(self, action_manager, action1,
+                                                                                  action2, div1):
         # GIVEN
-        await rpctst_exec(["page.locator('#item1').click()"])
+        await rpctst_exec(["page.locator('#action1').click()"])
         x, y = element_xy_center(div1)
 
         # WHEN
-        await rpctst_exec(["page.locator('#item2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
+        await rpctst_exec(["page.locator('#action2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
 
         # THEN
-        assert action_manager.selected_action is item2
+        assert action_manager.selected_action is action2
         assert action_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, item1, div1, events):
+    async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, action1, div1, events):
         # GIVEN
         action_manager.selected_action = None
         action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
-        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+        await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
 
         # THEN
         assert action_manager.selected_action is None
         assert action_manager.drag_state == DragFsm.IDLE
 
-    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, action_manager, item1, div1, events):
+    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, action_manager, action1, div1, events):
         # GIVEN
         #
 
         # WHEN
-        await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
+        await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
 
         # THEN
         assert action_manager.selected_action is None
 
         assert len(events.drop_events) == 1, 'one drag event expected'
-        assert events.drop_events[0].source_element is item1
+        assert events.drop_events[0].source_element is action1
         assert events.drop_events[0].target_element is div1
 
-    async def test_no_select_not_enough_drag__should_not_select(self, action_manager, item1):
+    async def test_no_select_not_enough_drag__should_not_select(self, action_manager, action1):
         # GIVEN
-        x, y = element_xy_center(item1.element)
+        x, y = element_xy_center(action1.element)
 
         # WHEN
         await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 3}, {y + 3})"])
@@ -203,53 +204,54 @@ class TestDrag:
         # THEN
         assert action_manager.selected_action is None
 
-    async def test_enough_drag__should_select(self, action_manager, item1):
+    async def test_enough_drag__should_select(self, action_manager, action1):
         # GIVEN
-        x, y = element_xy_center(item1.element)
+        x, y = element_xy_center(action1.element)
 
         # WHEN
         await rpctst_exec([f"page.mouse.move({x}, {y})", "page.mouse.down()", f"page.mouse.move({x + 6}, {y + 6})"])
 
         # THEN
-        assert action_manager.selected_action is item1
+        assert action_manager.selected_action is action1
 
 
 class TestDragTouch:
     # TODO: implement touch drag tests
-    async def todo_item1_click_and_touch_drag_on_item2__should_select_item2(self, action_manager, item1, item2, div1):
+    async def todo_action1_click_and_touch_drag_on_action2__should_select_action2(self, action_manager, action1,
+                                                                                  action2, div1):
         pass
-        # look at `test_item1_click_and_start_drag_on_item2__should_select_item2`
+        # look at `test_action1_click_and_start_drag_on_action2__should_select_action2`
         # look at rpc4tests_test.py how to send touch events
 
 
 class TestHover:
 
-    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, item1, item2, events):
+    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, action_manager, action1, action2, events):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
 
         # WHEN
-        await rpctst_exec("page.locator('#item2').hover()")
+        await rpctst_exec("page.locator('#action2').hover()")
 
         # THEN
-        assert action_manager.selected_action is item1  # should still be selected
+        assert action_manager.selected_action is action1  # should still be selected
         assert events.hover_events == [], 'hover event emitted'
 
-    async def test_selected_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
+    async def test_selected_and_hover_on_div1__should_emit_Hover(self, action_manager, action1, div1, events):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
 
         # WHEN
         await rpctst_exec("page.locator('#div1').hover()")
 
         # THEN
-        assert action_manager.selected_action is item1  # should still be selected
+        assert action_manager.selected_action is action1  # should still be selected
 
         self._assert_hover_events_arrived_ok(events)
 
-    async def test_drag_and_hover_on_div1__should_emit_Hover(self, action_manager, item1, div1, events):
+    async def test_drag_and_hover_on_div1__should_emit_Hover(self, action_manager, action1, div1, events):
         # GIVEN
-        await rpctst_exec(["page.locator('#item1').hover()", "page.mouse.down()"])
+        await rpctst_exec(["page.locator('#action1').hover()", "page.mouse.down()"])
         logger.debug(f'drag state={action_manager.drag_state}')
         # WHEN
         await rpctst_exec(["page.locator('#div1').hover()"])
@@ -266,9 +268,9 @@ class TestHover:
 
 class TestStopEvents:
     @pytest.mark.parametrize("event_type", ['click', 'pointerdown', 'pointerup'])
-    async def test_stop_event(self, action_manager, item1, event_type, div1):
+    async def test_stop_event(self, action_manager, action1, event_type, div1):
         # GIVEN
-        action_manager.selected_action = item1
+        action_manager.selected_action = action1
         action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         events = []
@@ -304,11 +306,11 @@ def action_manager(fixture):
 
 
 @pytest.fixture
-def item1(fixture): yield fixture.item1
+def action1(fixture): yield fixture.action1
 
 
 @pytest.fixture
-def item2(fixture): yield fixture.item2
+def action2(fixture): yield fixture.action2
 
 
 @pytest.fixture
@@ -350,8 +352,8 @@ class ActionItemFake:
 class Fixture:
     action_manager: ActionManager = None
     _events: EventFixture = None
-    _item1: ActionItemFake = None
-    _item2: ActionItemFake = None
+    _action1: ActionItemFake = None
+    _action2: ActionItemFake = None
     _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
@@ -365,33 +367,33 @@ class Fixture:
             # if target is None:
             #     raise ValueError('target is not set')
             target = get_deepest_element(event.js_event.clientX, event.js_event.clientY)
-            if target.id.startswith('item'):
+            if target.id.startswith('action'):
                 event.identified_as = 'action'
-                event.action = target._item_fake
+                event.action = target._action_fake
             elif target.id == 'div1':
                 event.identified_as = 'canvas'
 
         am.listeners_for(IdentifyEvent).add(ie)
 
-    def _add_item(self, label: str) -> ActionItemFake:
-        item = ActionItemFake(f'{label}-key', label)
-        item.element.id = label
-        item.element._item_fake = item
-        item.element.innerText = f'{label}-txt'
-        js.document.body.appendChild(item.element)
-        return item
+    def _add_action(self, label: str) -> ActionItemFake:
+        action = ActionItemFake(f'{label}-key', label)
+        action.element.id = label
+        action.element._action_fake = action
+        action.element.innerText = f'{label}-txt'
+        js.document.body.appendChild(action.element)
+        return action
 
     @property
-    def item1(self) -> ActionItemFake:
-        if self._item1 is None:
-            self._item1 = self._add_item('item1')
-        return self._item1
+    def action1(self) -> ActionItemFake:
+        if self._action1 is None:
+            self._action1 = self._add_action('action1')
+        return self._action1
 
     @property
-    def item2(self) -> ActionItemFake:
-        if self._item2 is None:
-            self._item2 = self._add_item('item2')
-        return self._item2
+    def action2(self) -> ActionItemFake:
+        if self._action2 is None:
+            self._action2 = self._add_action('action2')
+        return self._action2
 
     @property
     def div1(self) -> js.HTMLDivElement:
