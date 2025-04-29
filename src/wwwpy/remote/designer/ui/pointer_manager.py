@@ -11,7 +11,6 @@ from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.eventlib import handler_options
 
 logger = logging.getLogger(__name__)
-T = TypeVar('T')
 
 
 @dataclass
@@ -19,12 +18,16 @@ class PMEvent:
     js_event: js.Event
 
 
+_PE = TypeVar('_PE', bound=PMEvent)
+
+
 @dataclass
 class IdentifyEvent(PMEvent):
-    """User must set .identified_as to 'action' or 'canvas'"""
     identified_as: Literal['action', 'canvas'] | None = None
+    action = None
 
 
+# todo rename to DeselectEvent
 @dataclass
 class AcceptEvent(PMEvent):
     accepted: bool = False
@@ -38,12 +41,7 @@ class HoverEvent(PMEvent):
     pass
 
 
-@dataclass
-class DropEvent(PMEvent):
-    source_item: Optional[T] = None
-    target_element: Optional[js.Element] = None
-
-
+# todo make this a generic type for PMEvent
 class TypeListeners(list[Callable[[PMEvent], None]]):
     def __init__(self, event_type: type[PMEvent]):
         super().__init__()
@@ -62,27 +60,24 @@ class TypeListeners(list[Callable[[PMEvent], None]]):
             h(event)
 
 
+# todo resolve inconsistency where T is required to have property 'selected'
+T = TypeVar('T')
+
 class PointerManager(Generic[T]):
     def __init__(self) -> None:
         self._selected_action: Optional[T] = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None
         self._listeners: dict[type[PMEvent], TypeListeners] = {}
         self._drag_fsm = DragFsm()
-        self._ready: Optional[T] = None
+        self._ready_item: Optional[T] = None
         self._stopped = False
         self._stop_next_click = False
-        # user must call register() to supply a finder from js.Event -> T|None
-        self._find_item: Callable[[js.Event], Optional[T]] = lambda ev: None
 
     def install(self) -> None:
         eventlib.add_event_listeners(self)
 
     def uninstall(self) -> None:
         eventlib.remove_event_listeners(self)
-
-    def register(self, finder: Callable[[js.Event], Optional[T]]) -> None:
-        """Supply a function to map a raw js.Event to your ActionItem T (or None)."""
-        self._find_item = finder
 
     @property
     def drag_state(self) -> str:
@@ -114,7 +109,9 @@ class PointerManager(Generic[T]):
 
     @handler_options(capture=True)
     def _js_window__click(self, event: js.MouseEvent):
-        if self._selected_action is not None and self._stop_next_click:
+        logger.debug(
+            f'_js_window__click _stop_next_click={self._stop_next_click} _stopped={self._stopped} state={self._drag_fsm.state} ready_item={self._ready_item}')
+        if self._stop_next_click:
             self._stop(event)
         self._stop_next_click = False
 
@@ -122,8 +119,9 @@ class PointerManager(Generic[T]):
     def _js_window__pointerdown(self, event: js.PointerEvent):
         ie = IdentifyEvent(event)
         self._notify(ie)
+        logger.debug(f'_js_window__pointerdown state={self._drag_fsm.state} ie={ie.identified_as}')
         if ie.identified_as == 'action':
-            self._ready = self._find_item(event)
+            self._ready_item = ie.action
             self._drag_fsm.pointerdown_accepted(event)
         else:
             ae = AcceptEvent(event)
@@ -140,9 +138,11 @@ class PointerManager(Generic[T]):
         self._notify(ie)
 
         dragging = self._drag_fsm.transitioned_to_dragging(event)
-        if dragging and self._ready is not None:
-            self.selected_action = self._ready
-            self._ready = None
+        logger.debug(
+            f'_js_window__pointermove ident_as={ie.identified_as} state={self._drag_fsm.state} ready_item={self._ready_item} dragging={dragging} ie={ie.identified_as}')
+        if dragging and self._ready_item is not None:
+            self.selected_action = self._ready_item
+            self._ready_item = None
 
         if ie.identified_as == 'action':
             return
@@ -154,13 +154,15 @@ class PointerManager(Generic[T]):
     def _js_window__pointerup(self, event: js.PointerEvent):
         ie = IdentifyEvent(event)
         self._notify(ie)
+        logger.debug(
+            f'_js_window__pointerup _stopped={self._stopped} state={self._drag_fsm.state} ready_item={self._ready_item} ie={ie.identified_as}')
 
         if self._stopped:
             self._stop(event)
             self._stopped = False
 
-        ready = self._ready
-        self._ready = None
+        ready = self._ready_item
+        self._ready_item = None
 
         if self._drag_fsm.state == DragFsm.READY and ie.identified_as == 'action' and ready is not None:
             self._toggle_selection(ready)
@@ -170,8 +172,6 @@ class PointerManager(Generic[T]):
             self._notify(ae)
             if ae.accepted:
                 self.selected_action = None
-            de = DropEvent(event, source_item=ready, target_element=event.target)  # optional
-            self._notify(de)
 
         self._drag_fsm.pointerup(event)
 
@@ -188,3 +188,11 @@ class PointerManager(Generic[T]):
         if action is not None and getattr(action, 'selected', False) is False:
             action.selected = True
         logger.debug(f'PointerManager.selected_action → {action}')
+
+
+def _pretty(node):
+    if node is None:
+        return 'None'
+    if hasattr(node, 'tagName'):
+        return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
+    return str(node)
