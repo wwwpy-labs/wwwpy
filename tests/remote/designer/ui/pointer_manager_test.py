@@ -60,10 +60,9 @@ async def test_palette_selecting_different_item__should_deselect_previous(palett
     assert item2.selected
 
 
-async def test_palette_should_put_elements_on_screen(palette, item1, item2, item3):
+async def test_palette_should_put_elements_on_screen(palette, item1, item2):
     assert item1.element.isConnected is True
     assert item2.element.isConnected is True
-    assert item3.element.isConnected is True
 
 
 async def test_externally_select_item(palette, action_manager, item1, item2):
@@ -313,10 +312,6 @@ def item2(fixture): yield fixture.item2
 
 
 @pytest.fixture
-def item3(fixture): yield fixture.item3
-
-
-@pytest.fixture
 def div1(fixture): yield fixture.div1
 
 
@@ -357,7 +352,6 @@ class Fixture:
     _events: EventFixture = None
     _item1: ActionItemFake = None
     _item2: ActionItemFake = None
-    _item3: ActionItemFake = None
     _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
@@ -398,12 +392,6 @@ class Fixture:
         if self._item2 is None:
             self._item2 = self._add_item('item2')
         return self._item2
-
-    @property
-    def item3(self) -> ActionItemFake:
-        if self._item3 is None:
-            self._item3 = self._add_item('item3')
-        return self._item3
 
     @property
     def div1(self) -> js.HTMLDivElement:
