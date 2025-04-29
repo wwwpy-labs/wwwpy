@@ -11,7 +11,7 @@ from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, _PE
+from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, TPE
 from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -328,7 +328,7 @@ class EventFixture:
     def add(self, event):
         self._events.append(event)
 
-    def filter(self, event_type: type[_PE]) -> list[_PE]:
+    def filter(self, event_type: type[TPE]) -> list[TPE]:
         return [event for event in self._events if isinstance(event, event_type)]
 
     @property
@@ -350,7 +350,7 @@ class ActionItemFake:
 
 @dataclass
 class Fixture:
-    pointer_manager: PointerManager = None
+    pointer_manager: PointerManager[ActionItemFake] = None
     _events: EventFixture = None
     _action1: ActionItemFake = None
     _action2: ActionItemFake = None

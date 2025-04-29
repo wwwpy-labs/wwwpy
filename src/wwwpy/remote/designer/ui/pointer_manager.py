@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Optional, Callable, Literal
+from typing import Generic, TypeVar, Optional, Callable, Literal, Protocol
 
 import js
 
@@ -18,7 +18,7 @@ class PMEvent:
     js_event: js.Event
 
 
-_PE = TypeVar('_PE', bound=PMEvent)
+TPE = TypeVar('TPE', bound=PMEvent)
 
 
 @dataclass
@@ -40,34 +40,38 @@ class HoverEvent(PMEvent):
     pass
 
 
-class TypeListeners(Generic[_PE], list[Callable[[_PE], None]]):
-    def __init__(self, event_type: type[_PE]) -> None:
+class TypeListeners(Generic[TPE], list[Callable[[TPE], None]]):
+    def __init__(self, event_type: type[TPE]) -> None:
         super().__init__()
         self.event_type = event_type
 
-    def add(self, handler: Callable[[_PE], None]) -> None:
+    def add(self, handler: Callable[[TPE], None]) -> None:
         self.append(handler)
 
-    def remove(self, handler: Callable[[_PE], None]) -> None:
+    def remove(self, handler: Callable[[TPE], None]) -> None:
         super().remove(handler)
 
-    def notify(self, event: _PE) -> None:
+    def notify(self, event: TPE) -> None:
         if not isinstance(event, self.event_type):
             raise TypeError(f'Handler expects {self.event_type}')
         for h in list(self):
             h(event)
 
 
-# todo resolve inconsistency where T is required to have property 'selected'
-T = TypeVar('T')
+class HasSelected(Protocol):
+    selected: bool
 
-class PointerManager(Generic[T]):
+
+THasSelected = TypeVar("THasSelected", bound=HasSelected)
+
+
+class PointerManager(Generic[THasSelected]):
     def __init__(self) -> None:
-        self._selected_action: Optional[T] = None
+        self._selected_action: Optional[THasSelected] = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None
         self._listeners: dict[type[PMEvent], TypeListeners] = {}
         self._drag_fsm = DragFsm()
-        self._ready_item: Optional[T] = None
+        self._ready_item: Optional[THasSelected] = None
         self._stopped = False
         self._stop_next_click = False
 
@@ -81,7 +85,7 @@ class PointerManager(Generic[T]):
     def drag_state(self) -> str:
         return self._drag_fsm.state
 
-    def listeners_for(self, event_type: type[_PE]) -> TypeListeners[_PE]:
+    def listeners_for(self, event_type: type[TPE]) -> TypeListeners[TPE]:
         lst = self._listeners.get(event_type)
         if lst is None:
             lst = TypeListeners(event_type)
@@ -99,7 +103,7 @@ class PointerManager(Generic[T]):
         e.preventDefault()
         e.stopImmediatePropagation()
 
-    def _toggle_selection(self, item: T):
+    def _toggle_selection(self, item: THasSelected):
         if item == self.selected_action:
             self.selected_action = None
         else:
@@ -174,11 +178,11 @@ class PointerManager(Generic[T]):
         self._drag_fsm.pointerup(event)
 
     @property
-    def selected_action(self) -> Optional[T]:
+    def selected_action(self) -> Optional[THasSelected]:
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, action: Optional[T]) -> None:
+    def selected_action(self, action: Optional[THasSelected]) -> None:
         old = self._selected_action
         if old is not None and getattr(old, 'selected', False):
             old.selected = False
