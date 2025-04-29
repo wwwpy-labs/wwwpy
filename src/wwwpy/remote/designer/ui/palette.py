@@ -194,10 +194,9 @@ class ActionManager:
 
     @handler_options(capture=True)
     def _js_window__click(self, event):
-        # stop click if flagged (and still outside palette)
         if not self._in_palette(event) and self._stop_next_click:
             self._stop(event)
-            self._stop_next_click = False
+        self._stop_next_click = False
 
     @handler_options(capture=True)
     def _js_window__pointerdown(self, event):
