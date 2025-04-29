@@ -277,42 +277,32 @@ class TestHover:
 
 
 class TestStopEvents:
-    # the following test should select item1 and define a button (btn1) and an event handler, the click on btn1 should not fire the btn1 event
     @pytest.mark.parametrize("event_type", ['click', 'pointerdown', 'pointerup'])
-    async def test_stop_event(self, action_manager, item1, event_type):
+    async def test_stop_event(self, action_manager, item1, event_type, div1):
         # GIVEN
         action_manager.selected_action = item1
         action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
-        btn1 = js.document.createElement('button')
-        btn1.id = 'btn1'
-        btn1.textContent = 'btn1'
-        js.document.body.appendChild(btn1)
-        btn1_events = []
-        # btn1.addEventListener('pointerdown', create_proxy(lambda ev: btn1_events.append(ev)))
-        # btn1.addEventListener('click', create_proxy(lambda ev: btn1_events.append(ev)))
-        btn1.addEventListener(event_type, create_proxy(lambda ev: btn1_events.append(ev)))
+
+        events = []
+        div1.addEventListener(event_type, create_proxy(lambda ev: events.append(ev)))
 
         # WHEN
-        await rpctst_exec("page.locator('#btn1').click()")
+        await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert btn1_events == [], 'btn1 event should not be fired'
+        assert events == [], 'div1 event should not be fired'
 
-    async def test_stop_event_should_not_stop_if_no_selection(self, action_manager, item1):
+    async def test_stop_event_should_not_stop_if_no_selection(self, action_manager, div1):
         # GIVEN
         action_manager.selected_action = None
-        btn1 = js.document.createElement('button')
-        btn1.id = 'btn1'
-        btn1.textContent = 'btn1'
-        js.document.body.appendChild(btn1)
-        btn1_events = []
-        btn1.addEventListener('click', create_proxy(lambda ev: btn1_events.append(ev)))
+        events = []
+        div1.addEventListener('click', create_proxy(lambda ev: events.append(ev)))
 
         # WHEN
-        await rpctst_exec("page.locator('#btn1').click()")
+        await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert len(btn1_events) == 1, 'btn1 event should be fired'
+        assert len(events) == 1, 'div1 event should be fired'
 @pytest.fixture
 def palette(fixture):
     yield fixture.palette
