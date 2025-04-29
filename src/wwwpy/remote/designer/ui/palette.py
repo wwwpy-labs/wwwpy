@@ -7,7 +7,9 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent
+from wwwpy.remote.component import get_component
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, TPE, TypeListeners
+from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -122,11 +124,9 @@ class ActionManager:
         event.identified_as = 'action' if event.action else 'canvas'
 
     def install(self):
-        # eventlib.add_event_listeners(self)
         self.pointer_manager.install()
 
     def uninstall(self):
-        # eventlib.remove_event_listeners(self)
         self.pointer_manager.uninstall()
 
     @property
@@ -146,7 +146,7 @@ class ActionManager:
 
 
 def _find_palette_item(event: js.Event) -> PaletteItem | None:
-    target = _element_from_js_event(event)
+    target = get_deepest_element(event.clientX, event.clientY)
     if target is None:  # tests missing. It looks like it happens when the mouse exit the viewport or moves on the scrollbar
         return None
     # logger.debug(f'_find_palette_item target={_pretty(target)}')
@@ -155,10 +155,6 @@ def _find_palette_item(event: js.Event) -> PaletteItem | None:
     if res:
         return get_component(res)
     return None
-
-
-def _element_from_js_event(event: js.Event) -> js.Element | None:
-    return get_deepest_element(event.clientX, event.clientY)
 
 
 # language=html
