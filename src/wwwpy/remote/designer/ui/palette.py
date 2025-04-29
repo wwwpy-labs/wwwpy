@@ -139,12 +139,6 @@ class HoverEvent(PaletteEvent):
     pass
 
 
-@dataclass
-class DropEvent(PaletteEvent):
-    source_element: js.HTMLElement | None = None
-    target_element: js.HTMLElement | None = None
-
-
 PaletteEventHandler = Callable[[_PE], None]
 
 

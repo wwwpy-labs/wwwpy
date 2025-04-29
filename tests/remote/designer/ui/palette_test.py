@@ -12,7 +12,7 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
-    HoverEvent, DropEvent, AcceptEvent, _PE
+    HoverEvent, AcceptEvent, _PE
 
 logger = logging.getLogger(__name__)
 
@@ -342,10 +342,6 @@ class EventFixture:
 
     def filter(self, event_type: type[_PE]) -> list[_PE]:
         return [event for event in self._events if isinstance(event, event_type)]
-
-    @property
-    def drop_events(self) -> list[DropEvent]:
-        return self.filter(DropEvent)
 
     @property
     def hover_events(self) -> list[HoverEvent]:
