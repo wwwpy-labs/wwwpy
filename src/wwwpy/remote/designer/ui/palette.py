@@ -180,6 +180,7 @@ class ActionManager:
         self._drag_fsm = DragFsm()
         self._ready_item = None
         self._stopped = False
+        self._stop_next_click = False  # new flag to also suppress the subsequent click
 
     def install(self):
         eventlib.add_event_listeners(self)
@@ -193,8 +194,10 @@ class ActionManager:
 
     @handler_options(capture=True)
     def _js_window__click(self, event):
-        if not self._in_palette(event):
+        # stop click if flagged (and still outside palette)
+        if not self._in_palette(event) and self._stop_next_click:
             self._stop(event)
+            self._stop_next_click = False
 
     @handler_options(capture=True)
     def _js_window__pointerdown(self, event):
@@ -211,9 +214,8 @@ class ActionManager:
                 if self.selected_action is not None:
                     self._stop(event)
                     self._stopped = True
+                    self._stop_next_click = True  # flag the next click for suppression
                 self.selected_action = None
-        # else:
-        #     self._ready_item = None
 
     def _js_window__pointermove(self, event):
         palette_item = _find_palette_item(event)
