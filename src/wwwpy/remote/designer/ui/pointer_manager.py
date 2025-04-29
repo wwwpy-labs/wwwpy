@@ -41,19 +41,18 @@ class HoverEvent(PMEvent):
     pass
 
 
-# todo make this a generic type for PMEvent
-class TypeListeners(list[Callable[[PMEvent], None]]):
-    def __init__(self, event_type: type[PMEvent]):
+class TypeListeners(Generic[_PE], list[Callable[[_PE], None]]):
+    def __init__(self, event_type: type[_PE]) -> None:
         super().__init__()
         self.event_type = event_type
 
-    def add(self, handler: Callable[[PMEvent], None]):
+    def add(self, handler: Callable[[_PE], None]) -> None:
         self.append(handler)
 
-    def remove(self, handler: Callable[[PMEvent], None]):
+    def remove(self, handler: Callable[[_PE], None]) -> None:
         super().remove(handler)
 
-    def notify(self, event: PMEvent):
+    def notify(self, event: _PE) -> None:
         if not isinstance(event, self.event_type):
             raise TypeError(f'Handler expects {self.event_type}')
         for h in list(self):
@@ -83,7 +82,7 @@ class PointerManager(Generic[T]):
     def drag_state(self) -> str:
         return self._drag_fsm.state
 
-    def listeners_for(self, event_type: type[PMEvent]) -> TypeListeners:
+    def listeners_for(self, event_type: type[_PE]) -> TypeListeners[_PE]:
         lst = self._listeners.get(event_type)
         if lst is None:
             lst = TypeListeners(event_type)
