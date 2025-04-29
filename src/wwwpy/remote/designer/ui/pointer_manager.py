@@ -27,9 +27,8 @@ class IdentifyEvent(PMEvent):
     action = None
 
 
-# todo rename to DeselectEvent
 @dataclass
-class AcceptEvent(PMEvent):
+class DeselectEvent(PMEvent):
     accepted: bool = False
 
     def accept(self):
@@ -123,7 +122,7 @@ class PointerManager(Generic[T]):
             self._ready_item = ie.action
             self._drag_fsm.pointerdown_accepted(event)
         else:
-            ae = AcceptEvent(event)
+            ae = DeselectEvent(event)
             self._notify(ae)
             if ae.accepted:
                 if self._selected_action is not None:
@@ -167,7 +166,7 @@ class PointerManager(Generic[T]):
             self._toggle_selection(ready)
 
         if self._drag_fsm.state == DragFsm.DRAGGING:
-            ae = AcceptEvent(event)
+            ae = DeselectEvent(event)
             self._notify(ae)
             if ae.accepted:
                 self.selected_action = None
