@@ -12,7 +12,7 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import ActionManager, PaletteComponent, PaletteItemComponent, \
-    HoverEvent, AcceptEvent, _PE
+    HoverEvent, DeselectEvent, _PE
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ class TestUseSelection:
     async def test_selection_and_click__reject_should_not_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.listeners_for(AcceptEvent).add(lambda ev: None)
+        action_manager.listeners_for(DeselectEvent).add(lambda ev: None)
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
@@ -118,7 +118,7 @@ class TestUseSelection:
     async def test_selection_and_click__accept_should_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
+        action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
@@ -135,7 +135,7 @@ class TestDrag:
     async def test_selected_drag__accepted_should_deselect(self, palette, action_manager, item1, div1):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.listeners_for(AcceptEvent).add(lambda event: event.accept())
+        action_manager.listeners_for(DeselectEvent).add(lambda event: event.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
@@ -182,7 +182,7 @@ class TestDrag:
     async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, item1, div1, events):
         # GIVEN
         action_manager.selected_action = None
-        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
+        action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#item1').drag_to(page.locator('#div1'))")
@@ -281,7 +281,7 @@ class TestStopEvents:
     async def test_stop_event(self, action_manager, item1, event_type, div1):
         # GIVEN
         action_manager.selected_action = item1
-        action_manager.listeners_for(AcceptEvent).add(lambda ev: ev.accept())
+        action_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
 
         events = []
         div1.addEventListener(event_type, create_proxy(lambda ev: events.append(ev)))
@@ -348,8 +348,8 @@ class EventFixture:
         return self.filter(HoverEvent)
 
     @property
-    def accept_events(self) -> list[AcceptEvent]:
-        return self.filter(AcceptEvent)
+    def accept_events(self) -> list[DeselectEvent]:
+        return self.filter(DeselectEvent)
 
 
 @dataclass

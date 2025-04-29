@@ -126,7 +126,7 @@ _PE = TypeVar('_PE', bound=PaletteEvent)
 
 
 @dataclass
-class AcceptEvent(PaletteEvent):
+class DeselectEvent(PaletteEvent):
     accepted: bool = False
     """Flag to indicate if the action has been spent/used"""
 
@@ -201,7 +201,7 @@ class ActionManager:
             self._ready_item = palette_item
             self._drag_fsm.pointerdown_accepted(event)
         else:
-            gesture_event = AcceptEvent(event)
+            gesture_event = DeselectEvent(event)
             self._notify(gesture_event)
             if gesture_event.accepted:
                 if self.selected_action is not None:
@@ -241,7 +241,7 @@ class ActionManager:
             if palette_item:
                 self._toggle_selection(palette_item)
         if self._drag_fsm.state == DragFsm.DRAGGING:
-            gesture_event = AcceptEvent(event)
+            gesture_event = DeselectEvent(event)
             self._notify(gesture_event)
             if gesture_event.accepted:
                 self.selected_action = None
