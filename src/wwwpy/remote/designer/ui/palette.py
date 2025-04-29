@@ -193,7 +193,8 @@ class ActionManager:
 
     @handler_options(capture=True)
     def _js_window__click(self, event):
-        pass
+        if not self._in_palette(event):
+            self._stop(event)
 
     @handler_options(capture=True)
     def _js_window__pointerdown(self, event):
