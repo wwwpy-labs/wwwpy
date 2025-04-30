@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Callable, Optional, List, Any
+from typing import Callable, Optional
 
 from wwwpy.common.collectionlib import ListMap
 
@@ -30,8 +29,6 @@ class NameHelp:
 class EventDef(NameHelp):
     """Definition of an event of an HTML element."""
     pass
-
-
 
 
 @dataclass
@@ -76,13 +73,18 @@ class ElementDef:
 
 class ElementLibrary:
     def __init__(self):
-        self.elements: List[ElementDef] = []
+        self._elements: dict[str, ElementDef] = {}
+
+    def _add(self, element: ElementDef) -> None:
+        """Add an ElementDef into the internal dict by its tag_name."""
+        self._elements[element.tag_name] = element
+
+    @property
+    def elements(self) -> tuple[ElementDef, ...]:
+        return tuple(list(self._elements.values()))
 
     def by_tag_name(self, tag_name: str) -> Optional[ElementDef]:
-        for element in self.elements:
-            if element.tag_name == tag_name:
-                return element
-        return None
+        return self._elements.get(tag_name)
 
 
 _element_library: ElementLibrary = None
@@ -92,8 +94,10 @@ def element_library() -> ElementLibrary:
     global _element_library
     if _element_library is None:
         _element_library = ElementLibrary()
-        from wwwpy.common.designer.el_shoelace import _shoelace_elements_def
-        _element_library.elements.extend(_shoelace_elements_def())
+        from .el_shoelace import _shoelace_elements_def
         from .el_standard import _standard_elements_def
-        _element_library.elements.extend(_standard_elements_def())
+
+        for loader in (_shoelace_elements_def, _standard_elements_def):
+            for el in loader():
+                _element_library._add(el)
     return _element_library
