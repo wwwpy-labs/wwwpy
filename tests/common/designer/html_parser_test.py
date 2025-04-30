@@ -133,6 +133,19 @@ def test_html_comment():
 def test_html_comment_something_before():
     # language=html
     actual = html_to_tree("""<!-- comment --><br>""")
-    expect = [CstNode(tag_name='br', span=(16, 20), attr_span=(19, 19)),
-              ]
+    expect = [CstNode(tag_name='br', span=(16, 20), attr_span=(19, 19)), ]
+    assert actual == expect
+
+
+def test_autoclosing_non_void():
+    # language=html
+    actual = html_to_tree("""<some-tag/>""")
+    expect = [CstNode(tag_name='some-tag', span=(0, 11), attr_span=(9, 9))]
+    assert actual == expect
+
+
+def test_autoclosing_void():
+    # language=html
+    actual = html_to_tree("""<br/>""")  # this is not valid but we support it
+    expect = [CstNode(tag_name='br', span=(0, 5), attr_span=(3, 3))]
     assert actual == expect

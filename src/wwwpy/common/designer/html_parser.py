@@ -91,12 +91,16 @@ class _PositionalHTMLParser(HTMLParser):
         def _cst_attr(name, v, idx) -> CstAttribute:
             return CstAttribute(name, v['value'], v['name_span'], v['value_span'], idx)
 
+        void_tag = tag in self.void_tags
         text = self.get_starttag_text()
         end_displ = 2 if autoclosing else 1
         attr_span = (start_pos + len(tag) + 1, self.current_pos + len(text) - end_displ)
+        without_end = void_tag or autoclosing
+        end_pos = self.current_pos + len(text) if without_end else None
+        node_span = (start_pos, end_pos)
         node = CstNode(
             tag_name=tag,
-            span=(start_pos, None),
+            span=node_span,
             attr_span=attr_span,
             content_span=None if autoclosing else (attr_span[1] + 1, None),
             attributes_list=[_cst_attr(name, v, idx) for idx, (name, v) in enumerate(attrs_extended.items())],
@@ -105,17 +109,18 @@ class _PositionalHTMLParser(HTMLParser):
         if self.stack:
             self.stack[-1].children.append(node)
 
-        if tag not in self.void_tags:
-            self.stack.append(node)
-        else:
-            node.span = (start_pos, self.current_pos + len(text))
+        if without_end:
             node.content_span = None
             if not self.stack:
                 self.nodes.append(node)
+        else:
+            self.stack.append(node)
 
         self.current_pos += len(text)
 
-    def handle_endtag(self, tag):
+    def handle_endtag_extended(self, tag, autoclosing):
+        if autoclosing:
+            return
         if tag in self.void_tags:  # a void tag with end tag
             return
         if not self.stack:

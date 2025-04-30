@@ -8,9 +8,8 @@
 # and CDATA (character data -- only end tags are special).
 
 
-import re
 import _markupbase
-
+import re
 from html import unescape
 
 __all__ = ['HTMLParser']
@@ -406,6 +405,7 @@ class HTMLParser(_markupbase.ParserBase):
             # </tag attr=">">, but looking for > after the name should cover
             # most of the cases and is much simpler
             gtpos = rawdata.find('>', namematch.end())
+            self.handle_endtag_extended(tagname, False)
             self.handle_endtag(tagname)
             return gtpos + 1
 
@@ -415,6 +415,7 @@ class HTMLParser(_markupbase.ParserBase):
                 self.handle_data(rawdata[i:gtpos])
                 return gtpos
 
+        self.handle_endtag_extended(elem, False)
         self.handle_endtag(elem)
         self.clear_cdata_mode()
         return gtpos
@@ -423,6 +424,7 @@ class HTMLParser(_markupbase.ParserBase):
     def handle_startendtag(self, tag, attrs, attrs_extended):
         self.handle_starttag(tag, attrs)
         self.handle_starttag_extended(tag, attrs, attrs_extended, True)
+        self.handle_endtag_extended(tag, True)
         self.handle_endtag(tag)
 
     # Overridable -- handle start tag
@@ -431,6 +433,10 @@ class HTMLParser(_markupbase.ParserBase):
 
     # CUSTOMIZED
     def handle_starttag_extended(self, tag, attrs, attrs_extended, autoclosing):
+        pass
+
+    # CUSTOMIZED
+    def handle_endtag_extended(self, tag, autoclosing):
         pass
 
     # Overridable -- handle end tag
