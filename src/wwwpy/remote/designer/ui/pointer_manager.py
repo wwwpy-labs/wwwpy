@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PMEvent:
-    js_event: js.Event
+    js_event: js.PointerEvent
 
 
 TPE = TypeVar('TPE', bound=PMEvent)
