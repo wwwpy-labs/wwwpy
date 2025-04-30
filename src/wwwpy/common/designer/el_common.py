@@ -55,3 +55,7 @@ def _insert_common_to_all(elements: List[ElementDef]):
         for event in events:
             if ee.get(event.name) is None:
                 ee.append(event)
+
+
+def _create_unknown_element_def(tag_name: str) -> ElementDef:
+    pass
