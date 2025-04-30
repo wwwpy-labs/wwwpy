@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Rectangle Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .svg-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: inline-block;
+            width: 120px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .code-display {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 800px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* CSS Animations for pulsing effect */
+        @keyframes pulse {
+            0% {
+                stroke-width: 2;
+                opacity: 1;
+            }
+            50% {
+                stroke-width: 5;
+                opacity: 0.7;
+            }
+            100% {
+                stroke-width: 2;
+                opacity: 1;
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+<h1>Interactive SVG Rectangle Generator</h1>
+
+<div class="container">
+    <div class="controls">
+        <h2>Parameters</h2>
+        <div>
+            <label for="w">w (width):</label>
+            <input type="number" id="w" value="200" min="10" max="500" step="10" onchange="generateSVG()"
+                   oninput="generateSVG()">
+        </div>
+        <div>
+            <label for="h">h (height):</label>
+            <input type="number" id="h" value="150" min="10" max="500" step="10" onchange="generateSVG()"
+                   oninput="generateSVG()">
+        </div>
+        <div>
+            <label for="x">x (horizontal inset):</label>
+            <input type="number" id="x" value="40" min="1" max="100" step="5" onchange="generateSVG()"
+                   oninput="generateSVG()">
+        </div>
+        <div>
+            <label for="y">y (vertical inset):</label>
+            <input type="number" id="y" value="30" min="1" max="100" step="5" onchange="generateSVG()"
+                   oninput="generateSVG()">
+        </div>
+        <div>
+            <label for="glowOption">Pulse Effect:</label>
+            <select id="glowOption" onchange="generateSVG()">
+                <option value="none">No Effect</option>
+                <option value="top_left">Top & Left</option>
+                <option value="bottom_right">Bottom & Right</option>
+                <option value="inner">Inner Rectangle</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="svg-container" id="svgContainer">
+        <!-- SVG will be inserted here -->
+    </div>
+</div>
+
+<div class="code-display">
+    <h3>SVG Code:</h3>
+    <pre id="svgCode"></pre>
+</div>
+
+<script>
+    function createSVG(w, h, x, y, pulseOption) {
+        // Validate to ensure inner rectangle has positive dimensions
+        if (x * 2 >= w || y * 2 >= h) {
+            return `<text x="10" y="30" fill="red">Error: Inset values too large for the given width/height</text>`;
+        }
+
+        // Calculate inner rectangle dimensions
+        const innerWidth = w - 2 * x;
+        const innerHeight = h - 2 * y;
+
+        // Determine which parts should pulse
+        let topClass = "";
+        let leftClass = "";
+        let bottomClass = "";
+        let rightClass = "";
+        let innerClass = "";
+
+        if (pulseOption === "top_left") {
+            topClass = 'class="pulse" stroke="cyan"';
+            leftClass = 'class="pulse" stroke="cyan"';
+        } else if (pulseOption === "bottom_right") {
+            bottomClass = 'class="pulse" stroke="cyan"';
+            rightClass = 'class="pulse" stroke="cyan"';
+        } else if (pulseOption === "inner") {
+            innerClass = 'class="pulse" stroke="cyan"';
+        }
+
+        // Create SVG string with the CSS classes for animation
+        return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+                <!-- Outer rectangle segments -->
+                <line x1="0" y1="0" x2="${w}" y2="0" stroke="blue" stroke-width="2" ${topClass} />
+                <line x1="0" y1="0" x2="0" y2="${h}" stroke="blue" stroke-width="2" ${leftClass} />
+                <line x1="0" y1="${h}" x2="${w}" y2="${h}" stroke="blue" stroke-width="2" ${bottomClass} />
+                <line x1="${w}" y1="0" x2="${w}" y2="${h}" stroke="blue" stroke-width="2" ${rightClass} />
+
+                <!-- Inner rectangle -->
+                <rect x="${x}" y="${y}" width="${innerWidth}" height="${innerHeight}" fill="none" stroke="red" stroke-width="2" ${innerClass} />
+
+                <!-- Line connecting bottom-left corners -->
+                <line x1="0" y1="${h}" x2="${x}" y2="${h - y}" stroke="green" stroke-width="2" />
+
+                <!-- Line connecting top-right corners -->
+                <line x1="${w}" y1="0" x2="${w - x}" y2="${y}" stroke="purple" stroke-width="2" />
+            </svg>`;
+    }
+
+    function generateSVG() {
+        // Get parameter values from inputs
+        const w = parseFloat(document.getElementById('w').value);
+        const h = parseFloat(document.getElementById('h').value);
+        const x = parseFloat(document.getElementById('x').value);
+        const y = parseFloat(document.getElementById('y').value);
+        const glowOption = document.getElementById('glowOption').value;
+
+        // Generate SVG
+        const svgString = createSVG(w, h, x, y, glowOption);
+
+        // Update the display
+        document.getElementById('svgContainer').innerHTML = svgString;
+        document.getElementById('svgCode').textContent = svgString;
+    }
+
+    // Generate SVG on page load
+    window.onload = generateSVG;
+</script>
+</body>
+</html>
