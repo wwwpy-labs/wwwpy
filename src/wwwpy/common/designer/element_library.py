@@ -45,6 +45,10 @@ class NamedListMap(ListMap):
         super().__init__(args, key_func=lambda x: x.name)
 
 
+# todo refactor (make an hierarchy of classes) to support:
+#  - unknown standard html elements
+#  - unknown custom components (mainly for slots)
+#  - for wwwpy Components
 @dataclass
 class ElementDef:
     tag_name: str
@@ -84,7 +88,12 @@ class ElementLibrary:
         return tuple(list(self._elements.values()))
 
     def by_tag_name(self, tag_name: str) -> Optional[ElementDef]:
-        return self._elements.get(tag_name)
+        res = self._elements.get(tag_name, None)
+        if res is None:
+            from wwwpy.common.designer import el_common
+            res = el_common._create_unknown_element_def(tag_name)
+            self._add(res)
+        return res
 
 
 _element_library: ElementLibrary = None

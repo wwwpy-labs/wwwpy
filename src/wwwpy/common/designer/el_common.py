@@ -58,4 +58,6 @@ def _insert_common_to_all(elements: List[ElementDef]):
 
 
 def _create_unknown_element_def(tag_name: str) -> ElementDef:
-    pass
+    ed = ElementDef(tag_name, "", help=Help("", ""))
+    _insert_common_to_all([ed])
+    return ed
