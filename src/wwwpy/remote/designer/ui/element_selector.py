@@ -7,7 +7,7 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, dict_to_py
-from wwwpy.remote.jslib import is_contained
+from wwwpy.remote.jslib import is_contained, AnimationFrameTracker
 
 logger = logging.getLogger(__name__)
 
@@ -136,35 +136,6 @@ class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selection-indicator-
         self.element.style.left = f"{rect.left}px"
         self.element.style.width = f"{rect.width}px"
         self.element.style.height = f"{rect.height}px"
-
-
-class AnimationFrameTracker:
-    """Tracks animation frames and calls a callback."""
-
-    def __init__(self, callback):
-        self._callback = callback
-        self._raf_id = None
-        self._on_animation_frame = create_proxy(self._on_animation_frame)
-
-    def start(self):
-        if self._raf_id is None:
-            self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
-
-    def stop(self):
-        if self._raf_id is not None:
-            js.window.cancelAnimationFrame(self._raf_id)
-            self._raf_id = None
-
-    def _on_animation_frame(self, timestamp):
-        if self._raf_id is None:
-            return
-
-        self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
-        self._callback(timestamp)
-
-    @property
-    def is_tracking(self):
-        return self._raf_id is not None
 
 
 class ActionBandTool(wpc.Component, Tool, tag_name='action-band-tool'):

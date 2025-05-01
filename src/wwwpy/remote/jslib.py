@@ -55,6 +55,35 @@ async def waitAnimationFrame():
     await event.wait()
 
 
+class AnimationFrameTracker:
+    """Tracks animation frames and calls a callback."""
+
+    def __init__(self, callback):
+        self._callback = callback
+        self._raf_id = None
+        self._on_animation_frame = create_proxy(self._on_animation_frame)
+
+    def start(self):
+        if self._raf_id is None:
+            self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
+
+    def stop(self):
+        if self._raf_id is not None:
+            js.window.cancelAnimationFrame(self._raf_id)
+            self._raf_id = None
+
+    def _on_animation_frame(self, timestamp):
+        if self._raf_id is None:
+            return
+
+        self._raf_id = js.window.requestAnimationFrame(self._on_animation_frame)
+        self._callback(timestamp)
+
+    @property
+    def is_tracking(self):
+        return self._raf_id is not None
+
+
 _instanceof = js.eval('(i,t) => i instanceof t')
 
 
