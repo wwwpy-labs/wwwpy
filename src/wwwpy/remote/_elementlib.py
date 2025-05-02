@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import logging
 from typing import TypeVar, Type
 
 import js
 
 from wwwpy.remote.component import get_component, Component
 
+logger = logging.getLogger(__name__)
 ComponentType = TypeVar('ComponentType', bound=Component)
 
 
@@ -29,13 +31,24 @@ def global_instance(cls: Type[ComponentType], id_name: str | None = None) -> Com
     return comp
 
 
-def single_tag_instance(tag_name: str, global_id: str) -> js.HTMLElement:
+def single_tag_instance(tag_name: str, global_id: str, where=js.document.body) -> js.HTMLElement:
     """Get or create a single tag instance with the given ID."""
     ele = js.document.getElementById(global_id)
     if ele is None:
         ele = js.document.createElement(tag_name)
         ele.id = global_id
-        js.document.body.appendChild(ele)
+        where.appendChild(ele)
+    return ele
+
+
+def ensure_tag_instance(tag_name: str, global_id: str, where=js.document.body) -> js.HTMLElement:
+    """Get or create a single tag instance with the given ID."""
+    ele = js.document.getElementById(global_id)
+    if ele is None:
+        logger.debug(f'Creating new element {tag_name} with id {global_id}')
+        ele = js.document.createElement(tag_name)
+        ele.id = global_id
+        where.appendChild(ele)
     return ele
 
 
