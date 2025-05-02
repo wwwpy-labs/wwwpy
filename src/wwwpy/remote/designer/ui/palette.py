@@ -15,7 +15,7 @@ from wwwpy.remote.jslib import get_deepest_element
 logger = logging.getLogger(__name__)
 
 
-class ActionItem:
+class Action:
     key: any
     """Unique object to identify the item in the palette."""
 
@@ -26,7 +26,7 @@ class ActionItem:
     """True if the item is selected, False otherwise."""
 
 
-class PaletteItem(ActionItem):
+class PaletteItem(Action):
 
     @property
     def element(self) -> js.HTMLElement:
@@ -117,12 +117,13 @@ class ActionManager:
     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
 
     def __init__(self):
-        self.pointer_manager: PointerManager[ActionItem] = PointerManager()
-        self.pointer_manager.on(IdentifyEvent).add(self._identify_event)
+        self.pointer_manager: PointerManager[Action] = PointerManager()
 
-    def _identify_event(self, event: IdentifyEvent):
-        event.action = _find_palette_item(event.js_event)
-        event.identified_as = 'action' if event.action else 'canvas'
+        def _identify(event: IdentifyEvent):
+            event.action = _find_palette_item(event.js_event)
+            event.identified_as = 'action' if event.action else 'canvas'
+
+        self.pointer_manager.on(IdentifyEvent).add(_identify)
 
     def install(self):
         self.pointer_manager.install()
@@ -134,11 +135,11 @@ class ActionManager:
         return self.pointer_manager.on(event_type)
 
     @property
-    def selected_action(self) -> ActionItem | None:
+    def selected_action(self) -> Action | None:
         return self.pointer_manager.selected_action
 
     @selected_action.setter
-    def selected_action(self, value: ActionItem | None):
+    def selected_action(self, value: Action | None):
         self.selected_action = value
 
 
