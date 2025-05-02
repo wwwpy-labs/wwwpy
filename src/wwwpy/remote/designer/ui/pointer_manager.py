@@ -7,7 +7,7 @@ from typing import Generic, TypeVar, Callable, Literal, Protocol
 import js
 
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
-from wwwpy.remote.designer.ui.type_listener import TypeListeners
+from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class PointerManager(Generic[THasSelected]):
     def __init__(self) -> None:
         self._selected_action: THasSelected | None = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None
-        self._listeners: dict[type[PMEvent], TypeListeners] = {}
+        self._listeners = DictListeners()
         self._ready_item: THasSelected | None = None
 
         self._pointer_api = PointerApi()
@@ -69,16 +69,10 @@ class PointerManager(Generic[THasSelected]):
         return self._pointer_api.drag_state
 
     def listeners_for(self, event_type: type[TPE]) -> TypeListeners[TPE]:
-        lst = self._listeners.get(event_type)
-        if lst is None:
-            lst = TypeListeners(event_type)
-            self._listeners[event_type] = lst
-        return lst
+        return self._listeners.listeners_for(event_type)
 
     def _notify(self, ev: PMEvent) -> None:
-        listeners = self.listeners_for(type(ev))
-        if listeners:
-            listeners.notify(ev)
+        self._listeners.notify(ev)
         self.on_events(ev)
 
     def _toggle_selection(self, item: THasSelected):
