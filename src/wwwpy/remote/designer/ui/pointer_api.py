@@ -83,7 +83,7 @@ class PointerApi:
         return self._drag_fsm.state
 
     def on(self, event_type: type[TPA]) -> TypeListeners[TPA]:
-        return self._listeners.listeners_for(event_type)
+        return self._listeners.on(event_type)
 
     def _notify(self, ev: PAEvent) -> None:
         self._listeners.notify(ev)

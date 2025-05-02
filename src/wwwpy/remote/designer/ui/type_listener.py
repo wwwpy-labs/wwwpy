@@ -28,7 +28,7 @@ class DictListeners:
         self._listeners: dict[type, TypeListeners] = {}
         self.catch_all = TypeListeners(None)
 
-    def listeners_for(self, event_type: type[T]) -> TypeListeners[T]:
+    def on(self, event_type: type[T]) -> TypeListeners[T]:
         lst = self._listeners.get(event_type)
         if lst is None:
             lst = TypeListeners(event_type)

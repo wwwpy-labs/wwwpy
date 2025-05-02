@@ -118,7 +118,7 @@ class ActionManager:
 
     def __init__(self):
         self.pointer_manager: PointerManager[ActionItem] = PointerManager()
-        self.pointer_manager.listeners_for(IdentifyEvent).add(self._identify_event)
+        self.pointer_manager.on(IdentifyEvent).add(self._identify_event)
 
     def _identify_event(self, event: IdentifyEvent):
         event.action = _find_palette_item(event.js_event)
@@ -134,8 +134,8 @@ class ActionManager:
     def drag_state(self):
         return self.pointer_manager.drag_state
 
-    def listeners_for(self, event_type: type[TPE]) -> TypeListeners[TPE]:
-        return self.pointer_manager.listeners_for(event_type)
+    def on(self, event_type: type[TPE]) -> TypeListeners[TPE]:
+        return self.pointer_manager.on(event_type)
 
     @property
     def selected_action(self) -> ActionItem | None:

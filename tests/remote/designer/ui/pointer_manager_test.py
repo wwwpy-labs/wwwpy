@@ -104,7 +104,7 @@ class TestUseSelection:
     async def test_selection_and_click__accept_should_deselect(self, pointer_manager, action1, div1, events):
         # GIVEN
         pointer_manager.selected_action = action1
-        pointer_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
+        pointer_manager.on(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
@@ -121,7 +121,7 @@ class TestDrag:
     async def test_selected_drag__accepted_should_deselect(self, palette, pointer_manager, action1, div1):
         # GIVEN
         pointer_manager.selected_action = action1
-        pointer_manager.listeners_for(DeselectEvent).add(lambda event: event.accept())
+        pointer_manager.on(DeselectEvent).add(lambda event: event.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
@@ -170,7 +170,7 @@ class TestDrag:
     async def test_no_selection_drag_and_drop__accept_should_deselect(self, pointer_manager, action1, div1, events):
         # GIVEN
         pointer_manager.selected_action = None
-        pointer_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
+        pointer_manager.on(DeselectEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
@@ -271,7 +271,7 @@ class TestStopEvents:
     async def test_stop_event(self, pointer_manager, action1, event_type, div1):
         # GIVEN
         pointer_manager.selected_action = action1
-        pointer_manager.listeners_for(DeselectEvent).add(lambda ev: ev.accept())
+        pointer_manager.on(DeselectEvent).add(lambda ev: ev.accept())
 
         events = []
         div1.addEventListener(event_type, create_proxy(lambda ev: events.append(ev)))
@@ -373,7 +373,7 @@ class Fixture:
             elif target.id == 'div1':
                 event.identified_as = 'canvas'
 
-        am.listeners_for(IdentifyEvent).add(ie)
+        am.on(IdentifyEvent).add(ie)
 
     def _add_action(self, label: str) -> ActionItemFake:
         action = ActionItemFake(f'{label}-key', label)

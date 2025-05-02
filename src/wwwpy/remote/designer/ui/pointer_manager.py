@@ -68,8 +68,8 @@ class PointerManager(Generic[THasSelected]):
     def drag_state(self) -> str:
         return self._pointer_api.drag_state
 
-    def listeners_for(self, event_type: type[TPE]) -> TypeListeners[TPE]:
-        return self._listeners.listeners_for(event_type)
+    def on(self, event_type: type[TPE]) -> TypeListeners[TPE]:
+        return self._listeners.on(event_type)
 
     def _notify(self, ev: PMEvent) -> None:
         self._listeners.notify(ev)
