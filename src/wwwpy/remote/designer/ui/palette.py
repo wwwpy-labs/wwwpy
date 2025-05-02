@@ -8,8 +8,7 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, TPE
-from wwwpy.remote.designer.ui.type_listener import TypeListeners
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -124,15 +123,9 @@ class ActionManager:
             event.identified_as = 'action' if event.action else 'canvas'
 
         self.pointer_manager.on(IdentifyEvent).add(_identify)
-
-    def install(self):
-        self.pointer_manager.install()
-
-    def uninstall(self):
-        self.pointer_manager.uninstall()
-
-    def on(self, event_type: type[TPE]) -> TypeListeners[TPE]:
-        return self.pointer_manager.on(event_type)
+        self.install = self.pointer_manager.install
+        self.uninstall = self.pointer_manager.uninstall
+        self.on = self.pointer_manager.on
 
     @property
     def selected_action(self) -> Action | None:
