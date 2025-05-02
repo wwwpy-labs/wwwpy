@@ -8,7 +8,8 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, TPE, TypeListeners
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, TPE
+from wwwpy.remote.designer.ui.type_listener import TypeListeners
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)

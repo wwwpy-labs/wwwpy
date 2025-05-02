@@ -8,6 +8,7 @@ import js
 
 import wwwpy.remote.eventlib as eventlib
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
+from wwwpy.remote.designer.ui.type_listener import TypeListeners
 from wwwpy.remote.eventlib import handler_options
 
 logger = logging.getLogger(__name__)
@@ -38,24 +39,6 @@ class DeselectEvent(PMEvent):
 @dataclass
 class HoverEvent(PMEvent):
     pass
-
-
-class TypeListeners(Generic[TPE], list[Callable[[TPE], None]]):
-    def __init__(self, event_type: type[TPE]) -> None:
-        super().__init__()
-        self.event_type = event_type
-
-    def add(self, handler: Callable[[TPE], None]) -> None:
-        self.append(handler)
-
-    def remove(self, handler: Callable[[TPE], None]) -> None:
-        super().remove(handler)
-
-    def notify(self, event: TPE) -> None:
-        if not isinstance(event, self.event_type):
-            raise TypeError(f'Handler expects {self.event_type}')
-        for h in list(self):
-            h(event)
 
 
 class HasSelected(Protocol):
