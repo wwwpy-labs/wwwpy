@@ -6,7 +6,7 @@ T = TypeVar('T')
 
 
 class TypeListeners(Generic[T], list[Callable[[T], None]]):
-    def __init__(self, event_type: type[T]) -> None:
+    def __init__(self, event_type: type[T] | None) -> None:
         super().__init__()
         self.event_type = event_type
 
@@ -17,7 +17,7 @@ class TypeListeners(Generic[T], list[Callable[[T], None]]):
         super().remove(handler)
 
     def notify(self, event: T) -> None:
-        if not isinstance(event, self.event_type):
+        if self.event_type and not isinstance(event, self.event_type):
             raise TypeError(f'Handler expects {self.event_type}')
         for h in list(self):
             h(event)
@@ -26,6 +26,7 @@ class TypeListeners(Generic[T], list[Callable[[T], None]]):
 class DictListeners:
     def __init__(self):
         self._listeners: dict[type, TypeListeners] = {}
+        self.catch_all = TypeListeners(None)
 
     def listeners_for(self, event_type: type[T]) -> TypeListeners[T]:
         lst = self._listeners.get(event_type)
@@ -38,3 +39,4 @@ class DictListeners:
         listeners = self._listeners.get(type(ev), None)
         if listeners:
             listeners.notify(ev)
+        self.catch_all.notify(ev)
