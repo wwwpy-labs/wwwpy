@@ -21,3 +21,20 @@ class TypeListeners(Generic[T], list[Callable[[T], None]]):
             raise TypeError(f'Handler expects {self.event_type}')
         for h in list(self):
             h(event)
+
+
+class DictListeners:
+    def __init__(self):
+        self._listeners: dict[type, TypeListeners] = {}
+
+    def listeners_for(self, event_type: type[T]) -> TypeListeners[T]:
+        lst = self._listeners.get(event_type)
+        if lst is None:
+            lst = TypeListeners(event_type)
+            self._listeners[event_type] = lst
+        return lst
+
+    def notify(self, ev: T) -> None:
+        listeners = self._listeners.get(type(ev), None)
+        if listeners:
+            listeners.notify(ev)

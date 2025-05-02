@@ -7,7 +7,7 @@ import js
 
 from wwwpy.remote import eventlib
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.type_listener import TypeListeners
+from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.eventlib import handler_options
 
 logger = logging.getLogger(__name__)
@@ -67,9 +67,8 @@ class PointerUp(PAEvent):
 
 class PointerApi:
     def __init__(self) -> None:
-        self._listeners: dict[type[PAEvent], TypeListeners] = {}
+        self._listeners = DictListeners()
         self._drag_fsm = DragFsm()
-        # self._ready_item: THasSelected | None = None
         self._stopped = False
         self._stop_next_click = False
 
@@ -83,17 +82,11 @@ class PointerApi:
     def drag_state(self) -> str:
         return self._drag_fsm.state
 
-    def listeners_for(self, event_type: type[TPA]) -> TypeListeners[TPA]:
-        lst = self._listeners.get(event_type)
-        if lst is None:
-            lst = TypeListeners(event_type)
-            self._listeners[event_type] = lst
-        return lst
+    def on(self, event_type: type[TPA]) -> TypeListeners[TPA]:
+        return self._listeners.listeners_for(event_type)
 
     def _notify(self, ev: PAEvent) -> None:
-        listeners = self.listeners_for(type(ev))
-        if listeners:
-            listeners.notify(ev)
+        self._listeners.notify(ev)
 
     def _stop(self, e: js.Event):
         e.stopPropagation()
@@ -110,11 +103,11 @@ class PointerApi:
 
     @handler_options(capture=True)
     def _js_window__pointerdown(self, event: js.PointerEvent):
-        pae_down = PointerDown(event)
-        self._notify(pae_down)
-        if pae_down._start_drag:
+        e = PointerDown(event)
+        self._notify(e)
+        if e._start_drag:
             self._drag_fsm.pointerdown_accepted(event)
-        elif pae_down._stop:
+        elif e._stop:
             self._stop(event)
             self._stopped = True
             self._stop_next_click = True

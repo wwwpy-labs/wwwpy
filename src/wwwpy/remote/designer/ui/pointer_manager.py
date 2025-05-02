@@ -54,9 +54,9 @@ class PointerManager(Generic[THasSelected]):
         self._ready_item: THasSelected | None = None
 
         self._pointer_api = PointerApi()
-        self._pointer_api.listeners_for(PointerDown).add(self._on_pointer_down)
-        self._pointer_api.listeners_for(PointerMove).add(self._on_pointer_move)
-        self._pointer_api.listeners_for(PointerUp).add(self._on_pointer_up)
+        self._pointer_api.on(PointerDown).add(self._on_pointer_down)
+        self._pointer_api.on(PointerMove).add(self._on_pointer_move)
+        self._pointer_api.on(PointerUp).add(self._on_pointer_up)
 
     def install(self) -> None:
         self._pointer_api.install()
