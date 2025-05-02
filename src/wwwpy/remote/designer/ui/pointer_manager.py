@@ -136,10 +136,10 @@ class PointerManager(Generic[THasSelected]):
                 self.selected_action = None
 
     def _js_window__pointermove(self, event: js.PointerEvent):
+        dragging = self._drag_fsm.transitioned_to_dragging(event)
+
         ie = IdentifyEvent(event)
         self._notify(ie)
-
-        dragging = self._drag_fsm.transitioned_to_dragging(event)
         logger.debug(
             f'_js_window__pointermove ident_as={ie.identified_as} state={self._drag_fsm.state} ready_item={self._ready_item} dragging={dragging} ie={ie.identified_as}')
         if dragging and self._ready_item is not None:
