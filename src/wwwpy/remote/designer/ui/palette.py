@@ -130,10 +130,6 @@ class ActionManager:
     def uninstall(self):
         self.pointer_manager.uninstall()
 
-    @property
-    def drag_state(self):
-        return self.pointer_manager.drag_state
-
     def on(self, event_type: type[TPE]) -> TypeListeners[TPE]:
         return self.pointer_manager.on(event_type)
 
