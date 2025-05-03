@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Callable, Literal, Protocol
+from typing import Generic, TypeVar, Callable, Protocol
 
 import js
 
@@ -22,8 +22,18 @@ TPE = TypeVar('TPE', bound=PMEvent)
 
 @dataclass
 class IdentifyEvent(PMEvent):
-    identified_as: Literal['action', 'canvas'] | None = None
     action = None
+
+    def set_action(self, action):
+        self.action = action
+
+    @property
+    def is_action(self) -> bool:
+        return self.action is not None
+
+    def __str__(self):
+        act = '' if self.is_action is None else f', action={self.action}'
+        return f'IdentifyEvent(is_action={self.is_action}{act})'
 
 
 @dataclass
@@ -84,8 +94,8 @@ class PointerManager(Generic[THasSelected]):
     def _on_pointer_down(self, event: PointerDown):
         ie = IdentifyEvent(event.js_event)
         self._notify(ie)
-        logger.debug(f'_on_pointer_down state={self.drag_state} ie={ie.identified_as}')
-        if ie.identified_as == 'action':
+        logger.debug(f'_on_pointer_down {ie} state={self.drag_state}')
+        if ie.is_action:
             self._ready_item = ie.action
             event.start_drag()
         else:
@@ -99,13 +109,13 @@ class PointerManager(Generic[THasSelected]):
     def _on_pointer_move(self, event: PointerMove):
         ie = IdentifyEvent(event.js_event)
         self._notify(ie)
-        logger.debug(f'_on_pointer_move ident_as={ie.identified_as} state={self.drag_state} '
-                     f'ready_item={self._ready_item} drag_started={event.drag_started} ie={ie.identified_as}')
+        logger.debug(f'_on_pointer_move {ie} state={self.drag_state} '
+                     f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
             self.selected_action = self._ready_item
             self._ready_item = None
 
-        if ie.identified_as == 'action':
+        if ie.is_action:
             return
 
         self._notify(HoverEvent(event.js_event))
@@ -113,14 +123,14 @@ class PointerManager(Generic[THasSelected]):
     def _on_pointer_up(self, event: PointerUp):
         ie = IdentifyEvent(event.js_event)
         self._notify(ie)
-        logger.debug(f'_on_pointer_up state={self.drag_state} ready_item={self._ready_item} ie={ie.identified_as}')
+        logger.debug(f'_on_pointer_up {ie} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
 
         ready = self._ready_item
         self._ready_item = None
 
-        if event.normal_click and ie.identified_as == 'action' and ready is not None:
+        if event.normal_click and ie.is_action and ready is not None:
             self._toggle_selection(ready)
 
         if event.drag_ended:

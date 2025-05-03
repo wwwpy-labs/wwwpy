@@ -363,15 +363,9 @@ class Fixture:
         def ie(event: IdentifyEvent):
             if event.js_event is None:
                 raise ValueError('js_event is not set')
-            # target = event.js_event.target
-            # if target is None:
-            #     raise ValueError('target is not set')
             target = get_deepest_element(event.js_event.clientX, event.js_event.clientY)
             if target.id.startswith('action'):
-                event.identified_as = 'action'
-                event.action = target._action_fake
-            elif target.id == 'div1':
-                event.identified_as = 'canvas'
+                event.set_action(target._action_fake)
 
         am.on(IdentifyEvent).add(ie)
 

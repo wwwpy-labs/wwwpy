@@ -117,12 +117,7 @@ class ActionManager:
 
     def __init__(self):
         self.pointer_manager: PointerManager[Action] = PointerManager()
-
-        def _identify(event: IdentifyEvent):
-            event.action = _find_palette_item(event.js_event)
-            event.identified_as = 'action' if event.action else 'canvas'
-
-        self.pointer_manager.on(IdentifyEvent).add(_identify)
+        self.pointer_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_item(e.js_event)))
         self.install = self.pointer_manager.install
         self.uninstall = self.pointer_manager.uninstall
         self.on = self.pointer_manager.on
