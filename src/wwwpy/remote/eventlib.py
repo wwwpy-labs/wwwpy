@@ -160,7 +160,7 @@ def _has_handler_options(func) -> bool:
     return hasattr(func, '_handler_options')
 
 
-def handler_options(target=BY_CONVENTION, type=BY_CONVENTION, capture=False):
+def handler_options(*, target=BY_CONVENTION, type=BY_CONVENTION, capture=False):
     """
     Decorator to set handler options for a function.
 
