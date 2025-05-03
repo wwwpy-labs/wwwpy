@@ -161,6 +161,15 @@ def _has_handler_options(func) -> bool:
 
 
 def handler_options(target=BY_CONVENTION, type=BY_CONVENTION, capture=False):
+    """
+    Decorator to set handler options for a function.
+
+    Args:
+        target: The DOM target to which the event listener will be attached.
+        type: The type of event to listen for (e.g., 'click', 'keydown').
+        capture: Whether to use capture phase for the event listener.
+    """
+
     def decorator(func):
         if _has_handler_options(func):
             raise ValueError('handler_options already set for this function')
