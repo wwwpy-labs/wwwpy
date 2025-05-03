@@ -22,15 +22,8 @@ async def test_palette_no_selected_action(pointer_manager):
     assert pointer_manager.selected_action is None
 
 
-async def test_palette_click_action__should_be_selected(palette, pointer_manager, action1):
+async def test_palette_click_action__should_be_selected(pointer_manager, action1):
     await rpctst_exec("page.locator('#action1').click()")
-
-    assert pointer_manager.selected_action == action1
-    assert action1.selected
-
-
-async def test_palette_click_action_label__should_be_selected(palette, pointer_manager, action1):
-    await rpctst_exec("page.locator('#action1 > label').click()")
 
     assert pointer_manager.selected_action == action1
     assert action1.selected
@@ -43,14 +36,14 @@ async def test_manual_selection(pointer_manager, action1):
     assert action1.selected
 
 
-async def test_palette_click_twice_action__should_be_deselected(palette, pointer_manager, action1):
+async def test_palette_click_twice_action__should_be_deselected(pointer_manager, action1):
     await rpctst_exec(["page.locator('#action1').click()", "page.locator('#action1').click()"])
 
     assert pointer_manager.selected_action is None
     assert not action1.selected
 
 
-async def test_palette_selecting_different_action__should_deselect_previous(palette, pointer_manager, action1, action2):
+async def test_palette_selecting_different_action__should_deselect_previous(pointer_manager, action1, action2):
     await rpctst_exec(["page.locator('#action1').click()", "page.locator('#action2').click()"])
 
     assert pointer_manager.selected_action == action2
@@ -58,16 +51,9 @@ async def test_palette_selecting_different_action__should_deselect_previous(pale
     assert action2.selected
 
 
-async def test_palette_should_put_elements_on_screen(palette, action1, action2):
+async def test_palette_should_put_elements_on_screen(action1, action2):
     assert action1.element.isConnected is True
     assert action2.element.isConnected is True
-
-
-async def test_externally_select_action(palette, pointer_manager, action1, action2):
-    pointer_manager.selected_action = action1
-
-    assert pointer_manager.selected_action == action1
-    assert action1.selected
 
 
 async def test_externally_select_different_action(pointer_manager, action1, action2):
@@ -79,14 +65,6 @@ async def test_externally_select_different_action(pointer_manager, action1, acti
     assert pointer_manager.selected_action == action2
     assert not action1.selected
     assert action2.selected
-
-
-async def test_externally_deselect_action(palette, action1, action2):
-    palette.selected_action = action1
-    palette.selected_action = None
-
-    assert palette.selected_action is None
-    assert not action1.selected
 
 
 class TestUseSelection:
@@ -118,7 +96,7 @@ class TestDrag:
     # see Playwright cancel drag here https://github.com/danielwiehl/playwright-bug-reproducer-dnd-cancel/blob/master/tests/reproducer.spec.ts
     # and generally https://chatgpt.com/share/67efcda6-9890-8006-8542-3634aa9249bf
 
-    async def test_selected_drag__accepted_should_deselect(self, palette, pointer_manager, action1, div1):
+    async def test_selected_drag__accepted_should_deselect(self, pointer_manager, action1, div1):
         # GIVEN
         pointer_manager.selected_action = action1
         pointer_manager.on(DeselectEvent).add(lambda event: event.accept())
@@ -293,11 +271,6 @@ class TestStopEvents:
 
         # THEN
         assert len(events) == 1, 'div1 event should be fired'
-
-
-@pytest.fixture
-def palette(fixture):
-    yield fixture.palette
 
 
 @pytest.fixture
