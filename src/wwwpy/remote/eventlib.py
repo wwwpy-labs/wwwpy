@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import logging
 import types
 import weakref
@@ -59,32 +60,45 @@ def convention_accept(name: str) -> Accept | None:
     return Accept(target_obj, event_type)
 
 
-def _process_event_listeners(intance, action_func, accept=convention_accept):
+def _process_event_listeners(instance, action_func, accept=convention_accept):
     """
     Helper function to process event listeners for methods in target.
 
     Args:
-        intance: The object containing methods to process
+        instance: The object containing methods to process
         action_func: Function to call with (target, event_type, method) for matched methods
         accept: A function that determines if a method matches the event handler pattern
     """
 
-    for name in dir(intance):
+    for name in dir(instance):
         if name.startswith('__'):
             continue
+        try:
+            try:
+                attr = inspect.getattr_static(instance, name)
+            except AttributeError:
+                continue
+            if isinstance(attr, property):
+                continue
+            if isinstance(attr, types.FunctionType):
+                bound_method = getattr(instance, name)
+            else:
+                continue
 
-        bound_method: types.MethodType = getattr(intance, name)
-        if callable(bound_method):
             accepted = accept(name)
-            if accepted is not None:
-                logger.debug(f'calling {action_func} for {name} js_id={accepted.target.js_id}')
-                h = handler(bound_method)
-                try:
-                    getattr(h, action_func)()
-                except KeyError as e:
-                    logger.error(f'KeyError: {e} for {name}')
-                    logger.info(f'target=`{intance.__class__.__name__}` has no event listener for {name}')
-                logger.info(f'EVENT_LISTENERS=`{EVENT_LISTENERS}`')
+            if accepted is not None or _has_handler_options(bound_method.__func__):
+                if callable(bound_method):
+                    logger.debug(f'calling {action_func} for {name}')
+                    h = handler(bound_method)
+                    try:
+                        getattr(h, action_func)()
+                    except KeyError as e:
+                        logger.error(f'KeyError: {e} for {name}')
+                        logger.info(f'target=`{instance.__class__.__name__}` has no event listener for {name}')
+                    logger.info(f'EVENT_LISTENERS=`{EVENT_LISTENERS}`')
+        except Exception as e:
+            logger.exception(f'Error processing {name}: {e}')
+            raise
 
 
 def add_event_listeners(target, accept=convention_accept):

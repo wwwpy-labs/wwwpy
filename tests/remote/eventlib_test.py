@@ -210,6 +210,35 @@ class TestHandler:
         # THEN
         assert len(events) == 1
 
+    async def test_install_on_instance(self):
+        # GIVEN
+        events = []
+
+        class C1:
+            @eventlib.handler_options(target=js.document, type='click')
+            def handler1(self, e):
+                events.append(e)
+
+        c1 = C1()
+
+        # WHEN
+        eventlib.add_event_listeners(c1)
+        js.document.body.click()
+
+        # THEN
+        assert len(events) == 1
+
+    async def test_install_trigger_issue(self):
+        # GIVEN
+        class C1:
+            def _notify(self, e): ...
+
+        c1 = C1()
+
+        # should not raise
+        eventlib.add_event_listeners(c1)
+
+
     async def test_double_install(self):
         # GIVEN
         events = []
@@ -296,3 +325,21 @@ class TestHandler:
         # THEN
         with pytest.raises(Exception):
             h.uninstall()
+
+
+def test_install_should_not_invoke_getter():
+    # GIVEN
+    events = []
+
+    class C1:
+        @property
+        def _some_prop(self):
+            events.append(1)
+
+    c1 = C1()
+
+    # WHEN
+    eventlib.add_event_listeners(c1)
+
+    # THEN
+    assert events == []
