@@ -43,9 +43,9 @@ class PointerMove(PAEvent):
 
 
 class Reason(str, Enum):
-    stopped = 'STOPPED'
-    drag_ended = 'DRAG_ENDED'
     normal_click = 'NORMAL_CLICK'
+    drag_ended = 'DRAG_ENDED'
+    stopped = 'STOPPED'
 
 
 @dataclass
@@ -88,17 +88,12 @@ class PointerApi:
     def _notify(self, ev: PAEvent) -> None:
         self._listeners.notify(ev)
 
-    def _stop(self, e: js.Event):
-        e.stopPropagation()
-        e.preventDefault()
-        e.stopImmediatePropagation()
-
     @handler_options(capture=True)
     def _js_window__click(self, event: js.MouseEvent):
         logger.debug(
             f'_js_window__click _stop_next_click={self._stop_next_click} _stopped={self._stopped} state={self._drag_fsm.state}')
         if self._stop_next_click:
-            self._stop(event)
+            _stop_js_event(event)
         self._stop_next_click = False
 
     @handler_options(capture=True)
@@ -108,7 +103,7 @@ class PointerApi:
         if e._start_drag:
             self._drag_fsm.pointerdown_accepted(event)
         elif e._stop:
-            self._stop(event)
+            _stop_js_event(event)
             self._stopped = True
             self._stop_next_click = True
 
@@ -119,21 +114,27 @@ class PointerApi:
 
     @handler_options(capture=True)
     def _js_window__pointerup(self, event: js.PointerEvent):
-        e = None
-        if self._stopped:
-            self._stop(event)
-            self._stopped = False
-            e = PointerUp(event, Reason.stopped)
-        elif self._drag_fsm.state == DragFsm.DRAGGING:
-            e = PointerUp(event, Reason.drag_ended)
+        r = None
+        if self._drag_fsm.state == DragFsm.DRAGGING:
+            r = Reason.drag_ended
         elif self._drag_fsm.state == DragFsm.READY:
-            e = PointerUp(event, Reason.normal_click)
+            r = Reason.normal_click
+        elif self._stopped:
+            r = Reason.stopped
+            _stop_js_event(event)
+            self._stopped = False
 
         self._drag_fsm.pointerup(event)
-        if e:
-            self._notify(e)
+        if r:
+            self._notify(PointerUp(event, r))
         else:
             logger.warning(f'_js_window__pointerup: no event to notify fsm={self._drag_fsm.state}')
+
+
+def _stop_js_event(e: js.Event):
+    e.stopPropagation()
+    e.preventDefault()
+    e.stopImmediatePropagation()
 
 
 def _pretty(node):
