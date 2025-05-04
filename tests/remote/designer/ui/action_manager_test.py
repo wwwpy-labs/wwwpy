@@ -103,8 +103,8 @@ class TestDrag:
 
     async def test_selected_drag__accepted_should_deselect(self, action_manager, action1, div1):
         # GIVEN
+        action1.accept_execute = True
         action_manager.selected_action = action1
-        action_manager.on(DeselectEvent).add(lambda event: event.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
@@ -137,8 +137,7 @@ class TestDrag:
         assert action_manager.selected_action is action2
         assert action_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_action1_click_and_start_drag_on_action2__should_select_action2(self, action_manager, action1,
-                                                                                  action2, div1):
+    async def test_change_selection_with_drag__should_select_action2(self, action_manager, action1, action2, div1):
         # GIVEN
         await rpctst_exec(["page.locator('#action1').click()"])
         x, y = element_xy_center(div1)
@@ -350,6 +349,18 @@ class TestActionEvents:
         # THEN
         assert action1.events == ['action1:on_hover', 'action1:on_execute']
 
+    async def test_change_selection_with_drag(self, action1, action2, div1, action_events):
+        # GIVEN
+        await rpctst_exec(["page.locator('#action1').click()"])
+        x, y = element_xy_center(div1)
+        action_events.clear()
+
+        # WHEN
+        await rpctst_exec(["page.locator('#action2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
+
+        # THEN
+        assert action_events == ['action1:on_deselect', 'action2:on_selected', 'action2:on_hover', ]
+
 
 @pytest.fixture
 def action_manager(fixture):
@@ -370,6 +381,11 @@ def div1(fixture): yield fixture.div1
 
 @pytest.fixture
 def events(fixture): yield fixture.events
+
+
+@pytest.fixture
+def action_events(fixture):
+    yield fixture.action_events
 
 
 class EventFixture:
@@ -397,11 +413,15 @@ class EventFixture:
 
 @dataclass
 class ActionFake(Action):
+    action_events: list = None
     events: list = field(default_factory=list)
     accept_execute = False
 
     def _ev(self, kind):
-        self.events.append(f'{self.label}:{kind}')
+        e = f'{self.label}:{kind}'
+        self.events.append(e)
+        self.action_events.append(e)
+
 
     def on_selected(self): self._ev('on_selected')
 
@@ -427,10 +447,15 @@ class Fixture:
 
     def _add_action(self, label: str) -> ActionFake:
         action = ActionFake(label)
+        action.action_events = self.action_events
         palette_item = self._palette.add_action(action)
         palette_item.element.id = label
         action.element = palette_item.element
         return action
+
+    @cached_property
+    def action_events(self) -> list:
+        return []
 
     @cached_property
     def action1(self) -> ActionFake:
