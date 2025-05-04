@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from functools import cached_property
 
 import js
 import pytest
@@ -323,9 +324,6 @@ class EventFixture:
 class Fixture:
     _palette: PaletteComponent = None
     _events: EventFixture = None
-    _action1: Action = None
-    _action2: Action = None
-    _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
         self._palette = PaletteComponent()
@@ -342,26 +340,21 @@ class Fixture:
         js.document.body.appendChild(palette_item.element)
         return action
 
-    @property
+    @cached_property
     def action1(self) -> Action:
-        if self._action1 is None:
-            self._action1 = self._add_action('action1')
-        return self._action1
+        return self._add_action('action1')
 
-    @property
+    @cached_property
     def action2(self) -> Action:
-        if self._action2 is None:
-            self._action2 = self._add_action('action2')
-        return self._action2
+        return self._add_action('action2')
 
-    @property
+    @cached_property
     def div1(self) -> js.HTMLDivElement:
-        if self._div1 is None:
-            self._div1 = js.document.createElement('div')
-            self._div1.id = 'div1'
-            self._div1.textContent = 'hello'
-            js.document.body.appendChild(self._div1)
-        return self._div1
+        div1 = js.document.createElement('div')
+        div1.id = 'div1'
+        div1.textContent = 'hello'
+        js.document.body.appendChild(div1)
+        return div1
 
     @property
     def events(self) -> EventFixture:
