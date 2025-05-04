@@ -10,6 +10,8 @@ from pyodide.ffi import create_proxy
 
 from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec
+from wwwpy.common import injector
+from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.action_manager import ActionManager, Action
 from wwwpy.remote.designer.ui.action_manager import HoverEvent, DeselectEvent, TPE, ActionChangedEvent
@@ -322,22 +324,19 @@ class EventFixture:
 
 @dataclass
 class Fixture:
-    _palette: PaletteComponent = None
-    _events: EventFixture = None
+    action_manager: ActionManager = inject()
 
-    def __post_init__(self):
-        self._palette = PaletteComponent()
-
-    @property
-    def action_manager(self) -> ActionManager:
-        return self._palette.action_manager
+    @cached_property
+    def _palette(self):
+        p = PaletteComponent()
+        js.document.body.appendChild(p.element)
+        return p
 
     def _add_action(self, label: str) -> Action:
         action = Action(label)
         palette_item = self._palette.add_action(action)
         palette_item.element.id = label
         action.element = palette_item.element
-        js.document.body.appendChild(palette_item.element)
         return action
 
     @cached_property
@@ -358,18 +357,20 @@ class Fixture:
 
     @property
     def events(self) -> EventFixture:
-        if self._events is None:
-            self._events = EventFixture()
-            # self.action_manager.on_events = self._events.add
-            self.action_manager._listeners.catch_all.add(lambda e: self._events.add(e))
-        return self._events
+        ef = EventFixture()
+        self.action_manager._listeners.catch_all.add(lambda e: ef.add(e))
+        return ef
 
 
 @pytest.fixture()
 def fixture(clean_document):
+    injector.default_injector.clear()
+    am = ActionManager()
+    register(am)
     f = Fixture()
     f.action_manager.install()
     try:
         yield f
     finally:
         f.action_manager.uninstall()
+        injector.default_injector.clear()

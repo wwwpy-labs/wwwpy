@@ -6,6 +6,7 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
+from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.action_manager import ActionManager, IdentifyEvent, ActionChangedEvent, Action
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
+    action_manager: ActionManager = inject()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -27,8 +29,6 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 </div>
 """
         self.element.shadowRoot.innerHTML += _css_styles
-        self.action_manager = ActionManager()
-        self.action_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
 
         def ace(e: ActionChangedEvent):
             if e.old is not None:
@@ -39,14 +39,17 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self._action2item = {}
 
         self._on_action_changed_event = ace
+        self._on_identify_event = lambda e: e.set_action(_find_palette_action(e.js_event))
 
     def connectedCallback(self):
         self.action_manager.install()
+        self.action_manager.on(IdentifyEvent).add(self._on_identify_event)
         self.action_manager.on(ActionChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
-        self.action_manager.uninstall()
         self.action_manager.on(ActionChangedEvent).remove(self._on_action_changed_event)
+        self.action_manager.on(IdentifyEvent).remove(self._on_identify_event)
+        self.action_manager.uninstall()
 
     def add_action(self, action: Action) -> PaletteItemComponent:
         """Add an item to the palette."""
