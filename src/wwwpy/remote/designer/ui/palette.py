@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 
 import js
 from pyodide.ffi import create_proxy
@@ -9,23 +8,10 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.action_manager import ActionManager, IdentifyEvent, ActionChangedEvent, HoverEvent
+from wwwpy.remote.designer.ui.action_manager import ActionManager, IdentifyEvent, ActionChangedEvent, Action
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class Action:
-    label: str
-    """Label to be displayed in the palette item."""
-
-    selected: bool = False
-    """True if the item is selected, False otherwise."""
-
-
-class HoverEventReceiver:
-    def on_hover(self, event: HoverEvent): ...
 
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):

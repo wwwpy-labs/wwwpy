@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Generic, TypeVar, Callable, Protocol
+from typing import TypeVar, Callable
 
 import js
 
@@ -53,25 +53,30 @@ class HoverEvent(PMJsEvent):
     pass
 
 
-class HasSelected(Protocol):
-    selected: bool
+@dataclass
+class Action:
+    label: str
+    """Label to be displayed in the palette item."""
+
+    selected: bool = False
+    """True if the item is selected, False otherwise."""
 
 
-THasSelected = TypeVar("THasSelected", bound=HasSelected)
-
+# class HoverEventReceiver:
+#     def on_hover(self, event: HoverEvent): ...
 
 @dataclass
 class ActionChangedEvent(PMEvent):
-    old: THasSelected | None
-    new: THasSelected | None
+    old: Action | None
+    new: Action | None
 
 
-class ActionManager(Generic[THasSelected]):
+class ActionManager:
     def __init__(self) -> None:
-        self._selected_action: THasSelected | None = None
+        self._selected_action: Action | None = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None
         self._listeners = DictListeners()
-        self._ready_item: THasSelected | None = None
+        self._ready_item: Action | None = None
 
         self._pointer_api = PointerApi()
         self._pointer_api.on(PointerDown).add(self._on_pointer_down)
@@ -95,11 +100,11 @@ class ActionManager(Generic[THasSelected]):
         self._listeners.notify(ev)
         self.on_events(ev)
 
-    def _toggle_selection(self, item: THasSelected):
-        if item == self.selected_action:
+    def _toggle_selection(self, action: Action):
+        if action == self.selected_action:
             self.selected_action = None
         else:
-            self.selected_action = item
+            self.selected_action = action
 
     def _on_pointer_down(self, event: PointerDown):
         ie = IdentifyEvent(event.js_event)
@@ -150,11 +155,11 @@ class ActionManager(Generic[THasSelected]):
                 self.selected_action = None
 
     @property
-    def selected_action(self) -> THasSelected | None:
+    def selected_action(self) -> Action | None:
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, new: THasSelected | None) -> None:
+    def selected_action(self, new: Action | None) -> None:
         msg = ''
         if self._ready_item:
             msg += f' ri={self._ready_item}'
@@ -179,3 +184,4 @@ def _pretty(node):
     if hasattr(node, 'tagName'):
         return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)
+

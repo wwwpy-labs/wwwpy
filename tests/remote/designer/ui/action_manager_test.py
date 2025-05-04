@@ -10,10 +10,10 @@ from pyodide.ffi import create_proxy
 from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui.action_manager import ActionManager
+from wwwpy.remote.designer.ui.action_manager import ActionManager, Action
 from wwwpy.remote.designer.ui.action_manager import HoverEvent, DeselectEvent, TPE, ActionChangedEvent
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.palette import Action, PaletteComponent
+from wwwpy.remote.designer.ui.palette import PaletteComponent
 
 logger = logging.getLogger(__name__)
 
@@ -321,7 +321,7 @@ class EventFixture:
 
 @dataclass
 class Fixture:
-    action_manager: ActionManager[Action] = None
+    action_manager: ActionManager = None
     _palette: PaletteComponent = None
     _events: EventFixture = None
     _action1: Action = None
