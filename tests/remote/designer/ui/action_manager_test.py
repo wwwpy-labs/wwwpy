@@ -310,7 +310,8 @@ class TestActionEvents:
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
 
         # THEN
-        assert action1.events == ['action1:on_selected', 'action1:on_hover', 'action1:on_execute']
+        assert action1.events == ['action1:on_selected', 'action1:on_hover', 'action1:on_execute',
+                                  'action1:on_deselect']
 
     async def test_on_execute__click(self, action_manager, action1, div1):
         # GIVEN
@@ -321,7 +322,7 @@ class TestActionEvents:
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert action1.events == ['action1:on_hover', 'action1:on_execute']
+        assert action1.events == ['action1:on_hover', 'action1:on_execute', 'action1:on_deselect']
 
 
 @pytest.fixture

@@ -125,6 +125,7 @@ class ActionManager:
             self._notify(ae)
             if se is not None:
                 se.on_execute(ae)
+                se.on_deselect()
 
             if ae.accepted:
                 if se is not None:
@@ -170,6 +171,7 @@ class ActionManager:
             se = self.selected_action
             if se is not None:
                 se.on_execute(ae)
+                se.on_deselect()
 
     @property
     def selected_action(self) -> Action | None:
