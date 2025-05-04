@@ -306,6 +306,9 @@ class TestActionEvents:
         assert action1.events == ['action1:on_hover']
 
     async def test_on_execute__drag(self, action_manager, action1, div1):
+        # GIVEN
+        action1.accept_execute = True
+
         # WHEN
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
 
@@ -315,6 +318,7 @@ class TestActionEvents:
 
     async def test_on_execute__click(self, action_manager, action1, div1):
         # GIVEN
+        action1.accept_execute = True
         action_manager.selected_action = action1
         action1.events.clear()
 
@@ -372,6 +376,7 @@ class EventFixture:
 @dataclass
 class ActionFake(Action):
     events: list = field(default_factory=list)
+    accept_execute = False
 
     def _ev(self, kind):
         self.events.append(f'{self.label}:{kind}')
@@ -380,7 +385,10 @@ class ActionFake(Action):
 
     def on_hover(self, event: HoverEvent): self._ev('on_hover')
 
-    def on_execute(self, event: DeselectEvent): self._ev('on_execute')
+    def on_execute(self, event: DeselectEvent):
+        self._ev('on_execute')
+        if self.accept_execute:
+            event.accept()
 
     def on_deselect(self): self._ev('on_deselect')
 

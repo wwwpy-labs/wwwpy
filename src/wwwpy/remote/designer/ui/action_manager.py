@@ -124,13 +124,14 @@ class ActionManager:
             ae = DeselectEvent(event.js_event)
             self._notify(ae)
             if se is not None:
+                event.stop()
                 se.on_execute(ae)
-                se.on_deselect()
-
-            if ae.accepted:
-                if se is not None:
-                    event.stop()
-                self.selected_action = None
+                if ae.accepted:
+                    self.selected_action = None
+            # if ae.accepted:
+            #     if se is not None:
+            #         event.stop()
+            #     self.selected_action = None
 
     def _on_pointer_move(self, event: PointerMove):
         ie = IdentifyEvent(event.js_event)
@@ -160,18 +161,20 @@ class ActionManager:
         ready = self._ready_item
         self._ready_item = None
 
-        if event.normal_click and ie.is_action and ready is not None:
-            self._toggle_selection(ready)
+        if event.normal_click:
+            if ie.is_action:
+                if ready is not None:
+                    self._toggle_selection(ready)
 
-        if event.drag_ended:
+
+        elif event.drag_ended:
             ae = DeselectEvent(event.js_event)
             self._notify(ae)
-            if ae.accepted:
-                self.selected_action = None
             se = self.selected_action
             if se is not None:
                 se.on_execute(ae)
-                se.on_deselect()
+                if ae.accepted:
+                    self.selected_action = None
 
     @property
     def selected_action(self) -> Action | None:
@@ -184,16 +187,22 @@ class ActionManager:
             msg += f' ri={self._ready_item}'
 
         old = self.selected_action
+        if old == new:
+            msg += f' (no change) old={old}'
+            logger.debug(msg)
+            return
+
         if old:
             old.selected = False
+            old.on_deselect()
             msg += f' (deselecting {old})'
-        if old != new:
-            self._selected_action = new
-            msg += f' (selecting {None if new is None else new})'
-            if new:
-                new.selected = True
-                new.on_selected()
-            self._notify(ActionChangedEvent(old, new))
+
+        self._selected_action = new
+        msg += f' (selecting {None if new is None else new})'
+        if new:
+            new.selected = True
+            new.on_selected()
+        self._notify(ActionChangedEvent(old, new))
 
         logger.debug(msg)
 
