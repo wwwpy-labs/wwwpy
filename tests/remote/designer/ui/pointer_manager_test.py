@@ -11,7 +11,7 @@ from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, TPE
+from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, TPE, ActionChangedEvent
 from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -22,18 +22,20 @@ async def test_palette_no_selected_action(pointer_manager):
     assert pointer_manager.selected_action is None
 
 
-async def test_palette_click_action__should_be_selected(pointer_manager, action1):
+async def test_palette_click_action__should_be_selected(pointer_manager, action1, events):
     await rpctst_exec("page.locator('#action1').click()")
 
     assert pointer_manager.selected_action == action1
     assert action1.selected
+    assert events.action_changed_events != []
 
 
-async def test_manual_selection(pointer_manager, action1):
+async def test_manual_selection(pointer_manager, action1, events):
     pointer_manager.selected_action = action1
 
     assert pointer_manager.selected_action == action1
     assert action1.selected
+    assert events.action_changed_events != []
 
 
 async def test_palette_click_twice_action__should_be_deselected(pointer_manager, action1):
@@ -311,6 +313,10 @@ class EventFixture:
     @property
     def accept_events(self) -> list[DeselectEvent]:
         return self.filter(DeselectEvent)
+
+    @property
+    def action_changed_events(self) -> list[ActionChangedEvent]:
+        return self.filter(ActionChangedEvent)
 
 
 @dataclass()

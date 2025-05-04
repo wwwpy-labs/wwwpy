@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 import js
 from pyodide.ffi import create_proxy
@@ -8,36 +9,26 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent
+from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, ActionChangedEvent, HoverEvent
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class Action:
-    key: any
-    """Unique object to identify the item in the palette."""
-
     label: str
     """Label to be displayed in the palette item."""
 
-    selected: bool
+    selected: bool = False
     """True if the item is selected, False otherwise."""
 
 
-class PaletteItem(Action):
-
-    @property
-    def element(self) -> js.HTMLElement:
-        """Return the element to be displayed in the palette item."""
-        raise NotImplemented()
+class HoverEventReceiver:
+    def on_hover(self, event: HoverEvent): ...
 
 
-class Palette:
-    selected_item: PaletteItem | None
-
-
-class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
+class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
 
     def init_component(self):
@@ -52,29 +43,42 @@ class PaletteComponent(wpc.Component, Palette, tag_name='wwwpy-palette'):
         self.element.shadowRoot.innerHTML += _css_styles
         self.action_manager = ActionManager()
 
+        def ace(e: ActionChangedEvent):
+            if e.old is not None:
+                self._action2item[id(e.old)].selected = False
+            if e.new is not None:
+                self._action2item[id(e.new)].selected = True
+
+        self._action2item = {}
+
+        self._on_action_changed_event = ace
+
     def connectedCallback(self):
         self.action_manager.install()
+        self.action_manager.on(ActionChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
         self.action_manager.uninstall()
+        self.action_manager.on(ActionChangedEvent).remove(self._on_action_changed_event)
 
-    def add_item(self, key: any, label: str) -> PaletteItemComponent:
+    def add_action(self, action: Action) -> PaletteItemComponent:
         """Add an item to the palette."""
         item = PaletteItemComponent()
-        item.key = key
-        item.label = label
+        item.action = action
+        item.label = action.label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
+        self._action2item[id(action)] = item
         # item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._action_item_click(item)))
         return item
 
 
-class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-icon'):
+class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
     _label: js.HTMLLabelElement = wpc.element()
 
     # override magic method so the f strings get a nice representation
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.key}, {self.label})'
+        return f'{self.__class__.__name__}({self.label})'
 
     def init_component(self):
         # language=html
@@ -90,7 +94,7 @@ class PaletteItemComponent(wpc.Component, PaletteItem, tag_name='palette-item-ic
  </div>
  </div> 
 """
-        self.key = None
+        self.action: Action = None
 
     @property
     def label(self) -> str:
@@ -117,7 +121,7 @@ class ActionManager:
 
     def __init__(self):
         self.pointer_manager: PointerManager[Action] = PointerManager()
-        self.pointer_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_item(e.js_event)))
+        self.pointer_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
         self.install = self.pointer_manager.install
         self.uninstall = self.pointer_manager.uninstall
         self.on = self.pointer_manager.on
@@ -131,7 +135,7 @@ class ActionManager:
         self.selected_action = value
 
 
-def _find_palette_item(event: js.Event) -> PaletteItem | None:
+def _find_palette_action(event: js.Event) -> Action | None:
     target = get_deepest_element(event.clientX, event.clientY)
     if target is None:  # tests missing. It looks like it happens when the mouse exit the viewport or moves on the scrollbar
         return None
@@ -139,7 +143,8 @@ def _find_palette_item(event: js.Event) -> PaletteItem | None:
     import wwwpy.remote.designer.ui.palette as palette
     res = target.closest(palette.PaletteItemComponent.component_metadata.tag_name)
     if res:
-        return get_component(res)
+        comp: PaletteItemComponent = get_component(res)
+        return comp.action
     return None
 
 

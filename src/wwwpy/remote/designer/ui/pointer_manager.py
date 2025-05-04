@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PMEvent:
+class PMEvent: ...
+
+
+@dataclass
+class PMJsEvent(PMEvent):
     js_event: js.PointerEvent
 
 
@@ -21,7 +25,7 @@ TPE = TypeVar('TPE', bound=PMEvent)
 
 
 @dataclass
-class IdentifyEvent(PMEvent):
+class IdentifyEvent(PMJsEvent):
     action = None
 
     def set_action(self, action):
@@ -37,7 +41,7 @@ class IdentifyEvent(PMEvent):
 
 
 @dataclass
-class DeselectEvent(PMEvent):
+class DeselectEvent(PMJsEvent):
     accepted: bool = False
 
     def accept(self):
@@ -45,7 +49,7 @@ class DeselectEvent(PMEvent):
 
 
 @dataclass
-class HoverEvent(PMEvent):
+class HoverEvent(PMJsEvent):
     pass
 
 
@@ -54,6 +58,12 @@ class HasSelected(Protocol):
 
 
 THasSelected = TypeVar("THasSelected", bound=HasSelected)
+
+
+@dataclass
+class ActionChangedEvent(PMEvent):
+    old: THasSelected | None
+    new: THasSelected | None
 
 
 class PointerManager(Generic[THasSelected]):
@@ -144,20 +154,21 @@ class PointerManager(Generic[THasSelected]):
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, value: THasSelected | None) -> None:
+    def selected_action(self, new: THasSelected | None) -> None:
         msg = ''
         if self._ready_item:
             msg += f' ri={self._ready_item}'
 
-        sel = self.selected_action
-        if sel:
-            sel.selected = False
-            msg += f' (deselecting {sel})'
-
-        self._selected_action = value
-        msg += f' (selecting {None if value is None else value})'
-        if value:
-            value.selected = True
+        old = self.selected_action
+        if old:
+            old.selected = False
+            msg += f' (deselecting {old})'
+        if old != new:
+            self._selected_action = new
+            msg += f' (selecting {None if new is None else new})'
+            if new:
+                new.selected = True
+            self._notify(ActionChangedEvent(old, new))
 
         logger.debug(msg)
 
