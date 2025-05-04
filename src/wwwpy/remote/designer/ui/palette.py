@@ -41,7 +41,8 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 </div>
 """
         self.element.shadowRoot.innerHTML += _css_styles
-        self.action_manager = ActionManager()
+        self.action_manager = PointerManager()
+        self.action_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
 
         def ace(e: ActionChangedEvent):
             if e.old is not None:
@@ -116,23 +117,23 @@ class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
             self.element.classList.remove('selected')
 
 
-class ActionManager:
-    """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
-
-    def __init__(self):
-        self.pointer_manager: PointerManager[Action] = PointerManager()
-        self.pointer_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
-        self.install = self.pointer_manager.install
-        self.uninstall = self.pointer_manager.uninstall
-        self.on = self.pointer_manager.on
-
-    @property
-    def selected_action(self) -> Action | None:
-        return self.pointer_manager.selected_action
-
-    @selected_action.setter
-    def selected_action(self, value: Action | None):
-        self.selected_action = value
+# class ActionManager:
+#     """A class to manage interaction and events to handle, drag & drop, element selection, move element."""
+#
+#     def __init__(self):
+#         self.pointer_manager: PointerManager[Action] = PointerManager()
+#         self.pointer_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
+#         self.install = self.pointer_manager.install
+#         self.uninstall = self.pointer_manager.uninstall
+#         self.on = self.pointer_manager.on
+#
+#     @property
+#     def selected_action(self) -> Action | None:
+#         return self.pointer_manager.selected_action
+#
+#     @selected_action.setter
+#     def selected_action(self, value: Action | None):
+#         self.selected_action = value
 
 
 def _find_palette_action(event: js.Event) -> Action | None:

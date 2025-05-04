@@ -12,9 +12,8 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import Action, PaletteComponent
-from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, TPE, ActionChangedEvent
+from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, TPE, ActionChangedEvent
 from wwwpy.remote.designer.ui.pointer_manager import PointerManager
-from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -331,17 +330,17 @@ class Fixture:
 
     def __post_init__(self):
         self._palette = PaletteComponent()
-        am = self._palette.action_manager.pointer_manager
+        am = self._palette.action_manager
         self.pointer_manager = am
 
-        def ie(event: IdentifyEvent):
-            if event.js_event is None:
-                raise ValueError('js_event is not set')
-            target = get_deepest_element(event.js_event.clientX, event.js_event.clientY)
-            if target.id.startswith('action'):
-                event.set_action(target._action_fake)
-
-        am.on(IdentifyEvent).add(ie)
+        # def ie(event: IdentifyEvent):
+        #     if event.js_event is None:
+        #         raise ValueError('js_event is not set')
+        #     target = get_deepest_element(event.js_event.clientX, event.js_event.clientY)
+        #     if target.id.startswith('action'):
+        #         event.set_action(target._action_fake)
+        #
+        # am.on(IdentifyEvent).add(ie)
 
     def _add_action(self, label: str) -> Action:
         action = Action(label)
