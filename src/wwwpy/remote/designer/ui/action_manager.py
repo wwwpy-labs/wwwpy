@@ -66,7 +66,7 @@ class ActionChangedEvent(PMEvent):
     new: THasSelected | None
 
 
-class PointerManager(Generic[THasSelected]):
+class ActionManager(Generic[THasSelected]):
     def __init__(self) -> None:
         self._selected_action: THasSelected | None = None
         self.on_events: Callable[[PMEvent], None] = lambda ev: None

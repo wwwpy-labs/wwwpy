@@ -9,7 +9,7 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.pointer_manager import PointerManager, IdentifyEvent, ActionChangedEvent, HoverEvent
+from wwwpy.remote.designer.ui.action_manager import ActionManager, IdentifyEvent, ActionChangedEvent, HoverEvent
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 </div>
 """
         self.element.shadowRoot.innerHTML += _css_styles
-        self.action_manager = PointerManager()
+        self.action_manager = ActionManager()
         self.action_manager.on(IdentifyEvent).add(lambda e: e.set_action(_find_palette_action(e.js_event)))
 
         def ace(e: ActionChangedEvent):
