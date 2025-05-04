@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TypeVar, Callable
+from typing import TypeVar
 
 import js
 
@@ -74,7 +74,6 @@ class ActionChangedEvent(PMEvent):
 class ActionManager:
     def __init__(self) -> None:
         self._selected_action: Action | None = None
-        self.on_events: Callable[[PMEvent], None] = lambda ev: None
         self._listeners = DictListeners()
         self._ready_item: Action | None = None
 
@@ -98,7 +97,6 @@ class ActionManager:
 
     def _notify(self, ev: PMEvent) -> None:
         self._listeners.notify(ev)
-        self.on_events(ev)
 
     def _toggle_selection(self, action: Action):
         if action == self.selected_action:

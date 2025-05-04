@@ -378,7 +378,8 @@ class Fixture:
     def events(self) -> EventFixture:
         if self._events is None:
             self._events = EventFixture()
-            self.action_manager.on_events = self._events.add
+            # self.action_manager.on_events = self._events.add
+            self.action_manager._listeners.catch_all.add(lambda e: self._events.add(e))
         return self._events
 
 
