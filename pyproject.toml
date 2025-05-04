@@ -12,7 +12,7 @@ version = "0.1.84"
 description = "Build Powerful Web Applications: Simple, Scalable, and Fully Customizable"
 authors = [{ name = "Simone Giacomelli", email = "simone.giacomelli@gmail.com" }]
 dependencies = ["tornado==6.4.2", "watchdog==6.0.0", "webtypy"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["wwwpy", "wasm", "pyodide", "web", "development", "dom", "html", "javascript"]
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -23,7 +23,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
