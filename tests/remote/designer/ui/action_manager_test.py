@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 
 import js
 import pytest
 from pyodide.ffi import create_proxy
 
-from tests.remote.remote_fixtures import clean_document
+from tests.remote.remote_fixtures import clean_document_now
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
@@ -219,6 +219,7 @@ class TestHover:
         # THEN
         assert action_manager.selected_action is action1  # should still be selected
         assert events.hover_events == [], 'hover event emitted'
+        assert action2.events == []
 
     async def test_selected_and_hover_on_div1__should_emit_Hover(self, action_manager, action1, div1, events):
         # GIVEN
@@ -278,6 +279,51 @@ class TestStopEvents:
         assert len(events) == 1, 'div1 event should be fired'
 
 
+class TestActionEvents:
+    def test_on_selected_programmatically(self, action_manager, action1):
+        # WHEN
+        action_manager.selected_action = action1
+
+        # THEN
+        assert action1.events == ['action1:on_selected']
+
+    async def test_on_select__click(self, action_manager, action1):
+        # WHEN
+        await rpctst_exec("page.locator('#action1').click()")
+
+        # THEN
+        assert action1.events == ['action1:on_selected']
+
+    async def test_on_hover__hover(self, action_manager, action1, div1):
+        # WHEN
+        action_manager.selected_action = action1
+        action1.events.clear()
+
+        # WHEN
+        await rpctst_exec("page.locator('#div1').hover()")
+
+        # THEN
+        assert action1.events == ['action1:on_hover']
+
+    async def test_on_execute__drag(self, action_manager, action1, div1):
+        # WHEN
+        await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
+
+        # THEN
+        assert action1.events == ['action1:on_selected', 'action1:on_hover', 'action1:on_execute']
+
+    async def test_on_execute__click(self, action_manager, action1, div1):
+        # GIVEN
+        action_manager.selected_action = action1
+        action1.events.clear()
+
+        # WHEN
+        await rpctst_exec("page.locator('#div1').click()")
+
+        # THEN
+        assert action1.events == ['action1:on_hover', 'action1:on_execute']
+
+
 @pytest.fixture
 def action_manager(fixture):
     yield fixture.action_manager
@@ -323,6 +369,22 @@ class EventFixture:
 
 
 @dataclass
+class ActionFake(Action):
+    events: list = field(default_factory=list)
+
+    def _ev(self, kind):
+        self.events.append(f'{self.label}:{kind}')
+
+    def on_selected(self): self._ev('on_selected')
+
+    def on_hover(self, event: HoverEvent): self._ev('on_hover')
+
+    def on_execute(self, event: DeselectEvent): self._ev('on_execute')
+
+    def on_deselect(self): self._ev('on_deselect')
+
+
+@dataclass
 class Fixture:
     action_manager: ActionManager = inject()
 
@@ -332,19 +394,19 @@ class Fixture:
         js.document.body.appendChild(p.element)
         return p
 
-    def _add_action(self, label: str) -> Action:
-        action = Action(label)
+    def _add_action(self, label: str) -> ActionFake:
+        action = ActionFake(label)
         palette_item = self._palette.add_action(action)
         palette_item.element.id = label
         action.element = palette_item.element
         return action
 
     @cached_property
-    def action1(self) -> Action:
+    def action1(self) -> ActionFake:
         return self._add_action('action1')
 
     @cached_property
-    def action2(self) -> Action:
+    def action2(self) -> ActionFake:
         return self._add_action('action2')
 
     @cached_property
@@ -363,7 +425,8 @@ class Fixture:
 
 
 @pytest.fixture()
-def fixture(clean_document):
+def fixture():
+    clean_document_now('begin')
     injector.default_injector.clear()
     am = ActionManager()
     register(am)
@@ -373,4 +436,5 @@ def fixture(clean_document):
         yield f
     finally:
         f.action_manager.uninstall()
+        clean_document_now('end')
         injector.default_injector.clear()

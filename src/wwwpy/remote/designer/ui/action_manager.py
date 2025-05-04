@@ -61,6 +61,14 @@ class Action:
     selected: bool = False
     """True if the item is selected, False otherwise."""
 
+    def on_selected(self): ...
+
+    def on_hover(self, event: HoverEvent): ...
+
+    def on_execute(self, event: DeselectEvent): ...
+
+    def on_deselect(self): ...
+
 
 # class HoverEventReceiver:
 #     def on_hover(self, event: HoverEvent): ...
@@ -112,10 +120,14 @@ class ActionManager:
             self._ready_item = ie.action
             event.start_drag()
         else:
+            se = self.selected_action
             ae = DeselectEvent(event.js_event)
             self._notify(ae)
+            if se is not None:
+                se.on_execute(ae)
+
             if ae.accepted:
-                if self._selected_action is not None:
+                if se is not None:
                     event.stop()
                 self.selected_action = None
 
@@ -131,7 +143,11 @@ class ActionManager:
         if ie.is_action:
             return
 
-        self._notify(HoverEvent(event.js_event))
+        hover_event = HoverEvent(event.js_event)
+        self._notify(hover_event)
+        se = self.selected_action
+        if se is not None:
+            se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
         ie = IdentifyEvent(event.js_event)
@@ -151,6 +167,9 @@ class ActionManager:
             self._notify(ae)
             if ae.accepted:
                 self.selected_action = None
+            se = self.selected_action
+            if se is not None:
+                se.on_execute(ae)
 
     @property
     def selected_action(self) -> Action | None:
@@ -171,6 +190,7 @@ class ActionManager:
             msg += f' (selecting {None if new is None else new})'
             if new:
                 new.selected = True
+                new.on_selected()
             self._notify(ActionChangedEvent(old, new))
 
         logger.debug(msg)
@@ -182,4 +202,3 @@ def _pretty(node):
     if hasattr(node, 'tagName'):
         return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)
-
