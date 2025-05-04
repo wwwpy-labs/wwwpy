@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import js
 import pytest
@@ -11,6 +11,7 @@ from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
+from wwwpy.remote.designer.ui.palette import Action, PaletteComponent
 from wwwpy.remote.designer.ui.pointer_manager import HoverEvent, DeselectEvent, IdentifyEvent, TPE, ActionChangedEvent
 from wwwpy.remote.designer.ui.pointer_manager import PointerManager
 from wwwpy.remote.jslib import get_deepest_element
@@ -319,24 +320,18 @@ class EventFixture:
         return self.filter(ActionChangedEvent)
 
 
-@dataclass()
-class ActionItemFake:
-    key: str
-    name: str
-    element: js.HTMLElement = field(default_factory=lambda: js.document.createElement('div'))
-    selected: bool = False
-
-
 @dataclass
 class Fixture:
-    pointer_manager: PointerManager[ActionItemFake] = None
+    pointer_manager: PointerManager[Action] = None
+    _palette: PaletteComponent = None
     _events: EventFixture = None
-    _action1: ActionItemFake = None
-    _action2: ActionItemFake = None
+    _action1: Action = None
+    _action2: Action = None
     _div1: js.HTMLDivElement = None
 
     def __post_init__(self):
-        am = PointerManager()
+        self._palette = PaletteComponent()
+        am = self._palette.action_manager.pointer_manager
         self.pointer_manager = am
 
         def ie(event: IdentifyEvent):
@@ -348,22 +343,25 @@ class Fixture:
 
         am.on(IdentifyEvent).add(ie)
 
-    def _add_action(self, label: str) -> ActionItemFake:
-        action = ActionItemFake(f'{label}-key', label)
-        action.element.id = label
-        action.element._action_fake = action
-        action.element.innerText = f'{label}-txt'
-        js.document.body.appendChild(action.element)
+    def _add_action(self, label: str) -> Action:
+        action = Action(label)
+        palette_item = self._palette.add_action(action)
+        palette_item.element.id = label
+        action.element = palette_item.element
+        # action.element.id = label
+        # action.element._action_fake = action
+        # action.element.innerText = f'{label}-txt'
+        js.document.body.appendChild(palette_item.element)
         return action
 
     @property
-    def action1(self) -> ActionItemFake:
+    def action1(self) -> Action:
         if self._action1 is None:
             self._action1 = self._add_action('action1')
         return self._action1
 
     @property
-    def action2(self) -> ActionItemFake:
+    def action2(self) -> Action:
         if self._action2 is None:
             self._action2 = self._add_action('action2')
         return self._action2
