@@ -5,6 +5,9 @@ import logging
 
 import js
 
+from wwwpy.common import injector
+from wwwpy.common.injector import register
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,6 +26,11 @@ async def activate():
 
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(_global_exception_handler)
+
+    # dependency injection
+    injector.default_injector.clear()
+    from wwwpy.remote.designer.ui.action_manager import ActionManager
+    register(ActionManager())
 
 
 def is_active() -> bool:
