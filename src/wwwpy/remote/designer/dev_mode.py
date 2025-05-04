@@ -7,6 +7,7 @@ import js
 
 from wwwpy.common import injector
 from wwwpy.common.injector import register
+from wwwpy.remote.designer.ui.element_selector import ElementSelector
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ async def activate():
     injector.default_injector.clear()
     from wwwpy.remote.designer.ui.action_manager import ActionManager
     register(ActionManager())
+    register(ElementSelector())
 
 
 def is_active() -> bool:
