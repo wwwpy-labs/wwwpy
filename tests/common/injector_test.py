@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
 import pytest
 
 from wwwpy.common import injector
@@ -99,6 +103,22 @@ class TestNamed:
 
         injector.unregister(Pet, named='prod')
         pytest.raises(injector.InjectorError, injector.get, Pet, 'prod')
+
+
+def test_get_with_string_as_arg_should_raise(fixture):
+    pytest.raises(injector.InjectorError, injector.get, 'some-string')
+
+
+class TestDataclasses:
+    def test_dataclass(self, fixture):
+        @dataclass
+        class Dc:
+            pet: Pet = inject()
+
+        p = Pet()
+        injector.register(p)
+        dc = Dc()
+        assert dc.pet is p
 
 
 @pytest.fixture

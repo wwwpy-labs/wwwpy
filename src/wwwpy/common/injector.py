@@ -1,3 +1,7 @@
+import inspect
+from dataclasses import field
+
+
 class InjectorError(Exception):
     pass
 
@@ -55,9 +59,11 @@ class Injector:
         Raises:
             InjectorError: If no dependency is registered for the class/named
         """
+        if not inspect.isclass(cls):
+            raise InjectorError(f"Expected a class, got `{cls}` of type {type(cls)}")
         key = (cls, named)
         if key not in self._registry:
-            raise InjectorError(f"No dependency registered for {cls!r} named={named!r}")
+            raise InjectorError(f"No dependency registered for {cls.__name__} named={named}")
 
         return self._registry[key]
 
@@ -74,6 +80,9 @@ register = default_injector.register
 unregister = default_injector.unregister
 get = default_injector.get
 
+
+# def inject(named=None, injector=None):
+#     return _inject(named=named, injector=injector)
 
 class inject:
     """
@@ -97,16 +106,18 @@ class inject:
 
     def __set_name__(self, owner, name):
         self.name = name
-        # Try to get the type from annotations
-        if hasattr(owner, "__annotations__") and name in owner.__annotations__:
-            self.cls = owner.__annotations__[name]
 
     def __get__(self, instance, owner):
-        if instance is None:
-            return self
+        if instance is None:  # and is_dataclass(owner): # it is not yet a dataclass
+            return field(init=False, default=self)
 
         if self.cls is None:
-            raise InjectorError(f"No type annotation for {self.name}")
+            ann = inspect.get_annotations(owner, eval_str=True)
+            name = self.name
+            if name in ann:
+                self.cls = ann[name]
+            else:
+                raise InjectorError(f"Cannot find type annotation for {name} in {owner.__name__}")
 
         return self.injector.get(self.cls, self.named)
 
