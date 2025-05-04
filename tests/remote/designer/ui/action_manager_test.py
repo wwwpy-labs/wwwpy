@@ -328,6 +328,28 @@ class TestActionEvents:
         # THEN
         assert action1.events == ['action1:on_hover', 'action1:on_execute', 'action1:on_deselect']
 
+    async def test_on_execute__drag_reject(self, action_manager, action1, div1):
+        # GIVEN
+        action1.accept_execute = False
+
+        # WHEN
+        await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
+
+        # THEN
+        assert action1.events == ['action1:on_selected', 'action1:on_hover', 'action1:on_execute']
+
+    async def test_on_execute__click_reject(self, action_manager, action1, div1):
+        # GIVEN
+        action1.accept_execute = False
+        action_manager.selected_action = action1
+        action1.events.clear()
+
+        # WHEN
+        await rpctst_exec("page.locator('#div1').click()")
+
+        # THEN
+        assert action1.events == ['action1:on_hover', 'action1:on_execute']
+
 
 @pytest.fixture
 def action_manager(fixture):
