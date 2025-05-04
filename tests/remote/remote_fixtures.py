@@ -8,12 +8,12 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def clean_document():
-    _clean_document('begin')
+    clean_document_now('begin')
     yield None
-    _clean_document('end')
+    clean_document_now('end')
 
 
-def _clean_document(mode):
+def clean_document_now(mode):
     # logger.debug(f'_clean_document {mode}')
     js.document.documentElement.innerHTML = ''
     js.document.head.innerHTML = ''
