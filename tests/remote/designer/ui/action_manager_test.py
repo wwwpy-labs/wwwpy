@@ -321,7 +321,6 @@ class EventFixture:
 
 @dataclass
 class Fixture:
-    action_manager: ActionManager = None
     _palette: PaletteComponent = None
     _events: EventFixture = None
     _action1: Action = None
@@ -330,26 +329,16 @@ class Fixture:
 
     def __post_init__(self):
         self._palette = PaletteComponent()
-        am = self._palette.action_manager
-        self.action_manager = am
 
-        # def ie(event: IdentifyEvent):
-        #     if event.js_event is None:
-        #         raise ValueError('js_event is not set')
-        #     target = get_deepest_element(event.js_event.clientX, event.js_event.clientY)
-        #     if target.id.startswith('action'):
-        #         event.set_action(target._action_fake)
-        #
-        # am.on(IdentifyEvent).add(ie)
+    @property
+    def action_manager(self) -> ActionManager:
+        return self._palette.action_manager
 
     def _add_action(self, label: str) -> Action:
         action = Action(label)
         palette_item = self._palette.add_action(action)
         palette_item.element.id = label
         action.element = palette_item.element
-        # action.element.id = label
-        # action.element._action_fake = action
-        # action.element.innerText = f'{label}-txt'
         js.document.body.appendChild(palette_item.element)
         return action
 
