@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from dataclasses import dataclass
 
@@ -27,7 +26,8 @@ class SelectElementAction(Action):
         self._set_selection_from_js_event(event.js_event)
 
     def on_execute(self, event: DeselectEvent):
-        self._set_selection_from_js_event(event.js_event)
+        target = self._set_selection_from_js_event(event.js_event)
+        self._set_toolbox_selection(target)
         event.accept()
 
     def _set_selection_from_js_event(self, event):
@@ -54,31 +54,26 @@ class SelectElementAction(Action):
             target = None
 
         if element_selector.get_selected_element() == target:
-            return
+            return target
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}, composed: {composed}')
         js.console.log('set_selection console', event, event.composedPath())
         element_selector.set_selected_element(target)
-        self._next_element = target
+        return target
 
-        async def more_snappy():
-            await asyncio.sleep(0.2)
-            if self._next_element != target:
-                logger.debug(f'more_snappy: element changed, skipping')
-                return
-            ep_live = element_path.element_path(target)
-            logger.debug(f'Element path live: {ep_live}')
-            ep_source = _rebase_element_path_to_origin_source(ep_live)
-            logger.debug(f'Element path source: {ep_source}')
-            message = 'ep_source is none' if ep_source is None else f'ep_source: {_element_path_lbl(ep_source)}'
-            logger.debug(message)
-            if ep_source is not None:
-                from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
-                tb = DevModeComponent.instance.toolbox
-                tb._toolbox_state.selected_element_path = ep_live
-                tb._restore_selected_element_path()
-
-        asyncio.create_task(more_snappy())
-        return True
+    def _set_toolbox_selection(self, target):
+        ep_live = element_path.element_path(target)
+        logger.debug(f'Element path live: {ep_live}')
+        ep_source = _rebase_element_path_to_origin_source(ep_live)
+        logger.debug(f'Element path source: {ep_source}')
+        message = 'ep_source is none' if ep_source is None else f'ep_source: {_element_path_lbl(ep_source)}'
+        logger.warning(message)
+        if ep_source is not None:
+            from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+            tb = DevModeComponent.instance.toolbox
+            tb._toolbox_state.selected_element_path = ep_live
+            tb._restore_selected_element_path()
+        else:
+            logger.warning(message)
 
 
 def _element_from_js_event(event):
