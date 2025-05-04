@@ -109,6 +109,9 @@ def test_get_with_string_as_arg_should_raise(fixture):
     pytest.raises(injector.InjectorError, injector.get, 'some-string')
 
 
+# todo register with lazy initialization like register(lamda: Pet(), bind=Pet)
+# todo use type hint on get() because now it looks like Any
+
 class TestDataclasses:
     def test_dataclass(self, fixture):
         @dataclass
