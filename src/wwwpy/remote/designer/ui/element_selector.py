@@ -129,8 +129,7 @@ class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selection-indicator-
     def set_reference_geometry(self, rect: js.DOMRectReadOnly):
         bs = 2  # Adjust this value to match the border size in CSS
 
-        r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
-        # r = rect
+        rect = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
 
         self.element.style.display = 'block'
         self.element.style.top = f"{rect.top}px"
