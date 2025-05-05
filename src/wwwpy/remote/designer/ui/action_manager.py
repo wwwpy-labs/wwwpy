@@ -147,7 +147,7 @@ def _request_identification(js_event: js.PointerEvent) -> Action | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
     ie = IdentifyEvent(js_event, target)
     for extension in DesignAware.EP_LIST.extensions:
-        extension.find_action(ie)
-        if ie.is_action:
-            return ie._action
+        action = extension.find_action(ie)
+        if action:
+            return action
     return None

@@ -9,8 +9,8 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.action import Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.design_aware import DesignAware, IdentifyEvent
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -24,7 +24,8 @@ class _PaletteDesignAware(DesignAware):
         res = target.closest(PaletteItemComponent.component_metadata.tag_name)
         if res:
             comp: PaletteItemComponent = get_component(res)
-            ie.set_action(comp.action)
+            return comp.action
+        return None
 
 
 _palette_design_aware = _PaletteDesignAware()
