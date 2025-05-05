@@ -27,8 +27,9 @@ class SelectElementAction(Action):
 
     def on_execute(self, event: DeselectEvent):
         target = self._set_selection_from_js_event(event.js_event)
-        self._set_toolbox_selection(target)
-        event.accept()
+        if target is not None:
+            self._set_toolbox_selection(target)
+            event.accept()
 
     def _set_selection_from_js_event(self, event):
         # path = event.composedPath()
