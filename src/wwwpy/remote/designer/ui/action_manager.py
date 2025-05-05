@@ -93,9 +93,10 @@ class ActionManager:
             if action:
                 if ready is not None:
                     self._toggle_selection(ready)
-
-
         elif event.drag_ended:
+            if action:
+                return  # this return is not under test; when we pointerdown on an action, and drag
+                # (just enough) and release on the action itself
             ae = DeselectEvent(event.js_event)
             self._notify(ae)
             se = self.selected_action
