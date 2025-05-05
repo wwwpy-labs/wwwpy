@@ -5,6 +5,7 @@ import threading
 from functools import partial
 from pathlib import Path
 from queue import Queue
+from time import sleep
 from typing import Tuple
 
 from xvirt import XVirt
@@ -39,7 +40,7 @@ class XVirtImpl(XVirt):
             return 'tests.remote-not-available'
         return str(location.parent)
 
-    def _http_handler(self, req: HttpRequest,res) -> None:
+    def _http_handler(self, req: HttpRequest, res) -> None:
         # print(f'server side xvirt_notify_handler({req})')
         self.events.put(req.content)
         # return HttpResponse('', 'text/plain')
@@ -94,6 +95,8 @@ class XVirtImpl(XVirt):
         return webserver
 
     def finalize(self):
+        if not self.headless:
+            while True: sleep(1)
         self.close_pw.set()
         self.playwright_args.queue.put(None)
         # self._thread.join()

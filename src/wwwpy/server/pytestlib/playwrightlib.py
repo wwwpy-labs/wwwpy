@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import os
 from dataclasses import dataclass, field
 from functools import cached_property
 from queue import Queue
@@ -24,7 +23,6 @@ class PlaywrightBunch:
     @cached_property
     def cdp(self):
         return self.page.context.new_cdp_session(self.page)
-
 
 
 @dataclass
@@ -68,16 +66,9 @@ def playwright_setup_page_logger(page: Page):
 
 
 def playwright_patch_timeout() -> None:
-    def PLAYWRIGHT_PATCH_TIMEOUT_MILLIS() -> int:
-        timeout = 45000
-        try:
-            import wwwpy_user_conf
-            timeout = wwwpy_user_conf.PLAYWRIGHT_PATCH_TIMEOUT_MILLIS
-        except:
-            pass
-        return int(os.environ.get('PLAYWRIGHT_PATCH_TIMEOUT_MILLIS', f'{timeout}'))
-
-    print(f'Using PLAYWRIGHT_PATCH_TIMEOUT, current value={PLAYWRIGHT_PATCH_TIMEOUT_MILLIS()}')
+    import wwwpy.base_conf
+    timeout_millis = wwwpy.base_conf.PLAYWRIGHT_PATCH_TIMEOUT_MILLIS
+    print(f'Using PLAYWRIGHT_PATCH_TIMEOUT, current value={timeout_millis}')
 
     # patch playwright assertion timeout to match our configuration
     # this is temporary solution until playwright supports setting custom timeout for assertions
@@ -86,7 +77,6 @@ def playwright_patch_timeout() -> None:
     def patch_timeout(_member_obj: FunctionType) -> Callable:
         def patch_timeout_inner(*args, **kwargs) -> Any:
             __tracebackhide__ = True
-            timeout_millis = PLAYWRIGHT_PATCH_TIMEOUT_MILLIS()
             parameters = inspect.signature(_member_obj).parameters
             timeout_arg_index = list(parameters.keys()).index("timeout")
             if timeout_arg_index >= 0:

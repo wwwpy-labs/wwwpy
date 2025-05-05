@@ -1,7 +1,4 @@
 # wwwpy/pytest_plugin.py
-import importlib.util
-import inspect
-from pathlib import Path
 
 import pytest
 
@@ -25,7 +22,8 @@ def pytest_configure(config):
 
 @pytest.hookimpl
 def pytest_xvirt_setup(config):
-    headful = config.getoption("--headful")
+    import wwwpy.base_conf
+    headful = config.getoption("--headful") or wwwpy.base_conf.PLAYWRIGHT_HEADFUL
     return XVirtImpl(headless=not headful)
 
 
