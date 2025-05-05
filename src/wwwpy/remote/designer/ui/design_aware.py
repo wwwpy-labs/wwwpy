@@ -1,12 +1,11 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import TypeVar, Generic
+from dataclasses import dataclass
 
 import js
 
 import logging
 
-from wwwpy.common.injector import inject
+from wwwpy.common.extension_point import ExtensionPointList
 from wwwpy.remote.designer.ui.action import Action
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -29,14 +28,6 @@ class IdentifyEvent:
     def __str__(self):
         act = '' if self.is_action is None else f', action={self._action}'
         return f'IdentifyEvent(is_action={self.is_action}{act})'
-
-
-T = TypeVar('T')
-
-
-@dataclass
-class ExtensionPointList(Generic[T]):
-    extensions: list[T] = field(default_factory=list)
 
 
 class DesignAware:
