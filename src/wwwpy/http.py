@@ -1,5 +1,5 @@
 from typing import NamedTuple, Callable, Union
-
+# todo rename this in httplib (otherwise it crash jetbrains debug mode)
 from wwwpy.common.asynclib import OptionalCoroutine
 
 
