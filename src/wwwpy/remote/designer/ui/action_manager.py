@@ -1,85 +1,19 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-from typing import TypeVar
 
-import js
-
+from wwwpy.common.injector import inject
+from wwwpy.remote.designer.ui.action import PMEvent, TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.design_aware import ActionIdentifier
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class PMEvent: ...
-
-
-@dataclass
-class PMJsEvent(PMEvent):
-    js_event: js.PointerEvent
-
-
-TPE = TypeVar('TPE', bound=PMEvent)
-
-
-@dataclass
-class IdentifyEvent(PMJsEvent):
-    action = None
-
-    def set_action(self, action):
-        self.action = action
-
-    @property
-    def is_action(self) -> bool:
-        return self.action is not None
-
-    def __str__(self):
-        act = '' if self.is_action is None else f', action={self.action}'
-        return f'IdentifyEvent(is_action={self.is_action}{act})'
-
-
-@dataclass
-class DeselectEvent(PMJsEvent):
-    accepted: bool = False
-
-    def accept(self):
-        self.accepted = True
-
-
-@dataclass
-class HoverEvent(PMJsEvent):
-    pass
-
-
-@dataclass
-class Action:
-    label: str
-    """Label to be displayed in the palette item."""
-
-    selected: bool = False
-    """True if the item is selected, False otherwise."""
-
-    def on_selected(self): ...
-
-    def on_hover(self, event: HoverEvent): ...
-
-    def on_execute(self, event: DeselectEvent): ...
-
-    def on_deselect(self): ...
-
-
-# class HoverEventReceiver:
-#     def on_hover(self, event: HoverEvent): ...
-
-@dataclass
-class ActionChangedEvent(PMEvent):
-    old: Action | None
-    new: Action | None
-
-
 class ActionManager:
+    _action_identifier: ActionIdentifier = inject()
+
     def __init__(self) -> None:
         self._selected_action: Action | None = None
         self._listeners = DictListeners()
@@ -113,11 +47,10 @@ class ActionManager:
             self.selected_action = action
 
     def _on_pointer_down(self, event: PointerDown):
-        ie = IdentifyEvent(event.js_event)
-        self._notify(ie)
-        logger.debug(f'_on_pointer_down {ie} state={self.drag_state}')
-        if ie.is_action:
-            self._ready_item = ie.action
+        action = self._action_identifier.request_identification(event.js_event)
+        logger.debug(f'_on_pointer_down {action} state={self.drag_state}')
+        if action:
+            self._ready_item = action
             event.start_drag()
         else:
             se = self.selected_action
@@ -128,21 +61,16 @@ class ActionManager:
                 se.on_execute(ae)
                 if ae.accepted:
                     self.selected_action = None
-            # if ae.accepted:
-            #     if se is not None:
-            #         event.stop()
-            #     self.selected_action = None
 
     def _on_pointer_move(self, event: PointerMove):
-        ie = IdentifyEvent(event.js_event)
-        self._notify(ie)
-        logger.debug(f'_on_pointer_move {ie} state={self.drag_state} '
+        action = self._action_identifier.request_identification(event.js_event)
+        logger.debug(f'_on_pointer_move {action} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
             self.selected_action = self._ready_item
             self._ready_item = None
 
-        if ie.is_action:
+        if action:
             return
 
         hover_event = HoverEvent(event.js_event)
@@ -152,9 +80,8 @@ class ActionManager:
             se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        ie = IdentifyEvent(event.js_event)
-        self._notify(ie)
-        logger.debug(f'_on_pointer_up {ie} state={self.drag_state} ready_item={self._ready_item}')
+        action = self._action_identifier.request_identification(event.js_event)
+        logger.debug(f'_on_pointer_up {action} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
 
@@ -162,7 +89,7 @@ class ActionManager:
         self._ready_item = None
 
         if event.normal_click:
-            if ie.is_action:
+            if action:
                 if ready is not None:
                     self._toggle_selection(ready)
 

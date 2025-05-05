@@ -9,10 +9,26 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.action_manager import ActionManager, IdentifyEvent, ActionChangedEvent, Action
+from wwwpy.remote.designer.ui.action_manager import ActionManager
+from wwwpy.remote.designer.ui.action import Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.design_aware import DesignAware, IdentifyEvent
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
+
+
+class _PaletteDesignAware(DesignAware):
+
+    def find_action(self, ie: IdentifyEvent):
+        target = ie.target
+        res = target.closest(PaletteItemComponent.component_metadata.tag_name)
+        if res:
+            comp: PaletteItemComponent = get_component(res)
+            ie.set_action(comp.action)
+
+
+_palette_design_aware = _PaletteDesignAware()
+DesignAware.EP_LIST.extensions.append(_palette_design_aware)
 
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
@@ -39,16 +55,15 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self._action2item = {}
 
         self._on_action_changed_event = ace
+        self._palette_design_aware = _PaletteDesignAware()
         self._on_identify_event = lambda e: e.set_action(_find_palette_action(e.js_event))
 
     def connectedCallback(self):
         self.action_manager.install()
-        self.action_manager.on(IdentifyEvent).add(self._on_identify_event)
         self.action_manager.on(ActionChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
         self.action_manager.on(ActionChangedEvent).remove(self._on_action_changed_event)
-        self.action_manager.on(IdentifyEvent).remove(self._on_identify_event)
         self.action_manager.uninstall()
 
     def add_action(self, action: Action) -> PaletteItemComponent:

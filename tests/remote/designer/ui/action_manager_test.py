@@ -13,8 +13,9 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui.action_manager import ActionManager, Action
-from wwwpy.remote.designer.ui.action_manager import HoverEvent, DeselectEvent, TPE, ActionChangedEvent
+from wwwpy.remote.designer.ui.action_manager import ActionManager
+from wwwpy.remote.designer.ui.action import TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.design_aware import ActionIdentifier
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
@@ -484,6 +485,7 @@ class Fixture:
 def fixture():
     clean_document_now('begin')
     injector.default_injector.clear()
+    register(ActionIdentifier())
     am = ActionManager()
     register(am)
     f = Fixture()

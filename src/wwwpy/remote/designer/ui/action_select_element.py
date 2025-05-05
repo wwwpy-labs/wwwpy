@@ -7,7 +7,7 @@ from wwwpy.common import injector
 from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
-from wwwpy.remote.designer.ui.action_manager import Action, HoverEvent, DeselectEvent
+from wwwpy.remote.designer.ui.action import DeselectEvent, HoverEvent, Action
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
 from wwwpy.remote.jslib import get_deepest_element
