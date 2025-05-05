@@ -31,8 +31,6 @@ async def activate():
     # dependency injection
     injector.default_injector.clear()
     from wwwpy.remote.designer.ui.action_manager import ActionManager
-    from wwwpy.remote.designer.ui.design_aware import ActionIdentifier
-    register(ActionIdentifier())
     register(ActionManager())
     register(ElementSelector())
 

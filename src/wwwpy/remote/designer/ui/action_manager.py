@@ -2,17 +2,18 @@ from __future__ import annotations
 
 import logging
 
-from wwwpy.common.injector import inject
+import js
+
 from wwwpy.remote.designer.ui.action import PMEvent, TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
-from wwwpy.remote.designer.ui.design_aware import ActionIdentifier
+from wwwpy.remote.designer.ui.design_aware import IdentifyEvent, DesignAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
+from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
 
 class ActionManager:
-    _action_identifier: ActionIdentifier = inject()
 
     def __init__(self) -> None:
         self._selected_action: Action | None = None
@@ -47,7 +48,7 @@ class ActionManager:
             self.selected_action = action
 
     def _on_pointer_down(self, event: PointerDown):
-        action = self._action_identifier.request_identification(event.js_event)
+        action = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_down {action} state={self.drag_state}')
         if action:
             self._ready_item = action
@@ -63,7 +64,7 @@ class ActionManager:
                     self.selected_action = None
 
     def _on_pointer_move(self, event: PointerMove):
-        action = self._action_identifier.request_identification(event.js_event)
+        action = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_move {action} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
@@ -80,7 +81,7 @@ class ActionManager:
             se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        action = self._action_identifier.request_identification(event.js_event)
+        action = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_up {action} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
@@ -140,3 +141,13 @@ def _pretty(node):
     if hasattr(node, 'tagName'):
         return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)
+
+
+def _request_identification(js_event: js.PointerEvent) -> Action | None:
+    target = get_deepest_element(js_event.clientX, js_event.clientY)
+    ie = IdentifyEvent(js_event, target)
+    for extension in DesignAware.EP_LIST.extensions:
+        extension.find_action(ie)
+        if ie.is_action:
+            return ie._action
+    return None
