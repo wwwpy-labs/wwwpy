@@ -256,10 +256,10 @@
     const accordion = document.getElementById('accordion');
 
     accordion.addEventListener('accordion-toggle', event => {
-        const {section, expanded} = event.detail;
+        const section = event.target;
         const sectionIndex = accordion.sections.indexOf(section);
-        const status = expanded ? 'expanded' : 'collapsed';
-        log(`<strong>Event:</strong> Section ${sectionIndex + 1} was ${status} by user click`);
+        const status = section.expanded ? 'expanded' : 'collapsed';
+        log(`<strong>Event:</strong> Section index ${sectionIndex} was ${status} by user click`);
     });
 
     function toggleSection(index) {
