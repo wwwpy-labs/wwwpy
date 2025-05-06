@@ -334,10 +334,8 @@
 
             if (this._expanded) {
                 this.setAttribute('expanded', '');
-                this._panel.removeAttribute('hidden');
             } else {
                 this.removeAttribute('expanded');
-                this._panel.setAttribute('hidden', '');
             }
         }
 
@@ -359,9 +357,6 @@
                 // Set expanded attribute on section
                 this.setAttribute('expanded', '');
 
-                // Show panel first (for initial state)
-                this._panel.removeAttribute('hidden');
-
                 // Force reflow to ensure transitions work properly
                 if (withTransition) {
                     this._panel.offsetHeight;
@@ -373,17 +368,11 @@
                 if (withTransition) {
                     // Set up transition end handler to hide panel after animation
                     this._transitionEndHandler = () => {
-                        if (!this._expanded) {
-                            this._panel.setAttribute('hidden', '');
-                        }
                         this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                         this._transitionEndHandler = null;
                     };
 
                     this._panel.addEventListener('transitionend', this._transitionEndHandler);
-                } else {
-                    // Immediately hide if no transition
-                    this._panel.setAttribute('hidden', '');
                 }
             }
         }
