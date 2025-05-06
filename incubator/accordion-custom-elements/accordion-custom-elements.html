@@ -174,27 +174,38 @@
             super();
             this._expanded = false;
             this._handleClick = this._handleClick.bind(this);
+            this._header = null;
+            this._panel = null;
+            this._transitionEndHandler = null;
         }
 
         connectedCallback() {
+            // Cache element references
+            this._header = this.querySelector('[slot="header"]');
+            this._panel = this.querySelector('[slot="panel"]');
+
             // Initialize accessibility attributes
             this._setupAccessibility();
 
             // Add click event listener to header
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.addEventListener('click', this._handleClick);
+            if (this._header) {
+                this._header.addEventListener('click', this._handleClick);
             }
 
-            // Initial setup for panel visibility
-            this._updatePanelVisibility();
+            // Initial setup for panel visibility (without transitions)
+            this._initializePanelState();
         }
 
         disconnectedCallback() {
             // Clean up event listeners when element is removed
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.removeEventListener('click', this._handleClick);
+            if (this._header) {
+                this._header.removeEventListener('click', this._handleClick);
+            }
+
+            // Clean up any transition listeners
+            if (this._panel && this._transitionEndHandler) {
+                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                this._transitionEndHandler = null;
             }
         }
 
@@ -214,8 +225,8 @@
             const newValue = Boolean(value);
             if (this._expanded !== newValue) {
                 this._expanded = newValue;
-                this._updatePanelVisibility();
                 this._updateAccessibilityAttributes();
+                this._updatePanelVisibility(true); // Update with transitions
             }
         }
 
@@ -251,17 +262,14 @@
          * @private
          */
         _setupAccessibility() {
-            const header = this.querySelector('[slot="header"]');
-            const panel = this.querySelector('[slot="panel"]');
-
-            if (header) {
-                header.setAttribute('role', 'button');
-                header.setAttribute('tabindex', '0');
-                header.style.cursor = 'pointer';
+            if (this._header) {
+                this._header.setAttribute('role', 'button');
+                this._header.setAttribute('tabindex', '0');
+                this._header.style.cursor = 'pointer';
             }
 
-            if (panel) {
-                panel.setAttribute('role', 'region');
+            if (this._panel) {
+                this._panel.setAttribute('role', 'region');
             }
 
             this._updateAccessibilityAttributes();
@@ -272,44 +280,82 @@
          * @private
          */
         _updateAccessibilityAttributes() {
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.setAttribute('aria-expanded', this._expanded.toString());
+            if (this._header) {
+                this._header.setAttribute('aria-expanded', this._expanded.toString());
+            }
+        }
+
+        /**
+         * Initialize panel state without transitions on first load
+         * @private
+         */
+        _initializePanelState() {
+            if (!this._panel) return;
+
+            // For initial state, directly set styles and attributes without transitions
+            this._panel.style.overflow = 'hidden';
+
+            if (this._expanded) {
+                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
+                this._panel.removeAttribute('hidden');
+            } else {
+                this._panel.style.maxHeight = '0';
+                // Important: Set hidden attribute immediately for initial collapsed state
+                this._panel.setAttribute('hidden', '');
             }
         }
 
         /**
          * Update panel visibility based on expanded state
+         * @param {boolean} withTransition - Whether to use transitions
          * @private
          */
-        _updatePanelVisibility() {
-            const panel = this.querySelector('[slot="panel"]');
-            if (panel) {
-                if (this._expanded) {
-                    panel.removeAttribute('hidden');
+        _updatePanelVisibility(withTransition = false) {
+            if (!this._panel) return;
 
-                    // Apply transition
-                    panel.style.maxHeight = '0';
-                    panel.style.overflow = 'hidden';
-                    panel.style.transition = 'max-height 300ms ease-in-out';
+            // Clean up any existing transition end handlers
+            if (this._transitionEndHandler) {
+                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                this._transitionEndHandler = null;
+            }
 
-                    // Force reflow
-                    panel.offsetHeight;
+            // Set up transition if needed
+            if (withTransition) {
+                this._panel.style.transition = 'max-height 300ms ease-in-out';
+            } else {
+                this._panel.style.transition = '';
+            }
 
-                    // Set target height
-                    panel.style.maxHeight = `${panel.scrollHeight}px`;
-                } else {
-                    panel.style.maxHeight = '0';
+            if (this._expanded) {
+                // Expanding: remove hidden first, then animate height
+                this._panel.removeAttribute('hidden');
+                this._panel.style.overflow = 'hidden';
 
-                    // Add event listener for transition end to set hidden attribute
-                    const onTransitionEnd = () => {
+                // Force reflow before setting new height
+                if (withTransition) {
+                    this._panel.offsetHeight;
+                }
+
+                // Set target height
+                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
+            } else {
+                // Collapsing: animate to 0, then set hidden
+                this._panel.style.maxHeight = '0';
+
+                if (withTransition) {
+                    // Only set up transition handler if we're actually transitioning
+                    this._transitionEndHandler = () => {
                         if (!this._expanded) {
-                            panel.setAttribute('hidden', '');
+                            this._panel.setAttribute('hidden', '');
                         }
-                        panel.removeEventListener('transitionend', onTransitionEnd);
+                        this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                        this._transitionEndHandler = null;
                     };
 
-                    panel.addEventListener('transitionend', onTransitionEnd);
+                    this._panel.addEventListener('transitionend', this._transitionEndHandler);
+                } else {
+                    // If no transition, set hidden immediately
+                    this._panel.setAttribute('hidden', '');
                 }
             }
         }
