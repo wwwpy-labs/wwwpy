@@ -186,7 +186,6 @@
             this._handleClick = this._handleClick.bind(this);
             this._header = null;
             this._panel = null;
-            this._transitionEndHandler = null;
         }
 
         connectedCallback() {
@@ -198,22 +197,32 @@
 
         disconnectedCallback() {
             if (this._header) this._header.removeEventListener('click', this._handleClick);
-            if (this._panel && this._transitionEndHandler) {
-                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                this._transitionEndHandler = null;
-            }
         }
 
         get expanded() {
             return this._expanded;
         }
 
+        _initializePanelState() {
+            if (!this._panel) return;
+            if (!this._panel.querySelector('.panel-inner')) {
+                const innerContent = document.createElement('div');
+                innerContent.className = 'panel-inner';
+                while (this._panel.firstChild) {
+                    innerContent.appendChild(this._panel.firstChild);
+                }
+                this._panel.appendChild(innerContent);
+            }
+            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
+        }
+
         set expanded(value) {
             const newValue = Boolean(value);
-            if (this._expanded !== newValue) {
-                this._expanded = newValue;
-                this._updatePanelVisibility(true);
-            }
+            if (this._expanded === newValue)
+                return
+            this._expanded = newValue;
+            if (!this._panel) return;
+            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
         }
 
         toggle(emitEvent = false) {
@@ -232,39 +241,6 @@
             this.toggle(true);
         }
 
-        _initializePanelState() {
-            if (!this._panel) return;
-            if (!this._panel.querySelector('.panel-inner')) {
-                const innerContent = document.createElement('div');
-                innerContent.className = 'panel-inner';
-                while (this._panel.firstChild) {
-                    innerContent.appendChild(this._panel.firstChild);
-                }
-                this._panel.appendChild(innerContent);
-            }
-            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
-        }
-
-        _updatePanelVisibility(withTransition = false) {
-            if (!this._panel) return;
-            if (this._transitionEndHandler) {
-                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                this._transitionEndHandler = null;
-            }
-            if (this._expanded) {
-                if (withTransition) this._panel.offsetHeight;
-                this._panel.style.gridTemplateRows = '1fr';
-            } else {
-                this._panel.style.gridTemplateRows = '0fr';
-                if (withTransition) {
-                    this._transitionEndHandler = () => {
-                        this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                        this._transitionEndHandler = null;
-                    };
-                    this._panel.addEventListener('transitionend', this._transitionEndHandler);
-                }
-            }
-        }
     }
 
     customElements.define('wwwpy-accordion-container', WWWPYAccordionContainer);
