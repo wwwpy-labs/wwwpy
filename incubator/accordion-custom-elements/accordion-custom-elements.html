@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWWPY-Accordion Web Components Demo</title>
+    <title>WWWPY-Accordion Interactive Demo</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            line-height: 1.5;
+        }
+
+        .demo-container {
+            margin: 30px 0;
         }
 
         wwwpy-accordion-container {
             display: block;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin: 20px 0;
             overflow: hidden;
         }
 
@@ -44,83 +48,89 @@
             background-color: #fff;
         }
 
-        .code-example {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow-x: auto;
+        .controls {
+            margin: 15px 0;
         }
 
         button {
             margin: 5px;
             padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0069d9;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-<h1>WWWPY-Accordion Demo</h1>
+<h1>WWWPY-Accordion Interactive Demo</h1>
+<p>This demo shows the refactored accordion components with fixed initial state.</p>
 
-<h2>Basic Example</h2>
-<wwwpy-accordion-container id="basic-accordion">
-    <wwwpy-accordion-section>
-        <div slot="header">Section 1</div>
-        <div slot="panel">
-            <p>This is the content for section 1. The panel expands and collapses with a smooth transition.</p>
-        </div>
-    </wwwpy-accordion-section>
+<div class="demo-container">
+    <wwwpy-accordion-container id="accordion">
+        <wwwpy-accordion-section>
+            <div slot="header">Section 1: Introduction</div>
+            <div slot="panel">
+                <p>This accordion section demonstrates the fixed initial state. Sections now properly initialize in the
+                    collapsed state with the hidden attribute correctly applied.</p>
+                <p>Try clicking on this header or using the control buttons below.</p>
+            </div>
+        </wwwpy-accordion-section>
 
-    <wwwpy-accordion-section>
-        <div slot="header">Section 2</div>
-        <div slot="panel">
-            <p>This is the content for section 2. You can click on any section header to toggle it.</p>
-            <p>Multiple paragraphs and other content can be included here.</p>
-        </div>
-    </wwwpy-accordion-section>
+        <wwwpy-accordion-section>
+            <div slot="header">Section 2: Features</div>
+            <div slot="panel">
+                <p>Key features of the refactored accordion:</p>
+                <ul>
+                    <li>Properly collapsed initial state</li>
+                    <li>Smooth 300ms transitions</li>
+                    <li>Accessible with ARIA attributes</li>
+                    <li>Programmable API for external control</li>
+                </ul>
+            </div>
+        </wwwpy-accordion-section>
 
-    <wwwpy-accordion-section>
-        <div slot="header">Section 3</div>
-        <div slot="panel">
-            <p>This is the content for section 3.</p>
-            <p>The accordion implements minimal accessibility features:</p>
-            <ul>
-                <li>Headers have <code>role="button"</code> and <code>tabindex="0"</code></li>
-                <li>ARIA attributes update automatically</li>
-                <li>Panels have <code>role="region"</code></li>
-            </ul>
-        </div>
-    </wwwpy-accordion-section>
-</wwwpy-accordion-container>
+        <wwwpy-accordion-section>
+            <div slot="header">Section 3: Implementation</div>
+            <div slot="panel">
+                <p>The implementation has been refactored to:</p>
+                <ul>
+                    <li>Cache DOM references for better performance</li>
+                    <li>Separate initial state setup from transitions</li>
+                    <li>Improve event listener management</li>
+                    <li>Reduce code duplication</li>
+                </ul>
+            </div>
+        </wwwpy-accordion-section>
+    </wwwpy-accordion-container>
 
-<h2>Programmatic Control</h2>
-<div>
-    <button onclick="toggleSection(0)">Toggle Section 1</button>
-    <button onclick="toggleSection(1)">Toggle Section 2</button>
-    <button onclick="toggleSection(2)">Toggle Section 3</button>
-    <button onclick="expandAll()">Expand All</button>
-    <button onclick="collapseAll()">Collapse All</button>
+    <div class="controls">
+        <h3>Controls</h3>
+        <button onclick="toggleSection(0)">Toggle Section 1</button>
+        <button onclick="toggleSection(1)">Toggle Section 2</button>
+        <button onclick="toggleSection(2)">Toggle Section 3</button>
+        <button onclick="expandAll()">Expand All</button>
+        <button onclick="collapseAll()">Collapse All</button>
+    </div>
+
+    <div class="status" id="status">
+        Click on headers or buttons to see events here.
+    </div>
 </div>
 
-<h2>Listening for Events</h2>
-<div id="event-log" class="code-example">
-    <p>Event log will appear here when sections are toggled by clicking.</p>
-</div>
-
-<h2>Usage Example</h2>
-<div class="code-example">
-    <pre><code>&lt;wwwpy-accordion-container&gt;
-  &lt;wwwpy-accordion-section&gt;
-    &lt;div slot="header"&gt;Section Title&lt;/div&gt;
-    &lt;div slot="panel"&gt;Section Content&lt;/div&gt;
-  &lt;/wwwpy-accordion-section&gt;
-&lt;/wwwpy-accordion-container&gt;</code></pre>
-</div>
-
-<!-- Load the accordion components script -->
 <script>
-    // Component implementation would be loaded from a separate file
-    // For this demo, we'll include the code inline
-
     // wwwpy-accordion-container.js
     class WWWPYAccordionContainer extends HTMLElement {
         constructor() {
@@ -174,27 +184,38 @@
             super();
             this._expanded = false;
             this._handleClick = this._handleClick.bind(this);
+            this._header = null;
+            this._panel = null;
+            this._transitionEndHandler = null;
         }
 
         connectedCallback() {
+            // Cache element references
+            this._header = this.querySelector('[slot="header"]');
+            this._panel = this.querySelector('[slot="panel"]');
+
             // Initialize accessibility attributes
             this._setupAccessibility();
 
             // Add click event listener to header
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.addEventListener('click', this._handleClick);
+            if (this._header) {
+                this._header.addEventListener('click', this._handleClick);
             }
 
-            // Initial setup for panel visibility
-            this._updatePanelVisibility();
+            // Initial setup for panel visibility (without transitions)
+            this._initializePanelState();
         }
 
         disconnectedCallback() {
             // Clean up event listeners when element is removed
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.removeEventListener('click', this._handleClick);
+            if (this._header) {
+                this._header.removeEventListener('click', this._handleClick);
+            }
+
+            // Clean up any transition listeners
+            if (this._panel && this._transitionEndHandler) {
+                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                this._transitionEndHandler = null;
             }
         }
 
@@ -214,8 +235,8 @@
             const newValue = Boolean(value);
             if (this._expanded !== newValue) {
                 this._expanded = newValue;
-                this._updatePanelVisibility();
                 this._updateAccessibilityAttributes();
+                this._updatePanelVisibility(true); // Update with transitions
             }
         }
 
@@ -251,17 +272,14 @@
          * @private
          */
         _setupAccessibility() {
-            const header = this.querySelector('[slot="header"]');
-            const panel = this.querySelector('[slot="panel"]');
-
-            if (header) {
-                header.setAttribute('role', 'button');
-                header.setAttribute('tabindex', '0');
-                header.style.cursor = 'pointer';
+            if (this._header) {
+                this._header.setAttribute('role', 'button');
+                this._header.setAttribute('tabindex', '0');
+                this._header.style.cursor = 'pointer';
             }
 
-            if (panel) {
-                panel.setAttribute('role', 'region');
+            if (this._panel) {
+                this._panel.setAttribute('role', 'region');
             }
 
             this._updateAccessibilityAttributes();
@@ -272,44 +290,82 @@
          * @private
          */
         _updateAccessibilityAttributes() {
-            const header = this.querySelector('[slot="header"]');
-            if (header) {
-                header.setAttribute('aria-expanded', this._expanded.toString());
+            if (this._header) {
+                this._header.setAttribute('aria-expanded', this._expanded.toString());
+            }
+        }
+
+        /**
+         * Initialize panel state without transitions on first load
+         * @private
+         */
+        _initializePanelState() {
+            if (!this._panel) return;
+
+            // For initial state, directly set styles and attributes without transitions
+            this._panel.style.overflow = 'hidden';
+
+            if (this._expanded) {
+                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
+                this._panel.removeAttribute('hidden');
+            } else {
+                this._panel.style.maxHeight = '0';
+                // Important: Set hidden attribute immediately for initial collapsed state
+                this._panel.setAttribute('hidden', '');
             }
         }
 
         /**
          * Update panel visibility based on expanded state
+         * @param {boolean} withTransition - Whether to use transitions
          * @private
          */
-        _updatePanelVisibility() {
-            const panel = this.querySelector('[slot="panel"]');
-            if (panel) {
-                if (this._expanded) {
-                    panel.removeAttribute('hidden');
+        _updatePanelVisibility(withTransition = false) {
+            if (!this._panel) return;
 
-                    // Apply transition
-                    panel.style.maxHeight = '0';
-                    panel.style.overflow = 'hidden';
-                    panel.style.transition = 'max-height 300ms ease-in-out';
+            // Clean up any existing transition end handlers
+            if (this._transitionEndHandler) {
+                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                this._transitionEndHandler = null;
+            }
 
-                    // Force reflow
-                    panel.offsetHeight;
+            // Set up transition if needed
+            if (withTransition) {
+                this._panel.style.transition = 'max-height 300ms ease-in-out';
+            } else {
+                this._panel.style.transition = '';
+            }
 
-                    // Set target height
-                    panel.style.maxHeight = `${panel.scrollHeight}px`;
-                } else {
-                    panel.style.maxHeight = '0';
+            if (this._expanded) {
+                // Expanding: remove hidden first, then animate height
+                this._panel.removeAttribute('hidden');
+                this._panel.style.overflow = 'hidden';
 
-                    // Add event listener for transition end to set hidden attribute
-                    const onTransitionEnd = () => {
+                // Force reflow before setting new height
+                if (withTransition) {
+                    this._panel.offsetHeight;
+                }
+
+                // Set target height
+                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
+            } else {
+                // Collapsing: animate to 0, then set hidden
+                this._panel.style.maxHeight = '0';
+
+                if (withTransition) {
+                    // Only set up transition handler if we're actually transitioning
+                    this._transitionEndHandler = () => {
                         if (!this._expanded) {
-                            panel.setAttribute('hidden', '');
+                            this._panel.setAttribute('hidden', '');
                         }
-                        panel.removeEventListener('transitionend', onTransitionEnd);
+                        this._panel.removeEventListener('transitionend', this._transitionEndHandler);
+                        this._transitionEndHandler = null;
                     };
 
-                    panel.addEventListener('transitionend', onTransitionEnd);
+                    this._panel.addEventListener('transitionend', this._transitionEndHandler);
+                } else {
+                    // If no transition, set hidden immediately
+                    this._panel.setAttribute('hidden', '');
                 }
             }
         }
@@ -319,9 +375,9 @@
     customElements.define('wwwpy-accordion-container', WWWPYAccordionContainer);
     customElements.define('wwwpy-accordion-section', WWWPYAccordionSection);
 
-    // Demo functionality
-    const accordion = document.getElementById('basic-accordion');
-    const eventLog = document.getElementById('event-log');
+    // Demo-specific code
+    const accordion = document.getElementById('accordion');
+    const statusElement = document.getElementById('status');
 
     // Add event listener for toggle events
     accordion.addEventListener('accordion-toggle', (event) => {
@@ -329,22 +385,15 @@
         const sectionIndex = accordion.sections.indexOf(section);
         const status = expanded ? 'expanded' : 'collapsed';
 
-        const logEntry = document.createElement('p');
-        logEntry.textContent = `Section ${sectionIndex + 1} was ${status} by user click`;
-
-        // Keep log entries reasonable
-        if (eventLog.children.length > 5) {
-            eventLog.removeChild(eventLog.firstChild);
-        }
-
-        eventLog.appendChild(logEntry);
+        statusElement.innerHTML = `<strong>Event:</strong> Section ${sectionIndex + 1} was ${status} by user click`;
     });
 
-    // Demo functions
+    // Control functions
     function toggleSection(index) {
         const section = accordion.sections[index];
         if (section) {
             section.toggle();
+            statusElement.innerHTML = `<strong>Programmatic:</strong> Section ${index + 1} was toggled (now ${section.expanded ? 'expanded' : 'collapsed'})`;
         }
     }
 
@@ -352,12 +401,14 @@
         accordion.sections.forEach(section => {
             section.expanded = true;
         });
+        statusElement.innerHTML = '<strong>Programmatic:</strong> All sections expanded';
     }
 
     function collapseAll() {
         accordion.sections.forEach(section => {
             section.expanded = false;
         });
+        statusElement.innerHTML = '<strong>Programmatic:</strong> All sections collapsed';
     }
 </script>
 </body>
