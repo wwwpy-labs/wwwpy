@@ -161,7 +161,7 @@
                     }
 
                 </style>
-                <slot name="header" class="header-container">Header (add content with slot="header")</slot>
+                <slot name="header" id="_header">Header (add content with slot="header")</slot>
                 <div class="panel-container">
                     <div class="panel-inner">
                         <slot name="panel">Panel (add content with slot="panel")</slot>
@@ -169,7 +169,7 @@
                 </div>
             `;
 
-            this._headerContainer = this.shadowRoot.querySelector('.header-container');
+            this._headerContainer = this.shadowRoot.getElementById('_header');
             this._panelContainer = this.shadowRoot.querySelector('.panel-container');
             this._headerContainer.addEventListener('click', () => this.toggle(true));
             this._expanded = undefined;
