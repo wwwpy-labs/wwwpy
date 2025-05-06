@@ -156,9 +156,7 @@
         }
 
         disconnectedCallback() {
-            if (this._observer) {
-                this._observer.disconnect();
-            }
+            if (this._observer) this._observer.disconnect();
         }
 
         get sections() {
@@ -186,16 +184,12 @@
         connectedCallback() {
             this._header = this.querySelector('[slot="header"]');
             this._panel = this.querySelector('[slot="panel"]');
-            if (this._header) {
-                this._header.addEventListener('click', this._handleClick);
-            }
+            if (this._header) this._header.addEventListener('click', this._handleClick);
             this._initializePanelState();
         }
 
         disconnectedCallback() {
-            if (this._header) {
-                this._header.removeEventListener('click', this._handleClick);
-            }
+            if (this._header) this._header.removeEventListener('click', this._handleClick);
             if (this._panel && this._transitionEndHandler) {
                 this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                 this._transitionEndHandler = null;
@@ -216,7 +210,7 @@
 
         toggle(emitEvent = false) {
             this.expanded = !this._expanded;
-            if (emitEvent) {
+            if (emitEvent)
                 this.dispatchEvent(new CustomEvent('accordion-toggle', {
                     bubbles: true,
                     detail: {
@@ -224,7 +218,6 @@
                         expanded: this._expanded
                     }
                 }));
-            }
         }
 
         _handleClick() {
@@ -249,9 +242,6 @@
             if (this._transitionEndHandler) {
                 this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                 this._transitionEndHandler = null;
-            }
-            if (this._header) {
-                this._header.setAttribute('aria-expanded', this._expanded ? 'true' : 'false');
             }
             if (this._expanded) {
                 if (withTransition) this._panel.offsetHeight;
