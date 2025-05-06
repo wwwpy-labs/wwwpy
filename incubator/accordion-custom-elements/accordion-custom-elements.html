@@ -208,9 +208,8 @@
             if (!this._panel.querySelector('.panel-inner')) {
                 const innerContent = document.createElement('div');
                 innerContent.className = 'panel-inner';
-                while (this._panel.firstChild) {
+                while (this._panel.firstChild)
                     innerContent.appendChild(this._panel.firstChild);
-                }
                 this._panel.appendChild(innerContent);
             }
             this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
@@ -218,8 +217,7 @@
 
         set expanded(value) {
             const newValue = Boolean(value);
-            if (this._expanded === newValue)
-                return
+            if (this._expanded === newValue) return;
             this._expanded = newValue;
             if (!this._panel) return;
             this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
@@ -227,14 +225,9 @@
 
         toggle(emitEvent = false) {
             this.expanded = !this._expanded;
-            if (emitEvent)
-                this.dispatchEvent(new CustomEvent('accordion-toggle', {
-                    bubbles: true,
-                    detail: {
-                        section: this,
-                        expanded: this._expanded
-                    }
-                }));
+            if (!emitEvent) return;
+            let dict = {bubbles: true, detail: {section: this, expanded: this._expanded}};
+            this.dispatchEvent(new CustomEvent('accordion-toggle', dict));
         }
 
         _handleClick() {
