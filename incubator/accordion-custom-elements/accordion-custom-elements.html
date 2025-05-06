@@ -44,8 +44,18 @@
         }
 
         [slot="panel"] {
-            padding: 15px;
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 300ms ease-in-out;
             background-color: #fff;
+        }
+
+        [slot="panel"] .panel-inner {
+            overflow: hidden;
+        }
+
+        wwwpy-accordion-section[expanded] [slot="panel"] {
+            grid-template-rows: 1fr;
         }
 
         .controls {
@@ -76,42 +86,50 @@
 </head>
 <body>
 <h1>WWWPY-Accordion Interactive Demo</h1>
-<p>This demo shows the refactored accordion components with fixed initial state.</p>
+<p>This demo shows the accordion components using CSS Grid for smoother animations.</p>
+<p><strong>Key improvement:</strong> Using grid-template-rows (0fr → 1fr) instead of max-height for smoother transitions
+    with no jumpiness.</p>
 
 <div class="demo-container">
     <wwwpy-accordion-container id="accordion">
         <wwwpy-accordion-section>
             <div slot="header">Section 1: Introduction</div>
             <div slot="panel">
-                <p>This accordion section demonstrates the fixed initial state. Sections now properly initialize in the
-                    collapsed state with the hidden attribute correctly applied.</p>
-                <p>Try clicking on this header or using the control buttons below.</p>
+                <div class="panel-inner">
+                    <p>This accordion section demonstrates the fixed initial state with CSS grid transitions. Sections
+                        now properly initialize in the collapsed state.</p>
+                    <p>Try clicking on this header or using the control buttons below.</p>
+                </div>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
             <div slot="header">Section 2: Features</div>
             <div slot="panel">
-                <p>Key features of the refactored accordion:</p>
-                <ul>
-                    <li>Properly collapsed initial state</li>
-                    <li>Smooth 300ms transitions</li>
-                    <li>Accessible with ARIA attributes</li>
-                    <li>Programmable API for external control</li>
-                </ul>
+                <div class="panel-inner">
+                    <p>Key features of the refactored accordion:</p>
+                    <ul>
+                        <li>Smooth CSS Grid transitions (grid-template-rows: 0fr → 1fr)</li>
+                        <li>No jumpiness during animation</li>
+                        <li>Accessible with ARIA attributes</li>
+                        <li>Programmable API for external control</li>
+                    </ul>
+                </div>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
             <div slot="header">Section 3: Implementation</div>
             <div slot="panel">
-                <p>The implementation has been refactored to:</p>
-                <ul>
-                    <li>Cache DOM references for better performance</li>
-                    <li>Separate initial state setup from transitions</li>
-                    <li>Improve event listener management</li>
-                    <li>Reduce code duplication</li>
-                </ul>
+                <div class="panel-inner">
+                    <p>The implementation has been refactored to:</p>
+                    <ul>
+                        <li>Use CSS Grid for smoother animations</li>
+                        <li>Cache DOM references for better performance</li>
+                        <li>Separate initial state setup from transitions</li>
+                        <li>Reduce code duplication with the grid approach</li>
+                    </ul>
+                </div>
             </div>
         </wwwpy-accordion-section>
     </wwwpy-accordion-container>
@@ -302,15 +320,24 @@
         _initializePanelState() {
             if (!this._panel) return;
 
-            // For initial state, directly set styles and attributes without transitions
-            this._panel.style.overflow = 'hidden';
+            // Create and setup inner container for panel content if not exists
+            if (!this._panel.querySelector('.panel-inner')) {
+                const innerContent = document.createElement('div');
+                innerContent.className = 'panel-inner';
+
+                // Move all panel children to inner container
+                while (this._panel.firstChild) {
+                    innerContent.appendChild(this._panel.firstChild);
+                }
+
+                this._panel.appendChild(innerContent);
+            }
 
             if (this._expanded) {
-                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
+                this.setAttribute('expanded', '');
                 this._panel.removeAttribute('hidden');
             } else {
-                this._panel.style.maxHeight = '0';
-                // Important: Set hidden attribute immediately for initial collapsed state
+                this.removeAttribute('expanded');
                 this._panel.setAttribute('hidden', '');
             }
         }
@@ -329,31 +356,23 @@
                 this._transitionEndHandler = null;
             }
 
-            // Set up transition if needed
-            if (withTransition) {
-                this._panel.style.transition = 'max-height 300ms ease-in-out';
-            } else {
-                this._panel.style.transition = '';
-            }
-
             if (this._expanded) {
-                // Expanding: remove hidden first, then animate height
-                this._panel.removeAttribute('hidden');
-                this._panel.style.overflow = 'hidden';
+                // Set expanded attribute on section
+                this.setAttribute('expanded', '');
 
-                // Force reflow before setting new height
+                // Show panel first (for initial state)
+                this._panel.removeAttribute('hidden');
+
+                // Force reflow to ensure transitions work properly
                 if (withTransition) {
                     this._panel.offsetHeight;
                 }
-
-                // Set target height
-                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
             } else {
-                // Collapsing: animate to 0, then set hidden
-                this._panel.style.maxHeight = '0';
+                // Remove expanded attribute
+                this.removeAttribute('expanded');
 
                 if (withTransition) {
-                    // Only set up transition handler if we're actually transitioning
+                    // Set up transition end handler to hide panel after animation
                     this._transitionEndHandler = () => {
                         if (!this._expanded) {
                             this._panel.setAttribute('hidden', '');
@@ -364,7 +383,7 @@
 
                     this._panel.addEventListener('transitionend', this._transitionEndHandler);
                 } else {
-                    // If no transition, set hidden immediately
+                    // Immediately hide if no transition
                     this._panel.setAttribute('hidden', '');
                 }
             }
