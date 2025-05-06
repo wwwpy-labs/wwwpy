@@ -124,10 +124,7 @@
         constructor() {
             super();
 
-            // Initialize Shadow DOM
             this.attachShadow({mode: 'open'});
-
-            // Create styles and container
             this.shadowRoot.innerHTML = `
                 <style>
                     :host {
@@ -152,26 +149,16 @@
                 </div>
             `;
 
-            this._updateSlots = this._updateSlots.bind(this);
         }
 
         connectedCallback() {
-            this._updateSlots();
-            this._observer = new MutationObserver(this._updateSlots);
-            this._observer.observe(this, {childList: true});
         }
 
         disconnectedCallback() {
-            if (this._observer) this._observer.disconnect();
         }
 
         get sections() {
             return Array.from(this.children).filter(child => child.tagName.toLowerCase() === 'wwwpy-accordion-section');
-        }
-
-        _updateSlots() {
-            log('<strong>Event:</strong> Accordion container updated');
-            // We no longer need to assign slots to sections, as we're using a default slot
         }
     }
 
@@ -181,10 +168,7 @@
 
             this._expanded = false;
 
-            // Initialize Shadow DOM
             this.attachShadow({mode: 'open'});
-
-            // Define the template with header and panel slots
             this.shadowRoot.innerHTML = `
                 <style>
                     :host {
@@ -224,29 +208,20 @@
                 </div>
             `;
 
-            // Bind methods
             this._handleHeaderClick = this._handleHeaderClick.bind(this);
         }
 
         connectedCallback() {
-            // Get references to container elements
             this._headerContainer = this.shadowRoot.querySelector('.header-container');
             this._panelContainer = this.shadowRoot.querySelector('.panel-container');
 
-            // Add event listener to header
-            if (this._headerContainer) {
-                this._headerContainer.addEventListener('click', this._handleHeaderClick);
-            }
+            this._headerContainer.addEventListener('click', this._handleHeaderClick);
 
-            // Initialize panel state
             this._updateExpandedState();
         }
 
         disconnectedCallback() {
-            // Remove event listeners
-            if (this._headerContainer) {
-                this._headerContainer.removeEventListener('click', this._handleHeaderClick);
-            }
+            this._headerContainer.removeEventListener('click', this._handleHeaderClick);
         }
 
         get expanded() {
@@ -262,9 +237,7 @@
         }
 
         _updateExpandedState() {
-            if (this._panelContainer) {
-                this._panelContainer.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
-            }
+            this._panelContainer.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
         }
 
         toggle(emitEvent = false) {
