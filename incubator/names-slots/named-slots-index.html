@@ -88,6 +88,14 @@
               background-color: #45a049;
             }
 
+            #add-element-btn {
+              background-color: #2196F3;
+            }
+
+            #add-element-btn:hover {
+              background-color: #0b7dda;
+            }
+
             .logger {
               background-color: #272822;
               color: #f8f8f2;
@@ -125,6 +133,7 @@
             <div class="buttons">
               <button id="inspect-btn">Inspect default slot</button>
               <button id="create-slots-btn">Create needed named slots</button>
+              <button id="add-element-btn">Add next dynamic element</button>
             </div>
 
             <div class="slots-container">
@@ -143,6 +152,7 @@
             // Set up event listeners
             this.shadowRoot.getElementById('inspect-btn').addEventListener('click', () => this.inspectDefaultSlot());
             this.shadowRoot.getElementById('create-slots-btn').addEventListener('click', () => this.createNamedSlots());
+            this.shadowRoot.getElementById('add-element-btn').addEventListener('click', () => this.addDynamicElement());
         }
 
         log(message) {
@@ -152,6 +162,23 @@
 
             // Auto-scroll to bottom
             logger.scrollTop = logger.scrollHeight;
+        }
+
+        // New function to get the maximum used slot index
+        getMaxUsedSlotIndex() {
+            const slotPattern = /^item:(\d+)$/;
+            let maxIndex = -1;
+
+            [...this.children].forEach(element => {
+                const slotName = element.getAttribute('slot');
+                if (slotName && slotPattern.test(slotName)) {
+                    const match = slotName.match(slotPattern);
+                    const index = parseInt(match[1], 10);
+                    maxIndex = Math.max(maxIndex, index);
+                }
+            });
+
+            return maxIndex;
         }
 
         inspectDefaultSlot() {
@@ -165,21 +192,10 @@
         }
 
         createNamedSlots() {
-            this.log('Creating named slots based on attributes...');
-
+            this.log('Creating needed named slots...');
 
             // Find the highest slot index
-            let maxIndex = -1;
-            const slotPattern = /^item:(\d+)$/;
-
-            [...this.children].forEach((element, index) => {
-                const slotName = element.getAttribute('slot');
-                if (slotName && slotPattern.test(slotName)) {
-                    const match = slotName.match(slotPattern);
-                    const index = parseInt(match[1], 10);
-                    maxIndex = Math.max(maxIndex, index);
-                }
-            });
+            const maxIndex = this.getMaxUsedSlotIndex();
 
             if (maxIndex === -1) {
                 this.log('No slot attributes found following the "item:n" pattern');
@@ -188,12 +204,58 @@
 
             this.log(`Found max slot index: ${maxIndex}`);
 
-            // Create slots from 0 to maxIndex
+            // Get the container for dynamic slots
             const dynamicSlotsContainer = this.shadowRoot.getElementById('dynamic-slots');
-            dynamicSlotsContainer.innerHTML = ''; // Clear existing slots
 
+            // Create only the missing slots from 0 to maxIndex
             for (let i = 0; i <= maxIndex; i++) {
                 const slotName = `item:${i}`;
+
+                // Check if this slot already exists
+                if (this.shadowRoot.querySelector(`slot[name="${slotName}"]`)) {
+                    this.log(`Slot "${slotName}" already exists, skipping`);
+                    continue;
+                }
+
+                // Create new slot wrapper and elements
+                const slotWrapper = document.createElement('div');
+                slotWrapper.className = 'slot-wrapper';
+
+                const slotLabel = document.createElement('div');
+                slotLabel.className = 'slot-label';
+                slotLabel.textContent = `Slot "${slotName}":`;
+
+                const slotElement = document.createElement('slot');
+                slotElement.name = slotName;
+
+                slotWrapper.appendChild(slotLabel);
+                slotWrapper.appendChild(slotElement);
+                dynamicSlotsContainer.appendChild(slotWrapper);
+
+                this.log(`Created slot: "${slotName}"`);
+            }
+        }
+
+        // New function to add a dynamic element with the next slot index
+        addDynamicElement() {
+            // Get the next available slot index
+            const nextIndex = this.getMaxUsedSlotIndex() + 1;
+            const slotName = `item:${nextIndex}`;
+
+            // Create a new element
+            const newElement = document.createElement('div');
+            newElement.setAttribute('slot', slotName);
+            newElement.textContent = `Dynamic slot "${slotName}"`;
+
+            // Add it to the light DOM
+            this.appendChild(newElement);
+
+            this.log(`Added new element with slot="${slotName}"`);
+
+            // Create the corresponding slot if it doesn't exist
+            if (!this.shadowRoot.querySelector(`slot[name="${slotName}"]`)) {
+                const dynamicSlotsContainer = this.shadowRoot.getElementById('dynamic-slots');
+
                 const slotWrapper = document.createElement('div');
                 slotWrapper.className = 'slot-wrapper';
 
