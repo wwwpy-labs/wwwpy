@@ -37,6 +37,7 @@
             padding: 15px;
             background-color: #f5f5f5;
             font-weight: bold;
+            cursor: pointer;
         }
 
         [slot="header"]:hover {
@@ -52,10 +53,6 @@
 
         [slot="panel"] .panel-inner {
             overflow: hidden;
-        }
-
-        wwwpy-accordion-section[expanded] [slot="panel"] {
-            grid-template-rows: 1fr;
         }
 
         .controls {
@@ -104,38 +101,36 @@
             <div slot="header">Section 1: Introduction</div>
             <div slot="panel">
                 <div class="panel-inner">
-                    <p>This accordion section demonstrates the fixed initial state with CSS grid transitions. Sections
-                        now properly initialize in the collapsed state.</p>
                     <p>Try clicking on this header or using the control buttons below.</p>
                 </div>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
-            <div slot="header">Section 2: Features</div>
+            <div slot="header">Section 2:</div>
             <div slot="panel">
                 <div class="panel-inner">
-                    <p>Key features of the refactored accordion:</p>
+                    <p>Lorem ipsum:</p>
                     <ul>
-                        <li>Smooth CSS Grid transitions (grid-template-rows: 0fr → 1fr)</li>
-                        <li>No jumpiness during animation</li>
-                        <li>Accessible with ARIA attributes</li>
-                        <li>Programmable API for external control</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
                     </ul>
                 </div>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
-            <div slot="header">Section 3: Implementation</div>
+            <div slot="header">Section 3:</div>
             <div slot="panel">
                 <div class="panel-inner">
-                    <p>The implementation has been refactored to:</p>
+                    <p>Lorem ipsum:</p>
                     <ul>
-                        <li>Use CSS Grid for smoother animations</li>
-                        <li>Cache DOM references for better performance</li>
-                        <li>Separate initial state setup from transitions</li>
-                        <li>Reduce code duplication with the grid approach</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
                     </ul>
                 </div>
             </div>
@@ -300,11 +295,8 @@
                 this._panel.appendChild(innerContent);
             }
 
-            if (this._expanded) {
-                this.setAttribute('expanded', '');
-            } else {
-                this.removeAttribute('expanded');
-            }
+            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
+
         }
 
         /**
@@ -321,20 +313,25 @@
                 this._transitionEndHandler = null;
             }
 
-            if (this._expanded) {
-                // Set expanded attribute on section
-                this.setAttribute('expanded', '');
+            // Update ARIA attributes
+            if (this._header) {
+                this._header.setAttribute('aria-expanded', this._expanded ? 'true' : 'false');
+            }
 
+            if (this._expanded) {
                 // Force reflow to ensure transitions work properly
                 if (withTransition) {
                     this._panel.offsetHeight;
                 }
+
+                // Directly set the expanded style
+                this._panel.style.gridTemplateRows = '1fr';
             } else {
-                // Remove expanded attribute
-                this.removeAttribute('expanded');
+                // Directly set the collapsed style
+                this._panel.style.gridTemplateRows = '0fr';
 
                 if (withTransition) {
-                    // Set up transition end handler to hide panel after animation
+                    // Set up transition end handler to update after animation
                     this._transitionEndHandler = () => {
                         this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                         this._transitionEndHandler = null;
