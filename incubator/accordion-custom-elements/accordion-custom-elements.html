@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WWWPY-Accordion Web Components Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        wwwpy-accordion-container {
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        wwwpy-accordion-section {
+            display: block;
+            border-bottom: 1px solid #ddd;
+        }
+
+        wwwpy-accordion-section:last-child {
+            border-bottom: none;
+        }
+
+        [slot="header"] {
+            padding: 15px;
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        [slot="header"]:hover {
+            background-color: #e9e9e9;
+        }
+
+        [slot="panel"] {
+            padding: 15px;
+            background-color: #fff;
+        }
+
+        .code-example {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 12px;
+        }
+    </style>
+</head>
+<body>
+<h1>WWWPY-Accordion Demo</h1>
+
+<h2>Basic Example</h2>
+<wwwpy-accordion-container id="basic-accordion">
+    <wwwpy-accordion-section>
+        <div slot="header">Section 1</div>
+        <div slot="panel">
+            <p>This is the content for section 1. The panel expands and collapses with a smooth transition.</p>
+        </div>
+    </wwwpy-accordion-section>
+
+    <wwwpy-accordion-section>
+        <div slot="header">Section 2</div>
+        <div slot="panel">
+            <p>This is the content for section 2. You can click on any section header to toggle it.</p>
+            <p>Multiple paragraphs and other content can be included here.</p>
+        </div>
+    </wwwpy-accordion-section>
+
+    <wwwpy-accordion-section>
+        <div slot="header">Section 3</div>
+        <div slot="panel">
+            <p>This is the content for section 3.</p>
+            <p>The accordion implements minimal accessibility features:</p>
+            <ul>
+                <li>Headers have <code>role="button"</code> and <code>tabindex="0"</code></li>
+                <li>ARIA attributes update automatically</li>
+                <li>Panels have <code>role="region"</code></li>
+            </ul>
+        </div>
+    </wwwpy-accordion-section>
+</wwwpy-accordion-container>
+
+<h2>Programmatic Control</h2>
+<div>
+    <button onclick="toggleSection(0)">Toggle Section 1</button>
+    <button onclick="toggleSection(1)">Toggle Section 2</button>
+    <button onclick="toggleSection(2)">Toggle Section 3</button>
+    <button onclick="expandAll()">Expand All</button>
+    <button onclick="collapseAll()">Collapse All</button>
+</div>
+
+<h2>Listening for Events</h2>
+<div id="event-log" class="code-example">
+    <p>Event log will appear here when sections are toggled by clicking.</p>
+</div>
+
+<h2>Usage Example</h2>
+<div class="code-example">
+    <pre><code>&lt;wwwpy-accordion-container&gt;
+  &lt;wwwpy-accordion-section&gt;
+    &lt;div slot="header"&gt;Section Title&lt;/div&gt;
+    &lt;div slot="panel"&gt;Section Content&lt;/div&gt;
+  &lt;/wwwpy-accordion-section&gt;
+&lt;/wwwpy-accordion-container&gt;</code></pre>
+</div>
+
+<!-- Load the accordion components script -->
+<script>
+    // Component implementation would be loaded from a separate file
+    // For this demo, we'll include the code inline
+
+    // wwwpy-accordion-container.js
+    class WWWPYAccordionContainer extends HTMLElement {
+        constructor() {
+            super();
+            this._updateSlots = this._updateSlots.bind(this);
+        }
+
+        connectedCallback() {
+            // Initial slot setup
+            this._updateSlots();
+
+            // Set up mutation observer to track changes to children
+            this._observer = new MutationObserver(this._updateSlots);
+            this._observer.observe(this, {childList: true});
+        }
+
+        disconnectedCallback() {
+            // Clean up observer when element is removed
+            if (this._observer) {
+                this._observer.disconnect();
+            }
+        }
+
+        /**
+         * Get all direct wwwpy-accordion-section children
+         * @returns {Array} Array of section elements
+         */
+        get sections() {
+            return Array.from(this.children).filter(
+                child => child.tagName.toLowerCase() === 'wwwpy-accordion-section'
+            );
+        }
+
+        /**
+         * Update slot attributes on sections
+         * @private
+         */
+        _updateSlots() {
+            const sections = this.sections;
+
+            // Assign slot names to each section
+            sections.forEach((section, index) => {
+                section.slot = `section:${index}`;
+            });
+        }
+    }
+
+    // wwwpy-accordion-section.js
+    class WWWPYAccordionSection extends HTMLElement {
+        constructor() {
+            super();
+            this._expanded = false;
+            this._handleClick = this._handleClick.bind(this);
+        }
+
+        connectedCallback() {
+            // Initialize accessibility attributes
+            this._setupAccessibility();
+
+            // Add click event listener to header
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.addEventListener('click', this._handleClick);
+            }
+
+            // Initial setup for panel visibility
+            this._updatePanelVisibility();
+        }
+
+        disconnectedCallback() {
+            // Clean up event listeners when element is removed
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.removeEventListener('click', this._handleClick);
+            }
+        }
+
+        /**
+         * Get the expanded state
+         * @returns {boolean} True if expanded, false if collapsed
+         */
+        get expanded() {
+            return this._expanded;
+        }
+
+        /**
+         * Set the expanded state
+         * @param {boolean} value - True to expand, false to collapse
+         */
+        set expanded(value) {
+            const newValue = Boolean(value);
+            if (this._expanded !== newValue) {
+                this._expanded = newValue;
+                this._updatePanelVisibility();
+                this._updateAccessibilityAttributes();
+            }
+        }
+
+        /**
+         * Toggle the expanded state
+         * @param {boolean} [emitEvent=false] - Whether to emit the toggle event
+         */
+        toggle(emitEvent = false) {
+            this.expanded = !this._expanded;
+
+            if (emitEvent) {
+                this.dispatchEvent(new CustomEvent('accordion-toggle', {
+                    bubbles: true,
+                    detail: {
+                        section: this,
+                        expanded: this._expanded
+                    }
+                }));
+            }
+        }
+
+        /**
+         * Handle click on the header
+         * @private
+         */
+        _handleClick() {
+            // Toggle with event emission when clicked
+            this.toggle(true);
+        }
+
+        /**
+         * Set up accessibility attributes
+         * @private
+         */
+        _setupAccessibility() {
+            const header = this.querySelector('[slot="header"]');
+            const panel = this.querySelector('[slot="panel"]');
+
+            if (header) {
+                header.setAttribute('role', 'button');
+                header.setAttribute('tabindex', '0');
+                header.style.cursor = 'pointer';
+            }
+
+            if (panel) {
+                panel.setAttribute('role', 'region');
+            }
+
+            this._updateAccessibilityAttributes();
+        }
+
+        /**
+         * Update accessibility attributes based on current state
+         * @private
+         */
+        _updateAccessibilityAttributes() {
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.setAttribute('aria-expanded', this._expanded.toString());
+            }
+        }
+
+        /**
+         * Update panel visibility based on expanded state
+         * @private
+         */
+        _updatePanelVisibility() {
+            const panel = this.querySelector('[slot="panel"]');
+            if (panel) {
+                if (this._expanded) {
+                    panel.removeAttribute('hidden');
+
+                    // Apply transition
+                    panel.style.maxHeight = '0';
+                    panel.style.overflow = 'hidden';
+                    panel.style.transition = 'max-height 300ms ease-in-out';
+
+                    // Force reflow
+                    panel.offsetHeight;
+
+                    // Set target height
+                    panel.style.maxHeight = `${panel.scrollHeight}px`;
+                } else {
+                    panel.style.maxHeight = '0';
+
+                    // Add event listener for transition end to set hidden attribute
+                    const onTransitionEnd = () => {
+                        if (!this._expanded) {
+                            panel.setAttribute('hidden', '');
+                        }
+                        panel.removeEventListener('transitionend', onTransitionEnd);
+                    };
+
+                    panel.addEventListener('transitionend', onTransitionEnd);
+                }
+            }
+        }
+    }
+
+    // Register the custom elements
+    customElements.define('wwwpy-accordion-container', WWWPYAccordionContainer);
+    customElements.define('wwwpy-accordion-section', WWWPYAccordionSection);
+
+    // Demo functionality
+    const accordion = document.getElementById('basic-accordion');
+    const eventLog = document.getElementById('event-log');
+
+    // Add event listener for toggle events
+    accordion.addEventListener('accordion-toggle', (event) => {
+        const {section, expanded} = event.detail;
+        const sectionIndex = accordion.sections.indexOf(section);
+        const status = expanded ? 'expanded' : 'collapsed';
+
+        const logEntry = document.createElement('p');
+        logEntry.textContent = `Section ${sectionIndex + 1} was ${status} by user click`;
+
+        // Keep log entries reasonable
+        if (eventLog.children.length > 5) {
+            eventLog.removeChild(eventLog.firstChild);
+        }
+
+        eventLog.appendChild(logEntry);
+    });
+
+    // Demo functions
+    function toggleSection(index) {
+        const section = accordion.sections[index];
+        if (section) {
+            section.toggle();
+        }
+    }
+
+    function expandAll() {
+        accordion.sections.forEach(section => {
+            section.expanded = true;
+        });
+    }
+
+    function collapseAll() {
+        accordion.sections.forEach(section => {
+            section.expanded = false;
+        });
+    }
+</script>
+</body>
+</html>
