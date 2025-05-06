@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Slots Experiment</title>
+    <style>
+        /* Simple styles for demo */
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .demo-content {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        /* Styling for our custom element */
+        dynamic-slot-container {
+            display: block;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Dynamic Slots Experiment</h1>
+
+<div class="demo-content">
+    <p>This demo shows how dynamic slots can be created and how content projects into them:</p>
+
+    <dynamic-slot-container>
+        <!-- Default slot content -->
+        <div>This has no slot attribute (goes to default slot)</div>
+        <div slot="item:0">This should go to slot "item:0" once created</div>
+        <div slot="item:1">This should go to slot "item:1" once created</div>
+        <div slot="item:5">This should go to slot "item:5" once created (skipping 2-4)</div>
+        <span>Another default slot item</span>
+    </dynamic-slot-container>
+</div>
+
+<script>
+    class DynamicSlotContainer extends HTMLElement {
+        constructor() {
+            super();
+
+            // Create a shadow DOM
+            this.attachShadow({mode: 'open'});
+
+            // Initialize the component
+            this.render();
+        }
+
+        render() {
+            // Initial structure with only the default slot
+            this.shadowRoot.innerHTML = `
+          <style>
+            :host {
+              display: block;
+            }
+
+            .container {
+              background-color: #f9f9f9;
+              padding: 10px;
+            }
+
+            .buttons {
+              margin-bottom: 10px;
+            }
+
+            button {
+              padding: 8px 12px;
+              margin-right: 8px;
+              background-color: #4CAF50;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+
+            button:hover {
+              background-color: #45a049;
+            }
+
+            .logger {
+              background-color: #272822;
+              color: #f8f8f2;
+              padding: 10px;
+              border-radius: 4px;
+              font-family: monospace;
+              margin-top: 10px;
+              min-height: 100px;
+              max-height: 300px;
+              overflow-y: auto;
+            }
+
+            .slots-container {
+              border: 1px dashed #ccc;
+              padding: 10px;
+              margin-top: 10px;
+            }
+
+            .slot-wrapper {
+              margin-bottom: 10px;
+              padding: 5px;
+              background-color: rgba(0, 0, 0, 0.05);
+              border-radius: 4px;
+            }
+
+            .slot-label {
+              font-weight: bold;
+              margin-bottom: 5px;
+              color: #666;
+              font-size: 0.8em;
+            }
+          </style>
+
+          <div class="container">
+            <div class="buttons">
+              <button id="inspect-btn">Inspect default slot</button>
+              <button id="create-slots-btn">Create needed named slots</button>
+            </div>
+
+            <div class="slots-container">
+              <div class="slot-wrapper">
+                <div class="slot-label">Default Slot:</div>
+                <slot></slot>
+              </div>
+              <!-- Dynamic slots will be added here -->
+              <div id="dynamic-slots"></div>
+            </div>
+
+            <pre class="logger" id="logger">// Log output will appear here</pre>
+          </div>
+        `;
+
+            // Set up event listeners
+            this.shadowRoot.getElementById('inspect-btn').addEventListener('click', () => this.inspectDefaultSlot());
+            this.shadowRoot.getElementById('create-slots-btn').addEventListener('click', () => this.createNamedSlots());
+        }
+
+        log(message) {
+            const logger = this.shadowRoot.getElementById('logger');
+            const timestamp = new Date().toLocaleTimeString();
+            logger.textContent += `\n[${timestamp}] ${message}`;
+
+            // Auto-scroll to bottom
+            logger.scrollTop = logger.scrollHeight;
+        }
+
+        inspectDefaultSlot() {
+            this.log('Inspecting default slot children:');
+
+            // Loop on all elements in the light DOM
+            [...this.children].forEach((node, index) => {
+                const slotAttr = node.getAttribute('slot') || 'none';
+                this.log(`  ${index}: <${node.tagName.toLowerCase()}> (slot="${slotAttr}")`);
+            });
+        }
+
+        createNamedSlots() {
+            this.log('Creating named slots based on attributes...');
+
+
+            // Find the highest slot index
+            let maxIndex = -1;
+            const slotPattern = /^item:(\d+)$/;
+
+            [...this.children].forEach((element, index) => {
+                const slotName = element.getAttribute('slot');
+                if (slotName && slotPattern.test(slotName)) {
+                    const match = slotName.match(slotPattern);
+                    const index = parseInt(match[1], 10);
+                    maxIndex = Math.max(maxIndex, index);
+                }
+            });
+
+            if (maxIndex === -1) {
+                this.log('No slot attributes found following the "item:n" pattern');
+                return;
+            }
+
+            this.log(`Found max slot index: ${maxIndex}`);
+
+            // Create slots from 0 to maxIndex
+            const dynamicSlotsContainer = this.shadowRoot.getElementById('dynamic-slots');
+            dynamicSlotsContainer.innerHTML = ''; // Clear existing slots
+
+            for (let i = 0; i <= maxIndex; i++) {
+                const slotName = `item:${i}`;
+                const slotWrapper = document.createElement('div');
+                slotWrapper.className = 'slot-wrapper';
+
+                const slotLabel = document.createElement('div');
+                slotLabel.className = 'slot-label';
+                slotLabel.textContent = `Slot "${slotName}":`;
+
+                const slotElement = document.createElement('slot');
+                slotElement.name = slotName;
+
+                slotWrapper.appendChild(slotLabel);
+                slotWrapper.appendChild(slotElement);
+                dynamicSlotsContainer.appendChild(slotWrapper);
+
+                this.log(`Created slot: "${slotName}"`);
+            }
+        }
+    }
+
+    // Register the custom element
+    customElements.define('dynamic-slot-container', DynamicSlotContainer);
+</script>
+</body>
+</html>
