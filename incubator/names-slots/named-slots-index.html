@@ -251,27 +251,6 @@
             this.appendChild(newElement);
 
             this.log(`Added new element with slot="${slotName}"`);
-
-            // Create the corresponding slot if it doesn't exist
-            if (!this.shadowRoot.querySelector(`slot[name="${slotName}"]`)) {
-                const dynamicSlotsContainer = this.shadowRoot.getElementById('dynamic-slots');
-
-                const slotWrapper = document.createElement('div');
-                slotWrapper.className = 'slot-wrapper';
-
-                const slotLabel = document.createElement('div');
-                slotLabel.className = 'slot-label';
-                slotLabel.textContent = `Slot "${slotName}":`;
-
-                const slotElement = document.createElement('slot');
-                slotElement.name = slotName;
-
-                slotWrapper.appendChild(slotLabel);
-                slotWrapper.appendChild(slotElement);
-                dynamicSlotsContainer.appendChild(slotWrapper);
-
-                this.log(`Created slot: "${slotName}"`);
-            }
         }
     }
 
