@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWWPY-Accordion Interactive Demo</title>
+    <title>Improved WWWPY-Accordion with Shadow DOM</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -21,37 +21,6 @@
             display: block;
             border: 1px solid #ddd;
             border-radius: 4px;
-            overflow: hidden;
-        }
-
-        wwwpy-accordion-section {
-            display: block;
-            border-bottom: 1px solid #ddd;
-        }
-
-        wwwpy-accordion-section:last-child {
-            border-bottom: none;
-        }
-
-        [slot="header"] {
-            padding: 15px;
-            background-color: #f5f5f5;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        [slot="header"]:hover {
-            background-color: #e9e9e9;
-        }
-
-        [slot="panel"] {
-            display: grid;
-            grid-template-rows: 0fr;
-            transition: grid-template-rows 300ms ease-in-out;
-            background-color: #fff;
-        }
-
-        [slot="panel"] .panel-inner {
             overflow: hidden;
         }
 
@@ -73,11 +42,18 @@
             background-color: #0069d9;
         }
 
+        #event-log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-<h1>WWWPY-Accordion Interactive Demo</h1>
-<p>This demo shows the accordion components using CSS Grid for smoother animations.</p>
+<h1>Improved WWWPY-Accordion with Shadow DOM</h1>
+<p>This demo shows the accordion components using Shadow DOM for better encapsulation and cleaner implementation.</p>
 
 <div class="controls">
     <h3>Controls</h3>
@@ -89,51 +65,44 @@
     <button onclick="addSection()">Add new section</button>
 </div>
 
-
 <div class="demo-container">
     <wwwpy-accordion-container id="accordion">
         <wwwpy-accordion-section>
             <div slot="header">Section 1: Introduction</div>
             <div slot="panel">
-                <div class="panel-inner">
-                    <p>Try clicking on this header or using the control buttons below.</p>
-                </div>
+                <p>Try clicking on this header or using the control buttons below.</p>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
-            <div slot="header">Section 2:</div>
+            <div slot="header">Section 2: Content</div>
             <div slot="panel">
-                <div class="panel-inner">
-                    <p>Lorem ipsum:</p>
-                    <ul>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                    </ul>
-                </div>
+                <p>Lorem ipsum:</p>
+                <ul>
+                    <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit</li>
+                    <li>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</li>
+                    <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco</li>
+                    <li>Duis aute irure dolor in reprehenderit in voluptate velit esse</li>
+                </ul>
             </div>
         </wwwpy-accordion-section>
 
         <wwwpy-accordion-section>
-            <div slot="header">Section 3:</div>
+            <div slot="header">Section 3: More Content</div>
             <div slot="panel">
-                <div class="panel-inner">
-                    <p>Lorem ipsum:</p>
-                    <ul>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                    </ul>
-                </div>
+                <p>Additional content:</p>
+                <ul>
+                    <li>Cillum dolore eu fugiat nulla pariatur</li>
+                    <li>Excepteur sint occaecat cupidatat non proident</li>
+                    <li>Sunt in culpa qui officia deserunt mollit anim id est laborum</li>
+                    <li>Et harum quidem rerum facilis est et expedita distinctio</li>
+                </ul>
             </div>
         </wwwpy-accordion-section>
     </wwwpy-accordion-container>
 
-    <div id="event-log" class="code-example">
-        <p>Event log will appear here when sections are toggled by clicking.</p>
+    <div id="event-log">
+        <p>Event log will appear here when sections are toggled.</p>
     </div>
 </div>
 
@@ -142,7 +111,6 @@
 
     function log(message) {
         const logEntry = document.createElement('p');
-
         logEntry.innerHTML = message;
 
         // Keep log entries reasonable
@@ -155,6 +123,35 @@
     class WWWPYAccordionContainer extends HTMLElement {
         constructor() {
             super();
+
+            // Initialize Shadow DOM
+            this.attachShadow({mode: 'open'});
+
+            // Create styles and container
+            this.shadowRoot.innerHTML = `
+                <style>
+                    :host {
+                        display: block;
+                    }
+
+                    .accordion-container {
+                        display: block;
+                    }
+
+                    ::slotted(wwwpy-accordion-section) {
+                        display: block;
+                        border-bottom: 1px solid #ddd;
+                    }
+
+                    ::slotted(wwwpy-accordion-section:last-child) {
+                        border-bottom: none;
+                    }
+                </style>
+                <div class="accordion-container">
+                    <slot></slot>
+                </div>
+            `;
+
             this._updateSlots = this._updateSlots.bind(this);
         }
 
@@ -174,53 +171,100 @@
 
         _updateSlots() {
             log('<strong>Event:</strong> Accordion container updated');
-            const sections = this.sections;
-            sections.forEach((section, index) => section.slot = `section:${index}`);
+            // We no longer need to assign slots to sections, as we're using a default slot
         }
     }
 
     class WWWPYAccordionSection extends HTMLElement {
         constructor() {
             super();
+
             this._expanded = false;
-            this._handleClick = this._handleClick.bind(this);
-            this._header = null;
-            this._panel = null;
+
+            // Initialize Shadow DOM
+            this.attachShadow({mode: 'open'});
+
+            // Define the template with header and panel slots
+            this.shadowRoot.innerHTML = `
+                <style>
+                    :host {
+                        display: block;
+                    }
+
+                    .header-container {
+                        padding: 15px;
+                        background-color: #f5f5f5;
+                        font-weight: bold;
+                        cursor: pointer;
+                    }
+
+                    .header-container:hover {
+                        background-color: #e9e9e9;
+                    }
+
+                    .panel-container {
+                        display: grid;
+                        grid-template-rows: 0fr;
+                        transition: grid-template-rows 300ms ease-in-out;
+                        background-color: #fff;
+                    }
+
+                    .panel-inner {
+                        overflow: hidden;
+                        padding: 0 15px;
+                    }
+                </style>
+                <div class="header-container">
+                    <slot name="header">Header (add content with slot="header")</slot>
+                </div>
+                <div class="panel-container">
+                    <div class="panel-inner">
+                        <slot name="panel">Panel (add content with slot="panel")</slot>
+                    </div>
+                </div>
+            `;
+
+            // Bind methods
+            this._handleHeaderClick = this._handleHeaderClick.bind(this);
         }
 
         connectedCallback() {
-            this._header = this.querySelector('[slot="header"]');
-            this._panel = this.querySelector('[slot="panel"]');
-            if (this._header) this._header.addEventListener('click', this._handleClick);
-            this._initializePanelState();
+            // Get references to container elements
+            this._headerContainer = this.shadowRoot.querySelector('.header-container');
+            this._panelContainer = this.shadowRoot.querySelector('.panel-container');
+
+            // Add event listener to header
+            if (this._headerContainer) {
+                this._headerContainer.addEventListener('click', this._handleHeaderClick);
+            }
+
+            // Initialize panel state
+            this._updateExpandedState();
         }
 
         disconnectedCallback() {
-            if (this._header) this._header.removeEventListener('click', this._handleClick);
+            // Remove event listeners
+            if (this._headerContainer) {
+                this._headerContainer.removeEventListener('click', this._handleHeaderClick);
+            }
         }
 
         get expanded() {
             return this._expanded;
         }
 
-        _initializePanelState() {
-            if (!this._panel) return;
-            if (!this._panel.querySelector('.panel-inner')) {
-                const innerContent = document.createElement('div');
-                innerContent.className = 'panel-inner';
-                while (this._panel.firstChild)
-                    innerContent.appendChild(this._panel.firstChild);
-                this._panel.appendChild(innerContent);
-            }
-            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
-        }
-
         set expanded(value) {
             const newValue = Boolean(value);
             if (this._expanded === newValue) return;
+
             this._expanded = newValue;
-            if (!this._panel) return;
-            this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
+            this._updateExpandedState();
+        }
+
+        _updateExpandedState() {
+            if (this._panelContainer) {
+                this._panelContainer.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
+            }
         }
 
         toggle(emitEvent = false) {
@@ -230,7 +274,7 @@
             this.dispatchEvent(new CustomEvent('accordion-toggle', dict));
         }
 
-        _handleClick() {
+        _handleHeaderClick() {
             this.toggle(true);
         }
 
@@ -270,19 +314,18 @@
         let sectionCount = accordion.sections.length + 1;
         let html = `
         <wwwpy-accordion-section>
-            <div slot="header">Section ${sectionCount}:</div>
+            <div slot="header">Section ${sectionCount}: Dynamic Content</div>
             <div slot="panel">
-                <div class="panel-inner">
-                    <p>Lorem ipsum (dynamically added section ${sectionCount}:</p>
-                    <ul>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
-                    </ul>
-                </div>
+                <p>Dynamically added section ${sectionCount}:</p>
+                <ul>
+                    <li>This section was added programmatically</li>
+                    <li>The accordion container detects new sections automatically</li>
+                    <li>Each section manages its own expanded state</li>
+                    <li>Shadow DOM provides better encapsulation</li>
+                </ul>
             </div>
         </wwwpy-accordion-section>`;
+
         let fragment = document.createRange().createContextualFragment(html);
         accordion.appendChild(fragment);
     }
