@@ -99,7 +99,6 @@
     <button onclick="toggleSection(2)">Toggle Section 3</button>
     <button onclick="expandAll()">Expand All</button>
     <button onclick="collapseAll()">Collapse All</button>
-    <button onclick="addSection()">Add Section</button>
 </div>
 
 <h2>Listening for Events</h2>
@@ -107,22 +106,18 @@
     <p>Event log will appear here when sections are toggled by clicking.</p>
 </div>
 
+<h2>Usage Example</h2>
+<div class="code-example">
+    <pre><code>&lt;wwwpy-accordion-container&gt;
+  &lt;wwwpy-accordion-section&gt;
+    &lt;div slot="header"&gt;Section Title&lt;/div&gt;
+    &lt;div slot="panel"&gt;Section Content&lt;/div&gt;
+  &lt;/wwwpy-accordion-section&gt;
+&lt;/wwwpy-accordion-container&gt;</code></pre>
+</div>
+
 <!-- Load the accordion components script -->
 <script>
-    const eventLog = document.getElementById('event-log');
-
-    function log(message) {
-        const logEntry = document.createElement('p');
-
-        logEntry.textContent = message;
-
-        // Keep log entries reasonable
-        if (eventLog.children.length > 5)
-            eventLog.removeChild(eventLog.firstChild);
-
-        eventLog.appendChild(logEntry);
-    }
-
     // Component implementation would be loaded from a separate file
     // For this demo, we'll include the code inline
 
@@ -143,7 +138,10 @@
         }
 
         disconnectedCallback() {
-            if (this._observer) this._observer.disconnect();
+            // Clean up observer when element is removed
+            if (this._observer) {
+                this._observer.disconnect();
+            }
         }
 
         /**
@@ -151,7 +149,9 @@
          * @returns {Array} Array of section elements
          */
         get sections() {
-            return Array.from(this.children).filter(child => child.tagName.toLowerCase() === 'wwwpy-accordion-section');
+            return Array.from(this.children).filter(
+                child => child.tagName.toLowerCase() === 'wwwpy-accordion-section'
+            );
         }
 
         /**
@@ -159,10 +159,10 @@
          * @private
          */
         _updateSlots() {
-            // log
-            log('Updating slots for accordion sections');
+            const sections = this.sections;
+
             // Assign slot names to each section
-            this.sections.forEach((section, index) => {
+            sections.forEach((section, index) => {
                 section.slot = `section:${index}`;
             });
         }
@@ -174,38 +174,27 @@
             super();
             this._expanded = false;
             this._handleClick = this._handleClick.bind(this);
-            this._header = null;
-            this._panel = null;
-            this._transitionEndHandler = null;
         }
 
         connectedCallback() {
-            // Cache element references
-            this._header = this.querySelector('[slot="header"]');
-            this._panel = this.querySelector('[slot="panel"]');
-
             // Initialize accessibility attributes
             this._setupAccessibility();
 
             // Add click event listener to header
-            if (this._header)
-                this._header.addEventListener('click', this._handleClick);
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.addEventListener('click', this._handleClick);
+            }
 
-
-            // Initial setup for panel visibility (without transitions)
-            this._initializePanelState();
+            // Initial setup for panel visibility
+            this._updatePanelVisibility();
         }
 
         disconnectedCallback() {
             // Clean up event listeners when element is removed
-            if (this._header) {
-                this._header.removeEventListener('click', this._handleClick);
-            }
-
-            // Clean up any transition listeners
-            if (this._panel && this._transitionEndHandler) {
-                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                this._transitionEndHandler = null;
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.removeEventListener('click', this._handleClick);
             }
         }
 
@@ -225,8 +214,8 @@
             const newValue = Boolean(value);
             if (this._expanded !== newValue) {
                 this._expanded = newValue;
+                this._updatePanelVisibility();
                 this._updateAccessibilityAttributes();
-                this._updatePanelVisibility(true); // Update with transitions
             }
         }
 
@@ -262,14 +251,18 @@
          * @private
          */
         _setupAccessibility() {
-            if (this._header) {
-                this._header.setAttribute('role', 'button');
-                this._header.setAttribute('tabindex', '0');
-                this._header.style.cursor = 'pointer';
+            const header = this.querySelector('[slot="header"]');
+            const panel = this.querySelector('[slot="panel"]');
+
+            if (header) {
+                header.setAttribute('role', 'button');
+                header.setAttribute('tabindex', '0');
+                header.style.cursor = 'pointer';
             }
 
-            if (this._panel)
-                this._panel.setAttribute('role', 'region');
+            if (panel) {
+                panel.setAttribute('role', 'region');
+            }
 
             this._updateAccessibilityAttributes();
         }
@@ -279,74 +272,44 @@
          * @private
          */
         _updateAccessibilityAttributes() {
-            if (this._header)
-                this._header.setAttribute('aria-expanded', this._expanded.toString());
-        }
-
-        /**
-         * Initialize panel state without transitions on first load
-         * @private
-         */
-        _initializePanelState() {
-            if (!this._panel) return;
-
-            // For initial state, directly set styles and attributes without transitions
-            this._panel.style.overflow = 'hidden';
-
-            if (this._expanded) {
-                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
-                this._panel.removeAttribute('hidden');
-            } else {
-                this._panel.style.maxHeight = '0';
-                // Important: Set hidden attribute immediately for initial collapsed state
-                this._panel.setAttribute('hidden', '');
+            const header = this.querySelector('[slot="header"]');
+            if (header) {
+                header.setAttribute('aria-expanded', this._expanded.toString());
             }
         }
 
         /**
          * Update panel visibility based on expanded state
-         * @param {boolean} withTransition - Whether to use transitions
          * @private
          */
-        _updatePanelVisibility(withTransition = false) {
-            if (!this._panel) return;
+        _updatePanelVisibility() {
+            const panel = this.querySelector('[slot="panel"]');
+            if (panel) {
+                if (this._expanded) {
+                    panel.removeAttribute('hidden');
 
-            // Clean up any existing transition end handlers
-            if (this._transitionEndHandler) {
-                this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                this._transitionEndHandler = null;
-            }
+                    // Apply transition
+                    panel.style.maxHeight = '0';
+                    panel.style.overflow = 'hidden';
+                    panel.style.transition = 'max-height 300ms ease-in-out';
 
-            // Set up transition if needed
-            this._panel.style.transition = withTransition ? 'max-height 300ms ease-in-out' : '';
+                    // Force reflow
+                    panel.offsetHeight;
 
-            if (this._expanded) {
-                // Expanding: remove hidden first, then animate height
-                this._panel.removeAttribute('hidden');
-                this._panel.style.overflow = 'hidden';
+                    // Set target height
+                    panel.style.maxHeight = `${panel.scrollHeight}px`;
+                } else {
+                    panel.style.maxHeight = '0';
 
-                // Force reflow before setting new height
-                if (withTransition)
-                    this._panel.offsetHeight;
-
-                this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
-            } else {
-                // Collapsing: animate to 0, then set hidden
-                this._panel.style.maxHeight = '0';
-
-                if (withTransition) {
-                    // Only set up transition handler if we're actually transitioning
-                    this._transitionEndHandler = () => {
-                        if (!this._expanded)
-                            this._panel.setAttribute('hidden', '');
-                        this._panel.removeEventListener('transitionend', this._transitionEndHandler);
-                        this._transitionEndHandler = null;
+                    // Add event listener for transition end to set hidden attribute
+                    const onTransitionEnd = () => {
+                        if (!this._expanded) {
+                            panel.setAttribute('hidden', '');
+                        }
+                        panel.removeEventListener('transitionend', onTransitionEnd);
                     };
 
-                    this._panel.addEventListener('transitionend', this._transitionEndHandler);
-                } else {
-                    // If no transition, set hidden immediately
-                    this._panel.setAttribute('hidden', '');
+                    panel.addEventListener('transitionend', onTransitionEnd);
                 }
             }
         }
@@ -358,6 +321,7 @@
 
     // Demo functionality
     const accordion = document.getElementById('basic-accordion');
+    const eventLog = document.getElementById('event-log');
 
     // Add event listener for toggle events
     accordion.addEventListener('accordion-toggle', (event) => {
@@ -365,38 +329,35 @@
         const sectionIndex = accordion.sections.indexOf(section);
         const status = expanded ? 'expanded' : 'collapsed';
 
-        log(`Section ${sectionIndex + 1} was ${status} by user click`);
+        const logEntry = document.createElement('p');
+        logEntry.textContent = `Section ${sectionIndex + 1} was ${status} by user click`;
+
+        // Keep log entries reasonable
+        if (eventLog.children.length > 5) {
+            eventLog.removeChild(eventLog.firstChild);
+        }
+
+        eventLog.appendChild(logEntry);
     });
 
     // Demo functions
     function toggleSection(index) {
         const section = accordion.sections[index];
-        if (section) section.toggle();
+        if (section) {
+            section.toggle();
+        }
     }
 
     function expandAll() {
-        accordion.sections.forEach(section => section.expanded = true);
+        accordion.sections.forEach(section => {
+            section.expanded = true;
+        });
     }
 
     function collapseAll() {
-        accordion.sections.forEach(section => section.expanded = false);
-    }
-
-    function addSection() {
-        const newIndex = accordion.sections.length;
-        const section = document.createElement('wwwpy-accordion-section');
-
-        const header = document.createElement('div');
-        header.setAttribute('slot', 'header');
-        header.textContent = `Section ${newIndex + 1}`;
-
-        const panel = document.createElement('div');
-        panel.setAttribute('slot', 'panel');
-        panel.innerHTML = `<p>This is the content for section ${newIndex + 1}.</p>`;
-
-        section.appendChild(header);
-        section.appendChild(panel);
-        accordion.appendChild(section);
+        accordion.sections.forEach(section => {
+            section.expanded = false;
+        });
     }
 </script>
 </body>
