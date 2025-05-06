@@ -153,7 +153,6 @@
 
                     .panel-container {
                         display: grid;
-                        grid-template-rows: 0fr;
                         transition: grid-template-rows 300ms ease-in-out;
                     }
 
@@ -162,9 +161,7 @@
                     }
 
                 </style>
-                <div class="header-container">
-                    <slot name="header">Header (add content with slot="header")</slot>
-                </div>
+                <slot name="header" class="header-container">Header (add content with slot="header")</slot>
                 <div class="panel-container">
                     <div class="panel-inner">
                         <slot name="panel">Panel (add content with slot="panel")</slot>
