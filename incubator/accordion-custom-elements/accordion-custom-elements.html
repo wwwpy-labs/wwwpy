@@ -160,6 +160,14 @@
         get sections() {
             return Array.from(this.children).filter(child => child.tagName.toLowerCase() === 'wwwpy-accordion-section');
         }
+
+        collapseAll() {
+            this.sections.forEach(section => section.expanded = false);
+        }
+
+        expandAll() {
+            this.sections.forEach(section => section.expanded = true);
+        }
     }
 
     class WWWPYAccordionSection extends HTMLElement {
@@ -263,12 +271,12 @@
     }
 
     function expandAll() {
-        accordion.sections.forEach(section => section.expanded = true);
+        accordion.expandAll();
         log('<strong>Programmatic:</strong> All sections expanded');
     }
 
     function collapseAll() {
-        accordion.sections.forEach(section => section.expanded = false);
+        accordion.collapseAll();
         log('<strong>Programmatic:</strong> All sections collapsed');
     }
 
