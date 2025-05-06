@@ -143,7 +143,6 @@
 </div>
 
 <script>
-    // wwwpy-accordion-container.js
     class WWWPYAccordionContainer extends HTMLElement {
         constructor() {
             super();
@@ -151,46 +150,29 @@
         }
 
         connectedCallback() {
-            // Initial slot setup
             this._updateSlots();
-
-            // Set up mutation observer to track changes to children
             this._observer = new MutationObserver(this._updateSlots);
             this._observer.observe(this, {childList: true});
         }
 
         disconnectedCallback() {
-            // Clean up observer when element is removed
             if (this._observer) {
                 this._observer.disconnect();
             }
         }
 
-        /**
-         * Get all direct wwwpy-accordion-section children
-         * @returns {Array} Array of section elements
-         */
         get sections() {
-            return Array.from(this.children).filter(
-                child => child.tagName.toLowerCase() === 'wwwpy-accordion-section'
-            );
+            return Array.from(this.children).filter(child => child.tagName.toLowerCase() === 'wwwpy-accordion-section');
         }
 
-        /**
-         * Update slot attributes on sections
-         * @private
-         */
         _updateSlots() {
             const sections = this.sections;
-
-            // Assign slot names to each section
             sections.forEach((section, index) => {
                 section.slot = `section:${index}`;
             });
         }
     }
 
-    // wwwpy-accordion-section.js
     class WWWPYAccordionSection extends HTMLElement {
         constructor() {
             super();
@@ -202,59 +184,38 @@
         }
 
         connectedCallback() {
-            // Cache element references
             this._header = this.querySelector('[slot="header"]');
             this._panel = this.querySelector('[slot="panel"]');
-
-            // Add click event listener to header
             if (this._header) {
                 this._header.addEventListener('click', this._handleClick);
             }
-
-            // Initial setup for panel visibility (without transitions)
             this._initializePanelState();
         }
 
         disconnectedCallback() {
-            // Clean up event listeners when element is removed
             if (this._header) {
                 this._header.removeEventListener('click', this._handleClick);
             }
-
-            // Clean up any transition listeners
             if (this._panel && this._transitionEndHandler) {
                 this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                 this._transitionEndHandler = null;
             }
         }
 
-        /**
-         * Get the expanded state
-         * @returns {boolean} True if expanded, false if collapsed
-         */
         get expanded() {
             return this._expanded;
         }
 
-        /**
-         * Set the expanded state
-         * @param {boolean} value - True to expand, false to collapse
-         */
         set expanded(value) {
             const newValue = Boolean(value);
             if (this._expanded !== newValue) {
                 this._expanded = newValue;
-                this._updatePanelVisibility(true); // Update with transitions
+                this._updatePanelVisibility(true);
             }
         }
 
-        /**
-         * Toggle the expanded state
-         * @param {boolean} [emitEvent=false] - Whether to emit the toggle event
-         */
         toggle(emitEvent = false) {
             this.expanded = !this._expanded;
-
             if (emitEvent) {
                 this.dispatchEvent(new CustomEvent('accordion-toggle', {
                     bubbles: true,
@@ -266,101 +227,63 @@
             }
         }
 
-        /**
-         * Handle click on the header
-         * @private
-         */
         _handleClick() {
-            // Toggle with event emission when clicked
             this.toggle(true);
         }
 
-        /**
-         * Initialize panel state without transitions on first load
-         * @private
-         */
         _initializePanelState() {
             if (!this._panel) return;
-
-            // Create and setup inner container for panel content if not exists
             if (!this._panel.querySelector('.panel-inner')) {
                 const innerContent = document.createElement('div');
                 innerContent.className = 'panel-inner';
-
-                // Move all panel children to inner container
                 while (this._panel.firstChild) {
                     innerContent.appendChild(this._panel.firstChild);
                 }
-
                 this._panel.appendChild(innerContent);
             }
-
             this._panel.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
-
         }
 
-        /**
-         * Update panel visibility based on expanded state
-         * @param {boolean} withTransition - Whether to use transitions
-         * @private
-         */
         _updatePanelVisibility(withTransition = false) {
             if (!this._panel) return;
-
-            // Clean up any existing transition end handlers
             if (this._transitionEndHandler) {
                 this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                 this._transitionEndHandler = null;
             }
-
-            // Update ARIA attributes
             if (this._header) {
                 this._header.setAttribute('aria-expanded', this._expanded ? 'true' : 'false');
             }
-
             if (this._expanded) {
-                // Force reflow to ensure transitions work properly
                 if (withTransition) {
                     this._panel.offsetHeight;
                 }
-
-                // Directly set the expanded style
                 this._panel.style.gridTemplateRows = '1fr';
             } else {
-                // Directly set the collapsed style
                 this._panel.style.gridTemplateRows = '0fr';
-
                 if (withTransition) {
-                    // Set up transition end handler to update after animation
                     this._transitionEndHandler = () => {
                         this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                         this._transitionEndHandler = null;
                     };
-
                     this._panel.addEventListener('transitionend', this._transitionEndHandler);
                 }
             }
         }
     }
 
-    // Register the custom elements
     customElements.define('wwwpy-accordion-container', WWWPYAccordionContainer);
     customElements.define('wwwpy-accordion-section', WWWPYAccordionSection);
 
-    // Demo-specific code
     const accordion = document.getElementById('accordion');
     const statusElement = document.getElementById('status');
 
-    // Add event listener for toggle events
-    accordion.addEventListener('accordion-toggle', (event) => {
+    accordion.addEventListener('accordion-toggle', event => {
         const {section, expanded} = event.detail;
         const sectionIndex = accordion.sections.indexOf(section);
         const status = expanded ? 'expanded' : 'collapsed';
-
         statusElement.innerHTML = `<strong>Event:</strong> Section ${sectionIndex + 1} was ${status} by user click`;
     });
 
-    // Control functions
     function toggleSection(index) {
         const section = accordion.sections[index];
         if (section) {
@@ -370,16 +293,12 @@
     }
 
     function expandAll() {
-        accordion.sections.forEach(section => {
-            section.expanded = true;
-        });
+        accordion.sections.forEach(section => section.expanded = true);
         statusElement.innerHTML = '<strong>Programmatic:</strong> All sections expanded';
     }
 
     function collapseAll() {
-        accordion.sections.forEach(section => {
-            section.expanded = false;
-        });
+        accordion.sections.forEach(section => section.expanded = false);
         statusElement.innerHTML = '<strong>Programmatic:</strong> All sections collapsed';
     }
 </script>
