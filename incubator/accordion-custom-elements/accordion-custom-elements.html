@@ -87,8 +87,16 @@
 <body>
 <h1>WWWPY-Accordion Interactive Demo</h1>
 <p>This demo shows the accordion components using CSS Grid for smoother animations.</p>
-<p><strong>Key improvement:</strong> Using grid-template-rows (0fr → 1fr) instead of max-height for smoother transitions
-    with no jumpiness.</p>
+
+<div class="controls">
+    <h3>Controls</h3>
+    <button onclick="toggleSection(0)">Toggle Section 1</button>
+    <button onclick="toggleSection(1)">Toggle Section 2</button>
+    <button onclick="toggleSection(2)">Toggle Section 3</button>
+    <button onclick="expandAll()">Expand All</button>
+    <button onclick="collapseAll()">Collapse All</button>
+</div>
+
 
 <div class="demo-container">
     <wwwpy-accordion-container id="accordion">
@@ -133,15 +141,6 @@
             </div>
         </wwwpy-accordion-section>
     </wwwpy-accordion-container>
-
-    <div class="controls">
-        <h3>Controls</h3>
-        <button onclick="toggleSection(0)">Toggle Section 1</button>
-        <button onclick="toggleSection(1)">Toggle Section 2</button>
-        <button onclick="toggleSection(2)">Toggle Section 3</button>
-        <button onclick="expandAll()">Expand All</button>
-        <button onclick="collapseAll()">Collapse All</button>
-    </div>
 
     <div class="status" id="status">
         Click on headers or buttons to see events here.
