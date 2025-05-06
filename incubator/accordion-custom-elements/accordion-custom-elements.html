@@ -254,9 +254,7 @@
                 this._header.setAttribute('aria-expanded', this._expanded ? 'true' : 'false');
             }
             if (this._expanded) {
-                if (withTransition) {
-                    this._panel.offsetHeight;
-                }
+                if (withTransition) this._panel.offsetHeight;
                 this._panel.style.gridTemplateRows = '1fr';
             } else {
                 this._panel.style.gridTemplateRows = '0fr';
