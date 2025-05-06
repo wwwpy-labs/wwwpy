@@ -211,9 +211,6 @@
             this._header = this.querySelector('[slot="header"]');
             this._panel = this.querySelector('[slot="panel"]');
 
-            // Initialize accessibility attributes
-            this._setupAccessibility();
-
             // Add click event listener to header
             if (this._header) {
                 this._header.addEventListener('click', this._handleClick);
@@ -252,7 +249,6 @@
             const newValue = Boolean(value);
             if (this._expanded !== newValue) {
                 this._expanded = newValue;
-                this._updateAccessibilityAttributes();
                 this._updatePanelVisibility(true); // Update with transitions
             }
         }
@@ -282,34 +278,6 @@
         _handleClick() {
             // Toggle with event emission when clicked
             this.toggle(true);
-        }
-
-        /**
-         * Set up accessibility attributes
-         * @private
-         */
-        _setupAccessibility() {
-            if (this._header) {
-                this._header.setAttribute('role', 'button');
-                this._header.setAttribute('tabindex', '0');
-                this._header.style.cursor = 'pointer';
-            }
-
-            if (this._panel) {
-                this._panel.setAttribute('role', 'region');
-            }
-
-            this._updateAccessibilityAttributes();
-        }
-
-        /**
-         * Update accessibility attributes based on current state
-         * @private
-         */
-        _updateAccessibilityAttributes() {
-            if (this._header) {
-                this._header.setAttribute('aria-expanded', this._expanded.toString());
-            }
         }
 
         /**
