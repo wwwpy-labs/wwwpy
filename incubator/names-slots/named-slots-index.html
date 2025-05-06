@@ -164,7 +164,7 @@
             logger.scrollTop = logger.scrollHeight;
         }
 
-        // New function to get the maximum used slot index
+        // Function to get the maximum used slot index
         getMaxUsedSlotIndex() {
             const slotPattern = /^item:(\d+)$/;
             let maxIndex = -1;
@@ -191,6 +191,7 @@
             });
         }
 
+        // Simplified method using createRange().createContextualFragment()
         createNamedSlots() {
             this.log('Creating needed named slots...');
 
@@ -217,26 +218,22 @@
                     continue;
                 }
 
-                // Create new slot wrapper and elements
-                const slotWrapper = document.createElement('div');
-                slotWrapper.className = 'slot-wrapper';
+                // Create new slot using createContextualFragment
+                const html = `
+                <div class="slot-wrapper">
+                    <div class="slot-label">Slot "${slotName}":</div>
+                    <slot name="${slotName}"></slot>
+                </div>
+                `;
 
-                const slotLabel = document.createElement('div');
-                slotLabel.className = 'slot-label';
-                slotLabel.textContent = `Slot "${slotName}":`;
-
-                const slotElement = document.createElement('slot');
-                slotElement.name = slotName;
-
-                slotWrapper.appendChild(slotLabel);
-                slotWrapper.appendChild(slotElement);
-                dynamicSlotsContainer.appendChild(slotWrapper);
+                const fragment = document.createRange().createContextualFragment(html);
+                dynamicSlotsContainer.appendChild(fragment);
 
                 this.log(`Created slot: "${slotName}"`);
             }
         }
 
-        // New function to add a dynamic element with the next slot index
+        // Function to add a dynamic element with the next slot index
         addDynamicElement() {
             // Get the next available slot index
             const nextIndex = this.getMaxUsedSlotIndex() + 1;
