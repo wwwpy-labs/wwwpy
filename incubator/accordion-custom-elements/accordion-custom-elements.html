@@ -150,27 +150,23 @@
             this.attachShadow({mode: 'open'});
             this.shadowRoot.innerHTML = `
                 <style>
-
                     .panel-container {
                         display: grid;
                         transition: grid-template-rows 300ms ease-in-out;
                     }
-
-                    .panel-inner {
-                        overflow: hidden;
-                    }
-
                 </style>
-                <slot name="header" id="_header">Header (add content with slot="header")</slot>
-                <div class="panel-container">
-                    <div class="panel-inner">
+
+                <slot name="header" id="_header_container">Header (add content with slot="header")</slot>
+
+                <div class="panel-container" id="_panel_container">
+                    <div style="overflow: hidden">
                         <slot name="panel">Panel (add content with slot="panel")</slot>
                     </div>
                 </div>
             `;
 
-            this._headerContainer = this.shadowRoot.getElementById('_header');
-            this._panelContainer = this.shadowRoot.querySelector('.panel-container');
+            this._headerContainer = this.shadowRoot.getElementById('_header_container');
+            this._panelContainer = this.shadowRoot.getElementById('_panel_container');
             this._headerContainer.addEventListener('click', () => this.toggle(true));
             this._expanded = undefined;
             this.expanded = false;
