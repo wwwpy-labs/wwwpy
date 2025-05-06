@@ -99,6 +99,7 @@
     <button onclick="toggleSection(2)">Toggle Section 3</button>
     <button onclick="expandAll()">Expand All</button>
     <button onclick="collapseAll()">Collapse All</button>
+    <button onclick="addSection()">Add Section</button>
 </div>
 
 <h2>Listening for Events</h2>
@@ -108,6 +109,20 @@
 
 <!-- Load the accordion components script -->
 <script>
+    const eventLog = document.getElementById('event-log');
+
+    function log(message) {
+        const logEntry = document.createElement('p');
+
+        logEntry.textContent = message;
+
+        // Keep log entries reasonable
+        if (eventLog.children.length > 5)
+            eventLog.removeChild(eventLog.firstChild);
+
+        eventLog.appendChild(logEntry);
+    }
+
     // Component implementation would be loaded from a separate file
     // For this demo, we'll include the code inline
 
@@ -128,10 +143,7 @@
         }
 
         disconnectedCallback() {
-            // Clean up observer when element is removed
-            if (this._observer) {
-                this._observer.disconnect();
-            }
+            if (this._observer) this._observer.disconnect();
         }
 
         /**
@@ -139,9 +151,7 @@
          * @returns {Array} Array of section elements
          */
         get sections() {
-            return Array.from(this.children).filter(
-                child => child.tagName.toLowerCase() === 'wwwpy-accordion-section'
-            );
+            return Array.from(this.children).filter(child => child.tagName.toLowerCase() === 'wwwpy-accordion-section');
         }
 
         /**
@@ -150,11 +160,9 @@
          */
         _updateSlots() {
             // log
-            console.log('Updating slots for accordion sections');
-            const sections = this.sections;
-
+            log('Updating slots for accordion sections');
             // Assign slot names to each section
-            sections.forEach((section, index) => {
+            this.sections.forEach((section, index) => {
                 section.slot = `section:${index}`;
             });
         }
@@ -180,9 +188,9 @@
             this._setupAccessibility();
 
             // Add click event listener to header
-            if (this._header) {
+            if (this._header)
                 this._header.addEventListener('click', this._handleClick);
-            }
+
 
             // Initial setup for panel visibility (without transitions)
             this._initializePanelState();
@@ -350,7 +358,6 @@
 
     // Demo functionality
     const accordion = document.getElementById('basic-accordion');
-    const eventLog = document.getElementById('event-log');
 
     // Add event listener for toggle events
     accordion.addEventListener('accordion-toggle', (event) => {
@@ -358,14 +365,7 @@
         const sectionIndex = accordion.sections.indexOf(section);
         const status = expanded ? 'expanded' : 'collapsed';
 
-        const logEntry = document.createElement('p');
-        logEntry.textContent = `Section ${sectionIndex + 1} was ${status} by user click`;
-
-        // Keep log entries reasonable
-        if (eventLog.children.length > 5)
-            eventLog.removeChild(eventLog.firstChild);
-
-        eventLog.appendChild(logEntry);
+        log(`Section ${sectionIndex + 1} was ${status} by user click`);
     });
 
     // Demo functions
@@ -380,6 +380,23 @@
 
     function collapseAll() {
         accordion.sections.forEach(section => section.expanded = false);
+    }
+
+    function addSection() {
+        const newIndex = accordion.sections.length;
+        const section = document.createElement('wwwpy-accordion-section');
+
+        const header = document.createElement('div');
+        header.setAttribute('slot', 'header');
+        header.textContent = `Section ${newIndex + 1}`;
+
+        const panel = document.createElement('div');
+        panel.setAttribute('slot', 'panel');
+        panel.innerHTML = `<p>This is the content for section ${newIndex + 1}.</p>`;
+
+        section.appendChild(header);
+        section.appendChild(panel);
+        accordion.appendChild(section);
     }
 </script>
 </body>
