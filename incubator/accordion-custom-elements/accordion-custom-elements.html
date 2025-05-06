@@ -107,16 +107,13 @@
 </div>
 
 <script>
-    const eventLog = document.getElementById('event-log');
 
     function log(message) {
+        const eventLog = document.getElementById('event-log');
+        if (eventLog.children.length > 5) eventLog.removeChild(eventLog.firstChild);
+
         const logEntry = document.createElement('p');
         logEntry.innerHTML = message;
-
-        // Keep log entries reasonable
-        if (eventLog.children.length > 5)
-            eventLog.removeChild(eventLog.firstChild);
-
         eventLog.appendChild(logEntry);
     }
 
@@ -218,19 +215,17 @@
             this._panelContainer = this.shadowRoot.querySelector('.panel-container');
             this._headerContainer.addEventListener('click', () => this.toggle(true));
             this._expanded = undefined;
+            this.expanded = false;
         }
 
         connectedCallback() {
-            if (this._expanded === undefined)
-                this.expanded = false;
         }
 
         disconnectedCallback() {
-            this._headerContainer.removeEventListener('click', this._handleHeaderClick);
         }
 
         get expanded() {
-            return this._expanded === true;
+            return this._expanded;
         }
 
         set expanded(value) {
