@@ -166,8 +166,6 @@
         constructor() {
             super();
 
-            this._expanded = false;
-
             this.attachShadow({mode: 'open'});
             this.shadowRoot.innerHTML = `
                 <style>
@@ -208,16 +206,15 @@
                 </div>
             `;
 
-            this._handleHeaderClick = this._handleHeaderClick.bind(this);
+            this._headerContainer = this.shadowRoot.querySelector('.header-container');
+            this._panelContainer = this.shadowRoot.querySelector('.panel-container');
+            this._headerContainer.addEventListener('click', () => this.toggle(true));
+            this._expanded = undefined;
         }
 
         connectedCallback() {
-            this._headerContainer = this.shadowRoot.querySelector('.header-container');
-            this._panelContainer = this.shadowRoot.querySelector('.panel-container');
-
-            this._headerContainer.addEventListener('click', this._handleHeaderClick);
-
-            this._updateExpandedState();
+            if (this._expanded === undefined)
+                this.expanded = false;
         }
 
         disconnectedCallback() {
@@ -225,7 +222,7 @@
         }
 
         get expanded() {
-            return this._expanded;
+            return this._expanded === true;
         }
 
         set expanded(value) {
@@ -233,22 +230,14 @@
             if (this._expanded === newValue) return;
 
             this._expanded = newValue;
-            this._updateExpandedState();
-        }
-
-        _updateExpandedState() {
             this._panelContainer.style.gridTemplateRows = this._expanded ? '1fr' : '0fr';
         }
 
         toggle(emitEvent = false) {
-            this.expanded = !this._expanded;
+            this.expanded = !this.expanded;
             if (!emitEvent) return;
             let dict = {bubbles: true, detail: {section: this, expanded: this._expanded}};
             this.dispatchEvent(new CustomEvent('accordion-toggle', dict));
-        }
-
-        _handleHeaderClick() {
-            this.toggle(true);
         }
 
     }
