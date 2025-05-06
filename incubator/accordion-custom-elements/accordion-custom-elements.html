@@ -92,6 +92,7 @@
     <button onclick="toggleSection(2)">Toggle Section 3</button>
     <button onclick="expandAll()">Expand All</button>
     <button onclick="collapseAll()">Collapse All</button>
+    <button onclick="addSection()">Add new section</button>
 </div>
 
 
@@ -288,6 +289,27 @@
     function collapseAll() {
         accordion.sections.forEach(section => section.expanded = false);
         statusElement.innerHTML = '<strong>Programmatic:</strong> All sections collapsed';
+    }
+
+    function addSection() {
+        let sectionCount = accordion.sections.length + 1;
+        let html = `
+        <wwwpy-accordion-section>
+            <div slot="header">Section ${sectionCount}:</div>
+            <div slot="panel">
+                <div class="panel-inner">
+                    <p>Lorem ipsum (dynamically added section ${sectionCount}:</p>
+                    <ul>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                        <li>Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum</li>
+                    </ul>
+                </div>
+            </div>
+        </wwwpy-accordion-section>`;
+        let fragment = document.createRange().createContextualFragment(html);
+        accordion.appendChild(fragment);
     }
 </script>
 </body>
