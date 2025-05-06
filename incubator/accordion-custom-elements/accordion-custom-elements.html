@@ -73,12 +73,6 @@
             background-color: #0069d9;
         }
 
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
@@ -138,12 +132,26 @@
         </wwwpy-accordion-section>
     </wwwpy-accordion-container>
 
-    <div class="status" id="status">
-        Click on headers or buttons to see events here.
+    <div id="event-log" class="code-example">
+        <p>Event log will appear here when sections are toggled by clicking.</p>
     </div>
 </div>
 
 <script>
+    const eventLog = document.getElementById('event-log');
+
+    function log(message) {
+        const logEntry = document.createElement('p');
+
+        logEntry.innerHTML = message;
+
+        // Keep log entries reasonable
+        if (eventLog.children.length > 5)
+            eventLog.removeChild(eventLog.firstChild);
+
+        eventLog.appendChild(logEntry);
+    }
+
     class WWWPYAccordionContainer extends HTMLElement {
         constructor() {
             super();
@@ -165,10 +173,9 @@
         }
 
         _updateSlots() {
+            log('<strong>Event:</strong> Accordion container updated');
             const sections = this.sections;
-            sections.forEach((section, index) => {
-                section.slot = `section:${index}`;
-            });
+            sections.forEach((section, index) => section.slot = `section:${index}`);
         }
     }
 
@@ -264,31 +271,30 @@
     customElements.define('wwwpy-accordion-section', WWWPYAccordionSection);
 
     const accordion = document.getElementById('accordion');
-    const statusElement = document.getElementById('status');
 
     accordion.addEventListener('accordion-toggle', event => {
         const {section, expanded} = event.detail;
         const sectionIndex = accordion.sections.indexOf(section);
         const status = expanded ? 'expanded' : 'collapsed';
-        statusElement.innerHTML = `<strong>Event:</strong> Section ${sectionIndex + 1} was ${status} by user click`;
+        log(`<strong>Event:</strong> Section ${sectionIndex + 1} was ${status} by user click`);
     });
 
     function toggleSection(index) {
         const section = accordion.sections[index];
         if (section) {
             section.toggle();
-            statusElement.innerHTML = `<strong>Programmatic:</strong> Section ${index + 1} was toggled (now ${section.expanded ? 'expanded' : 'collapsed'})`;
+            log(`<strong>Programmatic:</strong> Section ${index + 1} was toggled (now ${section.expanded ? 'expanded' : 'collapsed'})`);
         }
     }
 
     function expandAll() {
         accordion.sections.forEach(section => section.expanded = true);
-        statusElement.innerHTML = '<strong>Programmatic:</strong> All sections expanded';
+        log('<strong>Programmatic:</strong> All sections expanded');
     }
 
     function collapseAll() {
         accordion.sections.forEach(section => section.expanded = false);
-        statusElement.innerHTML = '<strong>Programmatic:</strong> All sections collapsed';
+        log('<strong>Programmatic:</strong> All sections collapsed');
     }
 
     function addSection() {
