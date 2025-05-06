@@ -106,16 +106,6 @@
     <p>Event log will appear here when sections are toggled by clicking.</p>
 </div>
 
-<h2>Usage Example</h2>
-<div class="code-example">
-    <pre><code>&lt;wwwpy-accordion-container&gt;
-  &lt;wwwpy-accordion-section&gt;
-    &lt;div slot="header"&gt;Section Title&lt;/div&gt;
-    &lt;div slot="panel"&gt;Section Content&lt;/div&gt;
-  &lt;/wwwpy-accordion-section&gt;
-&lt;/wwwpy-accordion-container&gt;</code></pre>
-</div>
-
 <!-- Load the accordion components script -->
 <script>
     // Component implementation would be loaded from a separate file
@@ -159,6 +149,8 @@
          * @private
          */
         _updateSlots() {
+            // log
+            console.log('Updating slots for accordion sections');
             const sections = this.sections;
 
             // Assign slot names to each section
@@ -268,9 +260,8 @@
                 this._header.style.cursor = 'pointer';
             }
 
-            if (this._panel) {
+            if (this._panel)
                 this._panel.setAttribute('role', 'region');
-            }
 
             this._updateAccessibilityAttributes();
         }
@@ -280,9 +271,8 @@
          * @private
          */
         _updateAccessibilityAttributes() {
-            if (this._header) {
+            if (this._header)
                 this._header.setAttribute('aria-expanded', this._expanded.toString());
-            }
         }
 
         /**
@@ -320,11 +310,7 @@
             }
 
             // Set up transition if needed
-            if (withTransition) {
-                this._panel.style.transition = 'max-height 300ms ease-in-out';
-            } else {
-                this._panel.style.transition = '';
-            }
+            this._panel.style.transition = withTransition ? 'max-height 300ms ease-in-out' : '';
 
             if (this._expanded) {
                 // Expanding: remove hidden first, then animate height
@@ -332,11 +318,9 @@
                 this._panel.style.overflow = 'hidden';
 
                 // Force reflow before setting new height
-                if (withTransition) {
+                if (withTransition)
                     this._panel.offsetHeight;
-                }
 
-                // Set target height
                 this._panel.style.maxHeight = `${this._panel.scrollHeight}px`;
             } else {
                 // Collapsing: animate to 0, then set hidden
@@ -345,9 +329,8 @@
                 if (withTransition) {
                     // Only set up transition handler if we're actually transitioning
                     this._transitionEndHandler = () => {
-                        if (!this._expanded) {
+                        if (!this._expanded)
                             this._panel.setAttribute('hidden', '');
-                        }
                         this._panel.removeEventListener('transitionend', this._transitionEndHandler);
                         this._transitionEndHandler = null;
                     };
@@ -379,9 +362,8 @@
         logEntry.textContent = `Section ${sectionIndex + 1} was ${status} by user click`;
 
         // Keep log entries reasonable
-        if (eventLog.children.length > 5) {
+        if (eventLog.children.length > 5)
             eventLog.removeChild(eventLog.firstChild);
-        }
 
         eventLog.appendChild(logEntry);
     });
@@ -389,21 +371,15 @@
     // Demo functions
     function toggleSection(index) {
         const section = accordion.sections[index];
-        if (section) {
-            section.toggle();
-        }
+        if (section) section.toggle();
     }
 
     function expandAll() {
-        accordion.sections.forEach(section => {
-            section.expanded = true;
-        });
+        accordion.sections.forEach(section => section.expanded = true);
     }
 
     function collapseAll() {
-        accordion.sections.forEach(section => {
-            section.expanded = false;
-        });
+        accordion.sections.forEach(section => section.expanded = false);
     }
 </script>
 </body>
