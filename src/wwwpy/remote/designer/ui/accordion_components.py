@@ -41,7 +41,7 @@ class AccordionSection(wpc.Component, tag_name='wwwpy-accordion-section'):
 <slot name="header" data-name="_header_container">Header</slot>
 <div data-name="_panel_container" style="display: grid">
     <div style="overflow: hidden">
-        <slot name="panel">Panel</slot>
+        <slot>Panel</slot>
     </div>
 </div>
 """

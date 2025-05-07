@@ -37,7 +37,7 @@ class TestAccordionSectionStandalone:
         # language=html
         js.document.body.innerHTML = """<wwwpy-accordion-section>
         <div slot="header">h0</div>
-        <div slot="panel">p0</div>
+        p0
     </wwwpy-accordion-section>"""
 
         section = get_component(js.document.body.firstElementChild, AccordionSection)
@@ -50,7 +50,9 @@ class TestAccordionSectionStandalone:
         # language=html
         js.document.body.innerHTML = """<wwwpy-accordion-section>
         <div slot="header">h0</div>
-        <div slot="panel">p0</div>"""
+        panel0-content
+        <wwwpy-accordion-section>
+        """
         section = get_component(js.document.body.firstElementChild, AccordionSection)
 
         def height():
@@ -69,7 +71,9 @@ class TestAccordionSectionStandalone:
         # language=html
         js.document.body.innerHTML = """<wwwpy-accordion-section>
         <div slot="header"><span id='span1'></span></div>
-        <div slot="panel">p0</div>"""
+        p0
+    </wwwpy-accordion-section>"""
+
         element = js.document.body.firstElementChild
         section = get_component(element, AccordionSection)
         span1 = js.document.getElementById('span1')
@@ -85,3 +89,18 @@ class TestAccordionSectionStandalone:
         event0 = events[0]
         assert event0.target == element
         assert event0.detail.section == section
+
+    async def test_panel_should_be_visible(self):
+        # language=html
+        js.document.body.innerHTML = """<wwwpy-accordion-section>
+        <div slot="header">h0</div>
+        <span id='span1'>panel</span>
+    </wwwpy-accordion-section>"""
+        element = js.document.body.firstElementChild
+        section = get_component(element, AccordionSection)
+        section.transition = False
+        section.expanded = True
+        span1 = js.document.getElementById('span1')
+
+        assert span1.getBoundingClientRect().height > 0
+        assert span1.getBoundingClientRect().width > 0
