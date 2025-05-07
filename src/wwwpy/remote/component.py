@@ -311,11 +311,14 @@ class attribute:
         if self.name is None:
             self.name = name
 
-    def __get__(self, obj: Component, objtype=None):
+    def __get__(self, obj: Component, objtype=None) -> str | None:
         return obj.element.getAttribute(self.name)
 
-    def __set__(self, obj: Component, value):
-        obj.element.setAttribute(self.name, value)
+    def __set__(self, obj: Component, value: str | None):
+        if value is None:
+            obj.element.removeAttribute(self.name)
+        else:
+            obj.element.setAttribute(self.name, value)
 
 
 # PUBLIC-API

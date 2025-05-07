@@ -463,6 +463,15 @@ class TestAttributes:
         comp.element.setAttribute('class', 'def')
         assert calls == [('class', 'abc', 'def')]
 
+    def test_set_none_should_remove(self):
+        class Comp1(Component):
+            attr1: str | None = attribute()
+
+        comp = Comp1()
+        comp.attr1 = 'abc'
+        comp.attr1 = None
+        assert comp.element.hasAttribute('attr1') is False
+
 
 class Test_InitComponent_that_throws:
     def test_should_call_after_init_anyway(self):
