@@ -1,5 +1,4 @@
 import os
-import sys
 
 _INITIAL = set(globals())
 
@@ -21,7 +20,8 @@ try:
             if env_value is not None:
                 globals()[key] = env_value
 
-except:
-    import traceback
+except ModuleNotFoundError:
+    import logging
 
-    traceback.print_exc()
+    logger = logging.getLogger(__name__)
+    logger.info("No local wwwpy_user_conf.py file found. Using default values.")
