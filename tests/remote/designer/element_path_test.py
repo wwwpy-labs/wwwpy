@@ -3,13 +3,12 @@ from js import document
 
 import wwwpy.remote.component as wpc
 from tests.common import dyn_sys_path
-from tests.remote.remote_fixtures import clean_document
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.element_path import element_path
 
 
-def test_target_path_to_component(tmp_path, dyn_sys_path, clean_document):
+def test_target_path_to_component(tmp_path, dyn_sys_path):
     # GIVEN
     dyn_sys_path.write_module('', 'component1.py', '''import js
 
@@ -49,7 +48,7 @@ class Component1(wpc.Component):
     assert actual.path == path
 
 
-def test_target_path__without_component(clean_document):
+def test_target_path__without_component():
     # GIVEN
 
     document.body.innerHTML = """
@@ -91,7 +90,7 @@ def test_target_path__unattached_piece_of_dom():
     assert actual is None
 
 
-async def test_component_with_shadow_root(clean_document):
+async def test_component_with_shadow_root():
     # GIVEN (one component with shadow root)
     # we don't need two
     class ShadowWpc(wpc.Component):
@@ -134,7 +133,7 @@ class TestSlottedComponent:
 
         return RootWpc, SlottedWpc
 
-    async def test_class_name(self, clean_document):
+    async def test_class_name(self):
         # GIVEN
         RootWpc, SlottedWpc = self._gen_classes()
 
@@ -151,7 +150,7 @@ class TestSlottedComponent:
         assert actual.class_name != 'SlottedWpc'
         assert actual.class_name == 'RootWpc'
 
-    async def test_path(self, clean_document):
+    async def test_path(self):
         # GIVEN
         RootWpc, SlottedWpc = self._gen_classes()
 

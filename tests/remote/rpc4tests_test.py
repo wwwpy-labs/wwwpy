@@ -5,7 +5,6 @@ import js
 import pytest
 from pyodide.ffi import create_proxy, create_once_callable
 
-from tests.remote.remote_fixtures import clean_document
 from tests.remote.rpc4tests_helper import rpctst_exec_touch_event
 from wwwpy.remote._elementlib import element_xy_center
 
@@ -133,7 +132,7 @@ async def _send_touch_events(x, y, move_x, move_y, cancel=False):
 
 
 @pytest.fixture()
-def fixture(clean_document): yield Fixture()
+def fixture(): yield Fixture()
 
 
 @pytest.fixture

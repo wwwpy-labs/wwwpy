@@ -30,3 +30,16 @@ async def async_fetch_str(url: str, method: str = 'GET', data: str = '') -> str:
     response = await window.fetch(url, method=method, body=data)
     text = await response.text()
     return text
+
+
+def pytest_runtest_setup(item):
+    _clean_doc_now()
+
+
+def pytest_runtest_teardown(item, nextitem):
+    _clean_doc_now()
+
+
+def _clean_doc_now():
+    from wwwpy.remote import remote_fixtures
+    remote_fixtures.clean_document_now()

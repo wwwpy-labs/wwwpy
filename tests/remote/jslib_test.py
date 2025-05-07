@@ -3,7 +3,6 @@ import logging
 import js
 
 import wwwpy.remote.component as wpc
-from tests.remote.remote_fixtures import clean_document
 from wwwpy.remote import dict_to_js
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.jslib import is_contained, is_instance_of, get_deepest_element
@@ -13,24 +12,24 @@ logger = logging.getLogger(__name__)
 
 class Test_is_descendant_of_container():
 
-    async def test_simple_contained(self, clean_document):
+    async def test_simple_contained(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
         outer = js.document.getElementById('outer')
         inner = js.document.getElementById('inner')
         assert is_contained(inner, outer)
 
-    async def test_container_itself(self, clean_document):
+    async def test_container_itself(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
         outer = js.document.getElementById('outer')
         assert is_contained(outer, outer)
 
-    async def test_not_contained(self, clean_document):
+    async def test_not_contained(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
         outer = js.document.getElementById('outer')
         other = js.document.getElementById('other')
         assert not is_contained(other, outer)
 
-    async def test_reproduce_issue_20250412(self, clean_document):
+    async def test_reproduce_issue_20250412(self):
         class SlottedComponent(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -54,7 +53,7 @@ class Test_is_descendant_of_container():
         inner = root.inner
         assert is_contained(inner, slotted1)
 
-    async def test_issue_with__accessing_host_attr(self, clean_document):
+    async def test_issue_with__accessing_host_attr(self):
         # anchors has a property 'host'
 
         js.document.body.innerHTML = "<div id='outer'><a id='inner' href='https://some-host'>some</a></div>"
@@ -62,7 +61,7 @@ class Test_is_descendant_of_container():
         inner = js.document.getElementById('inner')
         assert is_contained(inner, outer)
 
-    async def test_with_shadow_on_outer(self, clean_document):
+    async def test_with_shadow_on_outer(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
         outer = js.document.getElementById('outer')
         shadow = outer.attachShadow(dict_to_js({'mode': 'open'}))
@@ -70,7 +69,7 @@ class Test_is_descendant_of_container():
         shadow_div = shadow.getElementById('shadow')
         assert is_contained(shadow_div, outer)
 
-    async def test_with_shadow_on_inner(self, clean_document):
+    async def test_with_shadow_on_inner(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
         outer = js.document.getElementById('outer')
         inner = js.document.getElementById('inner')
@@ -79,7 +78,7 @@ class Test_is_descendant_of_container():
         shadow_div = shadow.getElementById('shadow')
         assert is_contained(shadow_div, inner)
 
-    async def test_with_slots(self, clean_document):
+    async def test_with_slots(self):
         class Comp1(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -103,7 +102,7 @@ class Test_is_descendant_of_container():
         inner = inner_list[0]
         assert is_contained(inner, outer)
 
-    async def test_with_slots_triple(self, clean_document):
+    async def test_with_slots_triple(self):
         class Comp0(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -117,20 +116,20 @@ class Test_is_descendant_of_container():
 
 
 class Test_is_instance_of():
-    async def test_is_instance_of(self, clean_document):
+    async def test_is_instance_of(self):
         assert is_instance_of(js.document, js.HTMLDocument)
 
 
 class Test_get_deepest_element:
 
-    async def test_simple_div(self, clean_document):
+    async def test_simple_div(self):
         js.document.body.innerHTML = """<div id="outer">div-outer</div>"""
         outer = js.document.getElementById('outer')
         x, y = element_xy_center(outer)
         element = get_deepest_element(x, y)
         assert element == outer
 
-    async def test_coordinates_that_coincide_with_div(self, clean_document):
+    async def test_coordinates_that_coincide_with_div(self):
         class Comp1(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -144,7 +143,7 @@ class Test_get_deepest_element:
 
         assert actual == expect
 
-    async def test_coordinates_that_has_only_the_shadow_dom_itself(self, clean_document):
+    async def test_coordinates_that_has_only_the_shadow_dom_itself(self):
         class Comp1(wpc.Component):
             def init_component(self):
                 self.element.attachShadow(dict_to_js({'mode': 'open'}))

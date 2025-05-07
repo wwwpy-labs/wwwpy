@@ -8,7 +8,6 @@ import js
 import pytest
 from pyodide.ffi import create_proxy
 
-from tests.remote.remote_fixtures import clean_document_now
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
@@ -481,7 +480,6 @@ class Fixture:
 
 @pytest.fixture()
 def fixture():
-    clean_document_now('begin')
     injector.default_injector.clear()
     am = ActionManager()
     register(am)
@@ -491,5 +489,4 @@ def fixture():
         yield f
     finally:
         f.action_manager.uninstall()
-        clean_document_now('end')
         injector.default_injector.clear()

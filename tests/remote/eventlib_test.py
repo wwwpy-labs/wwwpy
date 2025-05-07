@@ -2,7 +2,6 @@ import js
 import pytest
 from pyodide.ffi import create_proxy
 
-from tests.remote.remote_fixtures import clean_document
 from wwwpy.common.exitlib import on_exit
 from wwwpy.remote import eventlib
 
@@ -123,7 +122,7 @@ def test_double_remove_event():
     assert len(events) == 0
 
 
-async def test_capture(clean_document):
+async def test_capture():
     btn1 = js.document.createElement('button')
     btn1.id = 'btn1'
     btn1.textContent = 'btn1'
@@ -149,7 +148,7 @@ async def test_capture(clean_document):
     assert len(btn1_events) == 0
 
 
-async def test_capture2(clean_document):
+async def test_capture2():
     btn1 = js.document.createElement('button')
     btn1.id = 'btn1'
     btn1.textContent = 'btn1'
