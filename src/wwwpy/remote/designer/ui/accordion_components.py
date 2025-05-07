@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import logging
+
 import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
+
+logger = logging.getLogger(__name__)
 
 
 class AccordionContainer(wpc.Component, tag_name='wwwpy-accordion-container'):
@@ -33,6 +37,7 @@ class AccordionSection(wpc.Component, tag_name='wwwpy-accordion-section'):
     _header_container: js.HTMLElement = wpc.element()
     _panel_container: js.HTMLElement = wpc.element()
     _expanded: bool
+    _expanded_attr: str = wpc.attribute('expanded')
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -46,8 +51,15 @@ class AccordionSection(wpc.Component, tag_name='wwwpy-accordion-section'):
 </div>
 """
         self._expanded = None  # type: ignore
-        self.expanded = False
+        self._copy_attribute_to_property()
         self.transition = True
+
+    def _copy_attribute_to_property(self):
+        self.expanded = True if self.element.hasAttribute('expanded') else False
+
+    def attributeChangedCallback(self, name: str, oldValue: str | None, newValue: str | None):
+        if name == 'expanded':
+            self._copy_attribute_to_property()
 
     def _header_container__click(self, event):
         self.toggle(True)
@@ -71,6 +83,7 @@ class AccordionSection(wpc.Component, tag_name='wwwpy-accordion-section'):
             return
         self._expanded = new_value
         self._panel_container.style.gridTemplateRows = '1fr' if self._expanded else '0fr'
+        self._expanded_attr = '' if new_value else None
 
     def toggle(self, emit_event=False):
         self.expanded = not self.expanded

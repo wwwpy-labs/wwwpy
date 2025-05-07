@@ -102,5 +102,45 @@ class TestAccordionSectionStandalone:
         section.expanded = True
         span1 = js.document.getElementById('span1')
 
+        # todo the following kind of doesn't work because the element has a valid bounding rect
         assert span1.getBoundingClientRect().height > 0
         assert span1.getBoundingClientRect().width > 0
+
+    async def test_expanded(self):
+        # language=html
+        js.document.body.innerHTML = """<wwwpy-accordion-section expanded>
+        <div slot="header">h0</div>
+        p0
+    </wwwpy-accordion-section>"""
+
+        element = js.document.body.firstElementChild
+        section = get_component(element, AccordionSection)
+
+        assert section.expanded
+
+    async def test_expand_attr(self):
+        # language=html
+        js.document.body.innerHTML = """<wwwpy-accordion-section>
+        <div slot="header">h0</div>
+        p0
+    </wwwpy-accordion-section>"""
+
+        element = js.document.body.firstElementChild
+        element.setAttribute('expanded', '')
+
+        section = get_component(element, AccordionSection)
+        assert section.expanded
+
+    async def test_expand_attr_should_be_up_to_date(self):
+        # language=html
+        js.document.body.innerHTML = """<wwwpy-accordion-section>
+        <div slot="header">h0</div>
+        p0
+    </wwwpy-accordion-section>"""
+
+        element = js.document.body.firstElementChild
+        section = get_component(element, AccordionSection)
+        section.transition = False
+        section.expanded = True
+
+        assert element.hasAttribute('expanded')
