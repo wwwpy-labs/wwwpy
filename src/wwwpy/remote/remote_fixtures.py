@@ -13,7 +13,7 @@ def clean_document():
     clean_document_now('end')
 
 
-def clean_document_now(mode):
+def clean_document_now(mode='mode/NA'):
     # logger.debug(f'_clean_document {mode}')
     js.document.documentElement.innerHTML = ''
     js.document.head.innerHTML = ''
