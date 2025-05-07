@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Dict, overload
+from typing import Dict, overload, TypeVar
 
 import js
-from js import HTMLElement, console
+from js import Element, HTMLElement, console
 from pyodide.ffi import create_proxy
 
 logger = logging.getLogger(__name__)
@@ -77,16 +77,6 @@ class Metadata:
             attributes = {}
         attr_str = ' '.join(f'{k}="{v}"' for k, v in attributes.items())
         return f'<{self.tag_name} {attr_str}>{inner_html}</{self.tag_name}>'
-
-
-def get_component(element: HTMLElement) -> Component | None:
-    if not hasattr(element, '_python_component'):
-        return None
-    component = element._python_component
-    if hasattr(component, "unwrap"):
-        component = component.unwrap()
-
-    return component
 
 
 # PUBLIC-API
@@ -281,6 +271,25 @@ class $ClassName extends HTMLElement {
 customElements.define('$tagName', $ClassName);
 window.$ClassName = $ClassName;
 """
+
+_C = TypeVar('_C', bound=Component)
+
+
+def get_component(js_element: Element, component_class: type[_C] | None = None) -> _C | None:
+    # verify that component_class is a subclass of Component
+    if component_class is not None and not issubclass(component_class, Component):
+        raise TypeError(f'component_class must be a subclass of {Component.__name__} but got {component_class}')
+    if not hasattr(js_element, '_python_component'):
+        return None
+    component = js_element._python_component
+    if hasattr(component, "unwrap"):
+        component = component.unwrap()
+
+    if component_class is not None:
+        if not isinstance(component, component_class):
+            raise TypeError(f'Expected {component_class.__name__}, but got {type(component).__name__}')
+
+    return component
 
 
 # class Attribute(str):

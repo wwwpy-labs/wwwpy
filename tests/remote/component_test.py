@@ -1,5 +1,6 @@
 import asyncio
 
+import pytest
 from js import document, HTMLElement, Event, HTMLDivElement
 
 from wwwpy.remote import dict_to_js
@@ -475,6 +476,8 @@ class Test_InitComponent_that_throws:
         comp = Comp1()
         assert 'hello' in comp.element.innerHTML
 
+
+class TestGetComponent:
     def test_get_component__should_not_return_none(self):
         class Comp1(Component):
             def init_component(self):
@@ -482,3 +485,25 @@ class Test_InitComponent_that_throws:
 
         comp = Comp1()
         assert get_component(comp.element) is comp
+
+    def test_correctly_typed(self):
+        class Comp1(Component): ...
+
+        c = Comp1()
+        assert get_component(c.element, Comp1) is c
+
+    def test_incorrect_component(self):
+        class Comp1(Component): ...
+
+        class Comp2(Component): ...
+
+        with pytest.raises(TypeError):
+            get_component(Comp1().element, Comp2)
+
+    def test_not_even_a_component(self):
+        class Comp1(Component): ...
+
+        class NotAComponent: ...
+
+        with pytest.raises(TypeError):
+            get_component(Comp1().element, NotAComponent)
