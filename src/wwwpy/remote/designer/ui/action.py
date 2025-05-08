@@ -19,16 +19,16 @@ TPE = TypeVar('TPE', bound=PMEvent)
 
 
 @dataclass
-class DeselectEvent(PMJsEvent):
+class HoverEvent(PMJsEvent):
+    pass
+
+
+@dataclass
+class DeselectEvent(HoverEvent):
     accepted: bool = False
 
     def accept(self):
         self.accepted = True
-
-
-@dataclass
-class HoverEvent(PMJsEvent):
-    pass
 
 
 # todo maybe split Action? extract ActionUi and ActionLogic, so the latter can stay in common
