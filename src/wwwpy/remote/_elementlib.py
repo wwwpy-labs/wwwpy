@@ -5,6 +5,7 @@ from typing import TypeVar, Type
 
 import js
 
+from wwwpy.common.designer.ui.py_rect_readonly import rect_xy_center
 from wwwpy.remote.component import get_component, Component
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,4 @@ def ensure_tag_instance(tag_name: str, global_id: str, where=js.document.body) -
 def element_xy_center(element: js.HTMLElement) -> tuple[float, float]:
     """Get the center x and y coordinates of the given element."""
     rect = element.getBoundingClientRect()
-    x = rect.x + rect.width / 2
-    y = rect.y + rect.height / 2
-    return x, y
+    return rect_xy_center(rect)

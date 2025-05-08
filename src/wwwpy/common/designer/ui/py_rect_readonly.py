@@ -1,6 +1,9 @@
 from typing import Protocol, overload, Union
 
 
+# todo maybe we could just import js.DOMRectReadOnly using TYPING CHECK
+#  infact PyRectReadOnly is not compatible with js.DOMRectReadOnly so
+#  this is mute and needs to be revised
 class PyRectReadOnly(Protocol):
     """This is intended to be used in common to handle js.DOMRectReadOnly"""
 
@@ -101,3 +104,14 @@ class RectReadOnly(PyRectReadOnly):
             "height": self.height,
         }
 
+    @property
+    def xy_center(self) -> tuple[float, float]:
+        """Get the center x and y coordinates of the rect."""
+        return self.x + self.width / 2, self.y + self.height / 2
+
+
+def rect_xy_center(rect: PyRectReadOnly) -> tuple[float, float]:
+    """Get the center x and y coordinates of the given rect."""
+    x = rect.x + rect.width / 2
+    y = rect.y + rect.height / 2
+    return x, y
