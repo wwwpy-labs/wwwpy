@@ -31,6 +31,8 @@ class HoverEvent(PMJsEvent):
     pass
 
 
+# todo maybe split Action? extract ActionUi and ActionLogic, so the latter can stay in common
+#  and this file can be cleaned up and partly moved to common
 @dataclass
 class Action:
     label: str
