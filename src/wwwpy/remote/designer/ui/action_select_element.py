@@ -36,7 +36,7 @@ class SelectElementAction(Action):
         # composed = path and len(path) > 0
         composed = 'disabled'
         # target = path[0] if composed else event.target
-        target = _element_from_js_event(event)
+        target = get_deepest_element(event.clientX, event.clientY)
         if target is None:
             logger.warning(f'set_selection: target is None {dict_to_py(event)}')
             return
@@ -75,10 +75,6 @@ class SelectElementAction(Action):
             tb._restore_selected_element_path()
         else:
             logger.warning(message)
-
-
-def _element_from_js_event(event):
-    return get_deepest_element(event.clientX, event.clientY)
 
 
 def _pretty(node: js.HTMLElement):
