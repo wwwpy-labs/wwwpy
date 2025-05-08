@@ -82,8 +82,9 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         self.selection_indicator.transition = not skip_transition
 
-        self.selection_indicator.set_reference_geometry(rect)
-        self.action_band.set_reference_geometry(rect)
+        for t in [self.selection_indicator, self.action_band]:
+            t: Tool
+            t.set_reference_geometry(rect)
 
         self._last_position = rect_tup
 
