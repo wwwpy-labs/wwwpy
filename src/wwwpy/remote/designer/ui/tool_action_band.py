@@ -4,11 +4,11 @@ import js
 from pyodide.ffi import create_proxy
 
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
-from wwwpy.remote import component as wpc, dict_to_js
-from wwwpy.remote.designer.ui.tool_component import Tool
+from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.tool import Tool
 
 
-class ActionBandTool(wpc.Component, Tool, tag_name='action-band-tool'):
+class ActionBandTool(Tool, tag_name='action-band-tool'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.
     """

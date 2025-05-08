@@ -7,8 +7,8 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, dict_to_py
+from wwwpy.remote.designer.ui.tool import Tool
 from wwwpy.remote.designer.ui.tool_action_band import ActionBandTool
-from wwwpy.remote.designer.ui.tool_component import Tool
 from wwwpy.remote.designer.ui.tool_selection_indicator import SelectionIndicatorTool
 from wwwpy.remote.jslib import is_contained, AnimationFrameTracker
 

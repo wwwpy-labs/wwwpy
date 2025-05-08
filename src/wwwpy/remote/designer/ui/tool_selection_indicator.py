@@ -3,11 +3,11 @@ from __future__ import annotations
 import js
 
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
-from wwwpy.remote import component as wpc, dict_to_js
-from wwwpy.remote.designer.ui.tool_component import Tool
+from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.tool import Tool
 
 
-class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selection-indicator-tool'):
+class SelectionIndicatorTool(Tool, tag_name='selection-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
