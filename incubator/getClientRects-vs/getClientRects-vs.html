@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .demo-area {
+            position: relative;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .paragraph {
+            position: relative;
+            width: 400px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            transition: width 0.3s ease;
+        }
+
+        .inline-highlight {
+            background-color: #ffff0030;
+            border-bottom: 2px dotted green;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 100;
+            visibility: hidden;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .rect-overlay {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .bounding-rect {
+            border: 2px solid red;
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+
+        .client-rect {
+            border: 2px solid blue;
+            background-color: rgba(0, 0, 255, 0.1);
+        }
+
+        .all-client-rect {
+            border: 2px solid green;
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+
+        .rect-legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .width-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .width-value {
+            width: 40px;
+            text-align: right;
+        }
+
+        button {
+            padding: 8px 12px;
+            background: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0051a8;
+        }
+
+        code {
+            font-family: monospace;
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Inline Text Rect Comparison</h1>
+    <p>This demo shows the difference between <code>getBoundingClientRect()</code> and <code>getClientRects()[0]</code>
+        for inline elements that wrap across multiple lines.</p>
+
+    <div class="rect-legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(255, 0, 0, 0.1); border: 2px solid red;"></div>
+            <span>getBoundingClientRect()</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(0, 0, 255, 0.1); border: 2px solid blue;"></div>
+            <span>getClientRects()[0]</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(0, 255, 0, 0.1); border: 2px solid green;"></div>
+            <span>All getClientRects()</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="width-control">
+            <span>Paragraph width:</span>
+            <input type="range" id="width-slider" min="200" max="600" value="400"/>
+            <span id="width-value" class="width-value">400px</span>
+        </div>
+
+        <label>
+            <input type="checkbox" id="show-bounding" checked/>
+            Show getBoundingClientRect()
+        </label>
+
+        <label>
+            <input type="checkbox" id="show-client-rects" checked/>
+            Show getClientRects()[0]
+        </label>
+
+        <label>
+            <input type="checkbox" id="show-all-client-rects"/>
+            Show all getClientRects()
+        </label>
+    </div>
+
+    <div class="demo-area" id="demo-area">
+        <p class="paragraph" id="paragraph">
+            Getting used to an entirely different culture can be challenging. While it's also nice to learn about
+            cultures online or from books, nothing comes close to experiencing cultural diversity in person. You learn
+            to appreciate each and every single one <span class="inline-highlight" id="inline-text">added some inline content split into two lines</span>
+            of the differences while you become more culturally fluid.
+        </p>
+
+        <div class="tooltip" id="tooltip">Tooltip</div>
+    </div>
+
+    <div>
+        <h3>Explanation</h3>
+        <p>For inline elements that wrap to multiple lines (like the highlighted text above):</p>
+        <ul>
+            <li><code>getBoundingClientRect()</code> (red) gives a single rectangle that encompasses <strong>all
+                lines</strong> of the element, including empty space on the right side of wrapped lines.
+            </li>
+            <li><code>getClientRects()[0]</code> (blue) gives only the <strong>first line's</strong> rectangle, which is
+                often more useful for positioning tooltips or other UI elements near the beginning of the text.
+            </li>
+            <li><code>getClientRects()</code> (green) returns an array of DOMRect objects - one for each line fragment.
+                For multi-line inline text, this gives precise control over each line segment.
+            </li>
+        </ul>
+
+        <h3>Conclusion</h3>
+        <p>When working with inline elements that might wrap across lines:</p>
+        <ul>
+            <li><code>getBoundingClientRect()</code> gives the entire bounding box including all wrapped lines - useful
+                for overall dimensions
+            </li>
+            <li><code>getClientRects()[0]</code> gives precise positioning for just the first line - ideal for tooltips
+            </li>
+            <li>The full <code>getClientRects()</code> array provides access to each individual line fragment - perfect
+                for more complex layouts or text highlighting
+            </li>
+        </ul>
+        <p>This demonstrates why it's important to choose the right method depending on what you're trying to position
+            relative to text.</p>
+    </div>
+</div>
+
+<script>
+    // Get references to elements
+    const paragraph = document.getElementById('paragraph');
+    const inlineText = document.getElementById('inline-text');
+    const demoArea = document.getElementById('demo-area');
+    const tooltip = document.getElementById('tooltip');
+    const widthSlider = document.getElementById('width-slider');
+    const widthValue = document.getElementById('width-value');
+    const showBoundingCheck = document.getElementById('show-bounding');
+    const showClientRectsCheck = document.getElementById('show-client-rects');
+    const showAllClientRectsCheck = document.getElementById('show-all-client-rects');
+
+    let boundingRectElement = null;
+    let clientRectElement = null;
+    let allClientRectElements = [];
+
+    // Function to update visualization
+    function updateVisualization() {
+        // Remove existing overlay elements
+        if (boundingRectElement) boundingRectElement.remove();
+        if (clientRectElement) clientRectElement.remove();
+
+        // Remove all client rect elements
+        allClientRectElements.forEach(el => el.remove());
+        allClientRectElements = [];
+
+        // Get rect measurements
+        const boundingRect = inlineText.getBoundingClientRect();
+        const clientRects = inlineText.getClientRects();
+        const firstClientRect = clientRects[0];
+
+        // Get demo area position for relative positioning
+        const demoRect = demoArea.getBoundingClientRect();
+
+        // Create and position the bounding rect overlay
+        if (showBoundingCheck.checked) {
+            boundingRectElement = document.createElement('div');
+            boundingRectElement.className = 'rect-overlay bounding-rect';
+            boundingRectElement.style.left = (boundingRect.left - demoRect.left) + 'px';
+            boundingRectElement.style.top = (boundingRect.top - demoRect.top) + 'px';
+            boundingRectElement.style.width = boundingRect.width + 'px';
+            boundingRectElement.style.height = boundingRect.height + 'px';
+            demoArea.appendChild(boundingRectElement);
+        }
+
+        // Create and position the first client rect overlay
+        if (showClientRectsCheck.checked && clientRects.length > 0 && !showAllClientRectsCheck.checked) {
+            clientRectElement = document.createElement('div');
+            clientRectElement.className = 'rect-overlay client-rect';
+            clientRectElement.style.left = (firstClientRect.left - demoRect.left) + 'px';
+            clientRectElement.style.top = (firstClientRect.top - demoRect.top) + 'px';
+            clientRectElement.style.width = firstClientRect.width + 'px';
+            clientRectElement.style.height = firstClientRect.height + 'px';
+            demoArea.appendChild(clientRectElement);
+        }
+
+        // Create and position all client rect overlays
+        if (showAllClientRectsCheck.checked && clientRects.length > 0) {
+            for (let i = 0; i < clientRects.length; i++) {
+                const rect = clientRects[i];
+                const el = document.createElement('div');
+                el.className = 'rect-overlay all-client-rect';
+                el.style.left = (rect.left - demoRect.left) + 'px';
+                el.style.top = (rect.top - demoRect.top) + 'px';
+                el.style.width = rect.width + 'px';
+                el.style.height = rect.height + 'px';
+
+                // Add index number to each rect
+                const index = document.createElement('div');
+                index.style.position = 'absolute';
+                index.style.top = '-18px';
+                index.style.left = '0';
+                index.style.fontSize = '12px';
+                index.style.fontWeight = 'bold';
+                index.style.color = 'green';
+                index.textContent = `[${i}]`;
+                el.appendChild(index);
+
+                demoArea.appendChild(el);
+                allClientRectElements.push(el);
+            }
+        }
+
+        // Position tooltip using the first client rect
+        if (clientRects.length > 0) {
+            tooltip.textContent = "Using getClientRects()[0]";
+            tooltip.style.left = (firstClientRect.right - demoRect.left + 10) + 'px';
+            tooltip.style.top = (firstClientRect.top - demoRect.top) + 'px';
+            tooltip.style.visibility = 'visible';
+        }
+    }
+
+    // Update paragraph width
+    function updateWidth() {
+        const width = widthSlider.value;
+        paragraph.style.width = width + 'px';
+        widthValue.textContent = width + 'px';
+
+        // Give the browser a moment to reflow text
+        setTimeout(updateVisualization, 10);
+    }
+
+    // Set up event listeners
+    widthSlider.addEventListener('input', updateWidth);
+    showBoundingCheck.addEventListener('change', updateVisualization);
+    showClientRectsCheck.addEventListener('change', updateVisualization);
+    showAllClientRectsCheck.addEventListener('change', updateVisualization);
+    window.addEventListener('resize', updateVisualization);
+
+    // Initialize the demo
+    updateWidth();
+    updateVisualization();
+</script>
+</body>
+</html>
