@@ -1,7 +1,7 @@
 from typing import Protocol
 
 
-class RectReadOnly(Protocol):
+class PyRectReadOnly(Protocol):
     """This is intended to be used in common to handle js.DOMRectReadOnly"""
 
     @property
@@ -31,7 +31,28 @@ class RectReadOnly(Protocol):
     def toJSON(self) -> object: ...
 
 
-class RectReadOnlyDc(RectReadOnly):
+class RectReadOnly(PyRectReadOnly):
+    def __init__(self, x: float, y: float, width: float, height: float):
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+
+    @property
+    def x(self) -> float:
+        return self._x
+
+    @property
+    def y(self) -> float:
+        return self._y
+
+    @property
+    def width(self) -> float:
+        return self._width
+
+    @property
+    def height(self) -> float:
+        return self._height
 
     @property
     def left(self) -> float:
