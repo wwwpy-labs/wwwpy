@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, overload, Union
 
 
 class PyRectReadOnly(Protocol):
@@ -32,11 +32,34 @@ class PyRectReadOnly(Protocol):
 
 
 class RectReadOnly(PyRectReadOnly):
-    def __init__(self, x: float, y: float, width: float, height: float):
-        self._x = x
-        self._y = y
-        self._width = width
-        self._height = height
+    @overload
+    def __init__(self, x: float, y: float, width: float, height: float) -> None:
+        ...
+
+    @overload
+    def __init__(self, rect: PyRectReadOnly) -> None:
+        ...
+
+    def __init__(
+            self,
+            x: Union[float, PyRectReadOnly],
+            y: float = None,
+            width: float = None,
+            height: float = None
+    ) -> None:
+        # duck‐type the “rect” overload
+        if hasattr(x, "x") and hasattr(x, "y") and hasattr(x, "width") and hasattr(x, "height"):
+            rect = x  # type: PyRectReadOnly
+            self._x = rect.x
+            self._y = rect.y
+            self._width = rect.width
+            self._height = rect.height
+        else:
+            # x,y,width,height overload
+            self._x = x  # type: ignore
+            self._y = y  # type: ignore
+            self._width = width  # type: ignore
+            self._height = height  # type: ignore
 
     @property
     def x(self) -> float:
@@ -77,3 +100,4 @@ class RectReadOnly(PyRectReadOnly):
             "width": self.width,
             "height": self.height,
         }
+
