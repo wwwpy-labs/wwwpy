@@ -1,8 +1,8 @@
-from wwwpy.common.designer.ui.py_rect_readonly import RectReadOnly
+from wwwpy.common.designer.ui.rect_readonly_py import RectReadOnlyPy
 
 
 def test_rect_read_only_dc_instantiation_and_properties():
-    rect = RectReadOnly(x=1.0, y=2.0, width=3.0, height=4.0)
+    rect = RectReadOnlyPy(x=1.0, y=2.0, width=3.0, height=4.0)
     # base properties
     assert rect.x == 1.0
     assert rect.y == 2.0
@@ -16,7 +16,7 @@ def test_rect_read_only_dc_instantiation_and_properties():
 
 
 def test_rect_read_only_dc_to_json():
-    rect = RectReadOnly(x=1.0, y=2.0, width=3.0, height=4.0)
+    rect = RectReadOnlyPy(x=1.0, y=2.0, width=3.0, height=4.0)
     json_data = rect.toJSON()
 
     # Should match DOMRectReadOnly.toJSON() structure
@@ -29,8 +29,8 @@ def test_rect_read_only_dc_to_json():
 
 
 def test_rect_read_only_init_from_instance():
-    original = RectReadOnly(x=1.0, y=2.0, width=3.0, height=4.0)
-    dup = RectReadOnly(original)
+    original = RectReadOnlyPy(x=1.0, y=2.0, width=3.0, height=4.0)
+    dup = RectReadOnlyPy(original)
     assert dup.x == 1.0
     assert dup.y == 2.0
     assert dup.width == 3.0
@@ -50,7 +50,7 @@ def test_rect_read_only_init_from_duck_typed_obj():
             self.height = height
 
     dummy = Dummy(5.0, 6.0, 7.0, 8.0)
-    rect = RectReadOnly(dummy)
+    rect = RectReadOnlyPy(dummy)
     assert rect.x == 5.0
     assert rect.y == 6.0
     assert rect.width == 7.0

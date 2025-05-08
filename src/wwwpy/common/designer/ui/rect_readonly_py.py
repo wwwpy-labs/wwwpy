@@ -1,58 +1,27 @@
-from typing import Protocol, overload, Union
+from typing import overload, Union
+
+from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 
 
-# todo maybe we could just import js.DOMRectReadOnly using TYPING CHECK
-#  infact PyRectReadOnly is not compatible with js.DOMRectReadOnly so
-#  this is mute and needs to be revised
-class PyRectReadOnly(Protocol):
-    """This is intended to be used in common to handle js.DOMRectReadOnly"""
-
-    @property
-    def x(self) -> float: ...
-
-    @property
-    def y(self) -> float: ...
-
-    @property
-    def width(self) -> float: ...
-
-    @property
-    def height(self) -> float: ...
-
-    @property
-    def left(self) -> float: ...
-
-    @property
-    def top(self) -> float: ...
-
-    @property
-    def right(self) -> float: ...
-
-    @property
-    def bottom(self) -> float: ...
-
-    def toJSON(self) -> object: ...
-
-
-class RectReadOnly(PyRectReadOnly):
+class RectReadOnlyPy(RectReadOnly):
     @overload
     def __init__(self, x: float, y: float, width: float, height: float) -> None:
         ...
 
     @overload
-    def __init__(self, rect: PyRectReadOnly) -> None:
+    def __init__(self, rect: RectReadOnly) -> None:
         ...
 
     def __init__(
             self,
-            x: Union[float, PyRectReadOnly],
+            x: Union[float, RectReadOnly],
             y: float = None,
             width: float = None,
             height: float = None
     ) -> None:
         # duck‐type the “rect” overload
         if hasattr(x, "x") and hasattr(x, "y") and hasattr(x, "width") and hasattr(x, "height"):
-            rect = x  # type: PyRectReadOnly
+            rect = x  # type: RectReadOnly
             self._x = rect.x
             self._y = rect.y
             self._width = rect.width
@@ -108,10 +77,3 @@ class RectReadOnly(PyRectReadOnly):
     def xy_center(self) -> tuple[float, float]:
         """Get the center x and y coordinates of the rect."""
         return self.x + self.width / 2, self.y + self.height / 2
-
-
-def rect_xy_center(rect: PyRectReadOnly) -> tuple[float, float]:
-    """Get the center x and y coordinates of the given rect."""
-    x = rect.x + rect.width / 2
-    y = rect.y + rect.height / 2
-    return x, y

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import js
 
+from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import component as wpc, dict_to_js
 from wwwpy.remote.designer.ui.tool_component import Tool
 
@@ -42,7 +43,7 @@ class SelectionIndicatorTool(wpc.Component, Tool, tag_name='selection-indicator-
     def hide(self):
         self.element.style.display = 'none'
 
-    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
+    def set_reference_geometry(self, rect: RectReadOnly):
         bs = 2  # Adjust this value to match the border size in CSS
 
         rect = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )

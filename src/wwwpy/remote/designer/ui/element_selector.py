@@ -6,6 +6,7 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
+from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js, dict_to_py
 from wwwpy.remote.designer.ui.tool_component import Tool
 from wwwpy.remote.designer.ui.tool_selection_indicator import SelectionIndicatorTool
@@ -122,7 +123,7 @@ class WeirdSelectionIndicatorTool(wpc.Component, Tool, tag_name='weird-selection
     def hide(self):
         self.element.style.display = 'none'
 
-    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
+    def set_reference_geometry(self, rect: RectReadOnly):
         bs = 2  # Adjust this value to match the border size in CSS
 
         r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
@@ -234,7 +235,7 @@ class ActionBandTool(wpc.Component, Tool, tag_name='action-band-tool'):
     def hide(self):
         self.element.style.display = 'none'
 
-    def set_reference_geometry(self, rect: js.DOMRectReadOnly):
+    def set_reference_geometry(self, rect: RectReadOnly):
         # self._toolbar_dimensions = None
         # Only measure the toolbar once initially to avoid layout thrashing
         if not self._toolbar_dimensions:

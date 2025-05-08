@@ -5,7 +5,7 @@ from typing import TypeVar, Type
 
 import js
 
-from wwwpy.common.designer.ui.py_rect_readonly import rect_xy_center
+from wwwpy.common.designer.ui.rect_readonly import rect_xy_center
 from wwwpy.remote.component import get_component, Component
 
 logger = logging.getLogger(__name__)
