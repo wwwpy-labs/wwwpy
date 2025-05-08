@@ -1,10 +1,14 @@
 import asyncio
+import logging
 
+import js
 import pytest
 from js import document, HTMLElement, Event, HTMLDivElement
 
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import Component, attribute, element, get_component
+
+logger = logging.getLogger(__name__)
 
 
 def test_component_metadata():
@@ -516,3 +520,53 @@ class TestGetComponent:
 
         with pytest.raises(TypeError):
             get_component(Comp1().element, NotAComponent)
+
+
+class TestInheritance:
+    def test_inheritance_no_tag_name(self):
+        class Comp1(Component):
+            def some_method(self):
+                return 1
+
+        class Comp2(Comp1):
+            def init_component(self):
+                self.element.innerHTML = '<div>hello</div>'
+
+        c2 = Comp2()
+        assert c2.some_method() == 1
+        assert 'hello' in c2.element.innerHTML
+
+    def test_inheritance_no_tag_name__use_generated(self):
+        class Comp1(Component):
+            def some_method(self):
+                return 1
+
+        class Comp2(Comp1):
+            def init_component(self):
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = '<div>hello</div>'
+
+        js.document.body.innerHTML = Comp2.component_metadata.html_snippet
+        logger.debug(f'innerHTML: {js.document.body.innerHTML}')
+        element = js.document.body.firstElementChild
+        c2 = get_component(element, Comp2)
+
+        assert c2.some_method() == 1
+
+    async def test_inheritance_with_explicit_tag_name(self):
+        class Comp1(Component, auto_define=False):
+            def some_method(self):
+                return 1
+
+        class Comp2(Comp1, tag_name='comp-test_inheritance_with_explicit_tag_name'):
+            def init_component(self):
+                logger.debug(f'init_component')
+                self.element.attachShadow(dict_to_js({'mode': 'open'}))
+                self.element.shadowRoot.innerHTML = '<div>hello</div>'
+
+        js.document.body.innerHTML = '<comp-test_inheritance_with_explicit_tag_name></comp-test_inheritance_with_explicit_tag_name>'
+
+        element = js.document.body.firstElementChild
+
+        c2 = get_component(element, Comp2)
+        assert c2.some_method() == 1
