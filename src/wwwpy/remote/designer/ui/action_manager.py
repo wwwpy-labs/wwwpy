@@ -5,7 +5,7 @@ import logging
 import js
 
 from wwwpy.remote.designer.ui.action import PMEvent, TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
-from wwwpy.remote.designer.ui.design_aware import IdentifyEvent, DesignAware
+from wwwpy.remote.designer.ui.action_aware import IdentifyActionEvent, ActionAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.jslib import get_deepest_element
@@ -146,8 +146,8 @@ def _pretty(node):
 
 def _request_identification(js_event: js.PointerEvent) -> Action | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
-    ie = IdentifyEvent(js_event, target)
-    for extension in DesignAware.EP_LIST.extensions:
+    ie = IdentifyActionEvent(js_event, target)
+    for extension in ActionAware.EP_LIST.extensions:
         action = extension.find_action(ie)
         if action:
             return action

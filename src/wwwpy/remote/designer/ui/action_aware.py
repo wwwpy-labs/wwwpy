@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class IdentifyEvent:
+class IdentifyActionEvent:
     js_event: js.PointerEvent
     target: js.Element | None
 
 
-class DesignAware:
-    EP_LIST: ExtensionPointList[DesignAware] = ExtensionPointList()
+class ActionAware:
+    EP_LIST: ExtensionPointList[ActionAware] = ExtensionPointList()
 
-    def find_action(self, ie: IdentifyEvent) -> Action | None:
+    def find_action(self, ie: IdentifyActionEvent) -> Action | None:
         raise NotImplemented()
