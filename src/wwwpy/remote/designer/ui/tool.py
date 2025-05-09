@@ -5,5 +5,7 @@ from wwwpy.remote import component as wpc
 
 
 class Tool(wpc.Component, auto_define=False):
+    """This is a DOM ui component that will adapt itself to the given situation"""
+
     def set_reference_geometry(self, rect: RectReadOnly):
         """Set the geometry of the element that the tool is attached to."""
