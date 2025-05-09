@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import js
 
+from wwwpy.common.designer.html_edit import Position
+from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.tool import Tool
@@ -59,8 +61,11 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
             sr.children[1].remove()
 
         x, y = compute_xy(rect.width, rect.height)
-        fragment = js.document.createRange().createContextualFragment(
-            create_svg(rect.width, rect.height, x, y, 'inner'))
+        # fragment = js.document.createRange().createContextualFragment(
+        #     create_svg(rect.width, rect.height, x, y, 'inner'))
+        # sr.appendChild(fragment)
+        svg = svg_indicator_for(Position.afterend)
+        fragment = js.document.createRange().createContextualFragment(svg)
         sr.appendChild(fragment)
 
 
