@@ -5,9 +5,9 @@ from typing import TypeVar
 
 import js
 
+from wwwpy.common.type_listener import TypeListeners, DictListeners
 from wwwpy.remote import eventlib
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.eventlib import handler_options
 
 logger = logging.getLogger(__name__)
