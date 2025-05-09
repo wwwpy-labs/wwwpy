@@ -20,22 +20,19 @@ class SelectElementAction(Action):
     """Action to select an element in the designer."""
     label: str = 'Select'
     icon: str = 'select_element_icon'
-    _next_element = None
 
     def on_hover(self, event: HoverEvent):
-        self._set_selection_from_js_event(event.js_event)
+        self._set_selection_from_js_event(event)
 
     def on_execute(self, event: DeselectEvent):
-        target = self._set_selection_from_js_event(event.js_event)
+        target = self._set_selection_from_js_event(event)
         if target is not None:
             self._set_toolbox_selection(target)
             event.accept()
 
-    def _set_selection_from_js_event(self, event):
-        # path = event.composedPath()
-        # composed = path and len(path) > 0
-        composed = 'disabled'
-        # target = path[0] if composed else event.target
+    def _set_selection_from_js_event(self, hover_event: HoverEvent):
+        event = hover_event.js_event
+
         target = get_deepest_element(event.clientX, event.clientY)
         if target is None:
             logger.warning(f'set_selection: target is None {dict_to_py(event)}')
@@ -56,7 +53,7 @@ class SelectElementAction(Action):
 
         if element_selector.get_selected_element() == target:
             return target
-        logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}, composed: {composed}')
+        logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
         js.console.log('set_selection console', event, event.composedPath())
         element_selector.set_selected_element(target)
         return target
