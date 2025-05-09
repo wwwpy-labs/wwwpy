@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import js
 
 from wwwpy.common import injector
+from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
@@ -66,10 +67,7 @@ class SelectElementAction(Action):
         message = 'ep_source is none' if ep_source is None else f'ep_source: {_element_path_lbl(ep_source)}'
         logger.warning(message)
         if ep_source is not None:
-            from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
-            tb = DevModeComponent.instance.toolbox
-            tb._toolbox_state.selected_element_path = ep_live
-            tb._restore_selected_element_path()
+            injector.get(CanvasSelection).current_selection = ep_source
         else:
             logger.warning(message)
 

@@ -33,6 +33,8 @@ async def activate():
     from wwwpy.remote.designer.ui.action_manager import ActionManager
     register(ActionManager())
     register(ElementSelector())
+    from wwwpy.common.designer.canvas_selection import CanvasSelection
+    register(CanvasSelection())
 
 
 def is_active() -> bool:

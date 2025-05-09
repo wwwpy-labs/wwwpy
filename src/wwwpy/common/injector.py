@@ -1,10 +1,13 @@
 import inspect
 from dataclasses import field
+from typing import TypeVar
 
 
 class InjectorError(Exception):
     pass
 
+
+T = TypeVar('T')
 
 class Injector:
     def __init__(self):
@@ -45,7 +48,7 @@ class Injector:
         else:
             raise InjectorError(f"No dependency registered for {bind!r} named={named!r}")
 
-    def get(self, cls, named=None):
+    def get(self, cls: type[T], named=None) -> T:
         """
         Get a registered instance for the given class (and optional named).
 
@@ -73,13 +76,18 @@ class Injector:
 
 
 # Create the default injector
+# todo evaluate if renaming this module to injectorlib.py and default_inject to injector
+#  and reference injector.register() and injector.get() and injector.unregister() everywhere
+#  instead of only 'register()'
 default_injector = Injector()
 
 # Create convenience functions that delegate to the default injector
 register = default_injector.register
 unregister = default_injector.unregister
-get = default_injector.get
 
+
+def get(cls: type[T], named=None) -> T:
+    return default_injector.get(cls, named)
 
 # def inject(named=None, injector=None):
 #     return _inject(named=named, injector=injector)

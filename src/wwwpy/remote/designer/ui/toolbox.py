@@ -13,11 +13,13 @@ from pyodide.ffi import create_proxy
 import wwwpy.remote.component as wpc
 from wwwpy.common import state, modlib
 from wwwpy.common.designer import element_library
+from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
 from wwwpy.common.designer.code_edit import add_component, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
+from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
@@ -72,6 +74,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
     _select_element_btn: js.HTMLElement = wpc.element()
     _select_clear_btn: js.HTMLElement = wpc.element()
     components_marker = '-components-'
+    _toolbox_state: ToolboxState = None
+    _canvas_selection: CanvasSelection = inject()
 
     @property
     def visible(self) -> bool:
@@ -113,6 +117,13 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 """
         import wwwpy
         self._title.innerText = f'toolbox - {wwwpy.__banner__}'
+
+        def _csce(event: CanvasSelectionChangeEvent):
+            logger.debug(f'canvas selection changed: {event}')
+            self._toolbox_state.selected_element_path = event.new
+            self._restore_selected_element_path()
+
+        self._canvas_selection.on_change.add(_csce)
 
     def connectedCallback(self):
         self._manage_toolbox_state()
