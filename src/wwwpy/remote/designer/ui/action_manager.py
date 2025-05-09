@@ -146,6 +146,8 @@ def _pretty(node):
 
 def _request_identification(js_event: js.PointerEvent) -> Action | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
+    if target is None:  # happens, e.g., when the mouse is moved on the scrollbar; no test for this (yet)
+        return None
     ie = IdentifyActionEvent(js_event, target)
     for extension in ActionAware.EP_LIST.extensions:
         action = extension.find_action(ie)

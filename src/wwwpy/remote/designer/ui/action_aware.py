@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class IdentifyActionEvent:
     js_event: js.PointerEvent
-    target: js.Element | None
+    target: js.Element
 
 
 class ActionAware:
