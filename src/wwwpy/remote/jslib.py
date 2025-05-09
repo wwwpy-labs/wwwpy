@@ -128,7 +128,7 @@ def is_contained(target, container):
     return False
 
 
-def get_deepest_element(x, y):
+def get_deepest_element(x, y) -> js.Element | None:
     """
     Get the deepest ele at the event coordinates by recursively traversing shadow DOMs.
     """
