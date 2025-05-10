@@ -26,26 +26,27 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     tl_color = active_color if position == Position.beforebegin else inactive_color
     br_color = active_color if position == Position.afterend else inactive_color
     rect_color = active_color if position == Position.inside else inactive_color
+    tl_width = 6 if position == Position.beforebegin else 2
+    br_width = 6 if position == Position.afterend else 2
+    rect_width = 3 if position == Position.inside else 1
     # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
-  <g stroke="%(tl_color)s" stroke-width="5">
+  <g stroke="%(tl_color)s" stroke-width="%(tl_width)s">
     <line x1="0" y1="0" x2="%(w)s" y2="0"/>
     <line x1="0" y1="0" x2="0" y2="%(h)s"/>
   </g>
-  <g stroke="%(br_color)s" stroke-width="5">
+  <g stroke="%(br_color)s" stroke-width="%(br_width)s">
     <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s"/>
     <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s"/>
   </g>
-  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(rect_color)s" 
-    stroke-width="2.5"/>
+  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(rect_color)s" stroke-width="%(rect_width)s"/>
 </svg>'''
     return svg % dict(
         w=width, h=height,
         iw=iw, ih=ih,
         x=x, y=y,
-        tl_color=tl_color,
-        br_color=br_color,
-        rect_color=rect_color
+        tl_color=tl_color, br_color=br_color, rect_color=rect_color,
+        tl_width=tl_width, br_width=br_width, rect_width=rect_width
     )
 
 
