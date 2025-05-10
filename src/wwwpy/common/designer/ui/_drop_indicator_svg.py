@@ -4,26 +4,22 @@ from wwwpy.common.designer.html_edit import Position
 # def position_for(width: int, height: int, x: int, y: int) -> Position:
 #     pass
 def svg_indicator_for(width: float, height: float, position: Position) -> str:
-
-    if position == Position.beforebegin:
-        txt = _svg_at_begin
-        ar = 'xMinYMid' if width > height else 'xMidYMin'
-    elif position == Position.afterend:
-        txt = _svg_at_end
-        ar = 'xMaxYMid' if width > height else 'xMidYMax'
-    elif position == Position.inside:
-        txt = _svg_at_inside
-        ar = 'xMidYMid'
-    else:
-        raise ValueError(f"Unknown position: {position}")
-
-    # txt = txt.replace('width: 200px', f'width: {int(width)}px')
-    # txt = txt.replace('height: 200px', f'height: {int(height)}px')
-
-    attrs = f'style="width: {int(width)} height:{int(height)}" '
-    attrs += f' preserveAspectRatio="{ar} meet"'
-    txt = txt.replace('[attrs]', attrs)
-    return txt
+    iw = width * 25 / 70
+    ih = height * 10 / 30
+    x = (width - iw) / 2
+    y = (height - ih) / 2
+    svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="yellow" stroke-width="1">
+    <line x1="0" y1="0" x2="%(w)s" y2="0" />
+    <line x1="0" y1="0" x2="0" y2="%(h)s" />
+  </g>
+  <g stroke="red" stroke-width="1">
+    <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s" />
+    <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s" />
+  </g>
+  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="black" stroke-width="1"/>
+</svg>'''
+    return svg % dict(w=width, h=height, iw=iw, ih=ih, x=x, y=y)
 
 
 # language=html
