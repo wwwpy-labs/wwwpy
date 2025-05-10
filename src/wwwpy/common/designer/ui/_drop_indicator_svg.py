@@ -2,8 +2,11 @@ from wwwpy.common.designer.html_edit import Position
 
 
 def position_for(width: float, height: float, x: float, y: float) -> Position:
-    iw = width * 25 / 70
-    ih = height * 10 / 30
+    # iw = width * 25 / 70
+    # ih = height * 10 / 30
+    ratio = 0.35
+    iw = width * ratio
+    ih = height * ratio
     x0 = (width - iw) / 2
     y0 = (height - ih) / 2
     if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
