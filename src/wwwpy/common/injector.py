@@ -1,6 +1,6 @@
 import inspect
 from dataclasses import field
-from typing import TypeVar
+from typing import TypeVar, get_origin
 
 
 class InjectorError(Exception):
@@ -62,8 +62,10 @@ class Injector:
         Raises:
             InjectorError: If no dependency is registered for the class/named
         """
-        if not inspect.isclass(cls):
+        # allow either a real class or a parametrized generic alias (e.g. SomeClass[Pet])
+        if not (inspect.isclass(cls) or get_origin(cls) is not None):
             raise InjectorError(f"Expected a class, got `{cls}` of type {type(cls)}")
+
         key = (cls, named)
         if key not in self._registry:
             raise InjectorError(f"No dependency registered for {cls.__name__} named={named}")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TypeVar, Generic
 
 import pytest
 
@@ -15,6 +16,12 @@ class Dog(Pet): ...
 
 
 class Cat(Pet): ...
+
+
+_T = TypeVar('_T')
+
+
+class SomeClass(Generic[_T]): ...
 
 
 def test_register_get(fixture):
@@ -122,6 +129,36 @@ class TestDataclasses:
         injector.register(p)
         dc = Dc()
         assert dc.pet is p
+
+
+class TestGeneric:
+    def test_register_generic(self, fixture):
+        sc = SomeClass[Pet]()
+        injector.register(sc, bind=SomeClass[Pet])
+
+        assert injector.get(SomeClass[Pet]) is sc
+
+        with pytest.raises(injector.InjectorError):
+            injector.get(SomeClass[Dog])
+
+    def test_register_generic_multiple_T(self, fixture):
+        sc_dog = SomeClass[Dog]()
+        injector.register(sc_dog, bind=SomeClass[Dog])
+
+        sc_cat = SomeClass[Cat]()
+        injector.register(sc_cat, bind=SomeClass[Cat])
+
+        assert injector.get(SomeClass[Dog]) is sc_dog
+        assert injector.get(SomeClass[Cat]) is sc_cat
+
+    def test_inject_generic(self, fixture):
+        class A:
+            sc: SomeClass[Pet] = inject()
+
+        sc = SomeClass[Pet]()
+        injector.register(sc, bind=SomeClass[Pet])
+
+        assert A().sc is sc
 
 
 @pytest.fixture
