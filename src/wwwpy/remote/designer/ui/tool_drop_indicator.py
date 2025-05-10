@@ -64,7 +64,7 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
         # fragment = js.document.createRange().createContextualFragment(
         #     create_svg(rect.width, rect.height, x, y, 'inner'))
         # sr.appendChild(fragment)
-        svg = svg_indicator_for(Position.afterend)
+        svg = svg_indicator_for(rect.width, rect.height, Position.afterend)
         fragment = js.document.createRange().createContextualFragment(svg)
         sr.appendChild(fragment)
 

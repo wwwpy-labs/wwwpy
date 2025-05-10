@@ -1,16 +1,28 @@
 from wwwpy.common.designer.html_edit import Position
 
 
-def svg_indicator_for(position: Position) -> str:
+# def position_for(width: int, height: int, x: int, y: int) -> Position:
+#     pass
+def svg_indicator_for(width: float, height: float, position: Position) -> str:
+
     if position == Position.beforebegin:
         txt = _svg_at_begin
+        ar = 'xMinYMid' if width > height else 'xMidYMin'
     elif position == Position.afterend:
         txt = _svg_at_end
+        ar = 'xMaxYMid' if width > height else 'xMidYMax'
     elif position == Position.inside:
         txt = _svg_at_inside
+        ar = 'xMidYMid'
     else:
         raise ValueError(f"Unknown position: {position}")
 
+    # txt = txt.replace('width: 200px', f'width: {int(width)}px')
+    # txt = txt.replace('height: 200px', f'height: {int(height)}px')
+
+    attrs = f'style="width: {int(width)} height:{int(height)}" '
+    attrs += f' preserveAspectRatio="{ar} meet"'
+    txt = txt.replace('[attrs]', attrs)
     return txt
 
 
@@ -24,7 +36,7 @@ _animate_transform = """
                 """
 # language=html
 _svg_at_begin = f"""
-<svg style='width: 200px ; height: 200px;' viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg [attrs] viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <g>
         <!-- Main diagonal line (arrow body) - shorter -->
         <line x1="70" y1="70" x2="0" y2="0" stroke-width="6" stroke="black">{_animate}</line>
@@ -40,7 +52,7 @@ _svg_at_begin = f"""
 # language=html
 _svg_at_end = f"""
 
-<svg  style='width: 200px ; height: 200px;' viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg  [attrs] viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <g>
         <!-- Main diagonal line (arrow body) - shorter -->
         <line x1="30" y1="30" x2="100" y2="100" stroke-width="6" stroke="black">{_animate}</line>
@@ -61,7 +73,7 @@ _svg_at_end = f"""
 
 # language=html
 _svg_at_inside = f"""
-<svg style='width: 200px ; height: 200px;' viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<svg [attrs] viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 todo
 </svg>
 """

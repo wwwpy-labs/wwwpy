@@ -31,6 +31,7 @@ class AddElementAction(Action):
 
     def on_execute(self, event: DeselectEvent):
         target = self._set_selection_from_js_event(event)
+        # self._tool.element.remove()
         if target is not None:
             self._set_toolbox_selection(target)
             event.accept()
@@ -40,9 +41,9 @@ class AddElementAction(Action):
 
         target = get_deepest_element(event.clientX, event.clientY)
 
-        element_selector = self._tool
-        if not element_selector.element.isConnected:
-            js.document.body.appendChild(element_selector.element)
+        tool = self._tool
+        if not tool.element.isConnected:
+            js.document.body.appendChild(tool.element)
 
         # if not element_selector.is_selectable(target):
         #     logger.warning(f'set_selection: target is not selectable because o element_selector.is_selectable')
