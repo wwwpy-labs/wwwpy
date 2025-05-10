@@ -19,7 +19,7 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
             :host {
               position: fixed;
               pointer-events: none;
-              border: 2px solid #4a90e2;
+              //border: 2px solid #4a90e2;
               z-index: 200000;
               display: none;
             } 
@@ -45,6 +45,30 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
         self.element.style.display = 'none'
 
     def set_reference_geometry(self, rect: RectReadOnly):
+        bs = 2  # Adjust this value to match the border size in CSS
+
+        r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
+        # r = rect
+
+        self.element.style.display = 'block'
+        self.element.style.top = f"{r.top}px"
+        self.element.style.left = f"{r.left}px"
+        self.element.style.width = f"{r.width}px"
+        self.element.style.height = f"{r.height}px"
+
+        sr = self.element.shadowRoot
+        while sr.children.length > 1:
+            sr.children[1].remove()
+
+        x, y = compute_xy(rect.width, rect.height)
+        # fragment = js.document.createRange().createContextualFragment(
+        #     create_svg(rect.width, rect.height, x, y, 'inner'))
+        # sr.appendChild(fragment)
+        svg = svg_indicator_for(rect.width, rect.height, Position.afterend)
+        fragment = js.document.createRange().createContextualFragment(svg)
+        sr.appendChild(fragment)
+
+    def set_reference_geometry2(self, rect: RectReadOnly, js_event: js.PointerEvent):
         bs = 2  # Adjust this value to match the border size in CSS
 
         r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )

@@ -59,7 +59,7 @@ class AddElementAction(Action):
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
         js.console.log('set_selection console', event, event.composedPath())
         if target:
-            self._tool.set_reference_geometry(target.getBoundingClientRect())
+            self._tool.set_reference_geometry2(target.getBoundingClientRect(), event)
         self._selected = target
         return target
 

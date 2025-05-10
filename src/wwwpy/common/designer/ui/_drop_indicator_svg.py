@@ -4,22 +4,34 @@ from wwwpy.common.designer.html_edit import Position
 # def position_for(width: int, height: int, x: int, y: int) -> Position:
 #     pass
 def svg_indicator_for(width: float, height: float, position: Position) -> str:
+    inactive_color = 'gray'
+    active_color = 'green'
     iw = width * 25 / 70
     ih = height * 10 / 30
     x = (width - iw) / 2
     y = (height - ih) / 2
+    tl_color = active_color if position == Position.beforebegin else inactive_color
+    br_color = active_color if position == Position.afterend else inactive_color
+    rect_color = active_color if position == Position.inside else inactive_color
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
-  <g stroke="yellow" stroke-width="1">
-    <line x1="0" y1="0" x2="%(w)s" y2="0" />
-    <line x1="0" y1="0" x2="0" y2="%(h)s" />
+  <g stroke="%(tl_color)s" stroke-width="1">
+    <line x1="0" y1="0" x2="%(w)s" y2="0"/>
+    <line x1="0" y1="0" x2="0" y2="%(h)s"/>
   </g>
-  <g stroke="red" stroke-width="1">
-    <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s" />
-    <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s" />
+  <g stroke="%(br_color)s" stroke-width="1">
+    <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s"/>
+    <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s"/>
   </g>
-  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="black" stroke-width="1"/>
+  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(rect_color)s" stroke-width="1"/>
 </svg>'''
-    return svg % dict(w=width, h=height, iw=iw, ih=ih, x=x, y=y)
+    return svg % dict(
+        w=width, h=height,
+        iw=iw, ih=ih,
+        x=x, y=y,
+        tl_color=tl_color,
+        br_color=br_color,
+        rect_color=rect_color
+    )
 
 
 # language=html
