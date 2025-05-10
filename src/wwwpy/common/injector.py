@@ -1,3 +1,4 @@
+import dataclasses
 import inspect
 from dataclasses import field
 from typing import TypeVar, get_origin
@@ -8,6 +9,7 @@ class InjectorError(Exception):
 
 
 T = TypeVar('T')
+
 
 class Injector:
     def __init__(self):
@@ -91,6 +93,7 @@ unregister = default_injector.unregister
 def get(cls: type[T], named=None) -> T:
     return default_injector.get(cls, named)
 
+
 # def inject(named=None, injector=None):
 #     return _inject(named=named, injector=injector)
 
@@ -108,9 +111,10 @@ class inject:
             api: ApiService = inject(name="prod")
     """
 
-    def __init__(self, *, named=None, injector=None):
+    def __init__(self, *, named=None, injector=None, static=False):
         self.named = named
         self.injector = injector or default_injector
+        self.static = static
         self.name = None
         self.cls = None
 
@@ -119,7 +123,10 @@ class inject:
 
     def __get__(self, instance, owner):
         if instance is None:  # and is_dataclass(owner): # it is not yet a dataclass
-            return field(init=False, default=self)
+            is_dataclass_in_doing = hasattr(owner, dataclasses._PARAMS) and \
+                                    not dataclasses.is_dataclass(owner)
+            if is_dataclass_in_doing:
+                return field(init=False, default=self)
 
         if self.cls is None:
             ann = inspect.get_annotations(owner, eval_str=True)

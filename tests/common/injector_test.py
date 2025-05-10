@@ -166,3 +166,26 @@ def fixture():
     injector.default_injector.clear()
     yield
     injector.default_injector.clear()
+
+
+def test_static_binding(fixture):
+    class Class1:
+        EP_LIST: Pet = inject(static=True)
+
+    pet = Pet()
+    injector.register(pet)
+
+    assert Class1.EP_LIST is pet
+    assert Class1().EP_LIST is pet
+
+
+def test_static_binding_dc(fixture):
+    @dataclass
+    class Class1:
+        EP_LIST: Pet = inject(static=True)
+
+    pet = Pet()
+    injector.register(pet)
+
+    assert Class1.EP_LIST is pet
+    assert Class1().EP_LIST is pet
