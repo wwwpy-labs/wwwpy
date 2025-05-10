@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import js
 
-from wwwpy.common.designer.html_edit import Position
-from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for
+from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for, position_for
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.tool import Tool
@@ -45,6 +44,9 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
         self.element.style.display = 'none'
 
     def set_reference_geometry(self, rect: RectReadOnly):
+        raise NotImplementedError()
+
+    def set_reference_geometry2(self, rect: RectReadOnly, event: js.PointerEvent):
         bs = 2  # Adjust this value to match the border size in CSS
 
         r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
@@ -60,35 +62,14 @@ class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
         while sr.children.length > 1:
             sr.children[1].remove()
 
-        x, y = compute_xy(rect.width, rect.height)
+        # x, y = compute_xy(rect.width, rect.height)
         # fragment = js.document.createRange().createContextualFragment(
         #     create_svg(rect.width, rect.height, x, y, 'inner'))
         # sr.appendChild(fragment)
-        svg = svg_indicator_for(rect.width, rect.height, Position.afterend)
-        fragment = js.document.createRange().createContextualFragment(svg)
-        sr.appendChild(fragment)
+        rx, ry = event.clientX - r.left, event.clientY - r.top
+        position = position_for(rect.width, rect.height, rx, ry, )
 
-    def set_reference_geometry2(self, rect: RectReadOnly, js_event: js.PointerEvent):
-        bs = 2  # Adjust this value to match the border size in CSS
-
-        r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
-        # r = rect
-
-        self.element.style.display = 'block'
-        self.element.style.top = f"{r.top}px"
-        self.element.style.left = f"{r.left}px"
-        self.element.style.width = f"{r.width}px"
-        self.element.style.height = f"{r.height}px"
-
-        sr = self.element.shadowRoot
-        while sr.children.length > 1:
-            sr.children[1].remove()
-
-        x, y = compute_xy(rect.width, rect.height)
-        # fragment = js.document.createRange().createContextualFragment(
-        #     create_svg(rect.width, rect.height, x, y, 'inner'))
-        # sr.appendChild(fragment)
-        svg = svg_indicator_for(rect.width, rect.height, Position.afterend)
+        svg = svg_indicator_for(r.width, r.height, position)
         fragment = js.document.createRange().createContextualFragment(svg)
         sr.appendChild(fragment)
 

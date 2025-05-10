@@ -1,8 +1,18 @@
 from wwwpy.common.designer.html_edit import Position
 
 
-# def position_for(width: int, height: int, x: int, y: int) -> Position:
-#     pass
+def position_for(width: float, height: float, x: float, y: float) -> Position:
+    iw = width * 25 / 70
+    ih = height * 10 / 30
+    x0 = (width - iw) / 2
+    y0 = (height - ih) / 2
+    if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
+        return Position.inside
+    if y <= -height / width * x + height:
+        return Position.beforebegin
+    return Position.afterend
+
+
 def svg_indicator_for(width: float, height: float, position: Position) -> str:
     inactive_color = 'gray'
     active_color = 'green'
@@ -13,16 +23,18 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     tl_color = active_color if position == Position.beforebegin else inactive_color
     br_color = active_color if position == Position.afterend else inactive_color
     rect_color = active_color if position == Position.inside else inactive_color
+    # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
-  <g stroke="%(tl_color)s" stroke-width="1">
+  <g stroke="%(tl_color)s" stroke-width="5">
     <line x1="0" y1="0" x2="%(w)s" y2="0"/>
     <line x1="0" y1="0" x2="0" y2="%(h)s"/>
   </g>
-  <g stroke="%(br_color)s" stroke-width="1">
+  <g stroke="%(br_color)s" stroke-width="5">
     <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s"/>
     <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s"/>
   </g>
-  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(rect_color)s" stroke-width="1"/>
+  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(rect_color)s" 
+    stroke-width="2.5"/>
 </svg>'''
     return svg % dict(
         w=width, h=height,

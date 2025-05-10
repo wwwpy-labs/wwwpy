@@ -54,8 +54,8 @@ class AddElementAction(Action):
         if unselectable or target == js.document.body or target == js.document.documentElement:
             target = None
 
-        if self._selected == target:
-            return target
+        # if self._selected == target:
+        #     return target
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
         js.console.log('set_selection console', event, event.composedPath())
         if target:
