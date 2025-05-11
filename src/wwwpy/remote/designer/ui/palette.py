@@ -10,14 +10,14 @@ from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.intent import Intent, ActionChangedEvent
-from wwwpy.remote.designer.ui.intent_aware import ActionAware, IdentifyActionEvent
+from wwwpy.remote.designer.ui.intent_aware import IntentAware, IdentifyActionEvent
 from wwwpy.remote.designer.ui.intent_manager import ActionManager
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
 
-class _PaletteActionAware(ActionAware):
+class _PaletteIntentAware(IntentAware):
 
     def find_action(self, ie: IdentifyActionEvent):
         target = ie.target
@@ -28,8 +28,8 @@ class _PaletteActionAware(ActionAware):
         return None
 
 
-_palette_design_aware = _PaletteActionAware()
-ActionAware.EP_LIST.extensions.append(_palette_design_aware)
+_palette_design_aware = _PaletteIntentAware()
+IntentAware.EP_LIST.extensions.append(_palette_design_aware)
 
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
@@ -56,7 +56,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self._action2item = {}
 
         self._on_action_changed_event = ace
-        self._palette_design_aware = _PaletteActionAware()
+        self._palette_design_aware = _PaletteIntentAware()
         self._on_identify_event = lambda e: e.set_action(_find_palette_action(e.js_event))
 
     def connectedCallback(self):

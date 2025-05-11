@@ -17,8 +17,8 @@ class IdentifyActionEvent:
     target: js.Element
 
 
-class ActionAware:
-    EP_LIST: ExtensionPointList[ActionAware] = ExtensionPointList()  # todo use inject(static=True)
+class IntentAware:
+    EP_LIST: ExtensionPointList[IntentAware] = ExtensionPointList()  # todo use inject(static=True)
 
     def find_action(self, ie: IdentifyActionEvent) -> Intent | None:
         raise NotImplemented()
