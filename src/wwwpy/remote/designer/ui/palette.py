@@ -34,7 +34,7 @@ IntentAware.EP_LIST.extensions.append(_palette_design_aware)
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
-    action_manager: IntentManager = inject()
+    intent_manager: IntentManager = inject()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -60,12 +60,12 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self._on_identify_event = lambda e: e.set_action(_find_palette_action(e.js_event))
 
     def connectedCallback(self):
-        self.action_manager.install()
-        self.action_manager.on(IntentChangedEvent).add(self._on_action_changed_event)
+        self.intent_manager.install()
+        self.intent_manager.on(IntentChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
-        self.action_manager.on(IntentChangedEvent).remove(self._on_action_changed_event)
-        self.action_manager.uninstall()
+        self.intent_manager.on(IntentChangedEvent).remove(self._on_action_changed_event)
+        self.intent_manager.uninstall()
 
     def add_action(self, action: Intent) -> PaletteItemComponent:
         """Add an item to the palette."""
@@ -75,7 +75,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
         self._action2item[id(action)] = item
-        # item.element.addEventListener('click', create_proxy(lambda e: self.action_manager._action_item_click(item)))
+        # item.element.addEventListener('click', create_proxy(lambda e: self.intent_manager._action_item_click(item)))
         return item
 
 

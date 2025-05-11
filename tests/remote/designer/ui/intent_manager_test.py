@@ -277,7 +277,7 @@ class TestStopEvents:
         assert len(events) == 1, 'div1 event should be fired'
 
 
-class TestActionEvents:
+class TestEvents:
     def test_on_selected_programmatically(self, intent_manager, intent1):
         # WHEN
         intent_manager.current_selection = intent1
