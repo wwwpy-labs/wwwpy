@@ -12,7 +12,7 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui.action import TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.action import TPE, SubmitEvent, HoverEvent, Action, ActionChangedEvent
 from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.palette import PaletteComponent
@@ -86,7 +86,7 @@ class TestUseSelection:
     async def test_selection_and_click__accept_should_deselect(self, action_manager, action1, div1, events):
         # GIVEN
         action_manager.selected_action = action1
-        action_manager.on(DeselectEvent).add(lambda ev: ev.accept())
+        action_manager.on(SubmitEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
@@ -151,7 +151,7 @@ class TestDrag:
     async def test_no_selection_drag_and_drop__accept_should_deselect(self, action_manager, action1, div1, events):
         # GIVEN
         action_manager.selected_action = None
-        action_manager.on(DeselectEvent).add(lambda ev: ev.accept())
+        action_manager.on(SubmitEvent).add(lambda ev: ev.accept())
 
         # WHEN
         await rpctst_exec("page.locator('#action1').drag_to(page.locator('#div1'))")
@@ -253,7 +253,7 @@ class TestStopEvents:
     async def test_stop_event(self, action_manager, action1, event_type, div1):
         # GIVEN
         action_manager.selected_action = action1
-        action_manager.on(DeselectEvent).add(lambda ev: ev.accept())
+        action_manager.on(SubmitEvent).add(lambda ev: ev.accept())
 
         events = []
         div1.addEventListener(event_type, create_proxy(lambda ev: events.append(ev)))
@@ -402,8 +402,8 @@ class EventFixture:
         return self.filter(HoverEvent)
 
     @property
-    def accept_events(self) -> list[DeselectEvent]:
-        return self.filter(DeselectEvent)
+    def accept_events(self) -> list[SubmitEvent]:
+        return self.filter(SubmitEvent)
 
     @property
     def action_changed_events(self) -> list[ActionChangedEvent]:
@@ -425,7 +425,7 @@ class ActionFake(Action):
 
     def on_hover(self, event: HoverEvent): self._ev('on_hover')
 
-    def on_execute(self, event: DeselectEvent):
+    def on_execute(self, event: SubmitEvent):
         self._ev('on_execute')
         if self.accept_execute:
             event.accept()

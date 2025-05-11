@@ -24,7 +24,7 @@ class HoverEvent(PMJsEvent):
 
 
 @dataclass
-class DeselectEvent(HoverEvent):  # todo rename to SubmitEvent
+class SubmitEvent(HoverEvent):
     accepted: bool = False
 
     def accept(self):
@@ -43,7 +43,7 @@ class Action:  # todo rename to Intent and keep action for AddElementAction
     def on_hover(self, event: HoverEvent): ...
 
     # todo maybe rename to on_submit to convey that this could be accepted or not
-    def on_execute(self, event: DeselectEvent): ...
+    def on_execute(self, event: SubmitEvent): ...
 
     # todo rename to on_deselected
     def on_deselect(self): ...

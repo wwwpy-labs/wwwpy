@@ -5,7 +5,7 @@ import logging
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.action import PMEvent, TPE, DeselectEvent, HoverEvent, Action, ActionChangedEvent
+from wwwpy.remote.designer.ui.action import PMEvent, TPE, SubmitEvent, HoverEvent, Action, ActionChangedEvent
 from wwwpy.remote.designer.ui.action_aware import IdentifyActionEvent, ActionAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
@@ -55,7 +55,7 @@ class ActionManager:
             event.start_drag()
         else:
             se = self.selected_action
-            ae = DeselectEvent(event.js_event)
+            ae = SubmitEvent(event.js_event)
             self._notify(ae)
             if se is not None:
                 event.stop()
@@ -97,7 +97,7 @@ class ActionManager:
             if action:
                 return  # this return is not under test; when we pointerdown on an action, and drag
                 # (just enough) and release on the action itself
-            ae = DeselectEvent(event.js_event)
+            ae = SubmitEvent(event.js_event)
             self._notify(ae)
             se = self.selected_action
             if se is not None:

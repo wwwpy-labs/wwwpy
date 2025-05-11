@@ -8,7 +8,7 @@ from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
-from wwwpy.remote.designer.ui.action import DeselectEvent, HoverEvent, Action
+from wwwpy.remote.designer.ui.action import SubmitEvent, HoverEvent, Action
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
 from wwwpy.remote.jslib import get_deepest_element
@@ -25,7 +25,7 @@ class SelectElementAction(Action):
     def on_hover(self, event: HoverEvent):
         self._set_selection_from_js_event(event)
 
-    def on_execute(self, event: DeselectEvent):
+    def on_execute(self, event: SubmitEvent):
         target = self._set_selection_from_js_event(event)
         if target is not None:
             self._set_toolbox_selection(target)
