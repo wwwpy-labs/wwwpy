@@ -15,28 +15,28 @@ class Injector:
     def __init__(self):
         self._registry = {}
 
-    def register(self, instance, *, bind=None, named=None):
+    def bind(self, instance, *, to=None, named=None):
         """
         Register an instance with the injector.
 
         Args:
             instance: The instance to register
-            bind: Optional class to bind the instance to. If None, uses instance's class.
+            to: Optional class to bind the instance to. If None, uses instance's class.
             named: Optional string key for named binding.
 
         Raises:
             InjectorError: If a dependency is already registered for the target class and named
         """
-        if bind is None:
-            bind = instance.__class__
+        if to is None:
+            to = instance.__class__
 
-        key = (bind, named)
+        key = (to, named)
         if key in self._registry:
-            raise InjectorError(f"Dependency already registered for {bind!r} named={named!r}")
+            raise InjectorError(f"Dependency already registered for {to!r} named={named!r}")
 
         self._registry[key] = instance
 
-    def unregister(self, bind, named=None):
+    def _unbind(self, bind, named=None):
         """
         Unregister a dependency.
 
@@ -74,28 +74,14 @@ class Injector:
 
         return self._registry[key]
 
-    def clear(self):
+    def _clear(self):
         """Clear all registered dependencies."""
         self._registry.clear()
 
 
-# Create the default injector
-# todo evaluate if renaming this module to injectorlib.py and default_inject to injector
-#  and reference injector.register() and injector.get() and injector.unregister() everywhere
-#  instead of only 'register()'
 default_injector = Injector()
+injector = default_injector
 
-# Create convenience functions that delegate to the default injector
-register = default_injector.register
-unregister = default_injector.unregister
-
-
-def get(cls: type[T], named=None) -> T:
-    return default_injector.get(cls, named)
-
-
-# def inject(named=None, injector=None):
-#     return _inject(named=named, injector=injector)
 
 class inject:
     """
@@ -111,9 +97,9 @@ class inject:
             api: ApiService = inject(name="prod")
     """
 
-    def __init__(self, *, named=None, injector=None):
+    def __init__(self, *, named=None):
         self.named = named
-        self.injector = injector or default_injector
+        self.injector = default_injector
         self.name = None
         self.cls = None
 

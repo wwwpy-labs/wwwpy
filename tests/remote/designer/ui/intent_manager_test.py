@@ -9,8 +9,7 @@ import pytest
 from pyodide.ffi import create_proxy
 
 from tests.remote.rpc4tests_helper import rpctst_exec
-from wwwpy.common import injector
-from wwwpy.common.injector import register, inject
+from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui import intent_aware, palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
@@ -481,15 +480,15 @@ class Fixture:
 
 @pytest.fixture()
 def fixture():
-    injector.default_injector.clear()
+    injector.default_injector._clear()
     intent_aware.register_bindings()
     palette.register_extension_point()
     am = IntentManager()
-    register(am)
+    injector.bind(am)
     f = Fixture()
     f.intent_manager.install()
     try:
         yield f
     finally:
         f.intent_manager.uninstall()
-        injector.default_injector.clear()
+        injector.default_injector._clear()

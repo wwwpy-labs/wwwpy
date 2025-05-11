@@ -19,7 +19,7 @@ from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.common.injector import inject
+from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover

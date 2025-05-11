@@ -5,8 +5,7 @@ import logging
 
 import js
 
-from wwwpy.common import injector
-from wwwpy.common.injector import register
+from wwwpy.common.injectorlib import injector
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 
 logger = logging.getLogger(__name__)
@@ -29,12 +28,12 @@ async def activate():
     loop.set_exception_handler(_global_exception_handler)
 
     # dependency injection
-    injector.default_injector.clear()
+    injector._clear()
     from wwwpy.remote.designer.ui.intent_manager import IntentManager
-    register(IntentManager())
-    register(ElementSelector())
+    injector.bind(IntentManager())
+    injector.bind(ElementSelector())
     from wwwpy.common.designer.canvas_selection import CanvasSelection
-    register(CanvasSelection())
+    injector.bind(CanvasSelection())
     from wwwpy.remote.designer import di_remote
     di_remote.register_bindings()
 

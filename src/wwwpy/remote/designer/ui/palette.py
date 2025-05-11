@@ -6,7 +6,7 @@ import js
 from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
-from wwwpy.common.injector import inject
+from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent

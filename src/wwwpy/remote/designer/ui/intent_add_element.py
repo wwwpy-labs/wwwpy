@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 import js
 
-from wwwpy.common import injector
 from wwwpy.common.designer.canvas_selection import CanvasSelection
+from wwwpy.common.injectorlib import injector
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
 from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater

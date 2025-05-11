@@ -5,9 +5,8 @@ from dataclasses import dataclass
 
 import js
 
-from wwwpy.common import injector
 from wwwpy.common.extension_point import ExtensionPointList
-from wwwpy.common.injector import inject
+from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote.designer.ui.intent import Intent
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,7 @@ class IdentifyIntentEvent:
 
 
 def register_bindings():
-    injector.register(ExtensionPointList(), bind=ExtensionPointList[IntentAware])
+    injector.bind(ExtensionPointList(), to=ExtensionPointList[IntentAware])
 
 
 class IntentAware:
