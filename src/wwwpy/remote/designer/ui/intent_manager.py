@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class IntentManager:
 
     def __init__(self) -> None:
-        self._selected_action: Intent | None = None
+        self._current_selection: Intent | None = None
         self._listeners = DictListeners()
         self._ready_item: Intent | None = None
 
@@ -41,11 +41,11 @@ class IntentManager:
     def _notify(self, ev: PMEvent) -> None:
         self._listeners.notify(ev)
 
-    def _toggle_selection(self, action: Intent):
-        if action == self.current_selection:
+    def _toggle_selection(self, intent: Intent):
+        if intent == self.current_selection:
             self.current_selection = None
         else:
-            self.current_selection = action
+            self.current_selection = intent
 
     def _on_pointer_down(self, event: PointerDown):
         intent = _request_identification(event.js_event)
@@ -64,14 +64,14 @@ class IntentManager:
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
-        action = _request_identification(event.js_event)
-        logger.debug(f'_on_pointer_move {action} state={self.drag_state} '
+        intent = _request_identification(event.js_event)
+        logger.debug(f'_on_pointer_move {intent} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
             self.current_selection = self._ready_item
             self._ready_item = None
 
-        if action:
+        if intent:
             return
 
         hover_event = HoverEvent(event.js_event)
@@ -81,8 +81,8 @@ class IntentManager:
             se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        action = _request_identification(event.js_event)
-        logger.debug(f'_on_pointer_up {action} state={self.drag_state} ready_item={self._ready_item}')
+        intent = _request_identification(event.js_event)
+        logger.debug(f'_on_pointer_up {intent} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
 
@@ -90,13 +90,13 @@ class IntentManager:
         self._ready_item = None
 
         if event.normal_click:
-            if action:
+            if intent:
                 if ready is not None:
                     self._toggle_selection(ready)
         elif event.drag_ended:
-            if action:
-                return  # this return is not under test; when we pointerdown on an action, and drag
-                # (just enough) and release on the action itself
+            if intent:
+                return  # this return is not under test; when we pointerdown on an intent, and drag
+                # (just enough) and release on the intent itself
             ae = SubmitEvent(event.js_event)
             self._notify(ae)
             se = self.current_selection
@@ -107,7 +107,7 @@ class IntentManager:
 
     @property
     def current_selection(self) -> Intent | None:
-        return self._selected_action
+        return self._current_selection
 
     @current_selection.setter
     def current_selection(self, new: Intent | None) -> None:
@@ -126,7 +126,7 @@ class IntentManager:
             old.on_deselect()
             msg += f' (deselecting {old})'
 
-        self._selected_action = new
+        self._current_selection = new
         msg += f' (selecting {None if new is None else new})'
         if new:
             new.selected = True
