@@ -6,7 +6,13 @@ from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
 from wwwpy.common.designer.element_library import ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.remote.designer import element_path
-from wwwpy.server.designer import rpc
+
+try:
+    from wwwpy.server.designer import rpc
+except ImportError:
+    from wwwpy.common._throw_on_any import ThrowOnAny
+
+    rpc = ThrowOnAny('During testing this rpc is not (yet) configured')  # todo
 
 
 async def _rpc_save(el_path: ElementPath, new_source: str):
