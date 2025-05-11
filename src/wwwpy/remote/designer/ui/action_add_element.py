@@ -30,6 +30,7 @@ class AddElementAction(Action):
         self._set_selection_from_js_event(event)
 
     def on_execute(self, event: DeselectEvent):
+        # todo add a self.callback_something to notify (ElementPath, Position)
         target = self._set_selection_from_js_event(event)
         # self._tool.element.remove()
         if target is not None:

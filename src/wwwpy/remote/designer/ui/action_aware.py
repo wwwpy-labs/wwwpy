@@ -18,7 +18,7 @@ class IdentifyActionEvent:
 
 
 class ActionAware:
-    EP_LIST: ExtensionPointList[ActionAware] = ExtensionPointList()
+    EP_LIST: ExtensionPointList[ActionAware] = ExtensionPointList()  # todo use inject(static=True)
 
     def find_action(self, ie: IdentifyActionEvent) -> Action | None:
         raise NotImplemented()

@@ -24,17 +24,14 @@ class HoverEvent(PMJsEvent):
 
 
 @dataclass
-class DeselectEvent(HoverEvent):
+class DeselectEvent(HoverEvent):  # todo rename to SubmitEvent
     accepted: bool = False
 
     def accept(self):
         self.accepted = True
 
-
-# todo maybe split Action? extract ActionUi and ActionLogic, so the latter can stay in common
-#  and this file can be cleaned up and partly moved to common
 @dataclass
-class Action:
+class Action:  # todo rename to Intent and keep action for AddElementAction
     label: str
     """Label to be displayed in the palette item."""
 
@@ -45,8 +42,10 @@ class Action:
 
     def on_hover(self, event: HoverEvent): ...
 
+    # todo maybe rename to on_submit to convey that this could be accepted or not
     def on_execute(self, event: DeselectEvent): ...
 
+    # todo rename to on_deselected
     def on_deselect(self): ...
 
 

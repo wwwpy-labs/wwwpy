@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # logger.setLevel(logging.DEBUG)
 
-
+# todo extract the logic of the animation frame tracker
 class ElementSelector(wpc.Component, tag_name='element-selector'):
     selection_indicator: SelectionIndicatorTool = wpc.element()
     action_band: ActionBandTool = wpc.element()

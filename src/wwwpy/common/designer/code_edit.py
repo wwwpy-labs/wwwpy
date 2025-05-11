@@ -100,6 +100,8 @@ class AddComponentExceptionReport:
     position: Position
 
 
+# def add_component(element_path: ElementPath, position: Position,
+#           addable_element: AddableElement ,name: str | None = None) -> AddResult | AddFailed:
 def add_component(source_code: str, class_name: str, comp_def: ElementDef, index_path: IndexPath,
                   position: Position) -> AddResult | AddFailed:
     source_code_orig = source_code

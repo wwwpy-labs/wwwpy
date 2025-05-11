@@ -45,10 +45,10 @@ class NamedListMap(ListMap):
         super().__init__(args, key_func=lambda x: x.name)
 
 
-# todo refactor (make an hierarchy of classes) to support:
-#  - unknown standard html elements
-#  - unknown custom components (mainly for slots)
-#  - for wwwpy Components
+#  todo One idea of supertype could be AddableElement that contains only:
+#   - tag_name: str
+#   - python_type: str
+#   - def html_snippet(name: str) -> str: ...
 @dataclass
 class ElementDef:
     tag_name: str

@@ -4,6 +4,7 @@ from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import component as wpc
 
 
+# todo could be renamed to FloatingTool
 class Tool(wpc.Component, auto_define=False):
     """This is a DOM ui component that will adapt itself to the given situation"""
 
