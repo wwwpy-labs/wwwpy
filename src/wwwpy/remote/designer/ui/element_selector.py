@@ -7,9 +7,9 @@ from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, dict_to_py
-from wwwpy.remote.designer.ui.tool import Tool
-from wwwpy.remote.designer.ui.tool_action_band import ActionBandTool
-from wwwpy.remote.designer.ui.tool_selection_indicator import SelectionIndicatorTool
+from wwwpy.remote.designer.ui.floater import Floater
+from wwwpy.remote.designer.ui.floater_action_band import ActionBandFloater
+from wwwpy.remote.designer.ui.floater_selection_indicator import SelectionIndicatorFloater
 from wwwpy.remote.jslib import is_contained, AnimationFrameTracker
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 # todo extract the logic of the animation frame tracker
 class ElementSelector(wpc.Component, tag_name='element-selector'):
-    selection_indicator: SelectionIndicatorTool = wpc.element()
-    action_band: ActionBandTool = wpc.element()
+    selection_indicator: SelectionIndicatorFloater = wpc.element()
+    action_band: ActionBandFloater = wpc.element()
 
     # _eventbus: EventBus = inject()
 
@@ -82,9 +82,9 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         self.selection_indicator.transition = not skip_transition
 
-        for t in [self.selection_indicator, self.action_band]:
-            t: Tool
-            t.set_reference_geometry(rect)
+        for x in [self.selection_indicator, self.action_band]:
+            x: Floater
+            x.set_reference_geometry(rect)
 
         self._last_position = rect_tup
 

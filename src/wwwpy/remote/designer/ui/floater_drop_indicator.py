@@ -5,10 +5,10 @@ import js
 from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for, position_for
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.ui.tool import Tool
+from wwwpy.remote.designer.ui.floater import Floater
 
 
-class DropIndicatorTool(Tool, tag_name='wwwpy-drop-indicator-tool'):
+class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))

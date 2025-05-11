@@ -5,10 +5,10 @@ from pyodide.ffi import create_proxy
 
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.ui.tool import Tool
+from wwwpy.remote.designer.ui.floater import Floater
 
 
-class ActionBandTool(Tool, tag_name='action-band-tool'):
+class ActionBandFloater(Floater, tag_name='action-band-tool'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.
     """

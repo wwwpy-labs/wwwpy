@@ -4,10 +4,10 @@ import js
 
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.ui.tool import Tool
+from wwwpy.remote.designer.ui.floater import Floater
 
 
-class WeirdSelectionIndicatorTool(Tool, tag_name='weird-selection-indicator-tool'):
+class WeirdSelectionIndicatorFloater(Floater, tag_name='weird-selection-indicator-tool'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))

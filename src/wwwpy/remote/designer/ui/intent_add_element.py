@@ -7,9 +7,9 @@ from wwwpy.common import injector
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
+from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater
 from wwwpy.remote.designer.ui.intent import SubmitEvent, HoverEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
-from wwwpy.remote.designer.ui.tool_drop_indicator import DropIndicatorTool
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class AddElementIntent(Intent):
 
     def __post_init__(self):
         # self._tool = WeirdSelectionIndicatorTool()
-        self._tool = DropIndicatorTool()
+        self._tool = DropIndicatorFloater()
         self._tool.transition = True
         self._selected = None
 
