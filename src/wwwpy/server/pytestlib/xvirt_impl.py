@@ -51,6 +51,7 @@ class XVirtImpl(XVirt):
         self.playwright_args = start_playwright_in_thread(webserver.localhost_url(), self.headless)
 
     def _start_webserver(self):
+        # todo refactor and unify this with convention.py, default_config(), setup()
         xvirt_notify_route = HttpRoute('/xvirt_notify', self._http_handler)
         remote_conftest = (_file_parent / 'remote_conftest.py').read_text() \
             .replace('#xvirt_notify_path_marker#', '/xvirt_notify')
