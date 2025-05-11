@@ -67,14 +67,14 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self.intent_manager.on(IntentChangedEvent).remove(self._on_action_changed_event)
         self.intent_manager.uninstall()
 
-    def add_action(self, action: Intent) -> PaletteItemComponent:
+    def add_intent(self, intent: Intent) -> PaletteItemComponent:
         """Add an item to the palette."""
         item = PaletteItemComponent()
-        item.intent = action
-        item.label = action.label
+        item.intent = intent
+        item.label = intent.label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
-        self._action2item[id(action)] = item
+        self._action2item[id(intent)] = item
         # item.element.addEventListener('click', create_proxy(lambda e: self.intent_manager._action_item_click(item)))
         return item
 
