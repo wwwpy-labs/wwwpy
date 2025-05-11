@@ -425,12 +425,12 @@ class IntentFake(Intent):
 
     def on_hover(self, event: HoverEvent): self._ev('on_hover')
 
-    def on_execute(self, event: SubmitEvent):
+    def on_submit(self, event: SubmitEvent):
         self._ev('on_execute')
         if self.accept_execute:
             event.accept()
 
-    def on_deselect(self): self._ev('on_deselect')
+    def on_deselected(self): self._ev('on_deselect')
 
 
 @dataclass

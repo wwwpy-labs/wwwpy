@@ -29,7 +29,7 @@ class AddElementIntent(Intent):
     def on_hover(self, event: HoverEvent):
         self._set_selection_from_js_event(event)
 
-    def on_execute(self, event: SubmitEvent):
+    def on_submit(self, event: SubmitEvent):
         # todo add a self.callback_something to notify (ElementPath, Position)
         target = self._set_selection_from_js_event(event)
         # self._tool.element.remove()

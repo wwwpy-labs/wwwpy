@@ -59,7 +59,7 @@ class IntentManager:
             self._notify(ae)
             if se is not None:
                 event.stop()
-                se.on_execute(ae)
+                se.on_submit(ae)
                 if ae.accepted:
                     self.current_selection = None
 
@@ -101,7 +101,7 @@ class IntentManager:
             self._notify(ae)
             se = self.current_selection
             if se is not None:
-                se.on_execute(ae)
+                se.on_submit(ae)
                 if ae.accepted:
                     self.current_selection = None
 
@@ -123,7 +123,7 @@ class IntentManager:
 
         if old:
             old.selected = False
-            old.on_deselect()
+            old.on_deselected()
             msg += f' (deselecting {old})'
 
         self._current_selection = new

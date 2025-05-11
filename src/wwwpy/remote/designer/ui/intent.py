@@ -30,6 +30,7 @@ class SubmitEvent(HoverEvent):
     def accept(self):
         self.accepted = True
 
+
 @dataclass
 class Intent:
     label: str
@@ -42,11 +43,9 @@ class Intent:
 
     def on_hover(self, event: HoverEvent): ...
 
-    # todo maybe rename to on_submit to convey that this could be accepted or not
-    def on_execute(self, event: SubmitEvent): ...
+    def on_submit(self, event: SubmitEvent): ...
 
-    # todo rename to on_deselected
-    def on_deselect(self): ...
+    def on_deselected(self): ...
 
 
 @dataclass
