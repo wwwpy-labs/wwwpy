@@ -9,9 +9,9 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.action_aware import ActionAware, IdentifyActionEvent
-from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.intent import Intent, ActionChangedEvent
+from wwwpy.remote.designer.ui.intent_aware import ActionAware, IdentifyActionEvent
+from wwwpy.remote.designer.ui.intent_manager import ActionManager
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)

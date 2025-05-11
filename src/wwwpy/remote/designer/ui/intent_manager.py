@@ -5,8 +5,8 @@ import logging
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.action_aware import IdentifyActionEvent, ActionAware
 from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
+from wwwpy.remote.designer.ui.intent_aware import IdentifyActionEvent, ActionAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
 

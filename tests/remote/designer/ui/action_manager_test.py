@@ -12,9 +12,9 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
+from wwwpy.remote.designer.ui.intent_manager import ActionManager
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
 logger = logging.getLogger(__name__)
