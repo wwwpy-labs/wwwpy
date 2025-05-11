@@ -42,10 +42,10 @@ class IntentManager:
         self._listeners.notify(ev)
 
     def _toggle_selection(self, action: Intent):
-        if action == self.selected_action:
-            self.selected_action = None
+        if action == self.current_selection:
+            self.current_selection = None
         else:
-            self.selected_action = action
+            self.current_selection = action
 
     def _on_pointer_down(self, event: PointerDown):
         intent = _request_identification(event.js_event)
@@ -54,21 +54,21 @@ class IntentManager:
             self._ready_item = intent
             event.start_drag()
         else:
-            se = self.selected_action
+            se = self.current_selection
             ae = SubmitEvent(event.js_event)
             self._notify(ae)
             if se is not None:
                 event.stop()
                 se.on_execute(ae)
                 if ae.accepted:
-                    self.selected_action = None
+                    self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
         action = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_move {action} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
-            self.selected_action = self._ready_item
+            self.current_selection = self._ready_item
             self._ready_item = None
 
         if action:
@@ -76,7 +76,7 @@ class IntentManager:
 
         hover_event = HoverEvent(event.js_event)
         self._notify(hover_event)
-        se = self.selected_action
+        se = self.current_selection
         if se is not None:
             se.on_hover(hover_event)
 
@@ -99,23 +99,23 @@ class IntentManager:
                 # (just enough) and release on the action itself
             ae = SubmitEvent(event.js_event)
             self._notify(ae)
-            se = self.selected_action
+            se = self.current_selection
             if se is not None:
                 se.on_execute(ae)
                 if ae.accepted:
-                    self.selected_action = None
+                    self.current_selection = None
 
     @property
-    def selected_action(self) -> Intent | None:
+    def current_selection(self) -> Intent | None:
         return self._selected_action
 
-    @selected_action.setter
-    def selected_action(self, new: Intent | None) -> None:
+    @current_selection.setter
+    def current_selection(self, new: Intent | None) -> None:
         msg = ''
         if self._ready_item:
             msg += f' ri={self._ready_item}'
 
-        old = self.selected_action
+        old = self.current_selection
         if old == new:
             msg += f' (no change) old={old}'
             logger.debug(msg)
