@@ -12,6 +12,7 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
+from wwwpy.remote.designer.ui import intent_aware, palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
@@ -481,6 +482,8 @@ class Fixture:
 @pytest.fixture()
 def fixture():
     injector.default_injector.clear()
+    intent_aware.register_bindings()
+    palette.register_extension_point()
     am = IntentManager()
     register(am)
     f = Fixture()
