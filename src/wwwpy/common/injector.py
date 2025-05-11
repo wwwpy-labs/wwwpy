@@ -111,10 +111,9 @@ class inject:
             api: ApiService = inject(name="prod")
     """
 
-    def __init__(self, *, named=None, injector=None, static=False):
+    def __init__(self, *, named=None, injector=None):
         self.named = named
         self.injector = injector or default_injector
-        self.static = static
         self.name = None
         self.cls = None
 

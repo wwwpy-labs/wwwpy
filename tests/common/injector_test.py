@@ -24,6 +24,13 @@ _T = TypeVar('_T')
 class SomeClass(Generic[_T]): ...
 
 
+@pytest.fixture
+def fixture():
+    injector.default_injector.clear()
+    yield
+    injector.default_injector.clear()
+
+
 def test_register_get(fixture):
     pet = Pet()
     injector.register(pet)
@@ -161,31 +168,24 @@ class TestGeneric:
         assert A().sc is sc
 
 
-@pytest.fixture
-def fixture():
-    injector.default_injector.clear()
-    yield
-    injector.default_injector.clear()
+class TestStaticAccess:
+    def test_static_binding(self, fixture):
+        class Class1:
+            EP_LIST: Pet = inject()
 
+        pet = Pet()
+        injector.register(pet)
 
-def test_static_binding(fixture):
-    class Class1:
-        EP_LIST: Pet = inject(static=True)
+        assert Class1.EP_LIST is pet
+        assert Class1().EP_LIST is pet
 
-    pet = Pet()
-    injector.register(pet)
+    def test_static_binding_dc(self, fixture):
+        @dataclass
+        class Class1:
+            EP_LIST: Pet = inject()
 
-    assert Class1.EP_LIST is pet
-    assert Class1().EP_LIST is pet
+        pet = Pet()
+        injector.register(pet)
 
-
-def test_static_binding_dc(fixture):
-    @dataclass
-    class Class1:
-        EP_LIST: Pet = inject(static=True)
-
-    pet = Pet()
-    injector.register(pet)
-
-    assert Class1.EP_LIST is pet
-    assert Class1().EP_LIST is pet
+        assert Class1.EP_LIST is pet
+        assert Class1().EP_LIST is pet
