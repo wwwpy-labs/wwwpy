@@ -31,7 +31,7 @@ class SubmitEvent(HoverEvent):
         self.accepted = True
 
 @dataclass
-class Intent:  # todo rename to Intent and keep action for AddElementAction
+class Intent:
     label: str
     """Label to be displayed in the palette item."""
 

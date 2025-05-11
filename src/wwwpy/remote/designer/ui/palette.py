@@ -24,7 +24,7 @@ class _PaletteIntentAware(IntentAware):
         res = target.closest(PaletteItemComponent.component_metadata.tag_name)
         if res:
             comp: PaletteItemComponent = get_component(res)
-            return comp.action
+            return comp.intent
         return None
 
 
@@ -70,7 +70,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     def add_action(self, action: Intent) -> PaletteItemComponent:
         """Add an item to the palette."""
         item = PaletteItemComponent()
-        item.action = action
+        item.intent = action
         item.label = action.label
         item.element.classList.add('palette-item')
         self._item_container.appendChild(item.element)
@@ -81,6 +81,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 
 class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
     _label: js.HTMLLabelElement = wpc.element()
+    intent: Intent
 
     # override magic method so the f strings get a nice representation
     def __repr__(self):
@@ -100,7 +101,7 @@ class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
  </div>
  </div> 
 """
-        self.action: Intent = None
+        self.intent: Intent = None
 
     @property
     def label(self) -> str:
@@ -150,7 +151,7 @@ def _find_palette_action(event: js.Event) -> Intent | None:
     res = target.closest(palette.PaletteItemComponent.component_metadata.tag_name)
     if res:
         comp: PaletteItemComponent = get_component(res)
-        return comp.action
+        return comp.intent
     return None
 
 
