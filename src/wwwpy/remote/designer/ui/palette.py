@@ -9,9 +9,9 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.intent import Intent, ActionChangedEvent
+from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import IntentAware, IdentifyIntentEvent
-from wwwpy.remote.designer.ui.intent_manager import ActionManager
+from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ IntentAware.EP_LIST.extensions.append(_palette_design_aware)
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
     _item_container: js.HTMLDivElement = wpc.element()
-    action_manager: ActionManager = inject()
+    action_manager: IntentManager = inject()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -47,7 +47,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 """
         self.element.shadowRoot.innerHTML += _css_styles
 
-        def ace(e: ActionChangedEvent):
+        def ace(e: IntentChangedEvent):
             if e.old is not None:
                 self._action2item[id(e.old)].selected = False
             if e.new is not None:
@@ -61,10 +61,10 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 
     def connectedCallback(self):
         self.action_manager.install()
-        self.action_manager.on(ActionChangedEvent).add(self._on_action_changed_event)
+        self.action_manager.on(IntentChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
-        self.action_manager.on(ActionChangedEvent).remove(self._on_action_changed_event)
+        self.action_manager.on(IntentChangedEvent).remove(self._on_action_changed_event)
         self.action_manager.uninstall()
 
     def add_action(self, action: Intent) -> PaletteItemComponent:

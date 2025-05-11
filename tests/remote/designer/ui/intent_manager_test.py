@@ -13,8 +13,8 @@ from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
-from wwwpy.remote.designer.ui.intent_manager import ActionManager
+from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
 logger = logging.getLogger(__name__)
@@ -406,8 +406,8 @@ class EventFixture:
         return self.filter(SubmitEvent)
 
     @property
-    def action_changed_events(self) -> list[ActionChangedEvent]:
-        return self.filter(ActionChangedEvent)
+    def action_changed_events(self) -> list[IntentChangedEvent]:
+        return self.filter(IntentChangedEvent)
 
 
 @dataclass
@@ -435,7 +435,7 @@ class IntentFake(Intent):
 
 @dataclass
 class Fixture:
-    action_manager: ActionManager = inject()
+    action_manager: IntentManager = inject()
 
     @cached_property
     def _palette(self):
@@ -481,7 +481,7 @@ class Fixture:
 @pytest.fixture()
 def fixture():
     injector.default_injector.clear()
-    am = ActionManager()
+    am = IntentManager()
     register(am)
     f = Fixture()
     f.action_manager.install()

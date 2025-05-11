@@ -30,8 +30,8 @@ async def activate():
 
     # dependency injection
     injector.default_injector.clear()
-    from wwwpy.remote.designer.ui.intent_manager import ActionManager
-    register(ActionManager())
+    from wwwpy.remote.designer.ui.intent_manager import IntentManager
+    register(IntentManager())
     register(ElementSelector())
     from wwwpy.common.designer.canvas_selection import CanvasSelection
     register(CanvasSelection())

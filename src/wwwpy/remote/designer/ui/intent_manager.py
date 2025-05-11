@@ -5,7 +5,7 @@ import logging
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
+from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import IdentifyIntentEvent, IntentAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
@@ -13,7 +13,7 @@ from wwwpy.remote.jslib import get_deepest_element
 logger = logging.getLogger(__name__)
 
 
-class ActionManager:
+class IntentManager:
 
     def __init__(self) -> None:
         self._selected_action: Intent | None = None
@@ -48,10 +48,10 @@ class ActionManager:
             self.selected_action = action
 
     def _on_pointer_down(self, event: PointerDown):
-        action = _request_identification(event.js_event)
-        logger.debug(f'_on_pointer_down {action} state={self.drag_state}')
-        if action:
-            self._ready_item = action
+        intent = _request_identification(event.js_event)
+        logger.debug(f'_on_pointer_down {intent} state={self.drag_state}')
+        if intent:
+            self._ready_item = intent
             event.start_drag()
         else:
             se = self.selected_action
@@ -131,7 +131,7 @@ class ActionManager:
         if new:
             new.selected = True
             new.on_selected()
-        self._notify(ActionChangedEvent(old, new))
+        self._notify(IntentChangedEvent(old, new))
 
         logger.debug(msg)
 
@@ -150,7 +150,7 @@ def _request_identification(js_event: js.PointerEvent) -> Intent | None:
         return None
     ie = IdentifyIntentEvent(js_event, target)
     for extension in IntentAware.EP_LIST.extensions:
-        action = extension.find(ie)
-        if action:
-            return action
+        intent = extension.find(ie)
+        if intent:
+            return intent
     return None

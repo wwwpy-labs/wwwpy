@@ -50,6 +50,6 @@ class Intent:  # todo rename to Intent and keep action for AddElementAction
 
 
 @dataclass
-class ActionChangedEvent(PMEvent):
+class IntentChangedEvent(PMEvent):
     old: Intent | None
     new: Intent | None
