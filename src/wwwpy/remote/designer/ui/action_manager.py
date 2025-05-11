@@ -5,8 +5,8 @@ import logging
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.action import PMEvent, TPE, SubmitEvent, HoverEvent, Action, ActionChangedEvent
 from wwwpy.remote.designer.ui.action_aware import IdentifyActionEvent, ActionAware
+from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class ActionManager:
 
     def __init__(self) -> None:
-        self._selected_action: Action | None = None
+        self._selected_action: Intent | None = None
         self._listeners = DictListeners()
-        self._ready_item: Action | None = None
+        self._ready_item: Intent | None = None
 
         self._pointer_api = PointerApi()
         self._pointer_api.on(PointerDown).add(self._on_pointer_down)
@@ -41,7 +41,7 @@ class ActionManager:
     def _notify(self, ev: PMEvent) -> None:
         self._listeners.notify(ev)
 
-    def _toggle_selection(self, action: Action):
+    def _toggle_selection(self, action: Intent):
         if action == self.selected_action:
             self.selected_action = None
         else:
@@ -106,11 +106,11 @@ class ActionManager:
                     self.selected_action = None
 
     @property
-    def selected_action(self) -> Action | None:
+    def selected_action(self) -> Intent | None:
         return self._selected_action
 
     @selected_action.setter
-    def selected_action(self, new: Action | None) -> None:
+    def selected_action(self, new: Intent | None) -> None:
         msg = ''
         if self._ready_item:
             msg += f' ri={self._ready_item}'
@@ -144,7 +144,7 @@ def _pretty(node):
     return str(node)
 
 
-def _request_identification(js_event: js.PointerEvent) -> Action | None:
+def _request_identification(js_event: js.PointerEvent) -> Intent | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
     if target is None:  # happens, e.g., when the mouse is moved on the scrollbar; no test for this (yet)
         return None

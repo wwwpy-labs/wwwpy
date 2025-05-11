@@ -12,9 +12,9 @@ from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common import injector
 from wwwpy.common.injector import register, inject
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui.action import TPE, SubmitEvent, HoverEvent, Action, ActionChangedEvent
 from wwwpy.remote.designer.ui.action_manager import ActionManager
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
+from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
 logger = logging.getLogger(__name__)
@@ -411,7 +411,7 @@ class EventFixture:
 
 
 @dataclass
-class ActionFake(Action):
+class IntentFake(Intent):
     action_events: list = None
     events: list = field(default_factory=list)
     accept_execute = False
@@ -443,8 +443,8 @@ class Fixture:
         js.document.body.appendChild(p.element)
         return p
 
-    def _add_action(self, label: str) -> ActionFake:
-        action = ActionFake(label)
+    def _add_action(self, label: str) -> IntentFake:
+        action = IntentFake(label)
         action.action_events = self.action_events
         palette_item = self._palette.add_action(action)
         palette_item.element.id = label
@@ -456,11 +456,11 @@ class Fixture:
         return []
 
     @cached_property
-    def action1(self) -> ActionFake:
+    def action1(self) -> IntentFake:
         return self._add_action('action1')
 
     @cached_property
-    def action2(self) -> ActionFake:
+    def action2(self) -> IntentFake:
         return self._add_action('action2')
 
     @cached_property

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import js
 
 from wwwpy.common.extension_point import ExtensionPointList
-from wwwpy.remote.designer.ui.action import Action
+from wwwpy.remote.designer.ui.intent import Intent
 
 logger = logging.getLogger(__name__)
 
@@ -20,5 +20,5 @@ class IdentifyActionEvent:
 class ActionAware:
     EP_LIST: ExtensionPointList[ActionAware] = ExtensionPointList()  # todo use inject(static=True)
 
-    def find_action(self, ie: IdentifyActionEvent) -> Action | None:
+    def find_action(self, ie: IdentifyActionEvent) -> Intent | None:
         raise NotImplemented()

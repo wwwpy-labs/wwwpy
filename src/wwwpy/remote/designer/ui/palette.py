@@ -9,9 +9,9 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injector import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.action import Action, ActionChangedEvent
 from wwwpy.remote.designer.ui.action_aware import ActionAware, IdentifyActionEvent
 from wwwpy.remote.designer.ui.action_manager import ActionManager
+from wwwpy.remote.designer.ui.intent import Intent, ActionChangedEvent
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self.action_manager.on(ActionChangedEvent).remove(self._on_action_changed_event)
         self.action_manager.uninstall()
 
-    def add_action(self, action: Action) -> PaletteItemComponent:
+    def add_action(self, action: Intent) -> PaletteItemComponent:
         """Add an item to the palette."""
         item = PaletteItemComponent()
         item.action = action
@@ -100,7 +100,7 @@ class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
  </div>
  </div> 
 """
-        self.action: Action = None
+        self.action: Intent = None
 
     @property
     def label(self) -> str:
@@ -141,7 +141,7 @@ class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
 #         self.selected_action = value
 
 
-def _find_palette_action(event: js.Event) -> Action | None:
+def _find_palette_action(event: js.Event) -> Intent | None:
     target = get_deepest_element(event.clientX, event.clientY)
     if target is None:  # tests missing. It looks like it happens when the mouse exit the viewport or moves on the scrollbar
         return None

@@ -7,7 +7,7 @@ from wwwpy.common import injector
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
-from wwwpy.remote.designer.ui.action import SubmitEvent, HoverEvent, Action
+from wwwpy.remote.designer.ui.intent import SubmitEvent, HoverEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
 from wwwpy.remote.designer.ui.tool_drop_indicator import DropIndicatorTool
 from wwwpy.remote.jslib import get_deepest_element
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class AddElementAction(Action):
+class AddElementIntent(Intent):
     """Action to select an element in the designer."""
     label: str = 'Add element'
 
