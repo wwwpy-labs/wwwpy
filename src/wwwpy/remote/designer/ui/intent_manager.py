@@ -6,7 +6,7 @@ import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, ActionChangedEvent
-from wwwpy.remote.designer.ui.intent_aware import IdentifyActionEvent, IntentAware
+from wwwpy.remote.designer.ui.intent_aware import IdentifyIntentEvent, IntentAware
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -148,9 +148,9 @@ def _request_identification(js_event: js.PointerEvent) -> Intent | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
     if target is None:  # happens, e.g., when the mouse is moved on the scrollbar; no test for this (yet)
         return None
-    ie = IdentifyActionEvent(js_event, target)
+    ie = IdentifyIntentEvent(js_event, target)
     for extension in IntentAware.EP_LIST.extensions:
-        action = extension.find_action(ie)
+        action = extension.find(ie)
         if action:
             return action
     return None

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class IdentifyActionEvent:
+class IdentifyIntentEvent:
     js_event: js.PointerEvent
     target: js.Element
 
@@ -20,5 +20,5 @@ class IdentifyActionEvent:
 class IntentAware:
     EP_LIST: ExtensionPointList[IntentAware] = ExtensionPointList()  # todo use inject(static=True)
 
-    def find_action(self, ie: IdentifyActionEvent) -> Intent | None:
+    def find(self, ie: IdentifyIntentEvent) -> Intent | None:
         raise NotImplemented()
