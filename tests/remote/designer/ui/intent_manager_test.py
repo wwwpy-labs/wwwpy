@@ -412,14 +412,14 @@ class EventFixture:
 
 @dataclass
 class IntentFake(Intent):
-    action_events: list = None
+    intent_events: list = None
     events: list = field(default_factory=list)
     accept_execute = False
 
     def _ev(self, kind):
         e = f'{self.label}:{kind}'
         self.events.append(e)
-        self.action_events.append(e)
+        self.intent_events.append(e)
 
     def on_selected(self): self._ev('on_selected')
 
@@ -444,12 +444,12 @@ class Fixture:
         return p
 
     def _add_action(self, label: str) -> IntentFake:
-        action = IntentFake(label)
-        action.action_events = self.action_events
-        palette_item = self._palette.add_action(action)
+        intent = IntentFake(label)
+        intent.intent_events = self.action_events
+        palette_item = self._palette.add_action(intent)
         palette_item.element.id = label
-        action.element = palette_item.element
-        return action
+        intent.element = palette_item.element
+        return intent
 
     @cached_property
     def action_events(self) -> list:
