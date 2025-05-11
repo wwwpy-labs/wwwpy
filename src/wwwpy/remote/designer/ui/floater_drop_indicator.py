@@ -8,7 +8,7 @@ from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
 
 
-class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-tool'):
+class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-floater'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))

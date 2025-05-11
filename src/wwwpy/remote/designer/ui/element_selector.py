@@ -30,8 +30,8 @@ class ElementSelector(wpc.Component, tag_name='element-selector'):
 
         # language=html
         self.element.shadowRoot.innerHTML = """
-        <selection-indicator-tool data-name="selection_indicator"></selection-indicator-tool>
-        <action-band-tool data-name="action_band"></action-band-tool>
+        <selection-indicator-floater data-name="selection_indicator"></selection-indicator-floater>
+        <action-band-floater data-name="action_band"></action-band-floater>
         """
         self._selected_element: js.HTMLElement | None = None
         self._last_position = None

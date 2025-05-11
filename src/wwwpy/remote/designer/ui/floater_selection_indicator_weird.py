@@ -7,7 +7,7 @@ from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
 
 
-class WeirdSelectionIndicatorFloater(Floater, tag_name='weird-selection-indicator-tool'):
+class WeirdSelectionIndicatorFloater(Floater, tag_name='weird-selection-indicator-floater'):
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))

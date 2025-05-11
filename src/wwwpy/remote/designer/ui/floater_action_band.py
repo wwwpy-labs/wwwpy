@@ -8,7 +8,7 @@ from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
 
 
-class ActionBandFloater(Floater, tag_name='action-band-tool'):
+class ActionBandFloater(Floater, tag_name='action-band-floater'):
     """A component for creating a toolbar button with an icon and label.
     Converted from the JavaScript implementation in selection-scroll-1.html.
     """
