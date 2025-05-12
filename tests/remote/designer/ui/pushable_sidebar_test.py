@@ -54,6 +54,10 @@ async def test_to_right():
 
 
 async def TODO_test_collapsed():
+    # todo, the component need a lot of refactoring
+    #  - should give a good way to disable animation so we can test it
+    #  - should not use more the attributes instead of the dict
+    #  - should not handle directly the keyboard double control (should be extracted somewhere else)
     target = PushableSidebar()
     js.document.body.appendChild(target.element)
 

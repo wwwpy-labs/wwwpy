@@ -67,7 +67,6 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         self._body_padding = ensure_tag_instance('style', _BODY_PADDING_STYLE_ID, js.document.head)
 
         self._config = {
-            'position': 'left',
             'width': '300px',
             'minWidth': '50px',
             'maxWidth': '500px',
@@ -85,8 +84,6 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         self._start_x = 0
 
         # Apply attribute values if provided
-        if self.position:
-            self._config['position'] = self.position
         if self.width:
             self._config['width'] = self.width
         if self.min_width:
@@ -114,10 +111,15 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         if delta < 0.3:
             self._last_ctrl_time = None
             self.toggle()
+            return
+
+    @property
+    def _position(self) -> str:
+        return self.position or 'left'
 
     def _update_style(self):
         """Update the style element based on current configuration"""
-        position = self._config['position']
+        position = self._position
         animation_speed = 300 if self._config['enable_animation'] else 0
 
         # Generate CSS content
@@ -241,7 +243,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
             'width']
 
         # Update toggle button icon and title
-        position = self._config['position']
+        position = self._position
         toggle_icon = '&#9658;' if (position == 'left' and self._state == 'collapsed') or \
                                    (position == 'right' and self._state != 'collapsed') else '&#9668;'
         self._toggle_button.innerHTML = toggle_icon
@@ -324,7 +326,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
             return
 
         # Calculate new width
-        if self._config['position'] == 'left':
+        if self.position == 'left':
             new_width = self._start_width + (event.clientX - self._start_x)
         else:
             new_width = self._start_width - (event.clientX - self._start_x)
@@ -355,7 +357,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         else:
             style = (
                 """body {\n padding-WHERE: PADDING !important; \n} """
-                .replace('WHERE', self._config['position'])
+                .replace('WHERE', self.position)
                 .replace('PADDING', padding))
 
         self._body_padding.innerHTML = style
@@ -465,11 +467,11 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         self._remove_padding()
 
         # Update position
-        self._config['position'] = position
-        self.element.setAttribute('position', position)
+        self.position = position
+        # self.element.setAttribute('position', position)
 
         # Re-initialize the component
-        self._update_sidebar()
+        # self._update_sidebar()
 
         return self
 
@@ -500,8 +502,6 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
             return
 
         # Convert kebab-case to camelCase for some attribute names
-        if name == 'position':
-            self._config['position'] = new_value
         elif name == 'width':
             self._config['width'] = new_value
         elif name == 'min-width':
