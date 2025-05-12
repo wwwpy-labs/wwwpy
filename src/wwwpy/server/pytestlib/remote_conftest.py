@@ -36,8 +36,9 @@ def pytest_runtest_setup(item):
     _clean_doc_now()
 
 
-def pytest_runtest_teardown(item, nextitem):
-    _clean_doc_now()
+# this is commented because it should not be needed but primarly because when using HEADED=True we can see the effect of the last test
+# def pytest_runtest_teardown(item, nextitem):
+#     _clean_doc_now()
 
 
 def _clean_doc_now():
