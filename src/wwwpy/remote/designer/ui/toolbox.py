@@ -367,6 +367,7 @@ async def _drop_zone_start_selection_async(on_hover: DropZoneHover, whole: bool)
         selected = drop_zone_selector.stop()
         ev.uninstall()
         if selected:
+            selected: DropZone
             console.log(
                 f'\nselection accepted position {selected.position.name}'
                 f'\ntarget: ', selected.element,

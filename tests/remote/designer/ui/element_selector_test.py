@@ -141,7 +141,7 @@ class Fixture:
         return self._div2
 
 
-def _setup_div(div1):
+def _setup_div(div1: js.HTMLElement):
     div1.style.position = 'absolute'
     div1.style.top = '30px'
     div1.style.left = '40px'
