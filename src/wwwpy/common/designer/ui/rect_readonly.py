@@ -20,3 +20,8 @@ def rect_xy_center(rect: RectReadOnly) -> tuple[float, float]:
     x = rect.x + rect.width / 2
     y = rect.y + rect.height / 2
     return x, y
+
+
+def rect_to_py(rect: RectReadOnly) -> RectReadOnly:
+    from . import rect_readonly_py
+    return rect_readonly_py.RectReadOnlyPy(rect)

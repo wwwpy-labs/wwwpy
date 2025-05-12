@@ -77,3 +77,6 @@ class RectReadOnlyPy(RectReadOnly):
     def xy_center(self) -> tuple[float, float]:
         """Get the center x and y coordinates of the rect."""
         return self.x + self.width / 2, self.y + self.height / 2
+
+    def __repr__(self) -> str:
+        return f"RectReadOnlyPy(x={self.x}, y={self.y}, width={self.width}, height={self.height})"
