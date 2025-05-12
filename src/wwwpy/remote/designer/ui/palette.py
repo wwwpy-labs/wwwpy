@@ -100,7 +100,7 @@ class PaletteItemComponent(wpc.Component, tag_name='palette-item-icon'):
      <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
      <line x1="12" y1="12" x2="12" y2="12"></line>
  </svg>
- <label data-name="_label"></label>
+ <label data-name="_label" style="display: block; text-align: center"></label>
  </div>
  </div> 
 """
