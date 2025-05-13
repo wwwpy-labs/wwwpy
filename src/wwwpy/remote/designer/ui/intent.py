@@ -20,7 +20,7 @@ TPE = TypeVar('TPE', bound=PMEvent)
 
 @dataclass
 class HoverEvent(PMJsEvent):
-    pass
+    deep_target: js.HTMLElement | None
 
 
 @dataclass

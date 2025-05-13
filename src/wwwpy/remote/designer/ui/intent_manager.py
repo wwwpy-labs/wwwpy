@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Tuple
 
 import js
 
@@ -48,14 +49,14 @@ class IntentManager:
             self.current_selection = intent
 
     def _on_pointer_down(self, event: PointerDown):
-        intent = _request_identification(event.js_event)
+        deep_target, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_down {intent} state={self.drag_state}')
         if intent:
             self._ready_item = intent
             event.start_drag()
         else:
             se = self.current_selection
-            ae = SubmitEvent(event.js_event)
+            ae = SubmitEvent(event.js_event, deep_target)
             self._notify(ae)
             if se is not None:
                 event.stop()
@@ -64,7 +65,7 @@ class IntentManager:
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
-        intent = _request_identification(event.js_event)
+        deep_target, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_move {intent} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
@@ -74,14 +75,14 @@ class IntentManager:
         if intent:
             return
 
-        hover_event = HoverEvent(event.js_event)
+        hover_event = HoverEvent(event.js_event, deep_target)
         self._notify(hover_event)
         se = self.current_selection
         if se is not None:
             se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        intent = _request_identification(event.js_event)
+        deep_target, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_up {intent} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
@@ -97,7 +98,7 @@ class IntentManager:
             if intent:
                 return  # this return is not under test; when we pointerdown on an intent, and drag
                 # (just enough) and release on the intent itself
-            ae = SubmitEvent(event.js_event)
+            ae = SubmitEvent(event.js_event, deep_target)
             self._notify(ae)
             se = self.current_selection
             if se is not None:
@@ -144,13 +145,17 @@ def _pretty(node):
     return str(node)
 
 
-def _request_identification(js_event: js.PointerEvent) -> Intent | None:
+def _request_identification(js_event: js.PointerEvent) -> Tuple[js.HTMLElement | None, Intent | None]:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
-    if target is None:  # happens, e.g., when the mouse is moved on the scrollbar; no test for this (yet)
-        return None
+    # None happens, e.g., when the mouse is moved on the scrollbar; no test for this (yet)
+    if target is None:
+        return None, None
+
     ie = IdentifyIntentEvent(js_event, target)
+    intent = None
     for extension in IntentAware.EP_LIST.extensions:
         intent = extension.find(ie)
         if intent:
-            return intent
-    return None
+            break
+
+    return target, intent  # type: ignore[return-value] # it doesn't respect TypeGuard!?
