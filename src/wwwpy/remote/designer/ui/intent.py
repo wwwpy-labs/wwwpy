@@ -31,7 +31,6 @@ class SubmitEvent(HoverEvent):
         self.accepted = True
 
 
-@dataclass
 class Intent:
     label: str
     """Label to be displayed in the palette item."""

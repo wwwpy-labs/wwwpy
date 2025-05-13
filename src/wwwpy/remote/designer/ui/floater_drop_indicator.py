@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import js
 
-from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for, position_for
+from wwwpy.common.designer.html_edit import Position
+from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
@@ -46,11 +47,11 @@ class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-floater'):
     def set_reference_geometry(self, rect: RectReadOnly):
         raise NotImplementedError()
 
-    def set_reference_geometry2(self, rect: RectReadOnly, event: js.PointerEvent):
+    def set_reference_geometry2(self, rect: RectReadOnly, position: Position):
+
         bs = 2  # Adjust this value to match the border size in CSS
 
         r = js.DOMRect.new(rect.x - bs, rect.y - bs, rect.width, rect.height, )
-        # r = rect
 
         self.element.style.display = 'block'
         self.element.style.top = f"{r.top}px"
@@ -59,15 +60,8 @@ class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-floater'):
         self.element.style.height = f"{r.height}px"
 
         sr = self.element.shadowRoot
-        while sr.children.length > 1:
+        while sr.children.length > 1:  # leave style element
             sr.children[1].remove()
-
-        # x, y = compute_xy(rect.width, rect.height)
-        # fragment = js.document.createRange().createContextualFragment(
-        #     create_svg(rect.width, rect.height, x, y, 'inner'))
-        # sr.appendChild(fragment)
-        rx, ry = event.clientX - rect.left, event.clientY - rect.top
-        position = position_for(rect.width, rect.height, rx, ry, )
 
         svg = svg_indicator_for(r.width + bs * 2, r.height + bs * 2, position)
         fragment = js.document.createRange().createContextualFragment(svg)
