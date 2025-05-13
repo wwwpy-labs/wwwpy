@@ -44,6 +44,9 @@ class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-floater'):
     def hide(self):
         self.element.style.display = 'none'
 
+    def show(self):
+        self.element.style.display = 'block'
+
     def set_reference_geometry(self, rect: RectReadOnly):
         raise NotImplementedError()
 

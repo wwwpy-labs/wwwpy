@@ -70,7 +70,10 @@ class AddElementIntent(Intent):
             rect = target.getBoundingClientRect()
             rx, ry = event.clientX - rect.left, event.clientY - rect.top
             position = position_for(rect.width, rect.height, rx, ry, )
+            self._tool.show()
             self._tool.set_reference_geometry2(rect, position)
+        else:
+            self._tool.hide()
         return target, position
 
     def _add_element(self, target: js.HTMLElement, position: Position):
