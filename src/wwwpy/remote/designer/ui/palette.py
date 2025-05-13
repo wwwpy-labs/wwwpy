@@ -9,8 +9,8 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
-from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent
-from wwwpy.remote.designer.ui.intent_aware import IntentAware, IdentifyIntentEvent
+from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent, HoverEvent
+from wwwpy.remote.designer.ui.intent_aware import IntentAware
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 class _PaletteIntentAware(IntentAware):
 
-    def find(self, ie: IdentifyIntentEvent):
-        target = ie.target
+    def find(self, hover_event: HoverEvent):
+        target = hover_event.deep_target
         res = target.closest(PaletteItemComponent.component_metadata.tag_name)
         if res:
             comp: PaletteItemComponent = get_component(res)

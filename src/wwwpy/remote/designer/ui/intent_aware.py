@@ -1,21 +1,12 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-
-import js
 
 from wwwpy.common.extension_point import ExtensionPointList
 from wwwpy.common.injectorlib import inject, injector
-from wwwpy.remote.designer.ui.intent import Intent
+from wwwpy.remote.designer.ui.intent import Intent, HoverEvent
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class IdentifyIntentEvent:
-    target: js.Element
-    js_event: js.PointerEvent
 
 
 def register_bindings():
@@ -25,13 +16,13 @@ def register_bindings():
 class IntentAware:
     EP_LIST: ExtensionPointList[IntentAware] = inject()
 
-    def find(self, ie: IdentifyIntentEvent) -> Intent | None:
+    def find(self, hover_event: HoverEvent) -> Intent | None:
         raise NotImplemented()
 
 
-def find_intent(ie: IdentifyIntentEvent) -> Intent | None:
+def find_intent(hover_event: HoverEvent) -> Intent | None:
     for extension in IntentAware.EP_LIST.extensions:
-        intent = extension.find(ie)
+        intent = extension.find(hover_event)
         if intent:
             return intent
     return None
