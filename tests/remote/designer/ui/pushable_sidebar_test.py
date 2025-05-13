@@ -2,8 +2,10 @@ import logging
 
 import js
 
+import wwwpy.remote.component as wpc
 from wwwpy.common.designer.ui.rect_readonly import rect_to_py
-from wwwpy.remote.designer.ui.pushable_sidebar import PushableSidebar
+from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.pushable_sidebar import PushableSidebar, is_inside_sidebar
 
 logger = logging.getLogger(__name__)
 
@@ -75,3 +77,49 @@ async def TODO_test_collapsed():
     assert rect1.height == rect0.height
     assert rect1.x == 0
     assert rect1.y == 0
+
+
+async def test_is_inside_sidebar_true():
+    target = PushableSidebar()
+    inside = js.document.createElement('div')
+    inside.innerHTML = 'foo'
+    target.element.appendChild(inside)
+    js.document.body.appendChild(target.element)
+
+    assert is_inside_sidebar(inside) is True
+    assert is_inside_sidebar(target.element) is True
+
+
+async def test_is_inside_sidebar_true_internal_element():
+    target = PushableSidebar()
+    js.document.body.appendChild(target.element)
+
+    assert is_inside_sidebar(target._sidebar_content) is True
+
+
+async def test_is_inside_sidebar_nested_shadowdom():
+    class Comp1(wpc.Component):
+        inner = wpc.element()
+
+        def init_component(self):
+            self.element.attachShadow(dict_to_js({'mode': 'open'}))
+            self.element.shadowRoot.innerHTML = """<div data-name="inner">foo</div>"""
+
+    c1 = Comp1()
+    target = PushableSidebar()
+    target.element.appendChild(c1.element)
+    js.document.body.appendChild(target.element)
+
+    assert is_inside_sidebar(c1.element) is True
+    assert is_inside_sidebar(c1.inner) is True
+
+
+async def test_is_inside_sidebar_false():
+    target = PushableSidebar()
+    js.document.body.appendChild(target.element)
+
+    outside = js.document.createElement('div')
+    outside.innerHTML = 'bar'
+    js.document.body.appendChild(outside)
+
+    assert is_inside_sidebar(outside) is False
