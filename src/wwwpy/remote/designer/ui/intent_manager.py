@@ -7,7 +7,7 @@ import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
-from wwwpy.remote.designer.ui.intent_aware import IdentifyIntentEvent, IntentAware
+from wwwpy.remote.designer.ui.intent_aware import IdentifyIntentEvent, find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -152,10 +152,5 @@ def _request_identification(js_event: js.PointerEvent) -> Tuple[js.HTMLElement |
         return None, None
 
     ie = IdentifyIntentEvent(js_event, target)
-    intent = None
-    for extension in IntentAware.EP_LIST.extensions:
-        intent = extension.find(ie)
-        if intent:
-            break
-
+    intent = find_intent(ie)
     return target, intent  # type: ignore[return-value] # it doesn't respect TypeGuard!?

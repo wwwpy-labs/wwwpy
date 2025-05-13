@@ -27,3 +27,11 @@ class IntentAware:
 
     def find(self, ie: IdentifyIntentEvent) -> Intent | None:
         raise NotImplemented()
+
+
+def find_intent(ie: IdentifyIntentEvent) -> Intent | None:
+    for extension in IntentAware.EP_LIST.extensions:
+        intent = extension.find(ie)
+        if intent:
+            return intent
+    return None
