@@ -480,7 +480,7 @@ class Fixture:
 
 @pytest.fixture()
 def fixture():
-    injector.default_injector._clear()
+    injector._clear()
     intent_aware.register_bindings()
     palette.register_extension_point()
     am = IntentManager()
@@ -491,4 +491,4 @@ def fixture():
         yield f
     finally:
         f.intent_manager.uninstall()
-        injector.default_injector._clear()
+        injector._clear()

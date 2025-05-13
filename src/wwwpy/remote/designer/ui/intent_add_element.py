@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AddElementIntent(Intent):
-    element_def: ElementDef
+    element_def: ElementDef = None
 
     @property
     def label(self) -> str:
