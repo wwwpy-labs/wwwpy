@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
+from typing import TypeVar, Any, Type, TypeGuard, Callable
 
 import js
 from js import document
@@ -84,10 +85,12 @@ class AnimationFrameTracker:
         return self._raf_id is not None
 
 
-_instanceof = js.eval('(i,t) => i instanceof t')
+_instanceof: Callable[[..., ...], bool] = js.eval('(i,t) => i instanceof t')
+
+T = TypeVar('T')
 
 
-def is_instance_of(instance, js_type):
+def is_instance_of(instance: Any, js_type: Type[T]) -> TypeGuard[T]:
     """Check if the instance is of the given JavaScript type.
     Example: is_instance_of(js.document, js.HTMLDocument) will return True.
     """
