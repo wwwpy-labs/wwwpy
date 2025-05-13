@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IdentifyIntentEvent:
-    js_event: js.PointerEvent
     target: js.Element
+    js_event: js.PointerEvent
 
 
 def register_bindings():

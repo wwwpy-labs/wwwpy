@@ -151,6 +151,6 @@ def _request_identification(js_event: js.PointerEvent) -> Tuple[js.HTMLElement |
     if target is None:
         return None, None
 
-    ie = IdentifyIntentEvent(js_event, target)
+    ie = IdentifyIntentEvent(target, js_event, )
     intent = find_intent(ie)
     return target, intent  # type: ignore[return-value] # it doesn't respect TypeGuard!?
