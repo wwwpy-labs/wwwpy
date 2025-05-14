@@ -11,7 +11,7 @@ from pyodide.ffi import create_proxy
 from tests.remote.rpc4tests_helper import rpctst_exec
 from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
-from wwwpy.remote.designer.ui import intent_aware, palette
+from wwwpy.remote.designer.ui import palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
 from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
@@ -481,7 +481,6 @@ class Fixture:
 @pytest.fixture()
 def fixture():
     injector._clear()
-    intent_aware.register_bindings()
     palette.register_extension_point()
     am = IntentManager()
     injector.bind(am)
