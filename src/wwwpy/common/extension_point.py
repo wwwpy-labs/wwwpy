@@ -12,17 +12,21 @@ class ExtensionPointList(Generic[T]):
     extensions: list[T] = field(default_factory=list)
 
 
-class EPRegistry(Generic[T]):
+class ExtensionPointRegistry(Generic[T]):
 
     def __init__(self, owner: type[T]):
         self._owner = owner
-        self.extensions: list[T] = []
+        self._extensions: list[T] = []
         self.base_type = owner
+
+    @property
+    def extensions(self) -> tuple[T, ...]:
+        return tuple(self._extensions)
 
     def register(self, extension: T):
         if not isinstance(extension, self.base_type):
             raise ExtensionPointError(f'Expected {self.base_type}, got {type(extension)}')
-        self.extensions.append(extension)
+        self._extensions.append(extension)
 
 
 class ExtensionPointError(Exception):
@@ -33,7 +37,7 @@ class ep_registry:
 
     def __init__(self):
         self._name = None
-        self._ep_registry: EPRegistry[...] = None
+        self._ep_registry: ExtensionPointRegistry[...] = None
 
     def __set_name__(self, owner, name):
         self._name = name
@@ -46,9 +50,9 @@ class ep_registry:
                 raise ExtensionPointError(f'Locally defined class are not supported. Cannot introspect {owner}')
             self._class_decl_frame = None
             descr_type = ann.get(self._name, None)
-            self._ep_registry = EPRegistry(owner)
-            if not descr_type is EPRegistry[owner]:
-                raise ExtensionPointError(f'Expected {EPRegistry[owner]}, got {descr_type}')
+            self._ep_registry = ExtensionPointRegistry(owner)
+            if not descr_type is ExtensionPointRegistry[owner]:
+                raise ExtensionPointError(f'Expected {ExtensionPointRegistry[owner]}, got {descr_type}')
         return self._ep_registry
 
     def __set__(self, instance, value):
