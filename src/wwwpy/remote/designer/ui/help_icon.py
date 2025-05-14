@@ -9,7 +9,6 @@ from wwwpy.remote import dict_to_js
 class HelpIcon(wpc.Component, tag_name='wwwpy-help-icon'):
     _link: js.HTMLElement = wpc.element()
     href: str = wpc.attribute()
-    button1: js.HTMLButtonElement = wpc.element()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -29,8 +28,7 @@ class HelpIcon(wpc.Component, tag_name='wwwpy-help-icon'):
         <text x="9" y="9" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold" font-size="12">?</text>
     </symbol>
 </svg>   
-
-<button data-name="button1">button1</button><a data-name="_link" style="text-decoration: none" target="_blank">
+<a data-name="_link" style="text-decoration: none" target="_blank">
 <svg class="help-icon"><use href="#help-icon"/></svg></a>
 """
         self._update_href()
