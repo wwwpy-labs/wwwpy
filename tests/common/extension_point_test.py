@@ -5,61 +5,65 @@ import pytest
 from wwwpy.common.extension_point import EPRegistry, ep_registry, ExtensionPointError
 
 
-def test_should_introspect_the_correct_class():
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[SomeInterface] = ep_registry()
+class SomeInterface1:
+    EP_REGISTRY: EPRegistry[SomeInterface1] = ep_registry()
 
-    assert SomeInterface.EP_REGISTRY.base_type is SomeInterface
+
+def test_should_introspect_the_correct_class():
+    assert SomeInterface1.EP_REGISTRY.base_type is SomeInterface1
+
+
+class SomeGlobal: ...
+
+
+class SomeInterface2:
+    EP_REGISTRY: EPRegistry[SomeGlobal] = ep_registry()
 
 
 def test_the_generic_type_must_be_the_same_as_the_owner():
-    class Some: ...
-
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[Some] = ep_registry()
-
     with pytest.raises(ExtensionPointError):
-        x = SomeInterface.EP_REGISTRY
+        x = SomeInterface2.EP_REGISTRY
 
 
-def test_the_generic_type_must_be_the_same_as_the_owner_decl_after():
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[Some] = ep_registry()
-
-    class Some: ...
-
-    with pytest.raises(ExtensionPointError):
-        x = SomeInterface.EP_REGISTRY
+class SomeInterface3:
+    EP_REGISTRY: EPRegistry[SomeInterface3] = ep_registry()
 
 
 def test_should_return_correct_instance():
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[SomeInterface] = ep_registry()
-
-    instance = SomeInterface.EP_REGISTRY
-    assert instance is SomeInterface.EP_REGISTRY
+    instance = SomeInterface3.EP_REGISTRY
+    assert instance is SomeInterface3.EP_REGISTRY
     assert isinstance(instance, EPRegistry)
 
 
-def test_register():
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[SomeInterface] = ep_registry()
+class SomeInterface4:
+    EP_REGISTRY: EPRegistry[SomeInterface4] = ep_registry()
 
-    class SomeImpl(SomeInterface):
+
+def test_register():
+    class SomeImpl(SomeInterface4):
         pass
 
     impl = SomeImpl()
-    SomeInterface.EP_REGISTRY.register(impl)
+    SomeInterface4.EP_REGISTRY.register(impl)
 
-    assert [impl] == SomeInterface.EP_REGISTRY.extensions
+    assert [impl] == SomeInterface4.EP_REGISTRY.extensions
+
+
+class SomeInterface5:
+    EP_REGISTRY: EPRegistry[SomeInterface5] = ep_registry()
 
 
 def test_register_should_be_type_safe():
-    class SomeInterface:
-        EP_REGISTRY: EPRegistry[SomeInterface] = ep_registry()
-
     class Some:
         pass
 
     with pytest.raises(ExtensionPointError):
-        SomeInterface.EP_REGISTRY.register(Some())
+        SomeInterface5.EP_REGISTRY.register(Some())
+
+
+def test_locally_defined_extension_point_are_not_supported():
+    class SomeInterface:
+        EP_REGISTRY: EPRegistry[SomeInterface] = ep_registry()
+
+    with pytest.raises(ExtensionPointError):
+        x = SomeInterface.EP_REGISTRY

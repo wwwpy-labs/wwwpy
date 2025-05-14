@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 from dataclasses import dataclass, field
 from typing import TypeVar, Generic
 
@@ -35,15 +34,16 @@ class ep_registry:
     def __init__(self):
         self._name = None
         self._ep_registry: EPRegistry[...] = None
-        # this serve to capture the locals where the class is defined
-        self._class_decl_frame = sys._getframe(2)
 
     def __set_name__(self, owner, name):
         self._name = name
 
     def __get__(self, instance, owner):
         if self._ep_registry is None:
-            ann = inspect.get_annotations(owner, eval_str=True, locals=self._class_decl_frame.f_locals)
+            try:
+                ann = inspect.get_annotations(owner, eval_str=True)
+            except:
+                raise ExtensionPointError(f'Locally defined class are not supported. Cannot introspect {owner}')
             self._class_decl_frame = None
             descr_type = ann.get(self._name, None)
             self._ep_registry = EPRegistry(owner)
