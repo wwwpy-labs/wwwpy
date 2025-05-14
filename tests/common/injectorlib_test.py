@@ -183,6 +183,18 @@ class TestStaticAccess:
         assert Class1.EP_LIST is pet
         assert Class1().EP_LIST is pet
 
+    def MAYBE_TODO_test_static_binding_with_self_reference_generic(self, fixture):
+        """Don't know how to implement this"""
+
+        class Class1:
+            some: list[Class1] = inject()
+
+        l = list[Class1]()
+        injector.bind(l)
+
+        some = Class1.some
+        assert some is l
+
     def test_static_binding_dc(self, fixture):
         @dataclass
         class Class1:
