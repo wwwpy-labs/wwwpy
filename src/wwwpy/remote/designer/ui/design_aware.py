@@ -5,14 +5,14 @@ from wwwpy.remote.designer.ui.intent import HoverEvent
 
 
 class DesignAware:
-    EP_LIST: ExtensionPointRegistry[DesignAware] = ep_registry()
+    EP_REGISTRY: ExtensionPointRegistry[DesignAware] = ep_registry()
 
     def is_designer(self, hover_event: HoverEvent) -> bool | None:
         return False
 
 
 def is_designer(hover_event: HoverEvent) -> bool:
-    for ep in DesignAware.EP_LIST:
+    for ep in DesignAware.EP_REGISTRY:
         if ep.is_designer(hover_event) is True:
             return True
     return False

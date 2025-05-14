@@ -28,7 +28,7 @@ _sidebar_design_aware = _SidebarDesignAware()
 
 
 def register_extension_point():
-    DesignAware.EP_LIST.register(_sidebar_design_aware)
+    DesignAware.EP_REGISTRY.register(_sidebar_design_aware)
 
 
 _BODY_PADDING_STYLE_ID = '_wwwpy_body_padding_style'

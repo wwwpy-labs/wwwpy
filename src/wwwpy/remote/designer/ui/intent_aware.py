@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class IntentAware:
-    EP_LIST: ExtensionPointRegistry[IntentAware] = ep_registry()
+    EP_REGISTRY: ExtensionPointRegistry[IntentAware] = ep_registry()
 
     def find(self, hover_event: HoverEvent) -> Intent | None:
         raise NotImplemented()
 
 
 def find_intent(hover_event: HoverEvent) -> Intent | None:
-    for extension in IntentAware.EP_LIST:
+    for extension in IntentAware.EP_REGISTRY:
         intent = extension.find(hover_event)
         if intent:
             return intent
