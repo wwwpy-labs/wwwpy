@@ -67,3 +67,18 @@ def test_locally_defined_extension_point_are_not_supported():
 
     with pytest.raises(ExtensionPointError):
         x = SomeInterface.EP_REGISTRY
+
+
+class SomeInterface6:
+    EP_REGISTRY: ExtensionPointRegistry[SomeInterface6] = ep_registry()
+
+
+def test_should_be_iterable():
+    class SomeImpl(SomeInterface6):
+        pass
+
+    impl = SomeImpl()
+    SomeInterface6.EP_REGISTRY.register(impl)
+
+    assert impl in SomeInterface6.EP_REGISTRY
+    assert len(SomeInterface6.EP_REGISTRY) == 1

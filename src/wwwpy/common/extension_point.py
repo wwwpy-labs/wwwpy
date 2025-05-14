@@ -28,6 +28,12 @@ class ExtensionPointRegistry(Generic[T]):
             raise ExtensionPointError(f'Expected {self.base_type}, got {type(extension)}')
         self._extensions.append(extension)
 
+    def __iter__(self):
+        return iter(self._extensions)
+
+    def __len__(self):
+        return len(self._extensions)
+
 
 class ExtensionPointError(Exception):
     pass
