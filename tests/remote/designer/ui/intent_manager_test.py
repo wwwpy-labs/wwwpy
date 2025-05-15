@@ -9,6 +9,7 @@ import pytest
 from pyodide.ffi import create_proxy
 
 from tests.remote.rpc4tests_helper import rpctst_exec
+from wwwpy.common._raise_on_any import RaiseOnAny, roa_get_config
 from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui import palette
@@ -480,14 +481,24 @@ class Fixture:
 
 @pytest.fixture()
 def fixture():
-    injector._clear()
-    palette.register_extension_point()
-    am = IntentManager()
-    injector.bind(am)
-    f = Fixture()
-    f.intent_manager.install()
+    f: Fixture
+    try:
+        injector._clear()
+        palette.extension_point_register()
+        am = IntentManager()
+        injector.bind(am)
+        f = Fixture()
+        f.intent_manager.install()
+    except Exception as e:
+        logger.exception('RaiseOnAny!')
+        raise_on_any = RaiseOnAny(f'RaiseOnAny=`{e}`')
+        raise_config = roa_get_config(raise_on_any)
+        raise_config.accept('intent_manager', 'palette', 'div1', 'intent1', 'intent2')
+        f = raise_on_any  # noqa
     try:
         yield f
     finally:
-        f.intent_manager.uninstall()
+        if not isinstance(f, RaiseOnAny):
+            f.intent_manager.uninstall()
+        palette.extension_point_unregister()
         injector._clear()

@@ -31,8 +31,12 @@ class _PaletteIntentAware(IntentAware):
 _palette_design_aware = _PaletteIntentAware()
 
 
-def register_extension_point():
+def extension_point_register():
     IntentAware.EP_REGISTRY.register(_palette_design_aware)
+
+
+def extension_point_unregister():
+    IntentAware.EP_REGISTRY.unregister(_palette_design_aware)
 
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
