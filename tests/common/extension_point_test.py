@@ -107,3 +107,25 @@ def test_clear():
 
     # THEN
     assert len(SomeInterface6.EP_REGISTRY) == 0
+
+
+class SomeInterface8:
+    EP_REGISTRY: ExtensionPointRegistry[SomeInterface8] = ep_registry()
+
+
+def test_unregister():
+    # GIVEN
+    class SomeImpl(SomeInterface8): ...
+
+    impl = SomeImpl()
+    SomeInterface8.EP_REGISTRY.register(impl)
+
+    # WHEN
+    first_removal = SomeInterface8.EP_REGISTRY.unregister(impl)
+
+    # THEN
+    assert first_removal is True
+    assert len(SomeInterface8.EP_REGISTRY) == 0
+
+    first_removal = SomeInterface8.EP_REGISTRY.unregister(impl)
+    assert first_removal is False

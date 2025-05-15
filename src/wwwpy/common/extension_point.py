@@ -22,6 +22,12 @@ class ExtensionPointRegistry(Generic[T]):
 
         self._extensions.append(extension)
 
+    def unregister(self, extension: T) -> bool:
+        remove = extension in self._extensions
+        if remove:
+            self._extensions.remove(extension)
+        return remove
+
     def _clear(self):
         """Used in tests to clear the registry"""
         self._extensions.clear()
