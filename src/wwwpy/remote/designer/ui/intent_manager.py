@@ -9,7 +9,6 @@ from wwwpy.common.type_listener import TypeListeners, DictListeners
 from wwwpy.remote.designer.ui.intent import PMEvent, TPE, IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
-from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +141,6 @@ T = TypeVar('T', bound=IntentEvent)
 
 
 def _request_identification(js_event: js.PointerEvent) -> Tuple[IntentEvent, Intent | None]:
-    target = get_deepest_element(js_event.clientX, js_event.clientY)
-    event = IntentEvent(js_event, target)
+    event = IntentEvent(js_event)
     intent = find_intent(event)
     return event, intent

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TypeVar
 
 import js
@@ -16,7 +17,11 @@ TPE = TypeVar('TPE', bound=PMEvent)
 @dataclass
 class IntentEvent(PMEvent):
     js_event: js.PointerEvent
-    deep_target: js.HTMLElement | None
+
+    @cached_property
+    def deep_target(self) -> js.HTMLElement | None:
+        from wwwpy.remote.jslib import get_deepest_element
+        return get_deepest_element(self.js_event.clientX, self.js_event.clientY)
 
 
 @dataclass
