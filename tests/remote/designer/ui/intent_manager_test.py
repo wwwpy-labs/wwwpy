@@ -14,7 +14,7 @@ from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui import palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.intent import TPE, IntentEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
@@ -279,14 +279,14 @@ class TestEvents:
         intent_manager.current_selection = intent1
 
         # THEN
-        assert intent1.events == ['intent1:on_selected']
+        assert intent1.events == ['on_selected']
 
     async def test_on_select__click(self, intent_manager, intent1):
         # WHEN
         await rpctst_exec("page.locator('#intent1').click()")
 
         # THEN
-        assert intent1.events == ['intent1:on_selected']
+        assert intent1.events == ['on_selected']
 
     async def test_on_hover__hover(self, intent_manager, intent1, div1):
         # WHEN
@@ -297,7 +297,7 @@ class TestEvents:
         await rpctst_exec("page.locator('#div1').hover()")
 
         # THEN
-        assert intent1.events == ['intent1:on_hover']
+        assert intent1.events == ['on_hover']
 
     async def test_on_execute__drag(self, intent_manager, intent1, div1):
         # GIVEN
@@ -307,8 +307,7 @@ class TestEvents:
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
 
         # THEN
-        assert intent1.events == ['intent1:on_selected', 'intent1:on_hover', 'intent1:on_execute',
-                                  'intent1:on_deselect']
+        assert intent1.events == ['on_selected', 'on_hover', 'on_execute', 'on_deselect']
 
     async def test_on_execute__click(self, intent_manager, intent1, div1):
         # GIVEN
@@ -320,7 +319,7 @@ class TestEvents:
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert intent1.events == ['intent1:on_hover', 'intent1:on_execute', 'intent1:on_deselect']
+        assert intent1.events == ['on_hover', 'on_execute', 'on_deselect']
 
     async def test_on_execute__drag_reject(self, intent_manager, intent1, div1):
         # GIVEN
@@ -330,7 +329,7 @@ class TestEvents:
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
 
         # THEN
-        assert intent1.events == ['intent1:on_selected', 'intent1:on_hover', 'intent1:on_execute']
+        assert intent1.events == ['on_selected', 'on_hover', 'on_execute']
 
     async def test_on_execute__click_reject(self, intent_manager, intent1, div1):
         # GIVEN
@@ -342,19 +341,19 @@ class TestEvents:
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert intent1.events == ['intent1:on_hover', 'intent1:on_execute']
+        assert intent1.events == ['on_hover', 'on_execute']
 
-    async def test_change_selection_with_drag(self, intent1, intent2, div1, intent_events):
+    async def test_change_selection_with_drag(self, intent1, intent2, div1, all_intent_events):
         # GIVEN
         await rpctst_exec(["page.locator('#intent1').click()"])
         x, y = element_xy_center(div1)
-        intent_events.clear()
+        all_intent_events.clear()
 
         # WHEN
         await rpctst_exec(["page.locator('#intent2').hover()", "page.mouse.down()", f"page.mouse.move({x}, {y})"])
 
         # THEN
-        assert intent_events == ['intent1:on_deselect', 'intent2:on_selected', 'intent2:on_hover', ]
+        assert all_intent_events == ['intent1:on_deselect', 'intent2:on_selected', 'intent2:on_hover', ]
 
 
 @pytest.fixture
@@ -375,44 +374,21 @@ def div1(fixture): yield fixture.div1
 
 
 @pytest.fixture
-def events(fixture): yield fixture.events
-
-
-@pytest.fixture
-def intent_events(fixture):
-    yield fixture.intent_events
-
-
-class EventFixture:
-    def __init__(self):
-        self._events = []
-
-    def add(self, event):
-        self._events.append(event)
-
-    def filter(self, event_type: type[TPE]) -> list[TPE]:
-        return [event for event in self._events if isinstance(event, event_type)]
-
-    @property
-    def hover_events(self) -> list[IntentEvent]:
-        return self.filter(IntentEvent)
-
-    @property
-    def intent_changed_events(self) -> list[IntentChangedEvent]:
-        return self.filter(IntentChangedEvent)
+def all_intent_events(fixture):
+    yield fixture.all_intent_events
 
 
 @dataclass
 class IntentFake(Intent):
-    intent_events: list = None
+    all_events: list = None
     events: list = field(default_factory=list)
     submit_result = False
     submit_calls: list = field(default_factory=list)
 
     def _ev(self, kind):
+        self.events.append(kind)
         e = f'{self.label}:{kind}'
-        self.events.append(e)
-        self.intent_events.append(e)
+        self.all_events.append(e)
 
     def on_selected(self): self._ev('on_selected')
 
@@ -438,14 +414,14 @@ class Fixture:
 
     def _add_intent(self, label: str) -> IntentFake:
         intent = IntentFake(label)
-        intent.intent_events = self.intent_events
+        intent.all_events = self.all_intent_events
         palette_item = self._palette.add_intent(intent)
         palette_item.element.id = label
         intent.element = palette_item.element
         return intent
 
     @cached_property
-    def intent_events(self) -> list:
+    def all_intent_events(self) -> list:
         return []
 
     @cached_property
@@ -463,12 +439,6 @@ class Fixture:
         div1.textContent = 'hello'
         js.document.body.appendChild(div1)
         return div1
-
-    @property
-    def events(self) -> EventFixture:
-        ef = EventFixture()
-        self.intent_manager._listeners.catch_all.add(lambda e: ef.add(e))
-        return ef
 
 
 @pytest.fixture()
