@@ -49,7 +49,7 @@ class IntentManager:
             self.current_selection = intent
 
     def _on_pointer_down(self, event: PointerDown):
-        submit_event, intent = _request_identification(event.js_event, IntentEvent)
+        intent_event, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_down {intent} state={self.drag_state}')
         if intent:
             self._ready_item = intent
@@ -58,11 +58,11 @@ class IntentManager:
             se = self.current_selection
             if se is not None:
                 event.stop()
-                if se.on_submit(submit_event):
+                if se.on_submit(intent_event):
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
-        hover_event, intent = _request_identification(event.js_event, IntentEvent)
+        intent_event, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_move {intent} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
@@ -72,13 +72,13 @@ class IntentManager:
         if intent:
             return
 
-        self._notify(hover_event)
+        self._notify(intent_event)
         se = self.current_selection
         if se is not None:
-            se.on_hover(hover_event)
+            se.on_hover(intent_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        submit_event, intent = _request_identification(event.js_event, IntentEvent)
+        intent_event, intent = _request_identification(event.js_event)
         logger.debug(f'_on_pointer_up {intent} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
@@ -96,7 +96,7 @@ class IntentManager:
                 # (just enough) and release on the intent itself
             se = self.current_selection
             if se is not None:
-                if se.on_submit(submit_event):
+                if se.on_submit(intent_event):
                     self.current_selection = None
 
     @property
@@ -141,8 +141,8 @@ def _pretty(node):
 T = TypeVar('T', bound=IntentEvent)
 
 
-def _request_identification(js_event: js.PointerEvent, event_type: type[T]) -> Tuple[T, Intent | None]:
+def _request_identification(js_event: js.PointerEvent) -> Tuple[IntentEvent, Intent | None]:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
-    event = event_type(js_event, target)
+    event = IntentEvent(js_event, target)
     intent = find_intent(event)
     return event, intent
