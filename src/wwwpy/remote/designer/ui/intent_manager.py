@@ -6,7 +6,7 @@ from typing import Tuple, TypeVar
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.intent import PMEvent, TPE, IntentEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent import PMEvent, IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 
@@ -35,7 +35,7 @@ class IntentManager:
     def drag_state(self) -> str:
         return self._pointer_api.drag_state
 
-    def on(self, event_type: type[TPE]) -> TypeListeners[TPE]:
+    def on(self, event_type: type[IntentChangedEvent]) -> TypeListeners[IntentChangedEvent]:
         return self._listeners.on(event_type)
 
     def _notify(self, ev: PMEvent) -> None:

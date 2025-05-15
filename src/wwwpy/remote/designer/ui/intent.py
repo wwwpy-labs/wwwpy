@@ -44,6 +44,6 @@ class Intent:
 
 
 @dataclass
-class IntentChangedEvent(PMEvent):
+class IntentChangedEvent:
     old: Intent | None
     new: Intent | None
