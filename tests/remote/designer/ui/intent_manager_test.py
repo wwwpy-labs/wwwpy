@@ -87,7 +87,7 @@ class TestUseSelection:
     async def test_selection_and_click__accept_should_deselect(self, intent_manager, intent1, div1, events):
         # GIVEN
         intent_manager.current_selection = intent1
-        intent_manager.on(SubmitEvent).add(lambda ev: ev.accept())
+        intent1.submit_result = True
 
         # WHEN
         await rpctst_exec("page.locator('#div1').click()")
@@ -152,7 +152,7 @@ class TestDrag:
     async def test_no_selection_drag_and_drop__accept_should_deselect(self, intent_manager, intent1, div1, events):
         # GIVEN
         intent_manager.current_selection = None
-        intent_manager.on(SubmitEvent).add(lambda ev: ev.accept())
+        intent1.submit_result = True  # could be more discriminating on 'div1'
 
         # WHEN
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
@@ -254,7 +254,7 @@ class TestStopEvents:
     async def test_stop_event(self, intent_manager, intent1, event_type, div1):
         # GIVEN
         intent_manager.current_selection = intent1
-        intent_manager.on(SubmitEvent).add(lambda ev: ev.accept())
+        intent1.submit_result = True
 
         events = []
         div1.addEventListener(event_type, create_proxy(lambda ev: events.append(ev)))
