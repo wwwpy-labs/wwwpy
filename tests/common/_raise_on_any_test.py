@@ -56,3 +56,23 @@ def test_accept_multiple():
 
     a1 = x.attr1
     a2 = x.attr2
+
+
+def test_str():
+    x = RaiseOnAny('msg1')
+
+    s = str(x)
+    assert 'msg1' in s
+
+
+def test_str_nested():
+    x = RaiseOnAny('msg1')
+    roa_get_config(x).accept('attr1')
+    s = str(x.attr1)
+
+    assert 'msg1' in s
+    assert 'attr1' in s
+
+    r = repr(x.attr1)
+    assert 'msg1' in r
+    assert 'attr1' in r

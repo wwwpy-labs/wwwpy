@@ -15,10 +15,13 @@ class RaiseOnAny:
     def __getattribute__(self, name):
         return roa_get_config(self).process(name)
 
+    def __repr__(self):
+        return f'RaiseOnAny({roa_get_config(self).nested_message()})'
+
 
 @dataclass
 class Config:
-    message: str
+    message: str | None = None
     parent: Config | None = None
     sub_attr: str = 'self'
     accept_set: set[str] = field(default_factory=set)
@@ -29,23 +32,31 @@ class Config:
 
     def nested(self, name: str) -> RaiseOnAny | None:
         if name in self.accept_set:
-            return RaiseOnAny(config=Config(self.message, self, name))
+            return RaiseOnAny(config=Config(None, self, name))
         return None
 
     def process(self, name):
         n = self.nested(name)
         if n:
             return n
+        msg = self.nested_message(name)
+        raise Exception(msg)
 
+    def nested_message(self, name: str | None = None) -> str:
         attrs = []
         c = self
-        while c:
+        while True:
             attrs.insert(0, c.sub_attr)
-            c = c.parent
-        attrs.append(name)
+            if c.parent:
+                c = c.parent
+            else:
+                break
+
+        if name:
+            attrs.append(name)
         name_fqn = '.'.join(attrs)
-        msg = f'{self.message} - Failed on `{name_fqn}` attribute'
-        raise Exception(msg)
+        msg = f'{c.message} - Failures on `{name_fqn}` attribute'
+        return msg
 
 
 def roa_get_config(i: RaiseOnAny) -> Config:
