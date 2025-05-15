@@ -5,8 +5,8 @@ from typing import Tuple, TypeVar
 
 import js
 
-from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.intent import PMEvent, IntentEvent, Intent, IntentChangedEvent
+from wwwpy.common.type_listener import TypeListeners
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 
@@ -17,7 +17,7 @@ class IntentManager:
 
     def __init__(self) -> None:
         self._current_selection: Intent | None = None
-        self._listeners = DictListeners()
+        self._intent_changed_listeners = TypeListeners(IntentChangedEvent)
         self._ready_item: Intent | None = None
 
         self._pointer_api = PointerApi()
@@ -36,10 +36,9 @@ class IntentManager:
         return self._pointer_api.drag_state
 
     def on(self, event_type: type[IntentChangedEvent]) -> TypeListeners[IntentChangedEvent]:
-        return self._listeners.on(event_type)
-
-    def _notify(self, ev: PMEvent) -> None:
-        self._listeners.notify(ev)
+        if event_type is not IntentChangedEvent:
+            raise TypeError(f'IntentManager only supports {IntentChangedEvent}')
+        return self._intent_changed_listeners
 
     def _toggle_selection(self, intent: Intent):
         if intent == self.current_selection:
@@ -123,7 +122,8 @@ class IntentManager:
         if new:
             new.selected = True
             new.on_selected()
-        self._notify(IntentChangedEvent(old, new))
+
+        self._intent_changed_listeners.notify(IntentChangedEvent(old, new))
 
         logger.debug(msg)
 

@@ -170,9 +170,9 @@ class TestDrag:
         assert intent_manager.current_selection is None
         assert intent_manager.drag_state == DragFsm.IDLE
 
-    async def TODO_test_no_selection_drag_and_drop__should_emit_Drag(self, intent_manager, intent1, div1, events):
+    async def test_no_selection_drag_and_drop(self, intent_manager, intent1, div1):
         # GIVEN
-        #
+        intent1.submit_result = True
 
         # WHEN
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
@@ -180,9 +180,9 @@ class TestDrag:
         # THEN
         assert intent_manager.current_selection is None
 
-        assert len(events.drop_events) == 1, 'one drag event expected'
-        assert events.drop_events[0].source_element is intent1
-        assert events.drop_events[0].target_element is div1
+        assert intent1.events == ['on_selected', 'on_hover', 'on_execute', 'on_deselect']
+        assert intent1.full_events[1].deep_target == div1
+        assert intent1.full_events[2].deep_target == div1
 
     async def test_no_select_not_enough_drag__should_not_select(self, intent_manager, intent1):
         # GIVEN
@@ -391,22 +391,24 @@ def all_intent_events(fixture):
 class IntentFake(Intent):
     all_events: list = None
     events: list = field(default_factory=list)
+    full_events: list[IntentEvent | str] = field(default_factory=list)
     submit_result = False
     submit_calls: list = field(default_factory=list)
     element: js.HTMLElement = None
 
-    def _ev(self, kind):
+    def _ev(self, kind, event: IntentEvent = None):
         self.events.append(kind)
         e = f'{self.label}:{kind}'
         self.all_events.append(e)
+        self.full_events.append(event or kind)
 
     def on_selected(self): self._ev('on_selected')
 
-    def on_hover(self, event: IntentEvent): self._ev('on_hover')
+    def on_hover(self, event: IntentEvent): self._ev('on_hover', event)
 
     def on_submit(self, event: IntentEvent) -> bool:
         self.submit_calls.append(event)
-        self._ev('on_execute')
+        self._ev('on_execute', event)
         return self.submit_result
 
     def on_deselected(self): self._ev('on_deselect')
