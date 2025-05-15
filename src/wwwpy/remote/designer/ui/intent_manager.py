@@ -71,7 +71,6 @@ class IntentManager:
         if intent:
             return
 
-        self._notify(intent_event)
         se = self.current_selection
         if se is not None:
             se.on_hover(intent_event)

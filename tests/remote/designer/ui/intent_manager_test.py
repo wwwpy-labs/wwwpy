@@ -220,7 +220,7 @@ class TestHover:
         assert events.hover_events == [], 'hover event emitted'
         assert intent2.events == []
 
-    async def test_selected_and_hover_on_div1__should_emit_Hover(self, intent_manager, intent1, div1, events):
+    async def test_selected_and_hover_on_div1__should_emit_Hover(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = intent1
 
@@ -230,9 +230,9 @@ class TestHover:
         # THEN
         assert intent_manager.current_selection is intent1  # should still be selected
 
-        self._assert_hover_events_arrived_ok(events)
+        self._assert_intent_events_arrived_ok(intent1)
 
-    async def test_drag_and_hover_on_div1__should_emit_Hover(self, intent_manager, intent1, div1, events):
+    async def test_drag_and_hover_on_div1__should_emit_Hover(self, intent_manager, intent1, div1):
         # GIVEN
         await rpctst_exec(["page.locator('#intent1').hover()", "page.mouse.down()"])
         logger.debug(f'drag state={intent_manager.drag_state}')
@@ -240,13 +240,10 @@ class TestHover:
         await rpctst_exec(["page.locator('#div1').hover()"])
 
         # THEN
-        self._assert_hover_events_arrived_ok(events)
+        self._assert_intent_events_arrived_ok(intent1)
 
-    def _assert_hover_events_arrived_ok(self, events: EventFixture):
-        assert events.hover_events != [], f'hover event not emitted innerHTML: `{js.document.body.innerHTML}`'
-        for e in events.hover_events:
-            assert e.js_event is not None, 'event should be set'
-            assert e.js_event.target is not None, 'target should be set'
+    def _assert_intent_events_arrived_ok(self, intent_fake: IntentFake):
+        assert intent_fake.events != [], f'events not emitted innerHTML: `{js.document.body.innerHTML}`'
 
 
 class TestStopEvents:
