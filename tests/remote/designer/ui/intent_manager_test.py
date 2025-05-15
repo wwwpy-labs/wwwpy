@@ -30,7 +30,7 @@ async def test_palette_click_intent__should_be_selected(intent_manager, intent1)
 
     assert intent_manager.current_selection == intent1
     assert intent1.selected
-    assert intent1.events != []
+    assert intent1.events == ['on_selected']
 
 
 async def test_manual_selection(intent_manager, intent1):
@@ -38,7 +38,7 @@ async def test_manual_selection(intent_manager, intent1):
 
     assert intent_manager.current_selection == intent1
     assert intent1.selected
-    assert intent1.events != []
+    assert intent1.events == ['on_selected']
 
 
 async def test_palette_click_twice_intent__should_be_deselected(intent_manager, intent1):
@@ -46,14 +46,23 @@ async def test_palette_click_twice_intent__should_be_deselected(intent_manager, 
 
     assert intent_manager.current_selection is None
     assert not intent1.selected
+    assert intent1.events == ['on_selected', 'on_deselect']
 
 
-async def test_palette_selecting_different_intent__should_deselect_previous(intent_manager, intent1, intent2):
-    await rpctst_exec(["page.locator('#intent1').click()", "page.locator('#intent2').click()"])
+async def test_palette_selecting_different_intent__should_deselect_previous(intent_manager, intent1, intent2,
+                                                                            all_intent_events):
+    # GIVEN
+    await rpctst_exec(["page.locator('#intent1').click()"])
+    all_intent_events.clear()
 
+    # WHEN
+    await rpctst_exec(["page.locator('#intent2').click()"])
+
+    # THEN
     assert intent_manager.current_selection == intent2
     assert not intent1.selected
     assert intent2.selected
+    assert all_intent_events == ['intent1:on_deselect', 'intent2:on_selected']
 
 
 async def test_palette_should_put_elements_on_screen(intent1, intent2):
@@ -384,6 +393,7 @@ class IntentFake(Intent):
     events: list = field(default_factory=list)
     submit_result = False
     submit_calls: list = field(default_factory=list)
+    element: js.HTMLElement = None
 
     def _ev(self, kind):
         self.events.append(kind)
