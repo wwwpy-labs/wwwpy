@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from functools import cached_property
 
 import js
 
@@ -12,7 +13,6 @@ from wwwpy.remote.designer.ui.design_aware import is_designer
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
-from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -24,25 +24,26 @@ class SelectElementIntent(Intent):
     icon: str = 'select_element_icon'
 
     def on_hover(self, event: IntentEvent):
+        logger.debug(f'on_hover {event}')
         self._set_selection_from_js_event(event)
 
-    def on_submit(self, event: IntentEvent):
+    def on_submit(self, event: IntentEvent) -> bool:
+        logger.debug(f'on_submit {event}')
         target = self._set_selection_from_js_event(event)
         has_target = target is not None
         if has_target:
             self._set_toolbox_selection(target)
-            event.accept()
         return has_target
 
-    def _set_selection_from_js_event(self, hover_event: IntentEvent):
-        event = hover_event.js_event
-
-        target = get_deepest_element(event.clientX, event.clientY)
+    def _set_selection_from_js_event(self, intent_event: IntentEvent):
+        event = intent_event.js_event
+        target = intent_event.deep_target
         if target is None:
             logger.warning(f'set_selection: target is None {dict_to_py(event)}')
             return
 
-        element_selector: ElementSelector = injector.get(ElementSelector)
+        # element_selector: ElementSelector = injector.get(ElementSelector)
+        element_selector: ElementSelector = self._element_selector
         if not element_selector.element.isConnected:
             js.document.body.appendChild(element_selector.element)
 
@@ -51,7 +52,7 @@ class SelectElementIntent(Intent):
             return
 
         # unselectable = is_contained(target, self._palette.element)
-        unselectable = is_designer(hover_event)
+        unselectable = is_designer(intent_event)
         if unselectable or target == js.document.body or target == js.document.documentElement:
             target = None
 
@@ -73,6 +74,10 @@ class SelectElementIntent(Intent):
             injector.get(CanvasSelection).current_selection = ep_source
         else:
             logger.warning(message)
+
+    @cached_property
+    def _element_selector(self) -> ElementSelector:
+        return ElementSelector()
 
 
 def _pretty(node: js.HTMLElement):
