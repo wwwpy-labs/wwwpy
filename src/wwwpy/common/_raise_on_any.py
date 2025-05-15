@@ -1,4 +1,4 @@
-class ThrowOnAny:
+class RaiseOnAny:
     def __init__(self, message):
         self._message = message
 
