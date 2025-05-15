@@ -10,14 +10,14 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js, hotkeylib
 from wwwpy.remote._elementlib import ensure_tag_instance
 from wwwpy.remote.designer.ui.design_aware import DesignAware
-from wwwpy.remote.designer.ui.intent import HoverEvent
+from wwwpy.remote.designer.ui.intent import IntentEvent
 
 logger = logging.getLogger(__name__)
 
 
 class _SidebarDesignAware(DesignAware):
 
-    def is_designer(self, hover_event: HoverEvent) -> bool | None:
+    def is_designer(self, hover_event: IntentEvent) -> bool | None:
         target = hover_event.deep_target
         if target is None:
             return None

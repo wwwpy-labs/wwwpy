@@ -18,7 +18,7 @@ from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
 from wwwpy.remote.designer.ui.design_aware import is_designer
 from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater
-from wwwpy.remote.designer.ui.intent import SubmitEvent, HoverEvent, Intent
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
 from wwwpy.remote.designer.ui.toolbox import _open_error_reporter_window
 from wwwpy.remote.jslib import get_deepest_element, is_instance_of
@@ -34,10 +34,10 @@ class AddElementIntent(Intent):
         self._tool = DropIndicatorFloater()
         self._tool.transition = True
 
-    def on_hover(self, event: HoverEvent):
+    def on_hover(self, event: IntentEvent):
         self._set_selection_from_js_event(event)
 
-    def on_submit(self, event: SubmitEvent) -> bool:
+    def on_submit(self, event: IntentEvent) -> bool:
         target, position = self._set_selection_from_js_event(event)
         if target is not None:
             if is_instance_of(target, js.HTMLElement):
@@ -49,7 +49,7 @@ class AddElementIntent(Intent):
                 js.alert('Target is not an HTMLElement')
         return False
 
-    def _set_selection_from_js_event(self, hover_event: HoverEvent):
+    def _set_selection_from_js_event(self, hover_event: IntentEvent):
         event = hover_event.js_event
 
         target = get_deepest_element(event.clientX, event.clientY)

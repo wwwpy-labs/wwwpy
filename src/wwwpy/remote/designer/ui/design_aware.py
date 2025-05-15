@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from wwwpy.common.extension_point import ExtensionPointRegistry, ep_registry
-from wwwpy.remote.designer.ui.intent import HoverEvent
+from wwwpy.remote.designer.ui.intent import IntentEvent
 
 
 class DesignAware:
     EP_REGISTRY: ExtensionPointRegistry[DesignAware] = ep_registry()
 
-    def is_designer(self, hover_event: HoverEvent) -> bool | None:
+    def is_designer(self, hover_event: IntentEvent) -> bool | None:
         return False
 
 
-def is_designer(hover_event: HoverEvent) -> bool:
+def is_designer(hover_event: IntentEvent) -> bool:
     for ep in DesignAware.EP_REGISTRY:
         if ep.is_designer(hover_event) is True:
             return True

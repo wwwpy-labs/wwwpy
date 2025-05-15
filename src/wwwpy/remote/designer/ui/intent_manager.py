@@ -6,7 +6,7 @@ from typing import Tuple, TypeVar
 import js
 
 from wwwpy.common.type_listener import TypeListeners, DictListeners
-from wwwpy.remote.designer.ui.intent import PMEvent, TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent import PMEvent, TPE, IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_aware import find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 from wwwpy.remote.jslib import get_deepest_element
@@ -49,7 +49,7 @@ class IntentManager:
             self.current_selection = intent
 
     def _on_pointer_down(self, event: PointerDown):
-        submit_event, intent = _request_identification(event.js_event, SubmitEvent)
+        submit_event, intent = _request_identification(event.js_event, IntentEvent)
         logger.debug(f'_on_pointer_down {intent} state={self.drag_state}')
         if intent:
             self._ready_item = intent
@@ -62,7 +62,7 @@ class IntentManager:
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
-        hover_event, intent = _request_identification(event.js_event, HoverEvent)
+        hover_event, intent = _request_identification(event.js_event, IntentEvent)
         logger.debug(f'_on_pointer_move {intent} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
@@ -78,7 +78,7 @@ class IntentManager:
             se.on_hover(hover_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        submit_event, intent = _request_identification(event.js_event, SubmitEvent)
+        submit_event, intent = _request_identification(event.js_event, IntentEvent)
         logger.debug(f'_on_pointer_up {intent} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
@@ -138,7 +138,7 @@ def _pretty(node):
     return str(node)
 
 
-T = TypeVar('T', bound=HoverEvent)
+T = TypeVar('T', bound=IntentEvent)
 
 
 def _request_identification(js_event: js.PointerEvent, event_type: type[T]) -> Tuple[T, Intent | None]:

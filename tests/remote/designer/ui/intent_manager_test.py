@@ -14,7 +14,7 @@ from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui import palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.intent import TPE, SubmitEvent, HoverEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent import TPE, IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.palette import PaletteComponent
 
@@ -399,8 +399,8 @@ class EventFixture:
         return [event for event in self._events if isinstance(event, event_type)]
 
     @property
-    def hover_events(self) -> list[HoverEvent]:
-        return self.filter(HoverEvent)
+    def hover_events(self) -> list[IntentEvent]:
+        return self.filter(IntentEvent)
 
     @property
     def intent_changed_events(self) -> list[IntentChangedEvent]:
@@ -421,9 +421,9 @@ class IntentFake(Intent):
 
     def on_selected(self): self._ev('on_selected')
 
-    def on_hover(self, event: HoverEvent): self._ev('on_hover')
+    def on_hover(self, event: IntentEvent): self._ev('on_hover')
 
-    def on_submit(self, event: SubmitEvent) -> bool:
+    def on_submit(self, event: IntentEvent) -> bool:
         self.submit_calls.append(event)
         self._ev('on_execute')
         return self.submit_result

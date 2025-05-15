@@ -10,25 +10,13 @@ import js
 class PMEvent: ...
 
 
-@dataclass
-class PMJsEvent(PMEvent):
-    js_event: js.PointerEvent
-
-
 TPE = TypeVar('TPE', bound=PMEvent)
 
 
 @dataclass
-class HoverEvent(PMJsEvent):
+class IntentEvent(PMEvent):
+    js_event: js.PointerEvent
     deep_target: js.HTMLElement | None
-
-
-@dataclass
-class SubmitEvent(HoverEvent):
-    accepted: bool = False
-
-    def accept(self):
-        self.accepted = True
 
 
 @dataclass
@@ -41,9 +29,9 @@ class Intent:
 
     def on_selected(self): ...
 
-    def on_hover(self, event: HoverEvent): ...
+    def on_hover(self, event: IntentEvent): ...
 
-    def on_submit(self, event: SubmitEvent) -> bool: ...
+    def on_submit(self, event: IntentEvent) -> bool: ...
 
     """If return True, the intent is deselected, if False, it is not."""
 
