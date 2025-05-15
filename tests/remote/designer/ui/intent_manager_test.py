@@ -203,6 +203,7 @@ class TestDrag:
 
         # THEN
         assert intent_manager.current_selection is intent1
+        assert intent1.events == ['on_selected']
 
 
 class TestDragTouch:
