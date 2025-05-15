@@ -37,16 +37,17 @@ class AddElementIntent(Intent):
     def on_hover(self, event: HoverEvent):
         self._set_selection_from_js_event(event)
 
-    def on_submit(self, event: SubmitEvent):
+    def on_submit(self, event: SubmitEvent) -> bool:
         target, position = self._set_selection_from_js_event(event)
         if target is not None:
             if is_instance_of(target, js.HTMLElement):
                 target: js.HTMLElement
                 self._add_element(target, position)
-                event.accept()
+                return True
             else:
                 logger.warning(f'set_selection: target is not a HTMLElement {dict_to_py(target)}')
                 js.alert('Target is not an HTMLElement')
+        return False
 
     def _set_selection_from_js_event(self, hover_event: HoverEvent):
         event = hover_event.js_event

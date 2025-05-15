@@ -28,9 +28,11 @@ class SelectElementIntent(Intent):
 
     def on_submit(self, event: SubmitEvent):
         target = self._set_selection_from_js_event(event)
-        if target is not None:
+        has_target = target is not None
+        if has_target:
             self._set_toolbox_selection(target)
             event.accept()
+        return has_target
 
     def _set_selection_from_js_event(self, hover_event: HoverEvent):
         event = hover_event.js_event

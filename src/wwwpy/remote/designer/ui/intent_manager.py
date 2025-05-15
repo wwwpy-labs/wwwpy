@@ -58,8 +58,7 @@ class IntentManager:
             se = self.current_selection
             if se is not None:
                 event.stop()
-                se.on_submit(submit_event)
-                if submit_event.accepted:
+                if se.on_submit(submit_event):
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
@@ -97,8 +96,7 @@ class IntentManager:
                 # (just enough) and release on the intent itself
             se = self.current_selection
             if se is not None:
-                se.on_submit(submit_event)
-                if submit_event.accepted:
+                if se.on_submit(submit_event):
                     self.current_selection = None
 
     @property

@@ -423,11 +423,10 @@ class IntentFake(Intent):
 
     def on_hover(self, event: HoverEvent): self._ev('on_hover')
 
-    def on_submit(self, event: SubmitEvent):
+    def on_submit(self, event: SubmitEvent) -> bool:
         self.submit_calls.append(event)
         self._ev('on_execute')
-        if self.submit_result:
-            event.accept()
+        return self.submit_result
 
     def on_deselected(self): self._ev('on_deselect')
 
