@@ -1,17 +1,58 @@
 import pytest
 
-from wwwpy.common._raise_on_any import RaiseOnAny
+from wwwpy.common._raise_on_any import RaiseOnAny, roa_get_config
 
 
 def test_throw_on_any_access_and_call():
-    msg = 'This is not yet implemented'
+    msg = 'Some message 123'
     x = RaiseOnAny(msg)
     with pytest.raises(Exception) as excinfo1:
         x.some()
-    assert str(excinfo1.value) == msg
+    assert msg in str(excinfo1.value)
+
     with pytest.raises(Exception) as excinfo2:
         _ = x.attr1
-    assert str(excinfo2.value) == msg
+    assert msg in str(excinfo2.value)
+
     with pytest.raises(Exception) as excinfo3:
         x.anything()
-    assert str(excinfo3.value) == msg
+    assert msg in str(excinfo3.value)
+
+
+def test_accept_should_notRaise():
+    x = RaiseOnAny('msg1')
+    roa_get_config(x).accept('attr1')
+
+    attr1 = x.attr1  # noqa
+
+
+def test_accept_should_return_RaiseOnAny():
+    x = RaiseOnAny('msg1')
+    roa_get_config(x).accept('attr1')
+
+    attr1 = x.attr1
+
+    assert isinstance(attr1, RaiseOnAny)
+
+    with pytest.raises(Exception):
+        attr1.some()
+
+
+def test_accept_give_nice_message():
+    x = RaiseOnAny('msg1')
+    roa_get_config(x).accept('attr1')
+
+    with pytest.raises(Exception) as excinfo:
+        x.attr1.some()
+
+    s = str(excinfo.value)
+    assert 'msg1' in s
+    assert 'attr1.some' in s
+
+
+def test_accept_multiple():
+    x = RaiseOnAny('msg1')
+    roa_get_config(x).accept('attr1', 'attr2')
+
+    a1 = x.attr1
+    a2 = x.attr2

@@ -10,9 +10,9 @@ from wwwpy.remote.designer import element_path
 try:
     from wwwpy.server.designer import rpc
 except ImportError:
-    from wwwpy.common._throw_on_any import ThrowOnAny
+    from wwwpy.common._raise_on_any import RaiseOnAny
 
-    rpc = ThrowOnAny('During testing this rpc is not (yet) configured')  # todo
+    rpc = RaiseOnAny('During testing this rpc is not (yet) configured')  # todo
 
 
 async def _rpc_save(el_path: ElementPath, new_source: str):
