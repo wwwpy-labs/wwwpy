@@ -46,7 +46,7 @@ def test_register():
     impl = SomeImpl()
     SomeInterface4.EP_REGISTRY.register(impl)
 
-    assert (impl,) == SomeInterface4.EP_REGISTRY.extensions
+    assert (impl,) == tuple(SomeInterface4.EP_REGISTRY)
 
 
 class SomeInterface5:
@@ -82,3 +82,20 @@ def test_should_be_iterable():
 
     assert impl in SomeInterface6.EP_REGISTRY
     assert len(SomeInterface6.EP_REGISTRY) == 1
+
+
+class SomeInterface7:
+    EP_REGISTRY: ExtensionPointRegistry[SomeInterface7] = ep_registry()
+
+
+def test_clear():
+    # GIVEN
+    class SomeImpl(SomeInterface7): ...
+
+    SomeInterface7.EP_REGISTRY.register(SomeImpl())
+
+    # WHEN
+    SomeInterface6.EP_REGISTRY._clear()
+
+    # THEN
+    assert len(SomeInterface6.EP_REGISTRY) == 0

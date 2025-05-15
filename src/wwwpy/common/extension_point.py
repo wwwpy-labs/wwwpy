@@ -13,14 +13,14 @@ class ExtensionPointRegistry(Generic[T]):
         self._extensions: list[T] = []
         self.base_type = owner
 
-    @property
-    def extensions(self) -> tuple[T, ...]:
-        return tuple(self._extensions)
-
     def register(self, extension: T):
         if not isinstance(extension, self.base_type):
             raise ExtensionPointError(f'Expected {self.base_type}, got {type(extension)}')
         self._extensions.append(extension)
+
+    def _clear(self):
+        """Used in tests to clear the registry"""
+        self._extensions.clear()
 
     def __iter__(self):
         return iter(self._extensions)
