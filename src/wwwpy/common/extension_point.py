@@ -16,6 +16,10 @@ class ExtensionPointRegistry(Generic[T]):
     def register(self, extension: T):
         if not isinstance(extension, self.base_type):
             raise ExtensionPointError(f'Expected {self.base_type}, got {type(extension)}')
+
+        if extension in self._extensions:
+            raise ExtensionPointError(f'Extension {extension} already registered')
+
         self._extensions.append(extension)
 
     def _clear(self):

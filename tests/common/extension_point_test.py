@@ -40,13 +40,21 @@ class SomeInterface4:
 
 
 def test_register():
+    # GIVEN
     class SomeImpl(SomeInterface4):
         pass
 
     impl = SomeImpl()
+
+    # WHEN
     SomeInterface4.EP_REGISTRY.register(impl)
 
+    # THEN
     assert (impl,) == tuple(SomeInterface4.EP_REGISTRY)
+
+    # WHEN/THEN
+    with pytest.raises(ExtensionPointError):
+        SomeInterface4.EP_REGISTRY.register(impl)
 
 
 class SomeInterface5:
