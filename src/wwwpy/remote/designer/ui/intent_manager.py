@@ -56,7 +56,6 @@ class IntentManager:
             event.start_drag()
         else:
             se = self.current_selection
-            self._notify(submit_event)
             if se is not None:
                 event.stop()
                 se.on_submit(submit_event)
@@ -96,7 +95,6 @@ class IntentManager:
             if intent:
                 return  # this return is not under test; when we pointerdown on an intent, and drag
                 # (just enough) and release on the intent itself
-            self._notify(submit_event)
             se = self.current_selection
             if se is not None:
                 se.on_submit(submit_event)

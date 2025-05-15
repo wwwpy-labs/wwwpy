@@ -81,7 +81,7 @@ class TestUseSelection:
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert len(events.accept_events) == 1
+        assert len(intent1.submit_calls) == 1
         assert intent_manager.current_selection is intent1
 
     async def test_selection_and_click__accept_should_deselect(self, intent_manager, intent1, div1, events):
@@ -93,7 +93,7 @@ class TestUseSelection:
         await rpctst_exec("page.locator('#div1').click()")
 
         # THEN
-        assert len(events.accept_events) == 1
+        assert len(intent1.submit_calls) == 1
         assert intent_manager.current_selection is None
 
 
@@ -403,10 +403,6 @@ class EventFixture:
         return self.filter(HoverEvent)
 
     @property
-    def accept_events(self) -> list[SubmitEvent]:
-        return self.filter(SubmitEvent)
-
-    @property
     def intent_changed_events(self) -> list[IntentChangedEvent]:
         return self.filter(IntentChangedEvent)
 
@@ -416,6 +412,7 @@ class IntentFake(Intent):
     intent_events: list = None
     events: list = field(default_factory=list)
     submit_result = False
+    submit_calls: list = field(default_factory=list)
 
     def _ev(self, kind):
         e = f'{self.label}:{kind}'
@@ -427,6 +424,7 @@ class IntentFake(Intent):
     def on_hover(self, event: HoverEvent): self._ev('on_hover')
 
     def on_submit(self, event: SubmitEvent):
+        self.submit_calls.append(event)
         self._ev('on_execute')
         if self.submit_result:
             event.accept()
