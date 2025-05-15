@@ -25,20 +25,20 @@ async def test_palette_no_selected_intent(intent_manager):
     assert intent_manager.current_selection is None
 
 
-async def test_palette_click_intent__should_be_selected(intent_manager, intent1, events):
+async def test_palette_click_intent__should_be_selected(intent_manager, intent1):
     await rpctst_exec("page.locator('#intent1').click()")
 
     assert intent_manager.current_selection == intent1
     assert intent1.selected
-    assert events.intent_changed_events != []
+    assert intent1.events != []
 
 
-async def test_manual_selection(intent_manager, intent1, events):
+async def test_manual_selection(intent_manager, intent1):
     intent_manager.current_selection = intent1
 
     assert intent_manager.current_selection == intent1
     assert intent1.selected
-    assert events.intent_changed_events != []
+    assert intent1.events != []
 
 
 async def test_palette_click_twice_intent__should_be_deselected(intent_manager, intent1):
@@ -73,7 +73,7 @@ async def test_externally_select_different_intent(intent_manager, intent1, inten
 
 
 class TestUseSelection:
-    async def test_selection_and_click__reject_should_not_deselect(self, intent_manager, intent1, div1, events):
+    async def test_selection_and_click__reject_should_not_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = intent1
 
@@ -84,7 +84,7 @@ class TestUseSelection:
         assert len(intent1.submit_calls) == 1
         assert intent_manager.current_selection is intent1
 
-    async def test_selection_and_click__accept_should_deselect(self, intent_manager, intent1, div1, events):
+    async def test_selection_and_click__accept_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = intent1
         intent1.submit_result = True
@@ -149,7 +149,7 @@ class TestDrag:
         assert intent_manager.current_selection is intent2
         assert intent_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_no_selection_drag_and_drop__accept_should_deselect(self, intent_manager, intent1, div1, events):
+    async def test_no_selection_drag_and_drop__accept_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = None
         intent1.submit_result = True  # could be more discriminating on 'div1'
@@ -207,8 +207,7 @@ class TestDragTouch:
 
 class TestHover:
 
-    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, intent_manager, intent1, intent2,
-                                                                        events):
+    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, intent_manager, intent1, intent2):
         # GIVEN
         intent_manager.current_selection = intent1
 
@@ -217,7 +216,6 @@ class TestHover:
 
         # THEN
         assert intent_manager.current_selection is intent1  # should still be selected
-        assert events.hover_events == [], 'hover event emitted'
         assert intent2.events == []
 
     async def test_selected_and_hover_on_div1__should_emit_Hover(self, intent_manager, intent1, div1):
