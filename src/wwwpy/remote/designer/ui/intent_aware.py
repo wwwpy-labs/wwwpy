@@ -15,9 +15,9 @@ class IntentAware:
         raise NotImplemented()
 
 
-def find_intent(hover_event: IntentEvent) -> Intent | None:
+def find_intent(intent_event: IntentEvent) -> Intent | None:
     for extension in IntentAware.EP_REGISTRY:
-        intent = extension.find(hover_event)
+        intent = extension.find(intent_event)
         if intent:
             return intent
     return None
