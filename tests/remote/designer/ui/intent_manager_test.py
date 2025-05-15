@@ -103,7 +103,7 @@ class TestDrag:
 
     async def test_selected_drag__accepted_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
-        intent1.accept_execute = True
+        intent1.submit_result = True
         intent_manager.current_selection = intent1
 
         # WHEN
@@ -306,7 +306,7 @@ class TestEvents:
 
     async def test_on_execute__drag(self, intent_manager, intent1, div1):
         # GIVEN
-        intent1.accept_execute = True
+        intent1.submit_result = True
 
         # WHEN
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
@@ -317,7 +317,7 @@ class TestEvents:
 
     async def test_on_execute__click(self, intent_manager, intent1, div1):
         # GIVEN
-        intent1.accept_execute = True
+        intent1.submit_result = True
         intent_manager.current_selection = intent1
         intent1.events.clear()
 
@@ -329,7 +329,7 @@ class TestEvents:
 
     async def test_on_execute__drag_reject(self, intent_manager, intent1, div1):
         # GIVEN
-        intent1.accept_execute = False
+        intent1.submit_result = False
 
         # WHEN
         await rpctst_exec("page.locator('#intent1').drag_to(page.locator('#div1'))")
@@ -339,7 +339,7 @@ class TestEvents:
 
     async def test_on_execute__click_reject(self, intent_manager, intent1, div1):
         # GIVEN
-        intent1.accept_execute = False
+        intent1.submit_result = False
         intent_manager.current_selection = intent1
         intent1.events.clear()
 
@@ -415,7 +415,7 @@ class EventFixture:
 class IntentFake(Intent):
     intent_events: list = None
     events: list = field(default_factory=list)
-    accept_execute = False
+    submit_result = False
 
     def _ev(self, kind):
         e = f'{self.label}:{kind}'
@@ -428,7 +428,7 @@ class IntentFake(Intent):
 
     def on_submit(self, event: SubmitEvent):
         self._ev('on_execute')
-        if self.accept_execute:
+        if self.submit_result:
             event.accept()
 
     def on_deselected(self): self._ev('on_deselect')
