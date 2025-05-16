@@ -92,4 +92,6 @@ def build_document(svg: str, attribute_mutator: AttributeMutator) -> str:
     root = ET.fromstring(svg)
     for elem in root.iter():
         attribute_mutator(elem.attrib)
-    return ET.tostring(root, encoding='unicode')
+    out = ET.tostring(root, encoding='unicode')
+    out = out.replace('ns0:', '').replace('xmlns:ns0=', 'xmlns=')
+    return out

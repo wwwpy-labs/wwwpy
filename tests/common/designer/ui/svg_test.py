@@ -29,6 +29,9 @@ def test_change_stroke_color():
         if elem.tag.endswith('path'):
             assert elem.attrib['stroke'] == '#000000'
 
+    assert 'ns0:' not in result
+    assert 'xmlns="http://www.w3.org/2000/svg"' in result
+
 
 def test_add_data_test_attribute():
     def mutator(attrs):
@@ -38,3 +41,6 @@ def test_add_data_test_attribute():
     root = ET.fromstring(result)
     for elem in root.iter():
         assert elem.attrib.get('data-test') == '1'
+
+    assert 'ns0:' not in result
+    assert 'xmlns="http://www.w3.org/2000/svg"' in result
