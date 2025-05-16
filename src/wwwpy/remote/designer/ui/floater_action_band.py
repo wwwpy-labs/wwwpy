@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import logging
+
 import js
 from pyodide.ffi import create_proxy
 
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
+from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
+
+logger = logging.getLogger(__name__)
 
 
 class ActionBandFloater(Floater, tag_name='action-band-floater'):
@@ -56,7 +61,7 @@ class ActionBandFloater(Floater, tag_name='action-band-floater'):
             {'label': 'Move up', 'icon': '↑'},
             {'label': 'Move down', 'icon': '↓'},
             {'label': 'Edit', 'icon': '✏️'},
-            {'label': 'Delete', 'icon': '🗑️'}
+            {'label': 'Delete', 'icon': '🗑️', 'function': _delete_element},
         ]
 
         for data in button_data:
@@ -66,7 +71,7 @@ class ActionBandFloater(Floater, tag_name='action-band-floater'):
             button.textContent = data['icon']
 
             # Create a proxy function to handle the click event
-            def create_button_click_handler(action_label):
+            def create_button_click_handler(action_label, data=data):
                 def button_click_handler(e):
                     e.stopPropagation()
                     # Dispatch a custom event when a toolbar button is clicked
@@ -79,6 +84,11 @@ class ActionBandFloater(Floater, tag_name='action-band-floater'):
                             }
                         }))
                     )
+                    fun = data.get('function', None)
+                    if fun:
+                        fun()
+                    else:
+                        js.alert(f"Button clicked: {data['label']}")
 
                 return button_click_handler
 
@@ -126,3 +136,31 @@ class ActionBandFloater(Floater, tag_name='action-band-floater'):
         self.toolbar_element.style.visibility = 'visible'
         self.toolbar_element.style.left = f"{toolbar_x}px"
         self.toolbar_element.style.top = f"{toolbar_y}px"
+
+
+def _delete_element():
+    from wwwpy.common.asynclib import create_task_safe
+    from wwwpy.common.designer.canvas_selection import CanvasSelection
+    from wwwpy.common.designer.code_edit import remove_element
+    from wwwpy.common.designer.html_locator import path_to_index
+    el_path = injector.get(CanvasSelection).current_selection
+    if not el_path:
+        return
+    from wwwpy.common import modlib
+    file = modlib._find_module_path(el_path.class_module)
+    old_source = file.read_text()
+
+    path_index = path_to_index(el_path.path)
+    remove_result = remove_element(old_source, el_path.class_name, path_index)
+    if not remove_result:
+        js.alert('Something went wrong')
+        return
+
+    logger.debug(f'write_module_file len={len(remove_result)} el_path={el_path}')
+
+    async def write_source_file():
+        from wwwpy.server.designer import rpc
+        write_res = await rpc.write_module_file(el_path.class_module, remove_result)
+        logger.debug(f'write_module_file res={write_res}')
+
+    create_task_safe((write_source_file()))
