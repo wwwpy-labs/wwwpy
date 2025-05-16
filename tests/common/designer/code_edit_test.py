@@ -1,4 +1,4 @@
-from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_component, add_method, \
+from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
     remove_class_attribute
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
@@ -187,14 +187,15 @@ class MyElement2(wpc.Component):
 path01 = [0, 1]
 
 
-def test_add_component():
-    original_source = """
+class TestAddElement:
+    def test_simple(self):
+        original_source = """
 class MyElement(wpc.Component):
     def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    expected_source = """
+        expected_source = """
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def init_component(self):
@@ -202,20 +203,19 @@ class MyElement(wpc.Component):
 <btn data-name="btn1"></btn></div>'''
     """
 
-    component_def = ElementDef('btn', 'js.Some')
-    add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
+        component_def = ElementDef('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert _remove_import(add_result.source_code) == expected_source
+        assert _remove_import(add_result.source_code) == expected_source
 
-
-def test_add_component_gen_html():
-    original_source = """
+    def test_gen_html(self):
+        original_source = """
 class MyElement:
     def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    expected_source = """
+        expected_source = """
 class MyElement:
     btn1: js.Some = wpc.element()
     def init_component(self):
@@ -223,47 +223,45 @@ class MyElement:
 <btn data-name="btn1" attr1="bar"></btn></div>'''
     """
 
-    def gen_html(element_def, data_name):
-        return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        def gen_html(element_def, data_name):
+            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
 
-    component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
-    add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
+        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
+        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    assert _remove_import(add_result.source_code) == expected_source
+        assert _remove_import(add_result.source_code) == expected_source
 
-
-def test_add_component_node_path__afterend():
-    original_source = """
+    def test_node_path__afterend(self):
+        original_source = """
 class MyElement:
     def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    def gen_html(element_def, data_name):
-        return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        def gen_html(element_def, data_name):
+            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
 
-    component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
-    add_result = add_component(original_source, 'MyElement', component_def, path01, Position.afterend)
+        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
+        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-    expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1', 'attr1': 'bar'})]
-    assert add_result.node_path == expected_node_path
+        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1', 'attr1': 'bar'})]
+        assert add_result.node_path == expected_node_path
 
-
-def test_add_component_node_path__beforebegin():
-    original_source = """
+    def test_node_path__beforebegin(self):
+        original_source = """
 class MyElement:
     def init_component(self):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-    def gen_html(element_def, data_name):
-        return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        def gen_html(element_def, data_name):
+            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
 
-    component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
-    add_result = add_component(original_source, 'MyElement', component_def, path01, Position.beforebegin)
+        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
+        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.beforebegin)
 
-    expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1', 'attr1': 'bar'})]
-    assert add_result.node_path == expected_node_path
+        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1', 'attr1': 'bar'})]
+        assert add_result.node_path == expected_node_path
 
 
 def test_add_method():
@@ -351,7 +349,7 @@ def placeholder_test_error_reporter():
     exc = serialization.from_json(err1, AddComponentExceptionReport)
     print(f'exc: {exc}')
     ed = element_library().by_tag_name(exc.tag_name)
-    result = add_component(exc.source_code_orig, exc.class_name, ed, exc.index_path, exc.position)
+    result = add_element(exc.source_code_orig, exc.class_name, ed, exc.index_path, exc.position)
     if isinstance(result, AddFailed):
         raise result.exception
 

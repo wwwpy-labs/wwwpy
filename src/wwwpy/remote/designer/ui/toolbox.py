@@ -14,7 +14,7 @@ import wwwpy.remote.component as wpc
 from wwwpy.common import state, modlib
 from wwwpy.common.designer import element_library
 from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
-from wwwpy.common.designer.code_edit import add_component, AddResult, AddFailed
+from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
@@ -190,7 +190,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         old_source = file.read_text()
 
         path_index = path_to_index(el_path.path)
-        add_result = add_component(old_source, el_path.class_name, element_def, path_index, drop_zone.position)
+        add_result = add_element(old_source, el_path.class_name, element_def, path_index, drop_zone.position)
 
         if isinstance(add_result, AddResult):
             logger.debug(f'write_module_file len={len(add_result.source_code)} el_path={el_path}')

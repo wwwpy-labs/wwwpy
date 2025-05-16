@@ -6,7 +6,7 @@ import js
 from wwwpy.common import modlib
 from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.designer.canvas_selection import CanvasSelection
-from wwwpy.common.designer.code_edit import add_component, AddResult, AddFailed
+from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import ElementDef
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
@@ -102,7 +102,7 @@ def _add_component(el_path: ElementPath, position: Position,
     old_source = file.read_text()
 
     path_index = path_to_index(el_path.path)
-    add_result = add_component(old_source, el_path.class_name, element_def, path_index, position)
+    add_result = add_element(old_source, el_path.class_name, element_def, path_index, position)
 
     if isinstance(add_result, AddResult):
         logger.debug(f'write_module_file len={len(add_result.source_code)} el_path={el_path}')
