@@ -10,7 +10,7 @@ from wwwpy.common.designer import code_info, html_parser, html_locator
 from wwwpy.common.designer.code_info import Attribute
 from wwwpy.common.designer.code_strings import html_string_edit
 from wwwpy.common.designer.element_library import ElementDef
-from wwwpy.common.designer.html_edit import Position, html_add_indexed
+from wwwpy.common.designer.html_edit import Position, html_add_indexed, html_remove_indexed
 from wwwpy.common.designer.html_locator import NodePath, IndexPath
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,7 @@ def remove_class_attribute(source_code: str, class_name: str, attr_name: str) ->
     modified_tree = module.visit(transformer)
 
     return modified_tree.code
+
 
 def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
     source_code_imp = ensure_imports(source_code)
@@ -340,3 +341,19 @@ def _split_on_future_import(source_code: str) -> tuple[list[str], list[str]]:
     pre = lines[:future_index + 1]
     post = lines[future_index + 1:]
     return pre, post
+
+
+def remove_element(source_code: str, class_name: str, index_path: IndexPath) -> str | None:
+    source_code_orig = source_code
+
+    class_info = code_info.class_info(source_code, class_name)
+    if class_info is None:
+        print(f'Class {class_name} not found inside source ```{source_code}```')
+        return None
+
+    def manipulate_html(html):
+        add = html_remove_indexed(html, index_path)
+        return add
+
+    source2 = html_string_edit(source_code, class_name, manipulate_html)
+    return source2

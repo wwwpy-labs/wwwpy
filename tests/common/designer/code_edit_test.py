@@ -1,5 +1,5 @@
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
-    remove_class_attribute
+    remove_class_attribute, remove_element
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
 from wwwpy.common.designer.code_info import info
@@ -262,6 +262,44 @@ class MyElement:
 
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1', 'attr1': 'bar'})]
         assert add_result.node_path == expected_node_path
+
+
+class TestRemoveElement:
+    def test_html_and_no_python_attribute(self):
+        original_source = """
+class MyElement(wpc.Component):
+    def init_component(self):
+        self.element.innerHTML = '''<div></div><div id='target'></div>'''
+    """
+
+        expected_source = """
+class MyElement(wpc.Component):
+    def init_component(self):
+        self.element.innerHTML = '''<div></div>'''
+    """
+
+        result = remove_element(original_source, 'MyElement', [1])
+
+        assert _remove_import(result) == expected_source
+
+    def TODO_test_html_with_attr(self):
+        original_source = """
+class MyElement(wpc.Component):
+    btn1: js.Some = wpc.element()
+    def init_component(self):
+        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
+<btn data-name="btn1"></btn></div>'''
+    """
+
+        expected_source = """
+class MyElement(wpc.Component):
+    def init_component(self):
+        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
+    """
+
+        result = remove_element(original_source, 'MyElement', [0, 2])
+
+        assert _remove_import(result) == expected_source
 
 
 def test_add_method():
