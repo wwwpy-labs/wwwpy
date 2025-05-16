@@ -16,6 +16,8 @@ class IntentAware:
 
 
 def find_intent(intent_event: IntentEvent) -> Intent | None:
+    if intent_event.deep_target is None:
+        return None
     for extension in IntentAware.EP_REGISTRY:
         intent = extension.find(intent_event)
         if intent:
