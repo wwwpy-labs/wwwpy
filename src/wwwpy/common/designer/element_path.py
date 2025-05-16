@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
-from wwwpy.common.designer.html_locator import NodePath
+from wwwpy.common.designer.html_locator import NodePath, data_name
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +38,9 @@ class ElementPath:
         return self.path[-1].tag_name
 
     @property
-    def data_name(self) -> Optional[str]:
+    def data_name(self) -> str | None:
         """The name of the element in the data dictionary."""
-        if len(self.path) == 0:
-            return None
-        return self.path[-1].attributes.get('data-name', None)
+        return data_name(self.path)
 
     def valid(self) -> bool:
         from wwwpy.common.designer import code_strings as cs, html_locator as hl

@@ -31,6 +31,12 @@ NodePath = List[Node]
 """This is the path from the root to a node in the DOM tree."""
 
 
+def data_name(path: NodePath) -> str | None:
+    """The name of the element in the data dictionary."""
+    if len(path) == 0:
+        return None
+    return path[-1].attributes.get('data-name', None)
+
 def path_to_index(path: NodePath) -> IndexPath:
     return [node.child_index for node in path]
 
