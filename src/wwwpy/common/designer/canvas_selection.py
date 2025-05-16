@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.type_listener import TypeListeners
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -31,4 +34,6 @@ class CanvasSelection:
     def current_selection(self, value: ElementPath | None):
         old = self._current_selection
         self._current_selection = value
-        self.on_change.notify(CanvasSelectionChangeEvent(old, value))
+        event = CanvasSelectionChangeEvent(old, value)
+        logger.debug(f'CanvasSelection: {old} -> {value}')
+        self.on_change.notify(event)

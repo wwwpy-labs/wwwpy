@@ -59,7 +59,6 @@ class SelectElementIntent(Intent):
         if element_selector.get_selected_element() == target:
             return target
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
-        js.console.log('set_selection console', event, event.composedPath())
         element_selector.set_selected_element(target)
         return target
 

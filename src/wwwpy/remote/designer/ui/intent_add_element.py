@@ -65,7 +65,6 @@ class AddElementIntent(Intent):
         # if self._selected == target:
         #     return target
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
-        js.console.log('set_selection console', event, event.composedPath())
         position = None
         if target:
             rect = target.getBoundingClientRect()
