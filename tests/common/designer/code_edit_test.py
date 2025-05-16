@@ -282,22 +282,21 @@ class MyElement(wpc.Component):
 
         assert _remove_import(result) == expected_source
 
-    def TODO_test_html_with_attr(self):
+    def test_html_with_attr(self):
         original_source = """
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
-<btn data-name="btn1"></btn></div>'''
+        self.element.innerHTML = '''<div></div><div data-name='btn1'></div>'''
     """
 
         expected_source = """
 class MyElement(wpc.Component):
     def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
+        self.element.innerHTML = '''<div></div>'''
     """
 
-        result = remove_element(original_source, 'MyElement', [0, 2])
+        result = remove_element(original_source, 'MyElement', [1])
 
         assert _remove_import(result) == expected_source
 
