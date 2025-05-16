@@ -1,5 +1,5 @@
 from wwwpy.common.designer.html_edit import html_add, Position, html_edit, html_attribute_set, html_attribute_remove, \
-    html_content_set
+    html_content_set, html_remove_indexed
 from wwwpy.common.designer.html_locator import Node
 
 # language=html
@@ -155,3 +155,17 @@ class TestContentSet:
         actual = html_content_set("<div>old</div>", path, "new")
         # language=html
         assert actual == "<div>new</div>"
+
+
+class TestRemove:
+    def test_remove(self):
+        # language=html
+        actual = html_remove_indexed("<span><hr><div></div>xyz</span>", [0, 1])
+        # language=html
+        assert actual == "<span><hr>xyz</span>"
+
+    def test_remove_almost_empty(self):
+        # language=html
+        actual = html_remove_indexed(" <span><hr></span> ", [0])
+        # language=html
+        assert actual == "  "

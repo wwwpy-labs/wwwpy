@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from enum import Enum
 from html import escape
-from wwwpy.common.designer.html_locator import NodePath, IndexPath, check_node_path
+
 from wwwpy.common.designer import html_locator
+from wwwpy.common.designer.html_locator import NodePath, IndexPath, check_node_path
 
 
 class Position(str, Enum):
@@ -119,3 +120,17 @@ def html_content_set(html: str, node_path: NodePath, value: str) -> str | None:
     left = html[:x]
     right = html[y:]
     return left + value + right
+
+
+def html_remove_indexed(html: str, index_path: IndexPath) -> str:
+    check_node_path(index_path)
+    """This function removes the node specified by the path from the HTML string."""
+
+    node = html_locator.locate_node_indexed(html, index_path)
+    if node is None:
+        return html
+
+    x, y = node.span
+    left = html[:x]
+    right = html[y:]
+    return left + right
