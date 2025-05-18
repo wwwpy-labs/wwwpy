@@ -11,7 +11,7 @@ def test_simple_component(dyn_sys_path):
     comp1_path = dyn_sys_path.write_module2('comp1.py', dedent(
         """
         import wwwpy.common.component as wpc
-        class Comp1(wpc.Component):
+        class Comp1(wpc.Component, tag_name='comp-1'):
             def init_component(self):
                 self.element.innerHTML = '''<div>hello</div>'''
         """
@@ -28,3 +28,5 @@ def test_simple_component(dyn_sys_path):
     div = ci0.cst_tree[0]
     assert div.tag_name == 'div'
     assert div.content == 'hello'
+
+    assert ci0.tag_name == 'comp-1'

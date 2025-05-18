@@ -30,6 +30,8 @@ class ClassInfo:
     methods_by_name: Dict[str, Method] = field(init=False)
     attributes_by_name: Dict[str, Attribute] = field(init=False)
 
+    tag_name: str = field(default='')
+
     def __post_init__(self):
         self.methods_by_name = {method.name: method for method in self.methods}
         self.attributes_by_name = {attr.name: attr for attr in self.attributes}
@@ -86,7 +88,18 @@ class _ClassInfoExtractor(ast.NodeVisitor):
                 methods.append(Method(item.name, item.lineno, item.body[0].lineno))
             elif isinstance(item, ast.AsyncFunctionDef):
                 methods.append(Method(item.name, item.lineno, item.body[0].lineno, True))
-        self.classes.append(ClassInfo(class_name, attributes, methods))
+        tag_name = ''
+        for kw in node.keywords:
+            if kw.arg == 'tag_name':
+                if isinstance(kw.value, ast.Constant):
+                    tag_name = kw.value.value
+                else:
+                    try:
+                        tag_name = ast.literal_eval(kw.value)
+                    except Exception:
+                        tag_name = ast.unparse(kw.value)
+                break
+        self.classes.append(ClassInfo(class_name, attributes, methods, tag_name))
         self.generic_visit(node)
 
     def get_annotation_type(self, annotation):

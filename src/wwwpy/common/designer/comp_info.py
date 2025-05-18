@@ -15,8 +15,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CompInfo:
     class_name: str
+    tag_name: str
     path: Path
     cst_tree: CstTree
+
+
+def iter_comp_info_folder(folder: Path) -> Iterator[CompInfo]:
+    """Iterate over all components in the folder."""
+    for path in folder.glob('*.py'):
+        yield from iter_comp_info(path)
 
 
 def iter_comp_info(path: Path) -> Iterator[CompInfo]:
@@ -33,4 +40,5 @@ def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo) -> Comp
         return None
 
     cst_tree = html_to_tree(html)
-    return CompInfo(class_name, path, cst_tree)
+
+    return CompInfo(class_name, cl.tag_name, path, cst_tree)

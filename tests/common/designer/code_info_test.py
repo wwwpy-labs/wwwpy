@@ -95,3 +95,15 @@ class MyElement(wpc.Component):
 """, 'MyElement')
     expect = ClassInfo('MyElement', [], [Method('button1__click', 5, 6, True)])
     assert target == expect
+
+
+def test_tag_name():
+    target = class_info(
+        """
+import wwwpy.remote.component as wpc
+        
+class MyElement(wpc.Component, tag_name='my-element'):
+    ...
+""", 'MyElement')
+    expect = ClassInfo('MyElement', [], tag_name='my-element')
+    assert target == expect
