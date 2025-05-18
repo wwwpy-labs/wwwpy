@@ -9,17 +9,17 @@ import wwwpy.remote.component as wpc
 from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.component import get_component
+from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent, IntentEvent
-from wwwpy.remote.designer.ui.intent_aware import IntentAware
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
 
-class _PaletteIntentAware(IntentAware):
+class _PaletteIntentAware(DesignAware):
 
-    def find(self, hover_event: IntentEvent):
+    def find_intent(self, hover_event: IntentEvent):
         target = hover_event.deep_target
         res = target.closest(PaletteItemComponent.component_metadata.tag_name)
         if res:
@@ -32,11 +32,11 @@ _palette_design_aware = _PaletteIntentAware()
 
 
 def extension_point_register():
-    IntentAware.EP_REGISTRY.register(_palette_design_aware)
+    DesignAware.EP_REGISTRY.register(_palette_design_aware)
 
 
 def extension_point_unregister():
-    IntentAware.EP_REGISTRY.unregister(_palette_design_aware)
+    DesignAware.EP_REGISTRY.unregister(_palette_design_aware)
 
 
 class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):

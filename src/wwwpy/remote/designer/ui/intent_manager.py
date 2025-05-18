@@ -6,8 +6,8 @@ from typing import Tuple, TypeVar
 import js
 
 from wwwpy.common.type_listener import TypeListeners
+from wwwpy.remote.designer.ui.design_aware import find_intent
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent
-from wwwpy.remote.designer.ui.intent_aware import find_intent
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 
 logger = logging.getLogger(__name__)
