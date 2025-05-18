@@ -8,9 +8,32 @@ from pyodide.ffi import create_proxy
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.floater import Floater
+from wwwpy.remote.designer.ui.intent import IntentEvent
 
 logger = logging.getLogger(__name__)
+
+
+class _DesignAware(DesignAware):
+
+    def is_designer(self, hover_event: IntentEvent) -> bool | None:
+        target = hover_event.deep_target
+        res = target.closest(ActionBandFloater.component_metadata.tag_name)
+        if res:
+            return True
+        return None
+
+
+_design_aware = _DesignAware()
+
+
+def extension_point_register():
+    DesignAware.EP_REGISTRY.register(_design_aware)
+
+
+def extension_point_unregister():
+    DesignAware.EP_REGISTRY.unregister(_design_aware)
 
 
 class ActionBandFloater(Floater, tag_name='action-band-floater'):
