@@ -1,6 +1,7 @@
 import logging
 
 import wwwpy.remote.component as wpc
+import wwwpy.remote.designer.ui.accordion_components  # noqa
 from wwwpy.common.designer.element_library import element_library
 from wwwpy.remote.designer.ui import pushable_sidebar, palette
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
@@ -17,7 +18,10 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
         # language=html
         self.element.innerHTML = """
 <pushable-sidebar data-name="_sidebar" position="left" width="300px">
-    <wwwpy-palette data-name="_palette"></wwwpy-palette>
+    <wwwpy-accordion-section expanded>
+        <div slot="header">Add Components</div>
+        <wwwpy-palette data-name="_palette" style="height: 300px; display: flex"></wwwpy-palette>
+    </wwwpy-accordion-section>
 </pushable-sidebar>
         """
         self._palette.add_intent(SelectElementIntent())
