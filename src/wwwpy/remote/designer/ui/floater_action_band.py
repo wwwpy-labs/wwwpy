@@ -19,6 +19,8 @@ class _DesignAware(DesignAware):
 
     def is_designer(self, hover_event: IntentEvent) -> bool | None:
         target = hover_event.deep_target
+        if not target:
+            return None
         res = target.closest(ActionBandFloater.component_metadata.tag_name)
         if res:
             return True
