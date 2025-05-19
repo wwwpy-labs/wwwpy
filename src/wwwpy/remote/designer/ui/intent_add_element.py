@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AddElementIntent(Intent):
-    element_def: ElementDef = None
+    element_def: ElementDef = None  # todo use ElementDefBase
 
     def __post_init__(self):
         self._tool = DropIndicatorFloater()
