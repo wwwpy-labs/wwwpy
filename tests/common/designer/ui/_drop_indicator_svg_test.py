@@ -13,7 +13,10 @@ def test_valid_xml():
 
 
 def test_svg_should_be_different_from_each_other():
-    a, b, c = map(lambda p: svg_indicator_for(100, 50, p), Position)
+    a, b, c, d = map(lambda p: svg_indicator_for(100, 50, p), Position)
     assert a != b
     assert a != c
     assert b != c
+    assert a != d
+    assert b != d
+    assert c != d
