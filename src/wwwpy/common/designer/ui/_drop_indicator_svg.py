@@ -10,7 +10,7 @@ def position_for(width: float, height: float, x: float, y: float) -> Position:
     x0 = (width - iw) / 2
     y0 = (height - ih) / 2
     if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
-        return Position.inside
+        return Position.beforeend
     if y <= -height / width * x + height:
         return Position.beforebegin
     return Position.afterend
@@ -25,10 +25,10 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     y = (height - ih) / 2
     tl_color = active_color if position == Position.beforebegin else inactive_color
     br_color = active_color if position == Position.afterend else inactive_color
-    rect_color = active_color if position == Position.inside else inactive_color
+    rect_color = active_color if position == Position.beforeend else inactive_color
     tl_width = 6 if position == Position.beforebegin else 2
     br_width = 6 if position == Position.afterend else 2
-    rect_width = 3 if position == Position.inside else 1
+    rect_width = 3 if position == Position.beforeend else 1
     # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
   <g stroke="%(tl_color)s" stroke-width="%(tl_width)s">

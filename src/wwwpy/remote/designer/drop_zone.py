@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, Callable
 
-from js import document, MouseEvent, HTMLElement
 import js
+from js import document, MouseEvent, HTMLElement
 from pyodide.ffi import create_proxy
 
 from wwwpy.common.designer.html_edit import Position
@@ -155,7 +155,7 @@ def _calc_position(event: MouseEvent) -> Position:
     h = rect.height
     w = rect.width
     if w == 0:
-        return Position.inside
+        return Position.beforeend
     m = h / w
     y2 = m * x
     res = Position.afterend if y <= y2 else Position.beforebegin

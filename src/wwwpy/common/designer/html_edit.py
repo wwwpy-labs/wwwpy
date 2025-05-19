@@ -9,7 +9,8 @@ from wwwpy.common.designer.html_locator import NodePath, IndexPath, check_node_p
 
 
 class Position(str, Enum):
-    inside = 'inside'
+    afterbegin = 'afterbegin'
+    beforeend = 'beforeend'
     beforebegin = 'beforebegin'
     afterend = 'afterend'
 
@@ -30,7 +31,24 @@ def html_add_indexed(html: str, add: str, index_path: IndexPath, position: Posit
 
     start, end = html_locator.locate_span_indexed(html, index_path)
 
-    index = start if position == Position.beforebegin else end
+    if position == Position.beforebegin:
+        index = start
+    elif position == Position.afterend:
+        index = end
+    elif position == Position.afterbegin:
+        # Insert just after the opening tag
+        node = html_locator.locate_node_indexed(html, index_path)
+        if node is None or node.content_span is None:
+            return html
+        index = node.content_span[0]
+    elif position == Position.beforeend:
+        # Insert just before the closing tag
+        node = html_locator.locate_node_indexed(html, index_path)
+        if node is None or node.content_span is None:
+            return html
+        index = node.content_span[1]
+    else:
+        raise ValueError(f"Unknown position: {position}")
 
     return html[:index] + add + html[index:]
 

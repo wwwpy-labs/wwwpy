@@ -1,5 +1,5 @@
-from wwwpy.common.designer.html_edit import html_add, Position, html_edit, html_attribute_set, html_attribute_remove, \
-    html_content_set, html_remove_indexed
+from wwwpy.common.designer.html_edit import Position, html_edit, html_attribute_set, html_attribute_remove, \
+    html_content_set, html_remove_indexed, html_add_indexed
 from wwwpy.common.designer.html_locator import Node
 
 # language=html
@@ -8,16 +8,33 @@ path = [Node("div", 0, {'id': 'foo'}), Node("div", 1, {'id': 'target'})]
 
 
 def test_add_beforebegin():
-    actual = html_add(html, 'xyz', path, Position.beforebegin)
+    actual = html_add_indexed(html, 'xyz', [0, 1], Position.beforebegin)
     # language=html
     assert actual == "<div id='foo'><div></div>xyz<div id='target'></div></div>"
 
 
 def test_add_afterend():
-    actual = html_add(html, 'xyz', path, Position.afterend)
+    actual = html_add_indexed(html, 'xyz', [0, 1], Position.afterend)
     # language=html
     assert actual == "<div id='foo'><div></div><div id='target'></div>xyz</div>"
 
+
+def test_add_afterbegin():
+    actual = html_add_indexed(html, 'xyz', [0, 1], Position.afterbegin)
+    # language=html
+    assert actual == "<div id='foo'><div></div><div id='target'>xyz</div></div>"
+
+
+def test_add_beforeend():
+    actual = html_add_indexed(html, 'xyz', [0, 1], Position.beforeend)
+    # language=html
+    assert actual == "<div id='foo'><div></div><div id='target'>xyz</div></div>"
+
+
+# def test_add_afterbegin_with_empty():
+#     actual = html_add_indexed('', 'xyz', [], Position.afterbegin)
+#     # language=html
+#     assert actual == "xyz"
 
 def test_edit():
     actual = html_edit(html, 'xyz', path)
