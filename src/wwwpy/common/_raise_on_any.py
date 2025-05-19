@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Tuple
 
 
 class RaiseOnAny:
-    def __init__(self, message: str | None = None, config: Config | None = None):
+    def __init__(self, payload: str | Exception | None = None, config: Config | None = None):
         if config:
             self._raise_on_any_config = config
         else:
-            if message is None:
+            if payload is None:
                 raise ValueError('message cannot be None')
-            self._raise_on_any_config = Config(message)
+            self._raise_on_any_config = Config(payload)
 
     def __getattribute__(self, name):
         return roa_get_config(self).process(name)
@@ -21,7 +22,7 @@ class RaiseOnAny:
 
 @dataclass
 class Config:
-    message: str | None = None
+    payload: str | Exception | None = None
     parent: Config | None = None
     sub_attr: str = 'self'
     accept_set: set[str] = field(default_factory=set)
@@ -39,10 +40,14 @@ class Config:
         n = self.nested(name)
         if n:
             return n
-        msg = self.nested_message(name)
+        msg, root_config = self.nested_message(name)
+
+        if isinstance(root_config.payload, Exception):
+            raise root_config.payload
+
         raise Exception(msg)
 
-    def nested_message(self, name: str | None = None) -> str:
+    def nested_message(self, name: str | None = None) -> Tuple[str, Config]:
         attrs = []
         c = self
         while True:
@@ -55,8 +60,8 @@ class Config:
         if name:
             attrs.append(name)
         name_fqn = '.'.join(attrs)
-        msg = f'{c.message} - Failures on `{name_fqn}` attribute'
-        return msg
+        msg = f'{c.payload} - Failures on `{name_fqn}` attribute'
+        return msg, c
 
 
 def roa_get_config(i: RaiseOnAny) -> Config:
@@ -71,7 +76,7 @@ def raise_on_use():
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                return RaiseOnAny(str(e))
+                return RaiseOnAny(e)
 
         wrapper.__name__ = func.__name__
         return wrapper

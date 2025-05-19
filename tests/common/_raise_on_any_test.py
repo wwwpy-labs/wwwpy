@@ -78,6 +78,21 @@ def test_str_nested():
     assert 'attr1' in r
 
 
+def test_custom_exception():
+    try:
+        _ = 1 / 0
+    except ZeroDivisionError as orig:
+        x = RaiseOnAny(orig)
+        try:
+            x.some()
+        except Exception as e:
+            assert isinstance(e, ZeroDivisionError)
+            assert e is orig
+            return
+
+    assert False, 'Exception not raised'
+
+
 class Test_raise_on_use:
 
     def test_should_pass_through_if_no_exception(self):
