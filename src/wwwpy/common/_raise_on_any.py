@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Tuple, Iterable
 
 
 class RaiseOnAny:
@@ -70,13 +70,16 @@ def roa_get_config(i: RaiseOnAny) -> Config:
 
 # raise_on_use
 
-def raise_on_use():
+def raise_on_use(except_on: Iterable[str] = None):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                return RaiseOnAny(e)
+                x = RaiseOnAny(e)
+                if except_on:
+                    roa_get_config(x).accept(*except_on)
+                return x
 
         wrapper.__name__ = func.__name__
         return wrapper

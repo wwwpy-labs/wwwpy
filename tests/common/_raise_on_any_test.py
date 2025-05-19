@@ -110,5 +110,48 @@ class Test_raise_on_use:
 
         result = f()  # should be ok
 
-        with pytest.raises(Exception) as excinfo:
+        try:
             result.anything()
+        except Exception as e:
+            assert isinstance(e, ValueError)
+            assert 'Some test error' in str(e)
+            return
+        assert False, 'Exception not raised'
+
+    def test_except_on(self):
+        @raise_on_use(except_on=reversed(['foo', 'bar']))
+        def f():
+            raise ValueError('Some test error')
+
+        result = f()
+
+        # should not raise
+        x1 = result.foo
+        x2 = result.bar
+
+    def test_generator_ok(self):
+
+        @raise_on_use()
+        def f():
+            yield 1
+            yield 2
+            yield 3
+
+        result = f()
+        assert list(result) == [1, 2, 3]
+
+    def test_failing_generator(self):
+        @raise_on_use()
+        def f():
+            raise ValueError('Some test error')
+            yield 1
+
+        result = f()
+
+        try:
+            list(result)
+        except Exception as e:
+            assert isinstance(e, ValueError)
+            assert 'Some test error' in str(e)
+            return
+        assert False, 'Exception not raised'
