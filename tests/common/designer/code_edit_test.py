@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
-    remove_class_attribute, remove_element
+    remove_class_attribute, remove_element, ensure_import
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
 from wwwpy.common.designer.code_info import info
@@ -377,6 +377,29 @@ class TestEnsureImports:
         modified_source = ensure_imports(original_source)
         assert modified_source.startswith(original_source)
 
+
+class TestEnsureImport:
+    def test_simple(self):
+        actual = ensure_import('', 'mod1.mod2.Class1')
+        expected = 'from mod1.mod2 import Class1'
+        assert actual == expected
+
+    def test_import_already_present(self):
+        actual = ensure_import('from mod1.mod2 import Class1', 'mod1.mod2.Class1')
+        expected = 'from mod1.mod2 import Class1'
+        assert actual == expected
+
+    def test_import_with_future_annotation(self):
+        actual = ensure_import('from __future__ import annotations\nfrom mod1.mod2 import Class1', 'mod1.mod2.Class1')
+        expected = 'from __future__ import annotations\nfrom mod1.mod2 import Class1'
+        assert actual == expected
+
+    def test_import_with_future_annotation__and_comment(self):
+        actual = ensure_import(
+            '"""File selection component."""\n\nfrom __future__ import annotations\nfrom mod1.mod2 import Class1',
+            'mod1.mod2.Class1')
+        expected = '"""File selection component."""\n\nfrom __future__ import annotations\nfrom mod1.mod2 import Class1'
+        assert actual == expected
 
 def placeholder_test_error_reporter():
     err = "some-base64-error-report"

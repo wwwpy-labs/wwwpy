@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -45,9 +47,6 @@ def rename_class_attribute(source_code: str, class_name: str, old_attr_name: str
 
 
 def _rope_rename_class_attribute(source_code: str, class_name: str, old_attr_name: str, new_attr_name: str):
-    import tempfile
-    import shutil
-
     temp_dir = Path(tempfile.mkdtemp())
     try:
         temp_file = temp_dir / 'temp.py'
@@ -363,3 +362,31 @@ def remove_element(source_code: str, class_name: str, index_path: IndexPath) -> 
     if attr_name:
         source2 = remove_class_attribute(source2, class_name, attr_name)
     return source2
+
+
+def ensure_import(source: str, full_name: str) -> str:
+    """
+    Given a fully qualified name like 'mod1.mod2.Class1', return 'from mod1.mod2 import Class1'.
+    If the import is already present, return the source unchanged.
+    If a 'from __future__ import annotations' is present, preserve it at the top.
+    """
+    if not full_name or '.' not in full_name:
+        return source
+    *modules, class_name = full_name.split('.')
+    module_path = '.'.join(modules)
+    import_stmt = f'from {module_path} import {class_name}'
+    # If already present, return source as is
+    if import_stmt in source:
+        return source
+    lines = source.split('\n')
+    # Find the last future import
+    future_idx = -1
+    for idx, line in enumerate(lines):
+        if line.strip().startswith('from __future__ import'):
+            future_idx = idx
+    if future_idx != -1:
+        # Insert after the last future import
+        return '\n'.join(lines[:future_idx + 1] + [import_stmt] + lines[future_idx + 1:])
+    if source.strip() == '':
+        return import_stmt
+    return import_stmt + '\n' + source
