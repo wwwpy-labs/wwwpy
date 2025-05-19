@@ -3,6 +3,32 @@ from wwwpy.common.designer.html_edit import Position, html_edit, html_attribute_
 from wwwpy.common.designer.html_locator import Node
 
 # language=html
+html_simple = "<div><br></div>"
+
+
+class TestAddSimple:
+    def test_beforebegin(self):
+        actual = html_add_indexed(html_simple, 'xyz', [0], Position.beforebegin)
+        # language=html
+        assert actual == "xyz<div><br></div>"
+
+    def test_afterend(self):
+        actual = html_add_indexed(html_simple, 'xyz', [0], Position.afterend)
+        # language=html
+        assert actual == "<div><br></div>xyz"
+
+    def test_afterbegin(self):
+        actual = html_add_indexed(html_simple, 'xyz', [0], Position.afterbegin)
+        # language=html
+        assert actual == "<div>xyz<br></div>"
+
+    def test_beforeend(self):
+        actual = html_add_indexed(html_simple, 'xyz', [0], Position.beforeend)
+        # language=html
+        assert actual == "<div><br>xyz</div>"
+
+
+# language=html
 html = "<div id='foo'><div></div><div id='target'></div></div>"
 path = [Node("div", 0, {'id': 'foo'}), Node("div", 1, {'id': 'target'})]
 
