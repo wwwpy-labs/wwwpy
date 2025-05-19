@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from wwwpy.common.designer.html_edit import Position
-from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for
+from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for, position_for
 
 
 def test_valid_xml():
@@ -20,3 +20,17 @@ def test_svg_should_be_different_from_each_other():
     assert a != d
     assert b != d
     assert c != d
+
+
+class TestPositionFor:
+    def test_beforebegin(self):
+        assert position_for(100, 50, 0, 0) == Position.beforebegin
+
+    def test_afterend(self):
+        assert position_for(100, 50, 100, 50) == Position.afterend
+
+    def test_afterbegin(self):
+        assert position_for(100, 50, 50 - 1, 25 - 1) == Position.afterbegin
+
+    def test_beforeend(self):
+        assert position_for(100, 50, 50 + 1, 25 + 1) == Position.beforeend

@@ -10,7 +10,10 @@ def position_for(width: float, height: float, x: float, y: float) -> Position:
     x0 = (width - iw) / 2
     y0 = (height - ih) / 2
     if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
-        return Position.beforeend
+        if (y - y0) <= (ih / iw) * (x - x0):
+            return Position.afterbegin  # Top-left part
+        else:
+            return Position.beforeend  # Bottom-right part
 
     if y <= -height / width * x + height:
         return Position.beforebegin
