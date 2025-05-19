@@ -21,7 +21,7 @@ class ElementPath:
     """Contains the path to an element relative to a Component.
     This is intended to be serialized"""
 
-    class_module: str
+    class_module: str  # todo rename class_package
     """The module name of the Component."""
     class_name: str
     """The class name of the Component."""
