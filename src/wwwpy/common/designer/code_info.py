@@ -37,13 +37,29 @@ class ClassInfo:
         self.attributes_by_name = {attr.name: attr for attr in self.attributes}
 
     def next_attribute_name(self, base_name):
+        # test if it ends with a number
+        #
         fixed = _kebab_to_camel(base_name)
         used = set([attr.name for attr in self.attributes])
-        for i in range(1, sys.maxsize):
-            name = f'{fixed}{i}'
+        gen = _alphabet_generator() if base_name[-1].isdigit() else range(1, sys.maxsize)
+        for item in gen:
+            name = f'{fixed}{item}'
             if name not in used:
                 return name
         raise ValueError('Really?')
+
+
+def _alphabet_generator():
+    i = 1
+    while True:
+        n = i
+        s = ''
+        while n > 0:
+            n, r = divmod(n - 1, 26)
+            s = chr(ord('a') + r) + s
+        yield s
+        i += 1
+
 
 def _kebab_to_camel(s: str) -> str:
     parts = s.split('-')

@@ -1,5 +1,10 @@
+import logging
+
 from wwwpy.common.designer.code_edit import Attribute
-from wwwpy.common.designer.code_info import Info, ClassInfo, Method, info, class_info, _kebab_to_camel
+from wwwpy.common.designer.code_info import Info, ClassInfo, Method, info, class_info, _kebab_to_camel, \
+    _alphabet_generator
+
+logger = logging.getLogger(__name__)
 
 
 def test_info():
@@ -36,6 +41,23 @@ def test_next_attribute_name():
     expect = 'btn2'
 
     assert actual == expect
+
+
+def test_next_attribute_name_end_with_number():
+    """Should use letters"""
+    target = ClassInfo('MyElement', [])
+    actual = target.next_attribute_name('component1')
+    expect = 'component1a'
+
+    assert actual == expect
+
+
+def test__alphabet_generator():
+    gen = _alphabet_generator()
+    first_100 = [next(gen) for _ in range(100)]
+    s = set(first_100)
+    logger.debug(f'first_100: {first_100}')
+    assert len(s) == 100
 
 
 def test_next_attribute_name__disallowedChars():
