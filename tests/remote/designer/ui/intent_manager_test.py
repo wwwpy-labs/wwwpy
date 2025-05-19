@@ -21,11 +21,11 @@ from wwwpy.remote.designer.ui.palette import PaletteComponent
 logger = logging.getLogger(__name__)
 
 
-async def test_palette_no_selected_intent(intent_manager):
+async def test_no_selected_intent(intent_manager):
     assert intent_manager.current_selection is None
 
 
-async def test_palette_click_intent__should_be_selected(intent_manager, intent1):
+async def test_click_intent__should_be_selected(intent_manager, intent1):
     await rpctst_exec("page.locator('#intent1').click()")
 
     assert intent_manager.current_selection == intent1
@@ -41,7 +41,7 @@ async def test_manual_selection(intent_manager, intent1):
     assert intent1.events == ['on_selected']
 
 
-async def test_palette_click_twice_intent__should_be_deselected(intent_manager, intent1):
+async def test_click_twice_intent__should_be_deselected(intent_manager, intent1):
     await rpctst_exec(["page.locator('#intent1').click()", "page.locator('#intent1').click()"])
 
     assert intent_manager.current_selection is None
@@ -49,7 +49,7 @@ async def test_palette_click_twice_intent__should_be_deselected(intent_manager, 
     assert intent1.events == ['on_selected', 'on_deselect']
 
 
-async def test_palette_selecting_different_intent__should_deselect_previous(intent_manager, intent1, intent2,
+async def test_selecting_different_intent__should_deselect_previous(intent_manager, intent1, intent2,
                                                                             all_intent_events):
     # GIVEN
     await rpctst_exec(["page.locator('#intent1').click()"])
@@ -65,7 +65,7 @@ async def test_palette_selecting_different_intent__should_deselect_previous(inte
     assert all_intent_events == ['intent1:on_deselect', 'intent2:on_selected']
 
 
-async def test_palette_should_put_elements_on_screen(intent1, intent2):
+async def test_should_put_elements_on_screen(intent1, intent2):
     assert intent1.element.isConnected is True
     assert intent2.element.isConnected is True
 
@@ -123,7 +123,7 @@ class TestDrag:
         assert not intent1.selected
         assert intent_manager.drag_state == DragFsm.IDLE
 
-    async def test_no_select_start_drag__should_select_palette_intent(self, intent_manager, intent1, div1):
+    async def test_no_select_start_drag__should_select_intent(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = None
 
@@ -217,7 +217,7 @@ class TestDragTouch:
 
 class TestHover:
 
-    async def test_selected_and_hover_on_palette__should_not_emit_Hover(self, intent_manager, intent1, intent2):
+    async def test_selected_and_hover_on_intent__should_not_emit_Hover(self, intent_manager, intent1, intent2):
         # GIVEN
         intent_manager.current_selection = intent1
 
