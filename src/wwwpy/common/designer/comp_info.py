@@ -14,25 +14,26 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CompInfo:
+    class_package: str
     class_name: str
     tag_name: str
     path: Path
     cst_tree: CstTree
 
 
-def iter_comp_info_folder(folder: Path) -> Iterator[CompInfo]:
+def iter_comp_info_folder(folder: Path, package: str) -> Iterator[CompInfo]:
     """Iterate over all components in the folder."""
     for path in folder.glob('*.py'):
-        yield from iter_comp_info(path)
+        yield from iter_comp_info(path, package)
 
 
-def iter_comp_info(path: Path) -> Iterator[CompInfo]:
+def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
     source_code = path.read_text()
     ci = code_info.info(source_code)
-    return (c for c in (_to_comp_info(source_code, path, cl) for cl in ci.classes) if c is not None)
+    return (c for c in (_to_comp_info(source_code, path, cl, package) for cl in ci.classes) if c is not None)
 
 
-def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo) -> CompInfo | None:
+def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo, package: str) -> CompInfo | None:
     class_name = cl.name
     html = html_from_source(source_code, class_name)
     if html is None:
@@ -41,4 +42,4 @@ def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo) -> Comp
 
     cst_tree = html_to_tree(html)
 
-    return CompInfo(class_name, cl.tag_name, path, cst_tree)
+    return CompInfo(package, class_name, cl.tag_name, path, cst_tree)
