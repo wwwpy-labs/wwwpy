@@ -20,11 +20,14 @@ class CompInfo:
     path: Path
     cst_tree: CstTree
 
+    @property
+    def class_full_name(self) -> str:
+        return f'{self.class_package}.{self.class_name}'
 
 def iter_comp_info_folder(folder: Path, package: str) -> Iterator[CompInfo]:
     """Iterate over all components in the folder."""
     for path in folder.glob('*.py'):
-        yield from iter_comp_info(path, package)
+        yield from iter_comp_info(path, package + '.' + path.stem)
 
 
 def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
