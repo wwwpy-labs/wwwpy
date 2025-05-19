@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import logging
+
 from wwwpy.common.extension_point import ExtensionPointRegistry, ep_registry
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
+
+logger = logging.getLogger(__name__)
 
 
 class DesignAware:
@@ -31,9 +35,12 @@ def find_intent(intent_event: IntentEvent) -> Intent | None:
     if intent_event.deep_target is None:
         return None
     for extension in DesignAware.EP_REGISTRY:
-        intent = extension.find_intent(intent_event)
-        if intent:
-            return intent
+        try:
+            intent = extension.find_intent(intent_event)
+            if intent:
+                return intent
+        except:
+            logger.exception('find_intent EP error', stacklevel=2)
     return None
 
 # def find_element_path(hover_event: IntentEvent) -> ElementPath | None:
