@@ -61,3 +61,19 @@ class Config:
 
 def roa_get_config(i: RaiseOnAny) -> Config:
     return object.__getattribute__(i, '_raise_on_any_config')
+
+
+# raise_on_use
+
+def raise_on_use():
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                return RaiseOnAny(str(e))
+
+        wrapper.__name__ = func.__name__
+        return wrapper
+
+    return decorator

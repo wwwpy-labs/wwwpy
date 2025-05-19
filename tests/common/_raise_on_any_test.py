@@ -1,6 +1,6 @@
 import pytest
 
-from wwwpy.common._raise_on_any import RaiseOnAny, roa_get_config
+from wwwpy.common._raise_on_any import RaiseOnAny, roa_get_config, raise_on_use
 
 
 def test_throw_on_any_access_and_call():
@@ -76,3 +76,24 @@ def test_str_nested():
     r = repr(x.attr1)
     assert 'msg1' in r
     assert 'attr1' in r
+
+
+class Test_raise_on_use:
+
+    def test_should_pass_through_if_no_exception(self):
+        @raise_on_use()
+        def f():
+            return 1
+
+        assert 1 == f()
+        assert f.__name__ == 'f'
+
+    def test_should_raise_if_exception__when_used(self):
+        @raise_on_use()
+        def f():
+            raise ValueError('Some test error')
+
+        result = f()  # should be ok
+
+        with pytest.raises(Exception) as excinfo:
+            result.anything()
