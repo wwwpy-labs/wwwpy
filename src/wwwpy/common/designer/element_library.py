@@ -45,14 +45,17 @@ class NamedListMap(ListMap):
         super().__init__(args, key_func=lambda x: x.name)
 
 
-#  todo One idea of supertype could be AddableElement that contains only:
-#   - tag_name: str
-#   - python_type: str
-#   - def html_snippet(name: str) -> str: ...
 @dataclass
-class ElementDef:
+class ElementDefBase:
     tag_name: str
     python_type: str
+
+    def new_html(self, data_name: str) -> str:
+        return f"""<{self.tag_name} data-name="{data_name}"></{self.tag_name}>"""
+
+
+@dataclass
+class ElementDef(ElementDefBase):
     help: Help = field(default=_empty_help)
     gen_html: Optional[Callable[[ElementDef, str], str]] = None
     """A function that generates the HTML for the element. It takes the data-name of the element as argument."""

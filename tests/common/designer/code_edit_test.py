@@ -1,9 +1,11 @@
+from dataclasses import dataclass
+
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
     remove_class_attribute, remove_element
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
 from wwwpy.common.designer.code_info import info
-from wwwpy.common.designer.element_library import ElementDef, element_library
+from wwwpy.common.designer.element_library import element_library, ElementDefBase
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.common.files import str_ungzip_base64
@@ -199,14 +201,14 @@ class MyElement(wpc.Component):
 class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
-<btn data-name="btn1"></btn></div>'''
+        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div><btn data-name="btn1"></btn></div>'''
     """
 
-        component_def = ElementDef('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
+        edb = ElementDefBase('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, path01, Position.afterend)
+        actual = _remove_import(add_result.source_code)
 
-        assert _remove_import(add_result.source_code) == expected_source
+        assert actual == expected_source
 
     def test_gen_html(self):
         original_source = """
@@ -223,10 +225,12 @@ class MyElement:
 <btn data-name="btn1" attr1="bar"></btn></div>'''
     """
 
-        def gen_html(element_def, data_name):
-            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        @dataclass
+        class MyElementDef(ElementDefBase):
+            def new_html(self, data_name: str) -> str:
+                return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
 
-        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
+        component_def = MyElementDef('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
 
         assert _remove_import(add_result.source_code) == expected_source
@@ -238,13 +242,10 @@ class MyElement:
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-        def gen_html(element_def, data_name):
-            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        edb = ElementDefBase('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, path01, Position.afterend)
 
-        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
-        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
-
-        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1', 'attr1': 'bar'})]
+        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
     def test_node_path__beforebegin(self):
@@ -254,13 +255,10 @@ class MyElement:
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
     """
 
-        def gen_html(element_def, data_name):
-            return f'\n<btn data-name="{data_name}" attr1="bar"></btn>'
+        edb = ElementDefBase('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, path01, Position.beforebegin)
 
-        component_def = ElementDef('btn', 'js.Some', gen_html=gen_html)
-        add_result = add_element(original_source, 'MyElement', component_def, path01, Position.beforebegin)
-
-        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1', 'attr1': 'bar'})]
+        expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
 

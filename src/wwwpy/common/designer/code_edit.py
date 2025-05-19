@@ -9,7 +9,7 @@ import libcst as cst
 from wwwpy.common.designer import code_info, html_parser, html_locator
 from wwwpy.common.designer.code_info import Attribute
 from wwwpy.common.designer.code_strings import html_string_edit
-from wwwpy.common.designer.element_library import ElementDef
+from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.designer.html_edit import Position, html_add_indexed, html_remove_indexed
 from wwwpy.common.designer.html_locator import NodePath, IndexPath, data_name
 
@@ -101,9 +101,7 @@ class AddComponentExceptionReport:
     position: Position
 
 
-# def add_component(element_path: ElementPath, position: Position,
-#           addable_element: AddableElement ,name: str | None = None) -> AddResult | AddFailed:
-def add_element(source_code: str, class_name: str, comp_def: ElementDef, index_path: IndexPath,
+def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_path: IndexPath,
                 position: Position) -> AddResult | AddFailed:
     source_code_orig = source_code
     try:
@@ -113,11 +111,11 @@ def add_element(source_code: str, class_name: str, comp_def: ElementDef, index_p
             print(f'Class {class_name} not found inside source ```{source_code}```')
             return None
 
-        attr_name = class_info.next_attribute_name(comp_def.tag_name)
-        named_html = comp_def.new_html(attr_name)
+        attr_name = class_info.next_attribute_name(edb.tag_name)
+        named_html = edb.new_html(attr_name)
 
         source1 = add_class_attribute(source_code, class_name,
-                                      Attribute(attr_name, comp_def.python_type, 'wpc.element()'))
+                                      Attribute(attr_name, edb.python_type, 'wpc.element()'))
 
         def manipulate_html(html):
             add = html_add_indexed(html, named_html, index_path, position)
@@ -136,7 +134,7 @@ def add_element(source_code: str, class_name: str, comp_def: ElementDef, index_p
         logger.exception('Full exception report')
 
         exception_report = AddComponentExceptionReport(traceback.format_exc(), source_code_orig, class_name,
-                                                       comp_def.tag_name, index_path, position)
+                                                       edb.tag_name, index_path, position)
         exception_report_str = serialization.to_json(exception_report, AddComponentExceptionReport)
         logger.error(f'Exception report str:\n{"=" * 20}\n{exception_report_str}\n{"=" * 20}')
         from wwwpy.common.files import str_gzip_base64
@@ -302,14 +300,15 @@ class _AddMethodToClassTransformer(cst.CSTTransformer):
         return updated_node.with_changes(body=updated_node.body.with_changes(body=new_body))
 
 
-def ensure_imports(source_code: str) -> str:
-    required_imports = [
-        'import inspect',
-        'import logging',
-        'import js',
-        'import wwwpy.remote.component as wpc',
-    ]
+_required_imports_default = (
+    'import inspect',
+    'import logging',
+    'import js',
+    'import wwwpy.remote.component as wpc',
+)
 
+
+def ensure_imports(source_code: str, required_imports: tuple[str] = _required_imports_default) -> str:
     def _remove_comment_if_present(line) -> str:
         line = line.strip()
         if '#' in line:
