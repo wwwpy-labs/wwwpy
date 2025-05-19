@@ -11,6 +11,7 @@ def position_for(width: float, height: float, x: float, y: float) -> Position:
     y0 = (height - ih) / 2
     if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
         return Position.beforeend
+
     if y <= -height / width * x + height:
         return Position.beforebegin
     return Position.afterend
@@ -27,10 +28,14 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     out_br_color = active_color if position == Position.afterend else inactive_color
 
     in_tl_color = active_color if position == Position.beforeend else inactive_color
+    in_br_color = active_color if position == Position.afterbegin else inactive_color
 
     out_tl_width = 6 if position == Position.beforebegin else 2
     out_br_width = 6 if position == Position.afterend else 2
+
     in_tl_width = 3 if position == Position.beforeend else 1
+    in_br_width = 3 if position == Position.afterbegin else 1
+
     # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
   <g stroke="%(out_tl_color)s" stroke-width="%(out_tl_width)s">
@@ -41,14 +46,26 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     <line x1="0" y1="%(h)s" x2="%(w)s" y2="%(h)s"/>
     <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s"/>
   </g>
-  <rect x="%(x)s" y="%(y)s" width="%(iw)s" height="%(ih)s" fill="none" stroke="%(in_tl_color)s" stroke-width="%(in_tl_width)s"/>
+  
+  <g stroke="%(in_tl_color)s" stroke-width="%(in_tl_width)s" transform="translate(%(x)s, %(y)s)">
+    <line x1="0" y1="0" x2="%(iw)s" y2="0"/>
+    <line x1="0" y1="0" x2="0" y2="%(ih)s"/>
+  </g>
+  <g stroke="%(in_br_color)s" stroke-width="%(in_br_width)s" transform="translate(%(x)s, %(y)s)">
+    <line x1="0" y1="%(ih)s" x2="%(iw)s" y2="%(ih)s"/>
+    <line x1="%(iw)s" y1="0" x2="%(iw)s" y2="%(ih)s"/>
+  </g>
+  
 </svg>'''
     return svg % dict(
         w=width, h=height,
         iw=iw, ih=ih,
         x=x, y=y,
-        out_tl_color=out_tl_color, out_br_color=out_br_color, in_tl_color=in_tl_color,
-        out_tl_width=out_tl_width, out_br_width=out_br_width, in_tl_width=in_tl_width
+        out_tl_color=out_tl_color, out_br_color=out_br_color,
+        out_tl_width=out_tl_width, out_br_width=out_br_width,
+
+        in_tl_width=in_tl_width, in_tl_color=in_tl_color,
+        in_br_width=in_br_width, in_br_color=in_br_color,
     )
 
 

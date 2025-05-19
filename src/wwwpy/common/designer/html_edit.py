@@ -9,8 +9,8 @@ from wwwpy.common.designer.html_locator import NodePath, IndexPath, check_node_p
 
 
 class Position(str, Enum):
-    afterbegin = 'afterbegin'
-    beforeend = 'beforeend'
+    afterbegin = 'afterbegin'  # inside
+    beforeend = 'beforeend'  # inside
     beforebegin = 'beforebegin'
     afterend = 'afterend'
 
