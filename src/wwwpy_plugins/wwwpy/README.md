@@ -1,0 +1,1 @@
+The namespace `wwwpy_plugins.wwwpy` and all packages starting with `wwwpy_plugins.wwwpy-` are reserved for internal use.
