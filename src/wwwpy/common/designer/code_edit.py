@@ -104,7 +104,13 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
                 position: Position) -> AddResult | AddFailed:
     source_code_orig = source_code
     try:
-        source_code = ensure_imports(source_code)
+        imp_tuple = _required_imports_default
+        type_import, type_name = _decode_type(edb.python_type)
+        if type_import:
+            imp_add = f'from {type_import} import {type_name}'
+            imp_tuple = (imp_tuple + (imp_add,))
+
+        source_code = ensure_imports(source_code, imp_tuple)
         class_info = code_info.class_info(source_code, class_name)
         if class_info is None:
             print(f'Class {class_name} not found inside source ```{source_code}```')
@@ -114,7 +120,7 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
         named_html = edb.new_html(attr_name)
 
         source1 = add_class_attribute(source_code, class_name,
-                                      Attribute(attr_name, edb.python_type, 'wpc.element()'))
+                                      Attribute(attr_name, type_name, 'wpc.element()'))
 
         def manipulate_html(html):
             add = html_add_indexed(html, named_html, index_path, position)
@@ -142,6 +148,18 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
         e.exception_report_b64 = exception_report_b64
         return AddFailed(e, exception_report_str, exception_report_b64)
     return result
+
+
+def _decode_type(type_str: str) -> tuple[str, str]:
+    """
+    Given a type string like 'wwwpy.remote.component.Component', return the import path and the class name.
+    """
+    if type_str.startswith('js.'):
+        return '', type_str
+    if '.' in type_str:
+        parts = type_str.rsplit('.', 1)
+        return '.'.join(parts[:-1]), parts[-1]
+    return '', type_str
 
 
 class _RenameFieldInClassTransformer(cst.CSTTransformer):
@@ -307,7 +325,7 @@ _required_imports_default = (
 )
 
 
-def ensure_imports(source_code: str, required_imports: tuple[str] = _required_imports_default) -> str:
+def ensure_imports(source_code: str, required_imports: tuple[str, ...] = _required_imports_default) -> str:
     def _remove_comment_if_present(line) -> str:
         line = line.strip()
         if '#' in line:

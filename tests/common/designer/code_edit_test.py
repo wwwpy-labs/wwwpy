@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from textwrap import dedent
 
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
-    remove_class_attribute, remove_element, ensure_import
+    remove_class_attribute, remove_element, ensure_import, AddResult
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
 from wwwpy.common.designer.code_info import info
@@ -102,6 +103,10 @@ class MyElement2(wpc.Component):
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
     assert _remove_import(modified_source) == expected_source
+
+
+# def test_add_class_attribute__non_js_class():
+#     ...
 
 
 def test_remove_class_attribute__should_remove_the_line():
@@ -209,6 +214,29 @@ class MyElement(wpc.Component):
         actual = _remove_import(add_result.source_code)
 
         assert actual == expected_source
+
+    def test_non_js_class(self):
+        original_source = dedent("""
+    class MyElement(wpc.Component):
+        def init_component(self):
+            self.element.innerHTML = '''<div></div>'''
+        """)
+
+        expected_source = dedent("""
+    from remote.comp1 import Comp1
+        
+    class MyElement(wpc.Component):
+        comp1a: Comp1 = wpc.element()
+        def init_component(self):
+            self.element.innerHTML = '''<div></div><comp-1 data-name="comp1a"></comp-1>'''
+        """)
+
+        edb = ElementDefBase('comp-1', 'remote.comp1.Comp1')
+        add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterend)
+        assert isinstance(add_result, AddResult), f'add_result={add_result}'
+        actual = _remove_import(add_result.source_code)
+
+        assert _no_empty_lines(actual) == _no_empty_lines(expected_source)
 
     def test_gen_html(self):
         original_source = """
@@ -401,6 +429,7 @@ class TestEnsureImport:
         expected = '"""File selection component."""\n\nfrom __future__ import annotations\nfrom mod1.mod2 import Class1'
         assert actual == expected
 
+
 def placeholder_test_error_reporter():
     err = "some-base64-error-report"
     err1 = str_ungzip_base64(err)
@@ -415,3 +444,8 @@ def placeholder_test_error_reporter():
 def _remove_import(source: str) -> str:
     lines = source.split('\n')
     return '\n'.join([line for line in lines if not line.startswith('import ')])
+
+
+def _no_empty_lines(source: str) -> str:
+    lines = source.split('\n')
+    return '\n'.join([line for line in lines if line.strip() != ''])
