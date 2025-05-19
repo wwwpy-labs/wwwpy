@@ -56,9 +56,13 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
 
         def ace(e: IntentChangedEvent):
             if e.old is not None:
-                self._action2item[id(e.old)].selected = False
+                intent = self._action2item.get(id(e.old), None)
+                if intent:
+                    intent.selected = False
             if e.new is not None:
-                self._action2item[id(e.new)].selected = True
+                intent = self._action2item.get(id(e.new), None)
+                if intent:
+                    intent.selected = True
 
         self._action2item = {}
 
