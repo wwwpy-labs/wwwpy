@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal Tree Example</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1em;
+        }
+
+        details > details {
+            margin-left: 1em;
+        }
+
+        /* Style for the summary to make it have distinct parts */
+        summary {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* Create a custom marker that we can target */
+        .custom-marker {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            cursor: cell;
+        }
+
+        /* Style for the text portion */
+        .summary-text {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+<h1>Tree Widget via details/summary</h1>
+
+<details open>
+    <summary>Fruits</summary>
+    <details>
+        <summary>Citrus</summary>
+        <details>
+            <summary>Orange</summary>
+        </details>
+        <details>
+            <summary>Lemon</summary>
+        </details>
+    </details>
+    <details>
+        <summary>Berries</summary>
+        <details>
+            <summary>Strawberry</summary>
+        </details>
+        <details>
+            <summary>Blueberry</summary>
+        </details>
+    </details>
+</details>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add custom markers and text spans to all summaries
+        document.querySelectorAll('summary').forEach(function (summary) {
+            // Skip if already processed
+            if (summary.querySelector('.custom-marker')) return;
+
+            // Get the original text
+            const originalText = summary.textContent.trim();
+
+            // Clear the summary
+            summary.textContent = '';
+
+            // Create the marker and text elements
+            const marker = document.createElement('span');
+            marker.className = 'custom-marker';
+            marker.textContent = '▶';
+
+            const text = document.createElement('span');
+            text.className = 'summary-text';
+            text.textContent = originalText;
+
+            // Add them to the summary
+            summary.appendChild(marker);
+            summary.appendChild(text);
+        });
+
+        // Handle clicks
+        document.body.addEventListener('click', function (event) {
+            // Check if a marker was clicked
+            if (event.target.classList.contains('custom-marker')) {
+                console.log('marker clicked');
+                // Find the parent summary and let its default behavior happen
+                const summary = event.target.closest('summary');
+                if (summary) {
+                    // We don't prevent default here to allow toggle behavior
+                }
+            }
+            // Check if summary text was clicked
+            else if (event.target.classList.contains('summary-text')) {
+                console.log('summary clicked');
+
+                // Find the parent summary
+                const summary = event.target.closest('summary');
+                if (summary) {
+                    // Prevent the default toggle behavior
+                    event.preventDefault();
+                    // You could manually toggle the details if desired:
+                    // const details = summary.parentElement;
+                    // details.open = !details.open;
+                }
+            }
+        });
+
+        // Update markers based on open/closed state
+        document.querySelectorAll('details').forEach(function (details) {
+            const marker = details.querySelector('.custom-marker');
+            if (marker) {
+                marker.textContent = details.open ? '▼' : '▶';
+            }
+
+            // Add event listener to update marker when open state changes
+            details.addEventListener('toggle', function () {
+                const marker = this.querySelector('.custom-marker');
+                if (marker) {
+                    marker.textContent = this.open ? '▼' : '▶';
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

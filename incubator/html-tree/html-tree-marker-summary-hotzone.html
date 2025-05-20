@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minimal Tree Example</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1em;
+        }
+
+        details > details {
+            margin-left: 1em;
+        }
+    </style>
+</head>
+<body>
+<h1>Tree Widget via details/summary</h1>
+
+<details open>
+    <summary>Fruits</summary>
+    <details>
+        <summary>Citrus</summary>
+        <details>
+            <summary>Orange</summary>
+        </details>
+        <details>
+            <summary>Lemon</summary>
+        </details>
+    </details>
+    <details>
+        <summary>Berries</summary>
+        <details>
+            <summary>Strawberry</summary>
+        </details>
+        <details>
+            <summary>Blueberry</summary>
+        </details>
+    </details>
+</details>
+
+<details>
+    <summary>Vegetables</summary>
+    <details>
+        <summary>Root</summary>
+        <details>
+            <summary>Carrot</summary>
+        </details>
+        <details>
+            <summary>Beetroot</summary>
+        </details>
+    </details>
+    <details>
+        <summary>Leafy Greens</summary>
+        <details>
+            <summary>Spinach</summary>
+        </details>
+        <details>
+            <summary>Lettuce</summary>
+        </details>
+    </details>
+</details>
+
+<script>
+    document.querySelectorAll('summary').forEach(s => {
+        s.addEventListener('click', e => {
+            const x = e.clientX - s.getBoundingClientRect().left
+            if (x < 20) console.log('marker clicked')
+            else console.log('summary clicked')
+        })
+    })
+</script>
+
+</body>
+</html>
