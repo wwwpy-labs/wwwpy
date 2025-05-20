@@ -30,7 +30,9 @@ async def activate():
     # dependency injection
     injector._clear()
     from wwwpy.remote.designer.ui.intent_manager import IntentManager
-    injector.bind(IntentManager())
+    intent_manager = IntentManager()
+    intent_manager.install()
+    injector.bind(intent_manager)
     injector.bind(ElementSelector())
     from wwwpy.common.designer.canvas_selection import CanvasSelection
     injector.bind(CanvasSelection())
@@ -60,3 +62,11 @@ def _global_exception_handler(loop, context):
 
 def set_active(dev_mode: bool):
     js.window._wwwpy_dev_mode = dev_mode
+
+
+async def show_dev_mode():
+    if not is_active():
+        return
+    from wwwpy.remote.designer.ui import dev_mode_component
+    dev_mode_component.show()  # todo it looks like it can take ~ 1s or more; investigate,
+    # maybe micropip installing rope has to do with it

@@ -71,12 +71,10 @@ class PaletteComponent(wpc.Component, tag_name='wwwpy-palette'):
         self._on_identify_event = lambda e: e.set_action(_find_palette_action(e.js_event))
 
     def connectedCallback(self):
-        self.intent_manager.install()
         self.intent_manager.on(IntentChangedEvent).add(self._on_action_changed_event)
 
     def disconnectedCallback(self):
         self.intent_manager.on(IntentChangedEvent).remove(self._on_action_changed_event)
-        self.intent_manager.uninstall()
 
     def add_intent(self, intent: Intent) -> PaletteItemComponent:
         """Add an item to the palette."""
