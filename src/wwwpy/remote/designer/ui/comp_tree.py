@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from enum import Enum
 from functools import cached_property
 from typing import Iterator
 
@@ -20,16 +21,39 @@ from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
 logger = logging.getLogger(__name__)
 
 
+class HeaderClick(Enum):
+    MARKER = 'MARKER'
+    TEXT = 'TEXT'
+
+
 class _DesignAware(DesignAware):
 
     def find_intent(self, hover_event: IntentEvent):
+        # where = _click_where(hover_event)
         target = hover_event.deep_target
+        if not target: return None
         res = target.closest(CompTreeItem.component_metadata.tag_name)
-        if res:
-            comp_tree_item: CompTreeItem = wpc.get_component(res)
+        if not res: return None
 
-            return comp_tree_item.add_intent
-        return None
+        comp_tree_item: CompTreeItem = wpc.get_component(res)
+        x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
+        if x < 20: return None
+        return comp_tree_item.add_intent
+
+
+# def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
+#     target = hover_event.deep_target
+#     if not target: return None
+#     res = target.closest(CompTreeItem.component_metadata.tag_name)
+#     if not res: return None
+#
+#     comp_tree_item: CompTreeItem = wpc.get_component(res)
+#     x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
+#     # if x < 20:
+#     #     return HeaderClick.MARKER
+#     # else:
+#     #     return HeaderClick.TEXT
+#     return HeaderClick.TEXT if x > 20 else HeaderClick.MARKER
 
 
 _design_aware = _DesignAware()
@@ -87,7 +111,7 @@ class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
     def init_component(self):
         # language=html
         self.element.innerHTML = """
-<details data-name="_details" open>
+<details data-name="_details">
     <summary data-name="_summary"></summary>
 </details>
         """
