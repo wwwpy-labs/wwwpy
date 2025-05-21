@@ -126,3 +126,23 @@ class EventBus:
     def get_subscriber_count(self, event_type: Type) -> int:
         """Get the number of subscribers for a specific event type."""
         return len(self._subscribers.get(event_type, {}))
+
+    def connect(self, finalizable=None) -> EventBusConnection:
+        return EventBusConnection(self, finalizable)
+
+
+class EventBusConnection:
+    def __init__(self, bus: EventBus, finalizable):
+        self._bus = bus
+        if finalizable is not None:  # register finalizer
+            weakref.finalize(finalizable, self._disconnect)
+        self._subscriptions = []
+
+    # could return Subscription but need to add tests
+    def subscribe(self, callback: Optional[Callable] = None, *, on: Optional[Type] = None) -> None:
+        s = self._bus.subscribe(callback, on=on)
+        self._subscriptions.append(s)
+
+    def _disconnect(self):  # not yet public
+        for s in self._subscriptions:
+            s.unsubscribe()

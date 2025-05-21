@@ -368,3 +368,70 @@ class TestEventBus:
         assert "handler2" in called_handlers
         assert "handler3" in called_handlers
         assert len(called_handlers) == 3
+
+
+class TestConnect:
+    def test_connect_callback_type(self, bus, events):
+        connection = bus.connect()
+
+        def handler(pet: Pet):
+            events.append(pet)
+
+        connection.subscribe(handler)
+
+        pet = Pet("Buddy")
+        bus.publish(pet)
+
+        assert events == [pet]
+
+    def test_connect_lambda(self, bus, events):
+        connection = bus.connect()
+
+        connection.subscribe(lambda pet: events.append(pet), on=Pet)
+
+        pet = Pet("Buddy")
+        bus.publish(pet)
+
+        assert events == [pet]
+
+    def test_connect_with_type(self, bus, events):
+        connection = bus.connect()
+
+        connection.subscribe(lambda pet: events.append(pet), on=Dog)
+
+        bus.publish(Pet("Some"))
+        dog = Dog("Buddy")
+        bus.publish(dog)
+
+        assert events == [dog]
+
+
+class SomeClass: ...
+
+
+class TestDisconnect:
+
+    def test_bound_to_class_instance(self, bus, events):
+        foo = Pet("foo")
+        bar = Pet("bar")
+
+        def do():
+            some = SomeClass()
+            bus.connect(some).subscribe(lambda e: events.append(e), on=Pet)
+            bus.publish(foo)
+
+        do()
+        assert events == [foo]
+        events.clear()
+        bus.publish(bar)
+        assert events == []
+
+
+@pytest.fixture()
+def bus():
+    return EventBus()
+
+
+@pytest.fixture()
+def events():
+    return []
