@@ -311,12 +311,45 @@ class MyElement:
         self.element.innerHTML = '''<div><br></div>'''
     """
 
-        edb = ElementDefBase('btn', 'js.Some')
+        edb = _ElementDefBaseSimple('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, [0], Position.beforeend)
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
-        expected_node_path = [Node("div", 0, {}), Node('btn', 1, {'data-name': 'btn1'})]
+        expected_node_path = [Node("div", 0, {}), Node('btn', 1, {})]
+        assert add_result.html == '''<div><br><btn></btn></div>'''
+        assert add_result.node_path == expected_node_path
+
+    def test_node_path__afterbegin_text_node(self):
+        original_source = """
+class MyElement:
+    def init_component(self):
+        self.element.innerHTML = '''<div>foo</div>'''
+    """
+
+        edb = _ElementDefBaseSimple('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
+        if not isinstance(add_result, AddResult):
+            raise ValueError(f'unexpected type={add_result}')
+
+        assert add_result.html == '''<div><btn></btn>foo</div>'''
+        expected_node_path = [Node("div", 0, {}), Node('btn', 0, {})]
+        assert add_result.node_path == expected_node_path
+
+    def test_node_path__beforeend_text_node(self):
+        original_source = """
+class MyElement:
+    def init_component(self):
+        self.element.innerHTML = '''<div>foo</div>'''
+    """
+
+        edb = _ElementDefBaseSimple('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, [0], Position.beforeend)
+        if not isinstance(add_result, AddResult):
+            raise ValueError(f'unexpected type={add_result}')
+
+        assert add_result.html == '''<div>foo<btn></btn></div>'''
+        expected_node_path = [Node("div", 0, {}), Node('btn', 0, {})]
         assert add_result.node_path == expected_node_path
 
 
@@ -479,3 +512,8 @@ def _remove_import(source: str) -> str:
 def _no_empty_lines(source: str) -> str:
     lines = source.split('\n')
     return '\n'.join([line for line in lines if line.strip() != ''])
+
+
+class _ElementDefBaseSimple(ElementDefBase):
+    def new_html(self, data_name: str) -> str:
+        return f"""<{self.tag_name}></{self.tag_name}>"""

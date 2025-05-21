@@ -81,6 +81,7 @@ def _rope_rename_class_attribute_in_project(project_dir: Path, file_path: Path, 
 class AddResult:
     source_code: str
     node_path: NodePath
+    html: str
 
 
 @dataclass
@@ -121,9 +122,11 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
 
         source1 = add_class_attribute(source_code, class_name,
                                       Attribute(attr_name, type_name, 'wpc.element()'))
+        changed_html = []
 
         def manipulate_html(html):
             add = html_add_indexed(html, named_html, index_path, position)
+            changed_html.append(add)
             return add
 
         source2 = html_string_edit(source1, class_name, manipulate_html)
@@ -136,7 +139,7 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
             displacement = 0 if position == Position.beforebegin else 1
             indexes = index_path[0:-1] + [index_path[-1] + displacement]
         new_node_path = html_locator.tree_to_path(new_tree, indexes)
-        result = AddResult(source2, new_node_path)
+        result = AddResult(source2, new_node_path, changed_html[0])
     except Exception as e:
         import traceback
         from wwwpy.common.rpc import serialization
