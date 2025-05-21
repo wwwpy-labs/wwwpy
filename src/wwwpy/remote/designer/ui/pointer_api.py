@@ -128,7 +128,7 @@ class PointerApi:
         if r:
             self._notify(PointerUp(event, r))
         else:
-            logger.warning(f'_js_window__pointerup: no event to notify fsm={self._drag_fsm.state}')
+            logger.debug(f'_js_window__pointerup: no event to notify fsm={self._drag_fsm.state}')
 
 
 def _stop_js_event(e: js.Event):
