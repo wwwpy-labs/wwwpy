@@ -7,7 +7,7 @@ from wwwpy.common import modlib
 from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
-from wwwpy.common.designer.element_library import ElementDef
+from wwwpy.common.designer.element_library import ElementDef, ElementDefBase
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
@@ -25,14 +25,22 @@ from wwwpy.remote.jslib import get_deepest_element, is_instance_of
 
 logger = logging.getLogger(__name__)
 
+_tool = DropIndicatorFloater()
+_tool.transition = True
+
 
 @dataclass
 class AddElementIntent(Intent):
-    element_def: ElementDef = None  # todo use ElementDefBase
+    element_def: ElementDefBase = None
 
     def __post_init__(self):
-        self._tool = DropIndicatorFloater()
-        self._tool.transition = True
+        self._tool = _tool
+
+    def on_selected(self):
+        self._tool.show()
+
+    def on_deselected(self):
+        self._tool.hide()
 
     def on_hover(self, event: IntentEvent):
         self._set_selection_from_js_event(event)
