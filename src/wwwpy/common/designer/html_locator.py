@@ -125,6 +125,8 @@ def tree_to_path(tree: CstTree, index_path: IndexPath) -> NodePath:
     result = []
     children = tree
     for index in index_path:
+        if index < 0:
+            index = len(children) + index
         node = children[index]
         result.append(_node(index, node))
         children = node.children

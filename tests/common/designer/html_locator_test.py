@@ -1,7 +1,6 @@
 import wwwpy.common.designer.html_locator as html_locator
 from wwwpy.common.designer import html_parser
-from wwwpy.common.designer.html_locator import Node, NodePath
-from wwwpy.common.rpc import serialization
+from wwwpy.common.designer.html_locator import Node
 
 
 def test_locate():
@@ -28,6 +27,15 @@ def test_cst_node_to_node():
     html = "<b></b><div id='foo'><input><br><button id='btn1' disabled></button></div>"
     tree = html_parser.html_to_tree(html)
     actual = html_locator.tree_to_path(tree, [1, 2])
+    expect = [Node("div", 1, {'id': 'foo'}), Node("button", 2, {'id': 'btn1', 'disabled': None})]
+    assert actual == expect
+
+
+def test_cst_node_to_node_negative_notation():
+    # language=html
+    html = "<b></b><div id='foo'><input><br><button id='btn1' disabled></button></div><br>"
+    tree = html_parser.html_to_tree(html)
+    actual = html_locator.tree_to_path(tree, [-2, -1])
     expect = [Node("div", 1, {'id': 'foo'}), Node("button", 2, {'id': 'btn1', 'disabled': None})]
     assert actual == expect
 
