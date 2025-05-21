@@ -128,8 +128,11 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
 
         source2 = html_string_edit(source1, class_name, manipulate_html)
         new_tree = html_parser.html_to_tree(source2)
-        displacement = 0 if position == Position.beforebegin else 1
-        indexes = index_path[0:-1] + [index_path[-1] + displacement]
+        if position == Position.afterbegin:
+            indexes = index_path + [0]
+        else:
+            displacement = 0 if position == Position.beforebegin else 1
+            indexes = index_path[0:-1] + [index_path[-1] + displacement]
         new_node_path = html_locator.tree_to_path(new_tree, indexes)
         result = AddResult(source2, new_node_path)
     except Exception as e:

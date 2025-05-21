@@ -289,6 +289,21 @@ class MyElement:
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
+    def test_node_path__afterbegin(self):
+        original_source = """
+class MyElement:
+    def init_component(self):
+        self.element.innerHTML = '''<div><br></div>'''
+    """
+
+        edb = ElementDefBase('btn', 'js.Some')
+        add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
+        if not isinstance(add_result, AddResult):
+            raise ValueError(f'unexpected type={add_result}')
+
+        expected_node_path = [Node("div", 0, {}), Node('btn', 0, {'data-name': 'btn1'})]
+        assert add_result.node_path == expected_node_path
+
 
 class TestRemoveElement:
     def test_html_and_no_python_attribute(self):
