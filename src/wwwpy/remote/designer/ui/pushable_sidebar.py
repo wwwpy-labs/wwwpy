@@ -521,7 +521,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
     # Lifecycle callbacks from the web components spec
     def connectedCallback(self):
         """Called when the element is added to the DOM"""
-        logger.warning(f'connectedCallback {self._state}')
+        # logger.warning(f'connectedCallback {self._state}')
         self._hotkeys.install()
         # Update the sidebar when connected
         self._update_sidebar()
@@ -532,7 +532,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
 
     def disconnectedCallback(self):
         """Called when the element is removed from the DOM"""
-        logger.warning(f'disconnectedCallback {self._state}')
+        # logger.warning(f'disconnectedCallback {self._state}')
         self._hotkeys.uninstall()
         # Remove the padding from body when sidebar is removed
         self._remove_padding()

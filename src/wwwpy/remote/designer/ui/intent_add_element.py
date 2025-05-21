@@ -7,7 +7,7 @@ from wwwpy.common import modlib
 from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
-from wwwpy.common.designer.element_library import ElementDef, ElementDefBase
+from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.designer.element_path import ElementPath
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
@@ -21,7 +21,7 @@ from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
 from wwwpy.remote.designer.ui.toolbox import _open_error_reporter_window
-from wwwpy.remote.jslib import get_deepest_element, is_instance_of
+from wwwpy.remote.jslib import is_instance_of
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +59,7 @@ class AddElementIntent(Intent):
 
     def _set_selection_from_js_event(self, hover_event: IntentEvent):
         event = hover_event.js_event
-
-        target = get_deepest_element(event.clientX, event.clientY)
+        target = hover_event.deep_target
 
         tool = self._tool
         if not tool.element.isConnected:
@@ -70,8 +69,6 @@ class AddElementIntent(Intent):
         if unselectable or target == js.document.body or target == js.document.documentElement:
             target = None
 
-        # if self._selected == target:
-        #     return target
         logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
         position = None
         if target:
@@ -86,12 +83,13 @@ class AddElementIntent(Intent):
 
     def _add_element(self, target: js.HTMLElement, position: Position):
         ep_live = element_path.element_path(target)
-        logger.debug(f'Element path live: {ep_live}')
         ep_source = _rebase_element_path_to_origin_source(ep_live)
-        logger.debug(f'Element path source: {ep_source}')
+        ep_log = \
+            f'Element path live: {ep_live} position: {position}' + '\n' + \
+            f'Element path source: {ep_source}'
         message = 'ep_source is none' if ep_source is None else f'ep_source: {_element_path_lbl(ep_source)}'
-        logger.warning(message)
         if ep_source is not None:
+            logger.debug(ep_log + '\n' + message)
             _add_component(ep_source, position, self.element_def)
         else:
             logger.warning(message)
@@ -105,7 +103,7 @@ def _pretty(node: js.HTMLElement):
 
 
 def _add_component(el_path: ElementPath, position: Position,
-                   element_def: ElementDef):
+                   element_def: ElementDefBase):
     file = modlib._find_module_path(el_path.class_module)
     old_source = file.read_text()
 

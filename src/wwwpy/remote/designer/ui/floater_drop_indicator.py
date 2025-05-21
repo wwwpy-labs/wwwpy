@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import js
 
 from wwwpy.common.designer.html_edit import Position
@@ -7,6 +9,8 @@ from wwwpy.common.designer.ui._drop_indicator_svg import svg_indicator_for
 from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.floater import Floater
+
+logger = logging.getLogger(__name__)
 
 
 class DropIndicatorFloater(Floater, tag_name='wwwpy-drop-indicator-floater'):
