@@ -35,20 +35,20 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     ih = height * 10 / 30
     x = (width - iw) / 2
     y = (height - ih) / 2
-    ou_tl = position == Position.beforebegin  # outer top left
-    ou_br = position == Position.afterend  # outer bottom right
-    in_tl = position == Position.afterbegin  # inner top left
-    in_br = position == Position.beforeend  # inner bottom right
+    out_tl = position == Position.beforebegin  # outer top left
+    out_br = position == Position.afterend  # outer bottom right
+    inn_tl = position == Position.afterbegin  # inner top left
+    inn_br = position == Position.beforeend  # inner bottom right
 
-    out_tl_color = active_color if ou_tl else inactive_color
-    out_br_color = active_color if ou_br else inactive_color
-    out_tl_width = 6 if ou_tl else 2
-    out_br_width = 6 if ou_br else 2
+    out_tl_color = active_color if out_tl else inactive_color
+    out_br_color = active_color if out_br else inactive_color
+    out_tl_width = 6 if out_tl else 2
+    out_br_width = 6 if out_br else 2
 
-    in_tl_color = active_color if in_tl else inactive_color
-    in_br_color = active_color if in_br else inactive_color
-    in_tl_width = 3 if in_tl else 1
-    in_br_width = 3 if in_br else 1
+    inn_tl_color = active_color if inn_tl else inactive_color
+    inn_br_color = active_color if inn_br else inactive_color
+    inn_tl_width = 3 if inn_tl else 1
+    inn_br_width = 3 if inn_br else 1
 
     # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
@@ -61,11 +61,11 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     <line x1="%(w)s" y1="0" x2="%(w)s" y2="%(h)s"/>
   </g>
   
-  <g stroke="%(in_tl_color)s" stroke-width="%(in_tl_width)s" transform="translate(%(x)s, %(y)s)">
+  <g stroke="%(inn_tl_color)s" stroke-width="%(inn_tl_width)s" transform="translate(%(x)s, %(y)s)">
     <line x1="0" y1="0" x2="%(iw)s" y2="0"/>
     <line x1="0" y1="0" x2="0" y2="%(ih)s"/>
   </g>
-  <g stroke="%(in_br_color)s" stroke-width="%(in_br_width)s" transform="translate(%(x)s, %(y)s)">
+  <g stroke="%(inn_br_color)s" stroke-width="%(inn_br_width)s" transform="translate(%(x)s, %(y)s)">
     <line x1="0" y1="%(ih)s" x2="%(iw)s" y2="%(ih)s"/>
     <line x1="%(iw)s" y1="0" x2="%(iw)s" y2="%(ih)s"/>
   </g>
@@ -78,8 +78,8 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
         out_tl_color=out_tl_color, out_br_color=out_br_color,
         out_tl_width=out_tl_width, out_br_width=out_br_width,
 
-        in_tl_width=in_tl_width, in_tl_color=in_tl_color,
-        in_br_width=in_br_width, in_br_color=in_br_color,
+        inn_tl_width=inn_tl_width, inn_tl_color=inn_tl_color,
+        inn_br_width=inn_br_width, inn_br_color=inn_br_color,
     )
 
 
