@@ -11,6 +11,7 @@ from wwwpy.remote import dict_to_js, hotkeylib
 from wwwpy.remote._elementlib import ensure_tag_instance
 from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.intent import IntentEvent
+from wwwpy.remote.jslib import is_instance_of
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 class _SidebarDesignAware(DesignAware):
 
     def is_designer(self, hover_event: IntentEvent) -> bool | None:
+        # return None
         target = hover_event.deep_target
         if target is None:
             return None
@@ -100,7 +102,6 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
             <div class="resize-handle" data-name="_resize_handle"></div>
         </div>
         """
-        self._body_padding = ensure_tag_instance('style', _BODY_PADDING_STYLE_ID, js.document.head)
 
         self._config = {
             'width': '300px',
@@ -136,6 +137,12 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         self._hotkeys = hotkeylib.Hotkey(js.window)
         self._last_ctrl_time = None
         self._hotkeys.add('CTRL-Control', self._double_ctrl_detector)
+
+    @property
+    def _body_padding(self) -> js.HTMLStyleElement:
+        instance = ensure_tag_instance('style', _BODY_PADDING_STYLE_ID, js.document.head)
+        assert is_instance_of(instance, js.HTMLStyleElement)
+        return instance
 
     def _double_ctrl_detector(self, event):
         if not self._last_ctrl_time:
@@ -514,6 +521,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
     # Lifecycle callbacks from the web components spec
     def connectedCallback(self):
         """Called when the element is added to the DOM"""
+        logger.warning(f'connectedCallback {self._state}')
         self._hotkeys.install()
         # Update the sidebar when connected
         self._update_sidebar()
@@ -524,6 +532,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
 
     def disconnectedCallback(self):
         """Called when the element is removed from the DOM"""
+        logger.warning(f'disconnectedCallback {self._state}')
         self._hotkeys.uninstall()
         # Remove the padding from body when sidebar is removed
         self._remove_padding()
