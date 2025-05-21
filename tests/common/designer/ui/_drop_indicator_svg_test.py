@@ -24,13 +24,13 @@ def test_svg_should_be_different_from_each_other():
 
 class TestPositionFor:
     def test_beforebegin(self):
-        assert position_for(100, 50, 0, 0) == Position.beforebegin
+        assert position_for(100, 50, 1, 1) == Position.beforebegin
 
     def test_afterend(self):
-        assert position_for(100, 50, 100, 50) == Position.afterend
+        assert position_for(100, 50, 100 - 1, 50 - 1) == Position.afterend
 
     def test_afterbegin(self):
-        assert position_for(100, 50, 50 - 1, 25 - 1) == Position.afterbegin
+        assert position_for(50, 50, 25 - 1, 25 - 1) == Position.afterbegin
 
     def test_beforeend(self):
-        assert position_for(100, 50, 50 + 1, 25 + 1) == Position.beforeend
+        assert position_for(50, 50, 25 + 1, 25 + 1) == Position.beforeend

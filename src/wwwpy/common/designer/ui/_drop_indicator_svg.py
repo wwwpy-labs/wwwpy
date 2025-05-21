@@ -1,23 +1,31 @@
+import logging
+
 from wwwpy.common.designer.html_edit import Position
+
+logger = logging.getLogger(__name__)
 
 
 def position_for(width: float, height: float, x: float, y: float) -> Position:
-    # iw = width * 25 / 70
-    # ih = height * 10 / 30
     ratio = 0.35
     iw = width * ratio
     ih = height * ratio
     x0 = (width - iw) / 2
     y0 = (height - ih) / 2
-    if x0 <= x <= x0 + iw and y0 <= y <= y0 + ih:
-        if (y - y0) <= (ih / iw) * (x - x0):
-            return Position.afterbegin  # Top-left part
-        else:
-            return Position.beforeend  # Bottom-right part
+    inside_inner = x0 <= x <= x0 + iw and y0 <= y <= y0 + ih
+    if inside_inner:
+        ix = x - x0
+        iy = y - y0
+        tl = _is_top_left(iw, ih, ix, iy)
+        res = Position.afterbegin if tl else Position.beforeend
+    else:
+        tl = _is_top_left(width, height, x, y)
+        res = Position.beforebegin if tl else Position.afterend
+    logger.debug(f'position_for: x={x}, y={y}, iw={iw}, ih={ih}, x0={x0}, y0={y0}, res={res}')
+    return res
 
-    if y <= -height / width * x + height:
-        return Position.beforebegin
-    return Position.afterend
+
+def _is_top_left(w: float, h: float, x: float, y: float) -> bool:
+    return y <= -h / w * x + h
 
 
 def svg_indicator_for(width: float, height: float, position: Position) -> str:
@@ -27,17 +35,20 @@ def svg_indicator_for(width: float, height: float, position: Position) -> str:
     ih = height * 10 / 30
     x = (width - iw) / 2
     y = (height - ih) / 2
-    out_tl_color = active_color if position == Position.beforebegin else inactive_color
-    out_br_color = active_color if position == Position.afterend else inactive_color
+    ou_tl = position == Position.beforebegin  # outer top left
+    ou_br = position == Position.afterend  # outer bottom right
+    in_tl = position == Position.afterbegin  # inner top left
+    in_br = position == Position.beforeend  # inner bottom right
 
-    in_tl_color = active_color if position == Position.beforeend else inactive_color
-    in_br_color = active_color if position == Position.afterbegin else inactive_color
+    out_tl_color = active_color if ou_tl else inactive_color
+    out_br_color = active_color if ou_br else inactive_color
+    out_tl_width = 6 if ou_tl else 2
+    out_br_width = 6 if ou_br else 2
 
-    out_tl_width = 6 if position == Position.beforebegin else 2
-    out_br_width = 6 if position == Position.afterend else 2
-
-    in_tl_width = 3 if position == Position.beforeend else 1
-    in_br_width = 3 if position == Position.afterbegin else 1
+    in_tl_color = active_color if in_tl else inactive_color
+    in_br_color = active_color if in_br else inactive_color
+    in_tl_width = 3 if in_tl else 1
+    in_br_width = 3 if in_br else 1
 
     # language=html
     svg = '''<svg width="%(w)s" height="%(h)s" viewBox="0 0 %(w)s %(h)s" xmlns="http://www.w3.org/2000/svg">
