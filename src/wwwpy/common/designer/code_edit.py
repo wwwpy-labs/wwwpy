@@ -130,6 +130,8 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
         new_tree = html_parser.html_to_tree(source2)
         if position == Position.afterbegin:
             indexes = index_path + [0]
+        elif position == Position.beforeend:
+            indexes = index_path + [-1]
         else:
             displacement = 0 if position == Position.beforebegin else 1
             indexes = index_path[0:-1] + [index_path[-1] + displacement]
