@@ -22,6 +22,9 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
         <div slot="header">Add Components</div>
         <wwwpy-palette data-name="_palette" style="height: 300px; display: flex"></wwwpy-palette>
     </wwwpy-accordion-section>
+    <wwwpy-accordion-section expanded>
+        <div slot="header">Structure</div>
+        <wwwpy-comp-tree style="height: 250px; display: flex; overflow: scroll"></wwwpy-comp-tree>
 </pushable-sidebar>
         """
         self._palette.add_intent(SelectElementIntent())

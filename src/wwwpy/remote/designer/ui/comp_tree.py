@@ -81,7 +81,7 @@ class CompTree(wpc.Component, tag_name='wwwpy-comp-tree'):
     }
 </style>
 
-<div data-name="_div">component-tree</div>
+<div data-name="_div"></div>
         """
 
         rem = modlib._find_package_directory('remote')
