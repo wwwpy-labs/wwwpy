@@ -9,6 +9,7 @@ from wwwpy.common.asynclib import create_task_safe
 from wwwpy.remote import dict_to_js
 from wwwpy.server.designer import rpc
 from . import quickstart_ui
+from .new_toolbox import NewToolbox
 from .quickstart_ui import QuickstartUI
 from .toolbox import ToolboxComponent
 
@@ -27,6 +28,7 @@ class classproperty(property):
 
 class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
     toolbox: ToolboxComponent = wpc.element()
+    _new_toolbox: NewToolbox = wpc.element()
     quickstart: QuickstartUI | None = None
     _instance: DevModeComponent
 
@@ -45,7 +47,8 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
         self.element.shadowRoot.innerHTML = """
-<wwwpy-toolbox data-name="toolbox"></wwwpy-toolbox>        
+<wwwpy-toolbox data-name="toolbox"></wwwpy-toolbox>   
+<wwwpy-new-toolbox data-name='_new_toolbox'></wwwpy-new-toolbox>     
         """
 
     async def _connectedCallback_async(self):
