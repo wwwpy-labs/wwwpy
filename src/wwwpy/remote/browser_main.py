@@ -23,10 +23,7 @@ async def entry_point(dev_mode: bool = False):
     import wwwpy
     console.log(wwwpy.__banner__)
     await setup_websocket()
-    dm.set_active(dev_mode)
-    if dev_mode:
-        await dm.activate()
-
+    await dm.set_active(dev_mode)
     await _invoke_browser_main()
 
 
@@ -69,8 +66,7 @@ async def _invoke_browser_main():
             from wwwpy.server.designer import rpc
             create_task_safe(rpc.on_exception_string(traceback.format_exc()))
     finally:
-        from wwwpy.remote.designer.dev_mode import show_dev_mode
-        await create_task_safe(show_dev_mode())
+        dm.on_after_remote_main()
 
 
 def _reset_document():

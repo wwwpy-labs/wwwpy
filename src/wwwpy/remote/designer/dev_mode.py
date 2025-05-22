@@ -11,7 +11,20 @@ from wwwpy.remote.designer.ui.element_selector import ElementSelector
 logger = logging.getLogger(__name__)
 
 
-async def activate():
+async def set_active(dev_mode: bool):
+    js.window._wwwpy_dev_mode = dev_mode
+    if dev_mode:
+        await _activate()
+
+
+def is_active() -> bool:
+    try:
+        return js.window._wwwpy_dev_mode
+    except AttributeError:
+        return False
+
+
+async def _activate():
     from wwwpy.remote import micropip_install
     from wwwpy.common import designer
 
@@ -40,11 +53,12 @@ async def activate():
     di_remote.register_bindings()
 
 
-def is_active() -> bool:
-    try:
-        return js.window._wwwpy_dev_mode
-    except AttributeError:
-        return False
+def on_after_remote_main():
+    if not is_active():
+        return
+    from wwwpy.remote.designer.ui import dev_mode_component
+    dev_mode_component.show()  # todo it looks like it can take ~ 1s or more; investigate,
+    # maybe micropip installing rope has to do with it
 
 
 def _global_exception_handler(loop, context):
@@ -58,15 +72,3 @@ def _global_exception_handler(loop, context):
     if exception:
         logger.info(f"Exception type: {type(exception)}, Args: {exception.args}")
         logger.exception(exception)
-
-
-def set_active(dev_mode: bool):
-    js.window._wwwpy_dev_mode = dev_mode
-
-
-async def show_dev_mode():
-    if not is_active():
-        return
-    from wwwpy.remote.designer.ui import dev_mode_component
-    dev_mode_component.show()  # todo it looks like it can take ~ 1s or more; investigate,
-    # maybe micropip installing rope has to do with it
