@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Dict, overload, TypeVar
+from typing import Dict, TypeVar
 
 import js
 from js import Element, HTMLElement, console
@@ -12,20 +12,18 @@ logger = logging.getLogger(__name__)
 namespace = "window.python_custom_elements"
 
 
-# todo maybe we can join Metadata and Component into one class
 class Metadata:
-    def __init__(self, tag_name: str | None = None, clazz=None):
-        if clazz is not None:
-            if not issubclass(clazz, Component):
-                raise Exception(f'clazz must be a subclass of {Component.__name__}')
-            if tag_name is None:
-                # get the full class name
-                fully_qualified_class_name = clazz.__qualname__
-                tag_name = ('wwwpy-auto-' + fully_qualified_class_name.lower()
-                            .replace('<', '-')
-                            .replace('>', '-')
-                            .replace('.', '-')
-                            )
+    def __init__(self, clazz, tag_name: str | None = None):
+        if not issubclass(clazz, Component):
+            raise Exception(f'clazz must be a subclass of {Component.__name__}')
+        if tag_name is None:
+            # get the full class name
+            fully_qualified_class_name = clazz.__qualname__
+            tag_name = ('wwwpy-auto-' + fully_qualified_class_name.lower()
+                        .replace('<', '-')
+                        .replace('>', '-')
+                        .replace('.', '-')
+                        )
 
         self.tag_name = tag_name
         self.observed_attributes = set()
@@ -87,7 +85,7 @@ class Component:
 
     def __init_subclass__(cls, tag_name: str | None = None, auto_define=True, **kwargs):
         super().__init_subclass__(**kwargs)
-        metadata = Metadata(tag_name=tag_name, clazz=cls)
+        metadata = Metadata(clazz=cls, tag_name=tag_name)
         cls.component_metadata = metadata
         if metadata.clazz is None:
             metadata.clazz = cls
@@ -116,10 +114,6 @@ class Component:
             asyncio.create_task(self.after_init_component())
         else:
             self.after_init_component()
-
-    @overload
-    def after_init_component(self):
-        ...
 
     async def after_init_component(self):
         """This is called after init_component, it can be async or called synchronously if it is a normal method.
@@ -275,7 +269,7 @@ window.$ClassName = $ClassName;
 _C = TypeVar('_C', bound=Component)
 
 
-def get_component(js_element: Element, component_class: type[_C] | None = None) -> _C | None:
+def from_element(js_element: Element, component_class: type[_C] | None = None) -> _C | None:
     # verify that component_class is a subclass of Component
     if component_class is not None and not issubclass(component_class, Component):
         raise TypeError(f'component_class must be a subclass of {Component.__name__} but got {component_class}')
@@ -290,6 +284,10 @@ def get_component(js_element: Element, component_class: type[_C] | None = None) 
             raise TypeError(f'Expected {component_class.__name__}, but got {type(component).__name__}')
 
     return component
+
+
+def get_component(js_element: Element, component_class: type[_C] | None = None) -> _C | None:
+    return from_element(js_element, component_class)
 
 
 # class Attribute(str):
