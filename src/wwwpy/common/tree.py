@@ -46,5 +46,14 @@ def print_tree(path, printer=print, file_size=True):
         printer(line)
 
 
+def filesystem_tree_str(path: Path | str) -> str:
+    path = Path(path)
+    if path.exists():
+        tree_str = '\n'.join(tree(path, prefix='    ', file_size=True))
+        return f'Filesystem tree for {path}:\n{tree_str}'
+    else:
+        return f'Filesystem path do not exists `{path}`'
+
+
 if __name__ == '__main__':
     print_tree(Path(__file__).parent.parent, file_size=True)

@@ -10,7 +10,7 @@ from tests.timeouts import timeout_multiplier
 from wwwpy.common import quickstart
 from wwwpy.common.files import get_all_paths_with_hashes
 from wwwpy.common.quickstart import is_empty_project
-from wwwpy.common.tree import print_tree
+from wwwpy.common.tree import filesystem_tree_str
 
 logger = logging.getLogger(__name__)
 
@@ -53,17 +53,18 @@ DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
     def print_server_fs():
-        rem = fixture.tmp_path / 'remote'
-        if rem.exists():
-            print_tree(rem)
-        else:
-            logger.warning(f'remote folder not found in {fixture.tmp_path}')
+        logger.debug(filesystem_tree_str(fixture.tmp_path / 'remote2'))
 
     logger.debug(f'Going to verify if component-1 is attached with a specific 42000ms timeout')
     try:
         # expect(fixture.page.locator('component-1')).to_be_attached(timeout=42000)
         # language=python
         fixture.assert_evaluate_retry("""
+from pathlib import Path
+rem = Path('/wwwpy_bundle/remote')
+from wwwpy.common.tree import filesystem_tree_str
+print(filesystem_tree_str(rem))
+        
 import js
 '<component-1>' in js.document.body.innerHTML , f'html=[[[{js.document.body.innerHTML}]]]'
 """, on_false_eval=print_server_fs)
