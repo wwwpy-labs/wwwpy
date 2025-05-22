@@ -78,6 +78,9 @@ class Injector:
         """Clear all registered dependencies."""
         self._registry.clear()
 
+    def field(self):  # todo test
+        return inject()
+
 
 default_injector = Injector()
 injector = default_injector
