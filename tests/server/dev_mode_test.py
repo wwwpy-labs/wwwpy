@@ -53,7 +53,7 @@ DevModeComponent.instance.quickstart.window.element.isConnected is False
 """)
 
     def print_server_fs():
-        logger.debug(filesystem_tree_str(fixture.tmp_path / 'remote2'))
+        logger.debug(filesystem_tree_str(fixture.tmp_path / 'remote'))
 
     logger.debug(f'Going to verify if component-1 is attached with a specific 42000ms timeout')
     try:
