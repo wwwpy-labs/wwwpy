@@ -1,12 +1,13 @@
 import asyncio
 import logging
+import weakref
 
 import js
 import pytest
 from js import document, HTMLElement, Event, HTMLDivElement
 
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.component import Component, attribute, element, get_component
+from wwwpy.remote.component import Component, attribute, element, get_component, from_element
 
 logger = logging.getLogger(__name__)
 
@@ -570,3 +571,65 @@ class TestInheritance:
 
         c2 = get_component(element, Comp2)
         assert c2.some_method() == 1
+
+
+def _dispose(c: Component):
+    """this is needed because of the split between js and python GC (garbage collector)"""
+    c.dispose()
+
+
+def test_show_underling_wasm_js_pyodide_limitation(self):
+    class Some: ...
+
+    fin = []
+
+    def do():
+        from pyodide.ffi import create_proxy
+        jso = js.document.createElement('div')
+        pyo = Some()
+        pyo_proxy = create_proxy(pyo)
+        jso._py = pyo_proxy
+        pyo._js = jso  # circular reference done
+
+        weakref.finalize(pyo, lambda: fin.append(1))
+        return pyo_proxy
+
+    pyo_proxy = do()
+
+    assert fin == []  # if the two environments js/pyodide had a conjunction to dispose the object, it would be 1
+
+    pyo_proxy.destroy()
+
+    assert fin == [1]
+
+
+class TestDispose:
+
+    def test_dispose_py(self):
+        class Comp1(Component): ...
+
+        fin = []
+
+        def do():
+            comp1 = Comp1()
+            weakref.finalize(comp1, lambda: fin.append(1))
+            _dispose(comp1)
+
+        do()
+
+        assert fin == [1]
+
+    def test_dispose_js(self):
+        class Comp1(Component): ...
+
+        fin = []
+
+        def do():
+            ele1 = js.document.createElement(Comp1.component_metadata.tag_name)
+            comp1 = from_element(ele1)
+            weakref.finalize(comp1, lambda: fin.append(1))
+            _dispose(comp1)
+
+        do()
+
+        assert fin == [1]

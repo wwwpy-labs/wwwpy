@@ -28,7 +28,7 @@ class Metadata:
         self.tag_name = tag_name
         self.observed_attributes = set()
         self.registered = False
-        self.clazz = clazz
+        self.clazz: type[Component] = clazz
         self._custom_element_class_template = None
 
     def __set_name__(self, owner, name):
@@ -49,7 +49,14 @@ class Metadata:
 
         pc = js.eval(namespace)
         already_defined = hasattr(pc, js_class_name)
-        setattr(pc, js_class_name, self.clazz)  # set the python constructor, in any case
+
+        def create_instance(js_element=None):
+            self.clazz(js_element)
+            # when passing the instance back to javascript it seems it will not be garbage collected
+            # doing this we track the JsProxy and we can manually call the JsProxy.destroy()
+            return None
+
+        setattr(pc, js_class_name, create_instance)  # set the python constructor, in any case
         if not already_defined:
             obs_attr = ', '.join(f'"{attr}"' for attr in self.observed_attributes)
             code = (_custom_element_class_template
@@ -98,10 +105,13 @@ class Component:
             cls.component_metadata.define_element()
 
     def __init__(self, element_from_js=None):
+        self._proxy = create_proxy(self)
         if element_from_js is None:
-            self.element = js.eval(f'window.{self.component_metadata._js_class_name}').new(create_proxy(self))
+            self.element = js.eval(f'window.{self.component_metadata._js_class_name}').new('init_from_python_yes')
         else:
             self.element = element_from_js
+
+        self.element._python_component = self._proxy
 
         try:
             self.init_component()
@@ -110,10 +120,26 @@ class Component:
 
         self._bind_events()
 
-        if asyncio.iscoroutinefunction(self.after_init_component):
-            asyncio.create_task(self.after_init_component())
-        else:
-            self.after_init_component()
+        if hasattr(self, 'after_init_component'):
+            if asyncio.iscoroutinefunction(self.after_init_component):
+                asyncio.create_task(self.after_init_component())
+            else:
+                self.after_init_component()
+
+    def dispose(self):
+        """
+        After calling this method, the component will be unusable.
+        This method is needed to break the circular reference between the element and the component.
+
+        Sadly, the garbage collecting of the Component/Element instance is not automatic: I hope in
+        some WASM unified garbage collecting.
+        """
+        if self.element:
+            self.element._python_component = None
+            self.element = None
+        if self._proxy:
+            self._proxy.destroy()
+            self._proxy = None
 
     async def after_init_component(self):
         """This is called after init_component, it can be async or called synchronously if it is a normal method.
@@ -238,6 +264,10 @@ class Component:
             element.addEventListener(event_name, create_proxy(m))
 
 
+# this is a convenience to detect if the method is overridden or not and avoid creating void async task
+del Component.after_init_component
+
+
 class ElementNotFound(AttributeError): pass
 
 
@@ -248,12 +278,10 @@ class WrongTypeDefinition(TypeError): pass
 _custom_element_class_template = """
 class $ClassName extends HTMLElement {
     static observedAttributes = [ $observedAttributes ];
-    constructor(python_component) {
+    constructor(init_from_python) {
         super();
-        if (python_component) 
-            this._python_component = python_component;
-        else 
-            this._python_component = $namespace.$ClassName(this);
+        if (!init_from_python)
+            $namespace.$ClassName(this);
     }
 
     connectedCallback()    { this._python_component.connectedCallback(); }
