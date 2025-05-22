@@ -6,19 +6,23 @@ import js
 
 import wwwpy.remote.component as wpc
 from wwwpy.common.asynclib import create_task_safe
+from wwwpy.common.eventbus import EventBus
+from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.server.designer import rpc
 from . import quickstart_ui
 from .new_toolbox import NewToolbox
 from .quickstart_ui import QuickstartUI
 from .toolbox import ToolboxComponent
+from ..dev_mode_events import AfterDevModeShow
 
 logger = logging.getLogger(__name__)
 
 
 def show():
-    x = DevModeComponent.instance
-    js.document.body.append(DevModeComponent.instance.element)
+    instance = DevModeComponent.instance
+    js.document.body.append(instance.element)
+    injector.get(EventBus).publish(AfterDevModeShow())
 
 
 class classproperty(property):

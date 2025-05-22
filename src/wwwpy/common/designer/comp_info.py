@@ -24,13 +24,17 @@ class CompInfo:
     def class_full_name(self) -> str:
         return f'{self.class_package}.{self.class_name}'
 
+
 def iter_comp_info_folder(folder: Path, package: str) -> Iterator[CompInfo]:
     """Iterate over all components in the folder."""
-    for path in folder.glob('*.py'):
+    logger.debug(f'Iterating over components in {folder}')
+    for path in sorted(folder.glob('*.py'), key=lambda p: p.stem):
         yield from iter_comp_info(path, package + '.' + path.stem)
 
 
 def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
+    """Iterate over all components in the file."""
+    logger.debug(f'Iterating over components in {path}')
     source_code = path.read_text()
     ci = code_info.info(source_code)
     return (c for c in (_to_comp_info(source_code, path, cl, package) for cl in ci.classes) if c is not None)

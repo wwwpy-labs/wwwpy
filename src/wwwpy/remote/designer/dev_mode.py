@@ -42,6 +42,9 @@ async def _activate():
 
     # dependency injection
     injector._clear()
+
+    from wwwpy.common.eventbus import EventBus
+    injector.bind(EventBus())  # todo, maybe use a named binding so we use our own event bus
     from wwwpy.remote.designer.ui.intent_manager import IntentManager
     intent_manager = IntentManager()
     intent_manager.install()

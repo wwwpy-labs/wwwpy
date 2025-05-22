@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import Iterator
 
 import js
 
@@ -13,7 +12,10 @@ from wwwpy.common import modlib
 from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo
 from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.designer.html_parser import CstTree
+from wwwpy.common.eventbus import EventBus
+from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.dev_mode_events import AfterDevModeShow
 from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
@@ -61,6 +63,7 @@ _design_aware = _DesignAware()
 
 class CompTree(wpc.Component, tag_name='wwwpy-comp-tree'):
     _div: js.HTMLDivElement = wpc.element()
+    _eventbus: EventBus = injector.field()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -83,24 +86,28 @@ class CompTree(wpc.Component, tag_name='wwwpy-comp-tree'):
 
 <div data-name="_div"></div>
         """
-
-        rem = modlib._find_package_directory('remote')
-        if rem:
-            cii = iter_comp_info_folder(rem, 'remote')
-            self.add_comp_info_iter(cii)
-
-    def add_comp_info_iter(self, comp_info_iter: Iterator[CompInfo]):
-        for ci in comp_info_iter:
-            cti = CompTreeItem()
-            cti.set_comp_info(ci)
-            self._div.appendChild(cti.element)
+        self._subscription = None
 
     def connectedCallback(self):
+        self._subscription = self._eventbus.subscribe(self._scan_for_components, on=AfterDevModeShow)
         DesignAware.EP_REGISTRY.unregister(_design_aware)
         DesignAware.EP_REGISTRY.register(_design_aware)
 
     def disconnectedCallback(self):
+        self._subscription.unsubscribe()
+        self._subscription = None
         DesignAware.EP_REGISTRY.unregister(_design_aware)
+
+    def _scan_for_components(self, _):
+        logger.warning('scan_for_components')
+        self._div.innerHTML = ''
+        rem = modlib._find_package_directory('remote')
+        if not rem:
+            return
+        for ci in iter_comp_info_folder(rem, 'remote'):
+            cti = CompTreeItem()
+            cti.set_comp_info(ci)
+            self._div.appendChild(cti.element)
 
 
 class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
@@ -118,7 +125,7 @@ class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
 
     def set_comp_info(self, ci: CompInfo):
         self.comp_info = ci
-        self._summary.innerText = ci.class_name + ' / ' + ci.class_package
+        self._summary.innerText = ci.path.name + ' / ' + ci.class_name
 
         def rec(cst_tree: CstTree, elem: js.HTMLElement):
             for cst_node in cst_tree:
