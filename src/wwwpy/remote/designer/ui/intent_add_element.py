@@ -14,8 +14,8 @@ from wwwpy.common.designer.locator import Locator
 from wwwpy.common.designer.ui._drop_indicator_svg import position_for
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_py
-from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
+from wwwpy.remote.designer.locator_js import locator_from
 from wwwpy.remote.designer.ui.design_aware import is_designer
 from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
@@ -82,7 +82,7 @@ class AddElementIntent(Intent):
         return target, position
 
     def _add_element(self, target: js.HTMLElement, position: Position):
-        ep_live = element_path.locator_from(target)
+        ep_live = locator_from(target)
         ep_source = _rebase_element_path_to_origin_source(ep_live)
         ep_log = \
             f'Element path live: {ep_live} position: {position}' + '\n' + \

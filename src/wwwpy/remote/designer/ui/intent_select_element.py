@@ -7,8 +7,8 @@ import js
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_py
-from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.helpers import _element_path_lbl
+from wwwpy.remote.designer.locator_js import locator_from
 from wwwpy.remote.designer.ui.design_aware import is_designer
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
@@ -63,7 +63,7 @@ class SelectElementIntent(Intent):
         return target
 
     def _set_toolbox_selection(self, target):
-        ep_live = element_path.locator_from(target)
+        ep_live = locator_from(target)
         logger.debug(f'Element path live: {ep_live}')
         ep_source = _rebase_element_path_to_origin_source(ep_live)
         logger.debug(f'Element path source: {ep_source}')

@@ -5,7 +5,7 @@ from js import HTMLElement, console
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
 from wwwpy.common.designer.element_library import ElementDef
 from wwwpy.common.designer.locator import Locator
-from wwwpy.remote.designer import element_path
+from wwwpy.remote.designer.locator_js import locator_from
 
 try:
     from wwwpy.server.designer import rpc
@@ -30,7 +30,7 @@ def info_link(href):
 
 
 def _element_lbl(element: HTMLElement) -> str:
-    ep = element_path.locator_from(element)
+    ep = locator_from(element)
     console.log(f'element_path={ep}')
     return _element_path_lbl(ep) if ep else 'No element path'
 

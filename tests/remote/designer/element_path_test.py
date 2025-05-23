@@ -5,7 +5,7 @@ import wwwpy.remote.component as wpc
 from tests.common import dyn_sys_path
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.element_path import locator_from
+from wwwpy.remote.designer.locator_js import locator_from
 
 
 def test_target_path_to_component(tmp_path, dyn_sys_path):

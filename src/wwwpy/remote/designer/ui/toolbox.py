@@ -21,7 +21,6 @@ from wwwpy.common.designer.html_locator import path_to_index
 from wwwpy.common.designer.locator import Locator
 from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer import element_path
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover
 from wwwpy.remote.designer.global_interceptor import GlobalInterceptor, InterceptorEvent
 from wwwpy.remote.designer.helpers import _element_lbl, _help_button, info_link, _help_url
@@ -32,6 +31,7 @@ from wwwpy.server.designer import rpc
 from . import filesystem_tree
 from .help_icon import HelpIcon  # noqa
 from .mailto_component import MailtoComponent
+from ..locator_js import locator_from
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +179,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         self._update_toolbox_elements()
 
     async def _process_dropzone(self, drop_zone: DropZone, element_def: ElementDef):
-        el_path = element_path.locator_from(drop_zone.element)
+        el_path = locator_from(drop_zone.element)
 
         if not el_path:
             window.alert(f'No component found for dropzone!')
@@ -261,7 +261,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         res = await _drop_zone_start_selection_async(_on_hover, whole=True)
         if res:
             self.property_editor.set_state_selection_active()
-            self._toolbox_state.selected_element_path = element_path.locator_from(res.element)
+            self._toolbox_state.selected_element_path = locator_from(res.element)
         else:
             await self._canceled()
         self._restore_selected_element_path()
