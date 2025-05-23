@@ -10,7 +10,7 @@ from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.common.designer.locator import Locator
+from wwwpy.common.designer.locator_lib import Locator
 from wwwpy.common.designer.ui._drop_indicator_svg import position_for
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_py

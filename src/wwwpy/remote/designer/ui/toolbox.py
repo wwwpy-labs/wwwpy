@@ -18,7 +18,7 @@ from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
-from wwwpy.common.designer.locator import Locator
+from wwwpy.common.designer.locator_lib import Locator
 from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.drop_zone import DropZone, DropZoneHover

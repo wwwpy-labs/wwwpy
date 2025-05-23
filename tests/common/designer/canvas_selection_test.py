@@ -1,6 +1,6 @@
 from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
 from wwwpy.common.designer.html_locator import html_to_node_path
-from wwwpy.common.designer.locator import Locator, Origin
+from wwwpy.common.designer.locator_lib import Locator, Origin
 
 
 def _new_element_path_old():

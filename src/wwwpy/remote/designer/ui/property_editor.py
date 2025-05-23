@@ -12,7 +12,7 @@ import wwwpy.remote.component as wpc
 from wwwpy.common import state, property_monitor
 from wwwpy.common.designer import element_library, html_locator, code_strings
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
-from wwwpy.common.designer.locator import Locator, Origin
+from wwwpy.common.designer.locator_lib import Locator, Origin
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.helpers import _element_path_lbl, _rpc_save, _log_event, _help_button
 from .button_tab import ButtonTab, Tab

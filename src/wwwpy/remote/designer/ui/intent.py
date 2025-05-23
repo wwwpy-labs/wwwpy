@@ -6,7 +6,7 @@ from functools import cached_property
 import js
 
 
-@dataclass
+@dataclass  # todo we could remove IntentEvent and use directly js.PointerEvent
 class IntentEvent:
     js_event: js.PointerEvent
 

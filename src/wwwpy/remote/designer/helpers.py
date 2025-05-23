@@ -4,7 +4,7 @@ from js import HTMLElement, console
 
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
 from wwwpy.common.designer.element_library import ElementDef
-from wwwpy.common.designer.locator import Locator
+from wwwpy.common.designer.locator_lib import Locator
 from wwwpy.remote.designer.locator_js import locator_from
 
 try:
