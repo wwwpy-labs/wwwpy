@@ -8,7 +8,7 @@ from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.designer.canvas_selection import CanvasSelection
 from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import ElementDefBase
-from wwwpy.common.designer.element_path import ElementPath
+from wwwpy.common.designer.element_path import Locator
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
 from wwwpy.common.designer.ui._drop_indicator_svg import position_for
@@ -102,7 +102,7 @@ def _pretty(node: js.HTMLElement):
     return str(node)
 
 
-def _add_component(el_path: ElementPath, position: Position,
+def _add_component(el_path: Locator, position: Position,
                    element_def: ElementDefBase):
     file = modlib._find_module_path(el_path.class_module)
     old_source = file.read_text()

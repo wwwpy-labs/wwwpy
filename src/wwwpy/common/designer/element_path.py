@@ -17,7 +17,7 @@ class Origin(str, Enum):
 
 
 @dataclass()
-class ElementPath:
+class Locator:
     """Contains the path to an element relative to a Component.
     This is intended to be serialized"""
 

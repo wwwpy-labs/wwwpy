@@ -1,16 +1,16 @@
 from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
-from wwwpy.common.designer.element_path import ElementPath, Origin
+from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import html_to_node_path
 
 
 def _new_element_path_old():
     node_path = html_to_node_path("""<button>bar</button>""", [0])
-    ep = ElementPath('p1.comp1', 'Comp2', node_path, Origin.source)
+    ep = Locator('p1.comp1', 'Comp2', node_path, Origin.source)
     return ep
 
 
 def _new_element_path(class_module, class_name, html, path, origin):
-    return ElementPath(class_module, class_name, html_to_node_path(html, path), origin)
+    return Locator(class_module, class_name, html_to_node_path(html, path), origin)
 
 
 _some_element_path = _new_element_path('p1.comp1', 'Comp2', "<br>", [0], Origin.source)

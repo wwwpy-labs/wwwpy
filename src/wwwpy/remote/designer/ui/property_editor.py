@@ -6,15 +6,15 @@ from enum import Enum
 from typing import Optional, List
 
 import js
-import wwwpy.remote.component as wpc
 from pyodide.ffi import create_proxy
+
+import wwwpy.remote.component as wpc
 from wwwpy.common import state, property_monitor
 from wwwpy.common.designer import element_library, html_locator, code_strings
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
-from wwwpy.common.designer.element_path import ElementPath, Origin
+from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.helpers import _element_path_lbl, _rpc_save, _log_event, _help_button
-
 from .button_tab import ButtonTab, Tab
 from .help_icon import HelpIcon
 from .searchable_combobox2 import SearchableComboBox, Option
@@ -37,15 +37,15 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
     row_container: js.HTMLElement = wpc.element()
     message1div: js.HTMLElement = wpc.element()
     _tabs: ButtonTab = wpc.element()
-    _selected_element_path: Optional[ElementPath] = None
+    _selected_element_path: Optional[Locator] = None
     state: PropertyEditorState = PropertyEditorState()
 
     @property
-    def selected_element_path(self) -> Optional[ElementPath]:
+    def selected_element_path(self) -> Optional[Locator]:
         return self._selected_element_path
 
     @selected_element_path.setter
-    def selected_element_path(self, value: Optional[ElementPath]):
+    def selected_element_path(self, value: Optional[Locator]):
         self._selected_element_path = value
         self._render()
 
@@ -350,7 +350,7 @@ class PE_title_row(wpc.Component):
             """
 
 
-def _rebase_element_path_to_origin_source(ep: ElementPath) -> Optional[ElementPath]:
+def _rebase_element_path_to_origin_source(ep: Locator) -> Optional[Locator]:
     """This is similar to rebase_path dumb because we use indexes alone.
     This rebase from Origin.live to Origin.source
     """
@@ -368,5 +368,5 @@ def _rebase_element_path_to_origin_source(ep: ElementPath) -> Optional[ElementPa
         return ep
 
     node_path = html_locator.node_path_from_leaf(cst_node)
-    ep_source = ElementPath(ep.class_module, ep.class_name, node_path, Origin.source)
+    ep_source = Locator(ep.class_module, ep.class_name, node_path, Origin.source)
     return ep_source

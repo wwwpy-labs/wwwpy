@@ -16,7 +16,7 @@ from wwwpy.common.designer import element_library
 from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
 from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
-from wwwpy.common.designer.element_path import ElementPath
+from wwwpy.common.designer.element_path import Locator
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
 from wwwpy.common.injectorlib import inject
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 class ToolboxState:
     geometry: Tuple[int, int, int, int] = field(default=(30, 200, 400, 330))
     toolbox_search: str = ''
-    selected_element_path: Optional[ElementPath] = None
+    selected_element_path: Optional[Locator] = None
 
 
 @dataclass
@@ -194,8 +194,8 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
 
         if isinstance(add_result, AddResult):
             logger.debug(f'write_module_file len={len(add_result.source_code)} el_path={el_path}')
-            new_element_path = ElementPath(el_path.class_module, el_path.class_name, add_result.node_path,
-                                           el_path.origin)
+            new_element_path = Locator(el_path.class_module, el_path.class_name, add_result.node_path,
+                                       el_path.origin)
             self._toolbox_state.selected_element_path = new_element_path
             write_res = await rpc.write_module_file(el_path.class_module, add_result.source_code)
             logger.debug(f'write_module_file res={write_res}')

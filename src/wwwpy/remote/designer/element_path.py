@@ -5,7 +5,7 @@ import logging
 import js
 from js import Array, document
 
-from wwwpy.common.designer.element_path import ElementPath, Origin
+from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.remote.component import get_component
 from wwwpy.remote.jslib import is_instance_of
@@ -13,7 +13,7 @@ from wwwpy.remote.jslib import is_instance_of
 logger = logging.getLogger(__name__)
 
 
-def element_path(element: js.Element) -> ElementPath | None:
+def element_path(element: js.Element) -> Locator | None:
     """Returns an instance of ElementPath that describes the path to the element"""
 
     # Start building the path
@@ -26,7 +26,7 @@ def element_path(element: js.Element) -> ElementPath | None:
         if component:
             clazz = component.__class__
             # We found the component, return the path
-            return ElementPath(clazz.__module__, clazz.__name__, path, Origin.live)
+            return Locator(clazz.__module__, clazz.__name__, path, Origin.live)
 
         # Reached document body without finding a component
         if current == document.body:

@@ -4,7 +4,7 @@ from js import HTMLElement, console
 
 from wwwpy.common.designer.element_editor import ElementEditor, EventEditor
 from wwwpy.common.designer.element_library import ElementDef
-from wwwpy.common.designer.element_path import ElementPath
+from wwwpy.common.designer.element_path import Locator
 from wwwpy.remote.designer import element_path
 
 try:
@@ -15,7 +15,7 @@ except ImportError:
     rpc = RaiseOnAny('During testing this rpc is not (yet) configured')  # todo
 
 
-async def _rpc_save(el_path: ElementPath, new_source: str):
+async def _rpc_save(el_path: Locator, new_source: str):
     await rpc.write_module_file(el_path.class_module, new_source)
 
 
@@ -35,7 +35,7 @@ def _element_lbl(element: HTMLElement) -> str:
     return _element_path_lbl(ep) if ep else 'No element path'
 
 
-def _element_path_lbl(ep: ElementPath | None) -> str:
+def _element_path_lbl(ep: Locator | None) -> str:
     from wwwpy.common import modlib
     class_file_path = modlib._find_module_path(ep.class_module)
     cfp = '' if not class_file_path else f'{class_file_path.name}::'

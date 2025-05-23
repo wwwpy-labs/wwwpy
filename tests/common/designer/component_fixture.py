@@ -7,7 +7,7 @@ from tests.common import DynSysPath, dyn_sys_path
 
 # todo should be merged/refactored with TargetFixture
 class ComponentFixture:
-    def __init__(self, dyn_sys_path):
+    def __init__(self, dyn_sys_path: DynSysPath):
         self._source = None
         self.dyn_sys_path: DynSysPath = dyn_sys_path
 

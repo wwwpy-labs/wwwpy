@@ -7,7 +7,7 @@ from wwwpy.common.designer import code_info
 from wwwpy.common.designer.code_info import ClassInfo, Attribute
 from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name, tag_data_name_attr_name
 from wwwpy.common.designer.element_library import ElementDef, EventDef, AttributeDef
-from wwwpy.common.designer.element_path import ElementPath, Origin
+from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import Node, NodePath
 
 
@@ -495,17 +495,17 @@ class TargetFixture:
         self.name_ad = AttributeDef('name', mandatory=False)
         self.attributes = [self.name_ad]
         self.element_def = ElementDef('button', 'js.HTMLButtonElement', events=self.events, attributes=self.attributes)
-        self._element_path: ElementPath = None
+        self._element_path: Locator = None
         self.target: ElementEditor = None
         if source:
             self.source = source
 
     @property
-    def element_path(self) -> ElementPath:
+    def element_path(self) -> Locator:
         return self._element_path
 
     @element_path.setter
-    def element_path(self, value: ElementPath):
+    def element_path(self, value: Locator):
         self._element_path = value
         self.target = ElementEditor(self.element_path, self.element_def)
 
@@ -526,7 +526,7 @@ class TargetFixture:
         self.set_node_path(path)
 
     def set_node_path(self, path: NodePath):
-        self.element_path = ElementPath('component2', 'Component2', path, Origin.source)
+        self.element_path = Locator('component2', 'Component2', path, Origin.source)
 
     @property
     def current_html(self) -> str:

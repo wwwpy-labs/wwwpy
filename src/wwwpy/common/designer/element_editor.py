@@ -99,7 +99,7 @@ class ElementEditor:
     managed directly by the framework.
     """
 
-    def __init__(self, element_path: ep.ElementPath, element_def: el.ElementDef):
+    def __init__(self, element_path: ep.Locator, element_def: el.ElementDef):
         self.element_path = element_path
         self.element_def = element_def
         self._init()
