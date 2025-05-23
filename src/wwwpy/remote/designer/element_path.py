@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 import js
-from js import Array, Element, document
+from js import Array, document
 
 from wwwpy.common.designer.element_path import ElementPath, Origin
 from wwwpy.common.designer.html_locator import Node
@@ -13,7 +13,7 @@ from wwwpy.remote.jslib import is_instance_of
 logger = logging.getLogger(__name__)
 
 
-def element_path(element: Element) -> ElementPath | None:
+def element_path(element: js.Element) -> ElementPath | None:
     """Returns an instance of ElementPath that describes the path to the element"""
 
     # Start building the path
