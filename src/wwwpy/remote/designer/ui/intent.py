@@ -2,20 +2,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cached_property
-from typing import TypeVar
 
 import js
 
 
 @dataclass
-class PMEvent: ...
-
-
-TPE = TypeVar('TPE', bound=PMEvent)
-
-
-@dataclass
-class IntentEvent(PMEvent):
+class IntentEvent:
     js_event: js.PointerEvent
 
     @cached_property
