@@ -63,7 +63,7 @@ class SelectElementIntent(Intent):
         return target
 
     def _set_toolbox_selection(self, target):
-        ep_live = element_path.element_path(target)
+        ep_live = element_path.locator_from(target)
         logger.debug(f'Element path live: {ep_live}')
         ep_source = _rebase_element_path_to_origin_source(ep_live)
         logger.debug(f'Element path source: {ep_source}')

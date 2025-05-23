@@ -5,7 +5,7 @@ import wwwpy.remote.component as wpc
 from tests.common import dyn_sys_path
 from wwwpy.common.designer.html_locator import Node
 from wwwpy.remote import dict_to_js
-from wwwpy.remote.designer.element_path import element_path
+from wwwpy.remote.designer.element_path import locator_from
 
 
 def test_target_path_to_component(tmp_path, dyn_sys_path):
@@ -37,7 +37,7 @@ class Component1(wpc.Component):
     assert target
 
     # WHEN
-    actual = element_path(target)
+    actual = locator_from(target)
 
     # THEN
     path = [Node("div", 1, {'class': 'class1'}),
@@ -62,7 +62,7 @@ def test_target_path__without_component():
     assert target
 
     # WHEN
-    actual = element_path(target)
+    actual = locator_from(target)
 
     # THEN
     assert actual is None
@@ -84,7 +84,7 @@ def test_target_path__unattached_piece_of_dom():
     assert target
 
     # WHEN
-    actual = element_path(target)
+    actual = locator_from(target)
 
     # THEN
     assert actual is None
@@ -104,7 +104,7 @@ async def test_component_with_shadow_root():
     document.body.append(shadow_wpc.element)
 
     # WHEN
-    actual = element_path(shadow_wpc.div1)
+    actual = locator_from(shadow_wpc.div1)
 
     # THEN
     expected_path = [Node("div", 1, {'data-name': 'div1'})]
@@ -141,7 +141,7 @@ class TestSlottedComponent:
         document.body.append(root_wpc.element)
 
         # WHEN
-        actual = element_path(root_wpc.inner)
+        actual = locator_from(root_wpc.inner)
 
         # THEN
         assert actual is not None
@@ -158,7 +158,7 @@ class TestSlottedComponent:
         document.body.append(root_wpc.element)
 
         # WHEN
-        actual = element_path(root_wpc.inner)
+        actual = locator_from(root_wpc.inner)
 
         # THEN
         expected_path = [

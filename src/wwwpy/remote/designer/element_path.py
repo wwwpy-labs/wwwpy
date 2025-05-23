@@ -13,7 +13,7 @@ from wwwpy.remote.jslib import is_instance_of
 logger = logging.getLogger(__name__)
 
 
-def element_path(element: js.Element) -> Locator | None:
+def locator_from(element: js.Element) -> Locator | None:
     """Returns an instance of ElementPath that describes the path to the element"""
 
     # Start building the path

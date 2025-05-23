@@ -82,7 +82,7 @@ class AddElementIntent(Intent):
         return target, position
 
     def _add_element(self, target: js.HTMLElement, position: Position):
-        ep_live = element_path.element_path(target)
+        ep_live = element_path.locator_from(target)
         ep_source = _rebase_element_path_to_origin_source(ep_live)
         ep_log = \
             f'Element path live: {ep_live} position: {position}' + '\n' + \

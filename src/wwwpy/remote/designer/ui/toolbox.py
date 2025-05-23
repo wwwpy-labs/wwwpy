@@ -179,7 +179,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         self._update_toolbox_elements()
 
     async def _process_dropzone(self, drop_zone: DropZone, element_def: ElementDef):
-        el_path = element_path.element_path(drop_zone.element)
+        el_path = element_path.locator_from(drop_zone.element)
 
         if not el_path:
             window.alert(f'No component found for dropzone!')
@@ -261,7 +261,7 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         res = await _drop_zone_start_selection_async(_on_hover, whole=True)
         if res:
             self.property_editor.set_state_selection_active()
-            self._toolbox_state.selected_element_path = element_path.element_path(res.element)
+            self._toolbox_state.selected_element_path = element_path.locator_from(res.element)
         else:
             await self._canceled()
         self._restore_selected_element_path()

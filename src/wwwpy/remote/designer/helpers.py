@@ -30,7 +30,7 @@ def info_link(href):
 
 
 def _element_lbl(element: HTMLElement) -> str:
-    ep = element_path.element_path(element)
+    ep = element_path.locator_from(element)
     console.log(f'element_path={ep}')
     return _element_path_lbl(ep) if ep else 'No element path'
 
