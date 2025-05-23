@@ -6,7 +6,7 @@ from typing import Callable
 from . import code_edit, code_strings, html_edit, html_locator
 from . import code_info
 from . import element_library as el
-from . import element_path as ep
+from . import locator as ep
 from .code_edit import rename_class_attribute, add_class_attribute
 from .. import modlib
 from ..collectionlib import ListMap

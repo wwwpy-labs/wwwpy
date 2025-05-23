@@ -5,8 +5,8 @@ import logging
 import js
 from js import Array, document
 
-from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import Node
+from wwwpy.common.designer.locator import Locator, Origin
 from wwwpy.remote.component import get_component
 from wwwpy.remote.jslib import is_instance_of
 

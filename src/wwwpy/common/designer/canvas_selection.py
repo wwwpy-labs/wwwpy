@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
-from wwwpy.common.designer.element_path import Locator
+from wwwpy.common.designer.locator import Locator
 from wwwpy.common.type_listener import TypeListeners
 
 logger = logging.getLogger(__name__)

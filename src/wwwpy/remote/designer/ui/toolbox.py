@@ -16,9 +16,9 @@ from wwwpy.common.designer import element_library
 from wwwpy.common.designer.canvas_selection import CanvasSelection, CanvasSelectionChangeEvent
 from wwwpy.common.designer.code_edit import add_element, AddResult, AddFailed
 from wwwpy.common.designer.element_library import Help, ElementDef
-from wwwpy.common.designer.element_path import Locator
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import path_to_index
+from wwwpy.common.designer.locator import Locator
 from wwwpy.common.injectorlib import inject
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer import element_path

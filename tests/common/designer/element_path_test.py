@@ -1,9 +1,8 @@
 # without the following the component_fixture fails with `E fixture 'dyn_sys_path' not found`
 from tests.common import dyn_sys_path, DynSysPath  # noqa
-
 from tests.common.designer.component_fixture import ComponentFixture, component_fixture
-from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import html_to_node_path
+from wwwpy.common.designer.locator import Locator, Origin
 
 
 def test_valid__path_to_component(component_fixture: ComponentFixture):

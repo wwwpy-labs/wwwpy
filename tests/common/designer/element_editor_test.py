@@ -7,8 +7,8 @@ from wwwpy.common.designer import code_info
 from wwwpy.common.designer.code_info import ClassInfo, Attribute
 from wwwpy.common.designer.element_editor import ElementEditor, tag_inner_html_attr_name, tag_data_name_attr_name
 from wwwpy.common.designer.element_library import ElementDef, EventDef, AttributeDef
-from wwwpy.common.designer.element_path import Locator, Origin
 from wwwpy.common.designer.html_locator import Node, NodePath
+from wwwpy.common.designer.locator import Locator, Origin
 
 
 class TestEvents:
