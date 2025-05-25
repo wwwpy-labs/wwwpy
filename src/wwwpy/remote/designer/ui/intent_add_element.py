@@ -16,7 +16,7 @@ from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer.helpers import _element_path_lbl
 from wwwpy.remote.designer.locator_js import locator_from
-from wwwpy.remote.designer.ui.design_aware import is_selectable
+from wwwpy.remote.designer.ui.design_aware import to_locator_event
 from wwwpy.remote.designer.ui.floater_drop_indicator import DropIndicatorFloater
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
@@ -57,29 +57,42 @@ class AddElementIntent(Intent):
                 js.alert('Target is not an HTMLElement')
         return False
 
-    def _set_selection_from_js_event(self, hover_event: IntentEvent):
-        event = hover_event.js_event
-        target = hover_event.deep_target
-
+    def _set_selection_from_js_event(self, intent_event: IntentEvent):
         tool = self._tool
         if not tool.element.isConnected:
             js.document.body.appendChild(tool.element)
-
-        unselectable = not is_selectable(hover_event)
-        if unselectable or target == js.document.body or target == js.document.documentElement:
-            target = None
-
-        logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
-        position = None
-        if target:
-            rect = target.getBoundingClientRect()
-            rx, ry = event.clientX - rect.left, event.clientY - rect.top
+        le = to_locator_event(intent_event)
+        if le is not None:
+            rect = le.main_rect
+            rx, ry = le.xy
             position = position_for(rect.width, rect.height, rx, ry, )
-            self._tool.show()
-            self._tool.set_reference_geometry2(rect, position)
+            tool.show()
+            tool.set_reference_geometry2(rect, position)
         else:
-            self._tool.hide()
-        return target, position
+            tool.hide()
+        # old
+        # event = intent_event.js_event
+        # target = intent_event.deep_target
+        #
+        # tool = self._tool
+        # if not tool.element.isConnected:
+        #     js.document.body.appendChild(tool.element)
+        #
+        # unselectable = not is_selectable(intent_event)
+        # if unselectable or target == js.document.body or target == js.document.documentElement:
+        #     target = None
+        #
+        # logger.debug(f'set_selection: {_pretty(target)}, unselectable: {unselectable}')
+        # position = None
+        # if target:
+        #     rect = target.getBoundingClientRect()
+        #     rx, ry = event.clientX - rect.left, event.clientY - rect.top
+        #     position = position_for(rect.width, rect.height, rx, ry, )
+        #     self._tool.show()
+        #     self._tool.set_reference_geometry2(rect, position)
+        # else:
+        #     self._tool.hide()
+        # return target, position
 
     def _add_element(self, target: js.HTMLElement, position: Position):
         ep_live = locator_from(target)

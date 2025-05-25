@@ -1,26 +1,50 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
+from enum import Enum
 
+import js
+
+from wwwpy.common.designer.locator_lib import Locator
+from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.common.extension_point import ExtensionPointRegistry, ep_registry
+from wwwpy.remote.designer.locator_js import locator_from
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 
 logger = logging.getLogger(__name__)
 
 
+class Support(str, Enum):
+    CONTAINER = 'CONTAINER'
+
+
+@dataclass
+class LocatorEvent:
+    locator: Locator
+    main_element: js.HTMLElement
+    # main_rect: RectReadOnly
+    xy: tuple[float, float]
+    """Coordinates relative to the main_rect."""
+    secondary_rects: list[RectReadOnly]
+
+    @property
+    def main_rect(self) -> RectReadOnly:
+        return self.main_element.getBoundingClientRect()
+
+
 class DesignAware:
     EP_REGISTRY: ExtensionPointRegistry[DesignAware] = ep_registry()
 
+    # todo transform to to_locator_event
     def is_selectable(self, hover_event: IntentEvent) -> bool | None:
+        return None
+
+    def location_attempt(self, hover_event: IntentEvent) -> LocatorEvent | Support | None:
         return None
 
     def find_intent(self, hover_event: IntentEvent) -> Intent | None:
         return None
-
-    # todo implement find_element_path
-    # def find_element_path(self, hover_event: IntentEvent) -> ElementPath | None:
-    #     """In order, this should be """
-    #     return None
 
 
 def is_selectable(hover_event: IntentEvent) -> bool:
@@ -49,6 +73,7 @@ def _all_false(lst: list[bool]) -> bool:
     """Check if all elements in the list are False."""
     return all(not item for item in lst)
 
+
 def find_intent(intent_event: IntentEvent) -> Intent | None:
     if intent_event.deep_target is None:
         return None
@@ -61,11 +86,36 @@ def find_intent(intent_event: IntentEvent) -> Intent | None:
             logger.exception('find_intent EP error', stacklevel=2)
     return None
 
-# def find_element_path(hover_event: IntentEvent) -> ElementPath | None:
-#     if hover_event.deep_target is None:
-#         return None
-#     for extension in DesignAware.EP_REGISTRY:
-#         path = extension.find_element_path(hover_event)
-#         if path:
-#             return path
-#     return None
+
+def to_locator_event(hover_event: IntentEvent) -> LocatorEvent | None:
+    if not is_selectable(hover_event):
+        return None  # todo is_selectable should be incorporated into to_locator_event
+    res = [
+        le for le in
+        [ep.location_attempt(hover_event) for ep in DesignAware.EP_REGISTRY]
+        if le is not None
+    ]
+    return _default_to_locator_event(hover_event)
+
+
+def _default_to_locator_event(hover_event: IntentEvent) -> LocatorEvent | None:
+    event = hover_event.js_event
+    target = hover_event.deep_target
+    if not target:
+        return None
+    if target == js.document.body or target == js.document.documentElement:
+        return None
+
+    locator = locator_from(target)
+    if not locator:
+        logger.warning(f'locator_from returned None for target: {target}')
+        return None
+
+    rect = target.getBoundingClientRect()
+    xy = event.clientX - rect.left, event.clientY - rect.top
+    return LocatorEvent(
+        locator=locator,
+        main_element=target,
+        xy=xy,
+        secondary_rects=[],
+    )
