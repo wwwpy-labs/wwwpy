@@ -141,7 +141,6 @@ class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
 </details>                
 """
 
-                logger.debug(f'html=`{html}`')
                 ch = js.document.createRange().createContextualFragment(html)
 
                 elem.appendChild(ch)
