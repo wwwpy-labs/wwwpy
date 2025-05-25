@@ -6,7 +6,9 @@ from functools import cached_property
 import js
 
 
-@dataclass  # todo we could remove IntentEvent and use directly js.PointerEvent
+# todo we could remove IntentEvent and use directly js.PointerEvent
+#  or we could use LocatorEvent. IntentManager could materialize LocatorEvent somehow (using injector)
+@dataclass
 class IntentEvent:
     js_event: js.PointerEvent
 
