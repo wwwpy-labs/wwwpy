@@ -82,8 +82,9 @@ async def test_externally_select_different_intent(intent_manager, intent1, inten
 
 
 class TestUseSelection:
-    async def test_selection_and_click__reject_should_not_deselect(self, intent_manager, intent1, div1):
+    async def test_selection_and_click__submitFalse_should_not_deselect(self, intent_manager, intent1, div1):
         # GIVEN
+        intent1.submit_result = False
         intent_manager.current_selection = intent1
 
         # WHEN
@@ -92,8 +93,9 @@ class TestUseSelection:
         # THEN
         assert len(intent1.submit_calls) == 1
         assert intent_manager.current_selection is intent1
+        assert div1.click_count == 1, 'div1 should have been clicked'
 
-    async def test_selection_and_click__accept_should_deselect(self, intent_manager, intent1, div1):
+    async def test_selection_and_click__submitTrue_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = intent1
         intent1.submit_result = True
@@ -104,13 +106,14 @@ class TestUseSelection:
         # THEN
         assert len(intent1.submit_calls) == 1
         assert intent_manager.current_selection is None
+        assert div1.click_count == 0
 
 
 class TestDrag:
     # see Playwright cancel drag here https://github.com/danielwiehl/playwright-bug-reproducer-dnd-cancel/blob/master/tests/reproducer.spec.ts
     # and generally https://chatgpt.com/share/67efcda6-9890-8006-8542-3634aa9249bf
 
-    async def test_selected_drag__accepted_should_deselect(self, intent_manager, intent1, div1):
+    async def test_selected_drag__submitTrue_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent1.submit_result = True
         intent_manager.current_selection = intent1
@@ -158,7 +161,7 @@ class TestDrag:
         assert intent_manager.current_selection is intent2
         assert intent_manager.drag_state == DragFsm.DRAGGING
 
-    async def test_no_selection_drag_and_drop__accept_should_deselect(self, intent_manager, intent1, div1):
+    async def test_no_selection_drag_and_drop__submitTrue_should_deselect(self, intent_manager, intent1, div1):
         # GIVEN
         intent_manager.current_selection = None
         intent1.submit_result = True  # could be more discriminating on 'div1'
@@ -331,7 +334,7 @@ class TestEvents:
         # THEN
         assert intent1.events == ['on_hover', 'on_execute', 'on_deselect']
 
-    async def test_on_execute__drag_reject(self, intent_manager, intent1, div1):
+    async def test_on_execute__drag_submitFalse(self, intent_manager, intent1, div1):
         # GIVEN
         intent1.submit_result = False
 
@@ -340,8 +343,9 @@ class TestEvents:
 
         # THEN
         assert intent1.events == ['on_selected', 'on_hover', 'on_execute']
+        assert div1.click_count == 0
 
-    async def test_on_execute__click_reject(self, intent_manager, intent1, div1):
+    async def test_on_execute__click_submitFalse(self, intent_manager, intent1, div1):
         # GIVEN
         intent1.submit_result = False
         intent_manager.current_selection = intent1
@@ -352,6 +356,7 @@ class TestEvents:
 
         # THEN
         assert intent1.events == ['on_hover', 'on_execute']
+        assert div1.click_count == 1, 'div1 should have been clicked'
 
     async def test_change_selection_with_drag(self, intent1, intent2, div1, all_intent_events):
         # GIVEN
@@ -450,6 +455,8 @@ class Fixture:
         div1 = js.document.createElement('div')
         div1.id = 'div1'
         div1.textContent = 'hello'
+        div1.click_count = 0  # noqa monkeypatch
+        div1.addEventListener('click', create_proxy(lambda ev: setattr(div1, 'click_count', div1.click_count + 1)))
         js.document.body.appendChild(div1)
         return div1
 

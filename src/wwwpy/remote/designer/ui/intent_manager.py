@@ -55,8 +55,8 @@ class IntentManager:
         else:
             se = self.current_selection
             if se is not None:
-                event.stop()
                 if se.on_submit(intent_event):
+                    event.stop()
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
