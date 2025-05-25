@@ -12,7 +12,7 @@ class DesignAware:
     EP_REGISTRY: ExtensionPointRegistry[DesignAware] = ep_registry()
 
     # todo refactor name to is_selectable (negate logic)
-    def is_designer(self, hover_event: IntentEvent) -> bool | None:
+    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
         return False
 
     def find_intent(self, hover_event: IntentEvent) -> Intent | None:
@@ -26,7 +26,7 @@ class DesignAware:
 
 def is_designer(hover_event: IntentEvent) -> bool:
     for ep in DesignAware.EP_REGISTRY:
-        if ep.is_designer(hover_event) is True:
+        if ep.is_selectable(hover_event) is True:
             return True
     return False
 

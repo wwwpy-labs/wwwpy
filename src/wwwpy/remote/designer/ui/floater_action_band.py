@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class _DesignAware(DesignAware):
 
-    def is_designer(self, hover_event: IntentEvent) -> bool | None:
+    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
         target = hover_event.deep_target
         if not target:
             return None
