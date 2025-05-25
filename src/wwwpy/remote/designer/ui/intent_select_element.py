@@ -9,7 +9,7 @@ from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_py
 from wwwpy.remote.designer.helpers import _element_path_lbl
 from wwwpy.remote.designer.locator_js import locator_from
-from wwwpy.remote.designer.ui.design_aware import is_designer
+from wwwpy.remote.designer.ui.design_aware import is_selectable
 from wwwpy.remote.designer.ui.element_selector import ElementSelector
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
@@ -52,7 +52,10 @@ class SelectElementIntent(Intent):
             return
 
         # unselectable = is_contained(target, self._palette.element)
-        unselectable = is_designer(intent_event)
+        unselectable = not is_selectable(intent_event)
+        if unselectable:
+            logger.debug(f'set_selection: target is unselectable')
+
         if unselectable or target == js.document.body or target == js.document.documentElement:
             target = None
 

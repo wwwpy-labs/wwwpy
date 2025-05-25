@@ -23,7 +23,7 @@ class _DesignAware(DesignAware):
             return None
         res = target.closest(ActionBandFloater.component_metadata.tag_name)
         if res:
-            return True
+            return False
         return None
 
 

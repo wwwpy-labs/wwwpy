@@ -23,7 +23,14 @@ class _SidebarDesignAware(DesignAware):
         target = hover_event.deep_target
         if target is None:
             return None
-        return is_inside_sidebar(target)
+
+        sidebar = is_inside_sidebar(target)
+        if sidebar:
+            logger.debug(f'inside sidebar')
+            return False
+        else:
+            logger.debug('outside sidebar')
+            return None
 
 
 _sidebar_design_aware = _SidebarDesignAware()

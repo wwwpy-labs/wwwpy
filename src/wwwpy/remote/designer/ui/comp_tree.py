@@ -31,6 +31,8 @@ class HeaderClick(Enum):
 class _DesignAware(DesignAware):
 
     def find_intent(self, hover_event: IntentEvent):
+
+        return None
         # where = _click_where(hover_event)
         target = hover_event.deep_target
         if not target: return None
@@ -42,20 +44,36 @@ class _DesignAware(DesignAware):
         if x < 20: return None
         return comp_tree_item.add_intent
 
+    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
+        w = _click_where(hover_event)
+        # if w is None:
+        #     return None
+        # if w == HeaderClick.MARKER:
+        #     return False
+        if w == HeaderClick.TEXT:
+            return True
+        return None
+        # target = hover_event.deep_target
+        # if not target: return None
+        # res = target.closest(CompTreeItem.component_metadata.tag_name)
+        # if not res: return None
+        #
+        # return True
 
-# def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
-#     target = hover_event.deep_target
-#     if not target: return None
-#     res = target.closest(CompTreeItem.component_metadata.tag_name)
-#     if not res: return None
-#
-#     comp_tree_item: CompTreeItem = wpc.get_component(res)
-#     x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
-#     # if x < 20:
-#     #     return HeaderClick.MARKER
-#     # else:
-#     #     return HeaderClick.TEXT
-#     return HeaderClick.TEXT if x > 20 else HeaderClick.MARKER
+
+def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
+    target = hover_event.deep_target
+    if not target: return None
+    res = target.closest(CompTreeItem.component_metadata.tag_name)
+    if not res: return None
+
+    comp_tree_item: CompTreeItem = wpc.get_component(res)
+    x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
+    # if x < 20:
+    #     return HeaderClick.MARKER
+    # else:
+    #     return HeaderClick.TEXT
+    return HeaderClick.TEXT if x > 20 else HeaderClick.MARKER
 
 
 _design_aware = _DesignAware()
