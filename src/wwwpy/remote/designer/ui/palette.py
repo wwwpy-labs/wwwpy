@@ -19,13 +19,16 @@ logger = logging.getLogger(__name__)
 
 class _PaletteIntentAware(DesignAware):
 
-    def find_intent(self, hover_event: IntentEvent):
-        target = hover_event.deep_target
-        res = target.closest(PaletteItemComponent.component_metadata.tag_name)
-        if res:
-            comp: PaletteItemComponent = get_component(res)
-            return comp.intent
-        return None
+    def find_intent(self, hover_event: IntentEvent) -> Intent | None:
+        return palette_find_indent(hover_event.deep_target)
+
+
+def palette_find_indent(target: js.Element) -> Intent | None:
+    res = target.closest(PaletteItemComponent.component_metadata.tag_name)
+    if res:
+        comp: PaletteItemComponent = get_component(res)
+        return comp.intent
+    return None
 
 
 _palette_design_aware = _PaletteIntentAware()
