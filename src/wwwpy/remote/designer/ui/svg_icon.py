@@ -45,6 +45,8 @@ class SvgIcon(wpc.Component, tag_name='wwwpy-svg-icon'):
 
     @property
     def active(self) -> bool:
+        # todo probably rename to 'selected' and add new property 'disabled'
+        #  if disabled, change the colors accordingly; if not disabled honor the colors from the active property
         return self._active
 
     @active.setter
