@@ -70,8 +70,8 @@ class DefaultIntentExecutor(IntentExecutor):
     def __init__(self, intent: Intent):
         super().__init__(intent)
 
-    def on_hover(self, e: IntentEvent):
-        self._intent.on_hover(e)
+    def on_hover(self, js_event: js.PointerEvent):
+        self._intent.on_hover(IntentEvent(js_event))
 
-    def on_submit(self, e: IntentEvent) -> bool:
-        return self._intent.on_submit(e)
+    def on_submit(self, js_event: js.PointerEvent) -> bool:
+        return self._intent.on_submit(IntentEvent(js_event))

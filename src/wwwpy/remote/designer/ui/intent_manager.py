@@ -56,7 +56,7 @@ class IntentManager:
         else:
             se = self.current_selection
             if se is not None:
-                if self._intent_executor(se).on_submit(intent_event):
+                if self._intent_executor(se).on_submit(event.js_event):
                     event.stop()
                     self.current_selection = None
 
@@ -73,7 +73,7 @@ class IntentManager:
 
         se = self.current_selection
         if se is not None:
-            self._intent_executor(se).on_hover(intent_event)
+            self._intent_executor(se).on_hover(event.js_event)
 
     def _on_pointer_up(self, event: PointerUp):
         intent_event, intent = _request_identification(event.js_event)
@@ -94,7 +94,7 @@ class IntentManager:
                 # (just enough) and release on the intent itself
             se = self.current_selection
             if se is not None:
-                if self._intent_executor(se).on_submit(intent_event):
+                if self._intent_executor(se).on_submit(event.js_event):
                     self.current_selection = None
 
     @property
