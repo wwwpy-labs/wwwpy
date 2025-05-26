@@ -16,7 +16,7 @@ from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.dev_mode_events import AfterDevModeShow
-from wwwpy.remote.designer.ui.design_aware import DesignAware
+from wwwpy.remote.designer.ui.design_aware import DesignAware, LocatorEvent, Support, _default_to_locator_event
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
 
@@ -59,6 +59,10 @@ class _DesignAware(DesignAware):
         # if not res: return None
         #
         # return True
+
+    def location_attempt(self, hover_event: IntentEvent) -> LocatorEvent | Support | None:
+        le = _default_to_locator_event(hover_event)
+        return super().location_attempt(hover_event)
 
 
 def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
@@ -162,11 +166,12 @@ class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
                 ch = js.document.createRange().createContextualFragment(html)
 
                 elem.appendChild(ch)
-                last_ch = elem.lastElementChild
+                details = elem.lastElementChild
+                # details._spec = _Spec(ci, )
                 if len(cst_node.children) == 0:
-                    last_ch.classList.add('no-marker')
+                    details.classList.add('no-marker')
                 else:
-                    rec(cst_node.children, last_ch)
+                    rec(cst_node.children, details)
 
         try:
             rec(ci.cst_tree, self._details)

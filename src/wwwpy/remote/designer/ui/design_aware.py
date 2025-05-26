@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 import js
 
 from wwwpy.common.designer.locator_lib import Locator
-from wwwpy.common.designer.ui.rect_readonly import RectReadOnly
 from wwwpy.common.extension_point import ExtensionPointRegistry, ep_registry
+from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.locator_js import locator_from
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 
@@ -22,15 +22,28 @@ class Support(str, Enum):
 @dataclass
 class LocatorEvent:
     locator: Locator
+    """This is Origin.live"""
     main_element: js.HTMLElement
-    # main_rect: RectReadOnly
-    xy: tuple[float, float]
-    """Coordinates relative to the main_rect."""
-    secondary_rects: list[RectReadOnly]
+    main_xy: tuple[float, float]
+    secondary_elements: list[js.HTMLElement] = field(default_factory=list)
 
-    @property
-    def main_rect(self) -> RectReadOnly:
-        return self.main_element.getBoundingClientRect()
+    @staticmethod
+    def from_element(element: js.HTMLElement, xy: tuple[float, float] | None = None) -> LocatorEvent | None:
+        locator = locator_from(element)
+        if not locator:
+            logger.warning(f'locator_from returned None for element: {element}')
+            return None
+
+        if xy is None:
+            xy = element_xy_center(element)
+
+        return LocatorEvent(locator, element, xy)
+
+
+# class LocatorEvent2(Protocol):
+#     locator_source: Locator
+#     locator_live: Locator
+#     locator_live_list: list[Locator]
 
 
 class DesignAware:
@@ -117,6 +130,5 @@ def _default_to_locator_event(hover_event: IntentEvent) -> LocatorEvent | None:
     return LocatorEvent(
         locator=locator,
         main_element=target,
-        xy=xy,
-        secondary_rects=[],
+        main_xy=xy
     )
