@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TypeVar
-
-import js
 
 from wwwpy.common.type_listener import TypeListeners
-from wwwpy.remote.designer.ui.design_aware import find_intent
-from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent, DefaultIntentExecutor
+from wwwpy.remote.designer.ui.design_aware import find_intent_da
+from wwwpy.remote.designer.ui.intent import Intent, IntentChangedEvent, DefaultIntentExecutor
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 
 logger = logging.getLogger(__name__)
@@ -48,7 +45,7 @@ class IntentManager:
             self.current_selection = intent
 
     def _on_pointer_down(self, event: PointerDown):
-        intent = _request_identification(event.js_event)
+        intent = find_intent_da(event.js_event)
         logger.debug(f'_on_pointer_down {intent} state={self.drag_state}')
         if intent:
             self._ready_item = intent
@@ -61,7 +58,7 @@ class IntentManager:
                     self.current_selection = None
 
     def _on_pointer_move(self, event: PointerMove):
-        intent = _request_identification(event.js_event)
+        intent = find_intent_da(event.js_event)
         logger.debug(f'_on_pointer_move {intent} state={self.drag_state} '
                      f'ready_item={self._ready_item} drag_started={event.drag_started}')
         if event.drag_started and self._ready_item is not None:
@@ -76,7 +73,7 @@ class IntentManager:
             self._intent_executor(se).on_hover(event.js_event)
 
     def _on_pointer_up(self, event: PointerUp):
-        intent = _request_identification(event.js_event)
+        intent = find_intent_da(event.js_event)
         logger.debug(f'_on_pointer_up {intent} state={self.drag_state} ready_item={self._ready_item}')
 
         if event.stopped: ...
@@ -135,10 +132,3 @@ def _pretty(node):
     if hasattr(node, 'tagName'):
         return f'{node.tagName.lower()}#{node.id}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)
-
-
-T = TypeVar('T', bound=IntentEvent)
-
-
-def _request_identification(js_event: js.PointerEvent) -> Intent | None:
-    return find_intent(IntentEvent(js_event))

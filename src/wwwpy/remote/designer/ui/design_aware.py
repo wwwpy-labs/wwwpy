@@ -74,7 +74,8 @@ def _all_false(lst: list[bool]) -> bool:
     return all(not item for item in lst)
 
 
-def find_intent(intent_event: IntentEvent) -> Intent | None:
+def find_intent_da(js_event: js.PointerEvent) -> Intent | None:
+    intent_event = IntentEvent(js_event)
     if intent_event.deep_target is None:
         return None
     for extension in DesignAware.EP_REGISTRY:
