@@ -1,9 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from functools import cached_property
 
 import js
+
+
+class Phase(str, Enum):
+    """The phase of the intent."""
+    SELECT = 'SELECT'
+    """Intent is selected."""
+    HOVER = 'HOVER'
+    """Inform the intent of some hover event."""
+    SUBMIT = 'SUBMIT'
+    """Intent is submitted."""
+    DESELECT = 'DESELECT'
+    """Intent is deselected."""
 
 
 # todo we could remove IntentEvent and use directly js.PointerEvent
@@ -41,3 +54,24 @@ class Intent:
 class IntentChangedEvent:
     old: Intent | None
     new: Intent | None
+
+
+class IntentExecutor:
+    def __init__(self, intent: Intent):
+        self._intent = intent
+
+    def on_hover(self, js_event: js.PointerEvent): ...
+
+    def on_submit(self, js_event: js.PointerEvent) -> bool: ...
+
+
+class DefaultIntentExecutor(IntentExecutor):
+
+    def __init__(self, intent: Intent):
+        super().__init__(intent)
+
+    def on_hover(self, e: IntentEvent):
+        self._intent.on_hover(e)
+
+    def on_submit(self, e: IntentEvent) -> bool:
+        return self._intent.on_submit(e)

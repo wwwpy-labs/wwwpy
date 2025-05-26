@@ -7,7 +7,7 @@ import js
 
 from wwwpy.common.type_listener import TypeListeners
 from wwwpy.remote.designer.ui.design_aware import find_intent
-from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent, DefaultIntentExecutor
 from wwwpy.remote.designer.ui.pointer_api import PointerApi, PointerDown, PointerMove, PointerUp
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 class IntentManager:
 
-    def __init__(self) -> None:
+    def __init__(self, intent_executor=DefaultIntentExecutor) -> None:
+        self._intent_executor = intent_executor
         self._current_selection: Intent | None = None
         self._intent_changed_listeners = TypeListeners(IntentChangedEvent)
         self._ready_item: Intent | None = None
@@ -55,7 +56,7 @@ class IntentManager:
         else:
             se = self.current_selection
             if se is not None:
-                if se.on_submit(intent_event):
+                if self._intent_executor(se).on_submit(intent_event):
                     event.stop()
                     self.current_selection = None
 
@@ -72,7 +73,7 @@ class IntentManager:
 
         se = self.current_selection
         if se is not None:
-            se.on_hover(intent_event)
+            self._intent_executor(se).on_hover(intent_event)
 
     def _on_pointer_up(self, event: PointerUp):
         intent_event, intent = _request_identification(event.js_event)
@@ -93,7 +94,7 @@ class IntentManager:
                 # (just enough) and release on the intent itself
             se = self.current_selection
             if se is not None:
-                if se.on_submit(intent_event):
+                if self._intent_executor(se).on_submit(intent_event):
                     self.current_selection = None
 
     @property
