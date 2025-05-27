@@ -8,6 +8,7 @@ import js
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.locator_lib import Locator, Origin
 from wwwpy.remote._elementlib import element_xy_center
+from wwwpy.remote.component import Component, get_component
 from wwwpy.remote.designer.locator_js import locator_from
 from wwwpy.remote.jslib import is_instance_of, get_deepest_element
 
@@ -18,6 +19,17 @@ def default_position_resolver(width: float, height: float, x: float, y: float) -
     """the x and y coordinates are relative to the top-left corner of the element"""
     from wwwpy.common.designer.ui._drop_indicator_svg import position_for
     return position_for(width, height, x, y)
+
+
+def find_first_user_component() -> Component | None:
+    # todo should exclude wwwpy internal components
+    for element in js.document.body.children:
+        logger.debug(f'find_first_user_component: checking {_pretty(element)}')
+        component = get_component(element)
+        if component:
+            return component
+
+    return None
 
 
 @dataclass
@@ -49,8 +61,13 @@ class LocatorEvent:
         xy = js_event.clientX, js_event.clientY
         element = get_deepest_element(*xy)
         logger.debug(f'from_pointer_event: {js_event.type} at {xy}, element: {_pretty(element)}')
+        if element == js.document.body or element == js.document.documentElement:
+            component = find_first_user_component()
+            if not component:
+                logger.debug('from_pointer_event: no user component found, returning None')
+            else:
+                element = component.element
         if not element:
-            logger.warning(f'get_deepest_element returned None for event: {js_event}')
             return None
         l = LocatorEvent.from_element(element, xy)
         return l
@@ -58,8 +75,7 @@ class LocatorEvent:
     @staticmethod
     def from_element(element: js.Element, xy: tuple[float, float] | None = None) -> LocatorEvent | None:
         locator = locator_from(element)
-        from wwwpy.remote.designer.ui.property_editor import _rebase_element_path_to_origin_source
-        loc_origin = _rebase_element_path_to_origin_source(locator)
+        loc_origin = locator.rebase_to_origin()
         if not loc_origin:
             logger.warning(f'locator returned None for element: {_pretty(element)}')
             return None
@@ -70,7 +86,7 @@ class LocatorEvent:
         return LocatorEvent(loc_origin, element, xy)
 
 
-def _pretty(node: js.HTMLElement):
+def _pretty(node: js.Element):
     if hasattr(node, 'tagName'):
         identifier = node.dataset.name if node.hasAttribute('data-name') else node.id
         return f'{node.tagName.lower()}#{identifier}.{node.className}[{node.innerHTML.strip()[:20]}…]'
