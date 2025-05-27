@@ -44,7 +44,8 @@ class Intent:
     selected: bool = False
     """True if the item is selected, False otherwise."""
 
-    def on_selected(self): ...
+    def on_selected(self):
+        ...
 
     def on_hover(self, _: LocatorEvent):
         ...
@@ -54,20 +55,30 @@ class Intent:
 
     """If return True, the intent is deselected, if False, it is not."""
 
-    def on_deselected(self): ...
+    def on_deselected(self):
+        ...
 
     def on_hover_js(self, js_event: js.PointerEvent):
         """Handle hover event from JavaScript."""
-        event = LocatorEvent.from_pointer_event(js_event)
+        event = js_event_to_locator_event(js_event)
         if event:
             self.on_hover(event)
 
     def on_submit_js(self, js_event: js.PointerEvent) -> bool:
         """Handle submit event from JavaScript."""
-        event = LocatorEvent.from_pointer_event(js_event)
+        event = js_event_to_locator_event(js_event)
         if event:
             return self.on_submit(event)
         return False
+
+
+def js_event_to_locator_event(js_event: js.PointerEvent) -> LocatorEvent | None:
+    """Convert a JavaScript PointerEvent to a LocatorEvent."""
+    from wwwpy.remote.designer.ui.design_aware import is_selectable_le
+    event = LocatorEvent.from_pointer_event(js_event)
+    if not is_selectable_le(event):
+        return None
+    return event
 
 
 @dataclass

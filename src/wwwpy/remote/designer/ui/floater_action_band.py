@@ -10,19 +10,21 @@ from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.floater import Floater
-from wwwpy.remote.designer.ui.intent import IntentEvent
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
+from wwwpy.remote.jslib import is_contained
 
 logger = logging.getLogger(__name__)
 
 
 class _DesignAware(DesignAware):
 
-    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
-        target = hover_event.deep_target
-        if not target:
-            return None
-        res = target.closest(ActionBandFloater.component_metadata.tag_name)
-        if res:
+    def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
+        def is_container(element: js.Element) -> bool:
+            return element.tagName.lower() == ActionBandFloater.component_metadata.tag_name.lower()
+
+        is_cont = is_contained(locator_event.main_element, is_container)
+        logger.debug(f'is_selectable_le is_contained inside ActionBandFloater:{is_cont} ')
+        if is_cont:
             return False
         return None
 
@@ -189,3 +191,10 @@ def _delete_element():
         logger.debug(f'write_module_file res={write_res}')
 
     create_task_safe((write_source_file()))
+
+
+def _pretty(node: js.Element):
+    if hasattr(node, 'tagName'):
+        identifier = node.dataset.name if node.hasAttribute('data-name') else node.id
+        return f'{node.tagName.lower()}#{identifier}.{node.className}[{node.innerHTML.strip()[:20]}…]'
+    return str(node)

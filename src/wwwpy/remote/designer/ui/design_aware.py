@@ -25,6 +25,9 @@ class DesignAware:
     def is_selectable(self, hover_event: IntentEvent) -> bool | None:
         return None
 
+    def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
+        return None
+
     def location_attempt(self, hover_event: IntentEvent) -> LocatorEvent | Support | None:
         return None
 
@@ -32,7 +35,7 @@ class DesignAware:
         return None
 
 
-def is_selectable(hover_event: IntentEvent) -> bool:
+def is_selectable_da(hover_event: IntentEvent) -> bool:
     except_none = [
         r for r in
         [(ep.__class__.__module__, ep.is_selectable(hover_event)) for ep in DesignAware.EP_REGISTRY]
@@ -49,6 +52,28 @@ def is_selectable(hover_event: IntentEvent) -> bool:
 
     if len(bools) > 0 and _all_false(bools):
         logger.debug(f'all DesignAware.is_selectable returned False or None: {except_none}')
+        return False
+    # logger.warning(f'all DesignAware.is_selectable returned True or None  : {except_none}')
+    return True
+
+
+def is_selectable_le(locator_event: LocatorEvent) -> bool:
+    except_none = [
+        r for r in
+        [(ep.__class__.__module__, ep.is_selectable_le(locator_event)) for ep in DesignAware.EP_REGISTRY]
+        if r is not None
+    ]
+    bools = [r[1] for r in except_none]
+    # if except_none and not any(except_none):  # list has at least one element and all are False
+    #     return False
+    if len(bools) == 0:
+        return True
+    if all(b is None for b in bools):
+        logger.debug(f'all DesignAware.is_selectable_le returned None: {except_none}')
+        return True
+
+    if len(bools) > 0 and _all_false(bools):
+        logger.debug(f'all DesignAware.is_selectable_le returned False or None: {except_none}')
         return False
     # logger.warning(f'all DesignAware.is_selectable returned True or None  : {except_none}')
     return True
@@ -74,7 +99,7 @@ def find_intent_da(js_event: js.PointerEvent) -> Intent | None:
 
 
 def to_locator_event(hover_event: IntentEvent) -> LocatorEvent | None:
-    if not is_selectable(hover_event):
+    if not is_selectable_da(hover_event):
         return None  # todo is_selectable should be incorporated into to_locator_event
     res = [
         le for le in

@@ -11,14 +11,25 @@ from wwwpy.remote import dict_to_js, hotkeylib
 from wwwpy.remote._elementlib import ensure_tag_instance
 from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.intent import IntentEvent
-from wwwpy.remote.jslib import is_instance_of
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
+from wwwpy.remote.jslib import is_instance_of, is_contained
 
 logger = logging.getLogger(__name__)
 
 
 class _SidebarDesignAware(DesignAware):
 
-    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
+    def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
+        def is_container(element: js.Element) -> bool:
+            return element.tagName.lower() == PushableSidebar.component_metadata.tag_name.lower()
+
+        is_cont = is_contained(locator_event.main_element, is_container)
+        logger.debug(f'is_selectable_le is_contained inside :{is_cont} ')
+        if is_cont:
+            return False
+        return None
+
+    def is_selectable_old(self, hover_event: IntentEvent) -> bool | None:
         # return None
         target = hover_event.deep_target
         if target is None:
