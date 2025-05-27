@@ -1,43 +1,15 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from enum import Enum
 
 import js
 
-from wwwpy.common.designer.locator_lib import Locator
 from wwwpy.common.extension_point import ExtensionPointRegistry, ep_registry
-from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.locator_js import locator_from
-from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, Support
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
 
 logger = logging.getLogger(__name__)
-
-
-class Support(str, Enum):
-    CONTAINER = 'CONTAINER'
-
-
-@dataclass
-class LocatorEvent:
-    locator: Locator
-    """This is Origin.live"""
-    main_element: js.HTMLElement
-    main_xy: tuple[float, float]
-    secondary_elements: list[js.HTMLElement] = field(default_factory=list)
-
-    @staticmethod
-    def from_element(element: js.HTMLElement, xy: tuple[float, float] | None = None) -> LocatorEvent | None:
-        locator = locator_from(element)
-        if not locator:
-            logger.warning(f'locator_from returned None for element: {element}')
-            return None
-
-        if xy is None:
-            xy = element_xy_center(element)
-
-        return LocatorEvent(locator, element, xy)
 
 
 # class LocatorEvent2(Protocol):

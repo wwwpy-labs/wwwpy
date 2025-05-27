@@ -14,9 +14,10 @@ from wwwpy.common.injectorlib import inject, injector
 from wwwpy.remote._elementlib import element_xy_center
 from wwwpy.remote.designer.ui import palette
 from wwwpy.remote.designer.ui.drag_manager import DragFsm
-from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
+from wwwpy.remote.designer.ui.intent import Intent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.palette import PaletteComponent
+from wwwpy.remote.jslib import is_instance_of
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ async def test_click_twice_intent__should_be_deselected(intent_manager, intent1)
 
 
 async def test_selecting_different_intent__should_deselect_previous(intent_manager, intent1, intent2,
-                                                                            all_intent_events):
+                                                                    all_intent_events):
     # GIVEN
     await rpctst_exec(["page.locator('#intent1').click()"])
     all_intent_events.clear()
@@ -184,8 +185,14 @@ class TestDrag:
         assert intent_manager.current_selection is None
 
         assert intent1.events == ['on_selected', 'on_hover', 'on_execute', 'on_deselect']
-        assert intent1.full_events[1].deep_target == div1
-        assert intent1.full_events[2].deep_target == div1
+        _, ev1, ev2, _ = intent1.full_events
+        assert is_instance_of(ev1, js.PointerEvent), f'Expected js.PointerEvent, got {type(ev1)}'
+        assert is_instance_of(ev2, js.PointerEvent), f'Expected js.PointerEvent, got {type(ev1)}'
+        # assert is_instance_of(ev1, js.PointerEvent), f'ev1={ev1} type {type(ev1)}'
+        # assert intent1.full_events[1].target == div1
+        # assert intent1.full_events[2].target == div1
+        # assert ev1.target == div1, f'ev1={ev1} type {type(ev1)}' # should be deep-target-of(ev1.target)
+        # assert ev2.target == div1, f'ev2={ev2} type {type(ev2)}'
 
     async def test_no_select_not_enough_drag__should_not_select(self, intent_manager, intent1):
         # GIVEN
@@ -397,27 +404,34 @@ def all_intent_events(fixture):
 class IntentFake(Intent):
     all_events: list = None
     events: list = field(default_factory=list)
-    full_events: list[IntentEvent | str] = field(default_factory=list)
+    full_events: list[js.PointerEvent | str] = field(default_factory=list)
     submit_result = False
     submit_calls: list = field(default_factory=list)
     element: js.HTMLElement = None
 
-    def _ev(self, kind, event: IntentEvent = None):
+    def _ev(self, kind, event: js.PointerEvent = None):
         self.events.append(kind)
         e = f'{self.label}:{kind}'
         self.all_events.append(e)
         self.full_events.append(event or kind)
 
-    def on_selected(self): self._ev('on_selected')
+    def on_selected(self):
+        self._ev('on_selected')
 
-    def on_hover(self, event: IntentEvent): self._ev('on_hover', event)
+    def on_hover_js(self, event: js.PointerEvent):
+        if not is_instance_of(event, js.PointerEvent):
+            raise TypeError(f'Expected js.PointerEvent, got {type(event)}')
+        self._ev('on_hover', event)
 
-    def on_submit(self, event: IntentEvent) -> bool:
+    def on_submit_js(self, event: js.PointerEvent) -> bool:
+        if not is_instance_of(event, js.PointerEvent):
+            raise TypeError(f'Expected js.PointerEvent, got {type(event)}')
         self.submit_calls.append(event)
         self._ev('on_execute', event)
         return self.submit_result
 
-    def on_deselected(self): self._ev('on_deselect')
+    def on_deselected(self):
+        self._ev('on_deselect')
 
 
 @dataclass

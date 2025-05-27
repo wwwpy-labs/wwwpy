@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from enum import Enum
 from functools import cached_property
 
 import js
+
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
+
+logger = logging.getLogger(__name__)
 
 
 class Phase(str, Enum):
@@ -41,13 +46,28 @@ class Intent:
 
     def on_selected(self): ...
 
-    def on_hover(self, event: IntentEvent): ...
+    def on_hover(self, _: LocatorEvent):
+        ...
 
-    def on_submit(self, event: IntentEvent) -> bool: ...
+    def on_submit(self, _: LocatorEvent) -> bool:
+        ...
 
     """If return True, the intent is deselected, if False, it is not."""
 
     def on_deselected(self): ...
+
+    def on_hover_js(self, js_event: js.PointerEvent):
+        """Handle hover event from JavaScript."""
+        event = LocatorEvent.from_pointer_event(js_event)
+        if event:
+            self.on_hover(event)
+
+    def on_submit_js(self, js_event: js.PointerEvent) -> bool:
+        """Handle submit event from JavaScript."""
+        event = LocatorEvent.from_pointer_event(js_event)
+        if event:
+            return self.on_submit(event)
+        return False
 
 
 @dataclass
@@ -71,7 +91,15 @@ class DefaultIntentExecutor(IntentExecutor):
         super().__init__(intent)
 
     def on_hover(self, js_event: js.PointerEvent):
-        self._intent.on_hover(IntentEvent(js_event))
+        event = LocatorEvent.from_pointer_event(js_event)
+        if event:
+            self._intent.on_hover(event)
 
     def on_submit(self, js_event: js.PointerEvent) -> bool:
-        return self._intent.on_submit(IntentEvent(js_event))
+        event = LocatorEvent.from_pointer_event(js_event)
+        if event:
+            return self._intent.on_submit(event)
+
+
+class Support(str, Enum):
+    CONTAINER = 'CONTAINER'

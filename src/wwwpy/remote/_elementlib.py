@@ -53,7 +53,7 @@ def ensure_tag_instance(tag_name: str, global_id: str, where=js.document.body) -
     return ele
 
 
-def element_xy_center(element: js.HTMLElement) -> tuple[float, float]:
-    """Get the center x and y coordinates of the given element."""
+def element_xy_center(element: js.Element) -> tuple[float, float]:
+    """Get the center x and y coordinates of the given element relative to the page."""
     rect = element.getBoundingClientRect()
     return rect_xy_center(rect)

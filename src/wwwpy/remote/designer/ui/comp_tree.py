@@ -16,9 +16,10 @@ from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.dev_mode_events import AfterDevModeShow
-from wwwpy.remote.designer.ui.design_aware import DesignAware, LocatorEvent, Support, _default_to_locator_event
+from wwwpy.remote.designer.ui.design_aware import DesignAware, Support, _default_to_locator_event
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
 
 logger = logging.getLogger(__name__)
 

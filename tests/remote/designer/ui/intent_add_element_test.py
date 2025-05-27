@@ -4,8 +4,8 @@ import js
 
 from tests.common import dyn_sys_path, DynSysPath
 from wwwpy.common.designer.element_library import ElementDefBase
-from wwwpy.remote.designer.ui.design_aware import LocatorEvent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent, _tool
+from wwwpy.remote.designer.ui.locator_event import LocatorEvent
 
 
 async def test_simple_submit(dyn_sys_path: DynSysPath):
