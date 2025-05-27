@@ -1,6 +1,7 @@
 import logging
 
 import js
+import pytest
 
 import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
@@ -10,23 +11,43 @@ from wwwpy.remote.jslib import is_contained, is_instance_of, get_deepest_element
 logger = logging.getLogger(__name__)
 
 
-class Test_is_descendant_of_container():
-
-    async def test_simple_contained(self):
+class NestedHtmlFixture:
+    def __init__(self):
         js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
-        outer = js.document.getElementById('outer')
-        inner = js.document.getElementById('inner')
+        self.outer = js.document.getElementById('outer')
+        self.inner = js.document.getElementById('inner')
+        self.other = js.document.getElementById('other')
+
+
+@pytest.fixture
+def nested_html_fixture():
+    return NestedHtmlFixture()
+
+
+@pytest.fixture
+def outer(nested_html_fixture):
+    return nested_html_fixture.outer
+
+
+@pytest.fixture
+def inner(nested_html_fixture):
+    return nested_html_fixture.inner
+
+
+@pytest.fixture
+def other(nested_html_fixture):
+    return nested_html_fixture.other
+
+
+class Test_is_contained():
+
+    async def test_simple_contained(self, outer, inner):
         assert is_contained(inner, outer)
 
-    async def test_container_itself(self):
-        js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
-        outer = js.document.getElementById('outer')
+    async def test_container_itself(self, outer):
         assert is_contained(outer, outer)
 
-    async def test_not_contained(self):
-        js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
-        outer = js.document.getElementById('outer')
-        other = js.document.getElementById('other')
+    async def test_not_contained(self, outer, other):
         assert not is_contained(other, outer)
 
     async def test_reproduce_issue_20250412(self):
@@ -61,18 +82,13 @@ class Test_is_descendant_of_container():
         inner = js.document.getElementById('inner')
         assert is_contained(inner, outer)
 
-    async def test_with_shadow_on_outer(self):
-        js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
-        outer = js.document.getElementById('outer')
+    async def test_with_shadow_on_outer(self, outer):
         shadow = outer.attachShadow(dict_to_js({'mode': 'open'}))
         shadow.innerHTML = '<div id="shadow"></div>'
         shadow_div = shadow.getElementById('shadow')
         assert is_contained(shadow_div, outer)
 
-    async def test_with_shadow_on_inner(self):
-        js.document.body.innerHTML = """<div id="outer"><div id="inner"></div></div><div id="other"></div>"""
-        outer = js.document.getElementById('outer')
-        inner = js.document.getElementById('inner')
+    async def test_with_shadow_on_inner(self, inner):
         shadow = inner.attachShadow(dict_to_js({'mode': 'open'}))
         shadow.innerHTML = '<div id="shadow"></div>'
         shadow_div = shadow.getElementById('shadow')
@@ -113,6 +129,41 @@ class Test_is_descendant_of_container():
         outer = js.document.getElementById('outer')
         inner = js.document.getElementById('inner')
         assert is_contained(inner, outer)
+
+
+class Test_is_contained_lambda():
+
+    async def test_lambda(self, inner):
+        assert is_contained(inner, lambda x: x.id == 'outer')
+
+    async def test_document(self, failure_fixture, inner):
+        """We reach js.HTMLDocument, but it should not be passed to the lambda."""
+        assert not is_contained(inner, failure_fixture.is_container)
+        assert failure_fixture.failures == []
+
+    async def test_shadow(self, failure_fixture, inner):
+        shadow = inner.attachShadow(dict_to_js({'mode': 'open'}))
+        shadow.innerHTML = '<div id="shadow"></div>'
+
+        assert not is_contained(inner, failure_fixture.is_container)
+
+        assert failure_fixture.failures == []
+
+
+class FailureFixture:
+    def __init__(self):
+        self.failures = []
+
+    def is_container(self, x):
+        if not hasattr(x, 'tagName'):
+            fail = f'element should not be passed `{dict_to_js(x)}`'
+            self.failures.append(fail)
+        return False
+
+
+@pytest.fixture
+def failure_fixture():
+    return FailureFixture()
 
 
 class Test_is_instance_of():

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
-from typing import TypeVar, Any, Type, TypeGuard, Callable
+from typing import TypeVar, Any, Type, TypeGuard, Callable, overload
 
 import js
 from js import document
@@ -97,16 +97,32 @@ def is_instance_of(instance: Any, js_type: Type[T]) -> TypeGuard[T]:
     return _instanceof(instance, js_type)
 
 
+@overload
+def is_contained(target: js.Element, container: js.Element):
+    """Check if target is a descendant of container, including shadow DOM and slots."""
+
+
+@overload
+def is_contained(target: js.Element, is_container: Callable[[js.Element], bool]):
+    """the second argument will be called with all the pertinent nodes in the DOM tree;
+    if it returns True, the target is considered contained."""
+
+
 def is_contained(target, container):
     """Determines if target is a descendant of container, accounting for shadow DOM and slots."""
     if target is None:
         raise ValueError(f'target is None')
     if container is None:
         raise ValueError(f'container is None')
-    logger.debug(f'target: `{_pretty(target)}` container: `{_pretty(container)}`')
+    if callable(container):
+        is_container = container
+        logger.debug(f'target: `{_pretty(target)}` container: `lambda...`')
+    else:
+        is_container = lambda x: x == container
+        logger.debug(f'target: `{_pretty(target)}` container: `{_pretty(container)}`')
     node = target
     while node:
-        if node == container:
+        if hasattr(node, 'tagName') and is_container(node):
             return True
 
         # Check if node is assigned to a slot
@@ -161,7 +177,7 @@ def _shadow_root_of(element) -> js.ShadowRoot | None:
     return None
 
 
-def _pretty(node: js.HTMLElement):
+def _pretty(node: js.Element):
     if hasattr(node, 'tagName'):
         identifier = node.dataset.name if node.hasAttribute('data-name') else node.id
         return f'{node.tagName.lower()}#{identifier}.{node.className}[{node.innerHTML.strip()[:20]}…]'
