@@ -158,3 +158,7 @@ class Test_get_deepest_element:
         actual = get_deepest_element(x, y)
         expect = comp1.element
         assert actual == expect
+
+    def test_nothing_at_coordinates(self):
+        actual = get_deepest_element(1, 1)
+        assert is_instance_of(actual, js.HTMLHtmlElement), f'Expected HTMLHtmlElement, got {type(actual)}'
