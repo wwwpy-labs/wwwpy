@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import dataclasses
+# todo maybe rename to locatorlib.py
 import logging
 from dataclasses import dataclass
 from enum import Enum
@@ -52,3 +54,34 @@ class Locator:
         if not span:
             logger.warning(f'Cannot locate span for {self.path} in html=`{html}`')
         return span is not None
+
+    def rebase_to_origin(self) -> Locator | None:
+        return rebase_to_origin(self)
+
+
+def rebase_to_origin(locator: Locator) -> Locator | None:
+    """
+    This rebase from Origin.live to Origin.source
+    It returns None if the locator is not valid.
+    If the locator is already in Origin.source, it returns the locator unchanged.
+    """
+    if not locator:
+        return None
+    if locator.origin == Origin.source:
+        return locator
+
+    locator = dataclasses.replace(locator, origin=Origin.source)  # change origin to source immediately
+
+    # todo probably this should go to some other file to avoid circular import issues
+    from wwwpy.common.designer import code_strings, html_locator
+    html = code_strings.html_from(locator.class_module, locator.class_name)
+    if html is None:
+        return None
+
+    cst_node = html_locator.locate_node(html, locator.path)
+    if cst_node is None:
+        return locator
+
+    node_path = html_locator.node_path_from_leaf(cst_node)
+    result = dataclasses.replace(locator, path=node_path)
+    return result
