@@ -1,9 +1,12 @@
+from textwrap import dedent
+
 import js
 from js import document
 
 import wwwpy.remote.component as wpc
 from tests.common import dyn_sys_path
 from wwwpy.common.designer.html_locator import Node
+from wwwpy.common.designer.locator_lib import Origin
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.locator_js import locator_from
 
@@ -167,3 +170,27 @@ class TestSlottedComponent:
 
         assert actual is not None
         assert actual.path == expected_path, f'actual.path=```\n{actual.path}\n``` != ```\n{expected_path}\n```'
+
+
+def test_empty_component(dyn_sys_path):
+    # GIVEN
+    dyn_sys_path.write_module2('comp1lib.py', dedent(
+        """
+        import js
+        import wwwpy.remote.component as wpc
+        class Comp1(wpc.Component, tag_name='comp-4eef0a54'):
+            def init_component(self):
+                self.element.innerHTML = ''''''
+        """
+    ))
+    from comp1lib import Comp1  # noqa, import of dynamic component
+    comp1: wpc.Component = Comp1()
+    js.document.body.appendChild(comp1.element)
+
+    # WHEN
+    actual = locator_from(comp1.element)
+
+    # THEN
+    assert actual is not None
+    assert actual.path == []
+    assert actual.origin == Origin.live
