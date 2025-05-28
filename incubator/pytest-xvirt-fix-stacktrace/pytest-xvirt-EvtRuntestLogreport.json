@@ -1,0 +1,150 @@
+{
+  "data": {
+    "nodeid": "tests/remote/designer/ui/intent_select_element_test.py::test_click__set_the_canvas_selection",
+    "location": [
+      "tests/remote/designer/ui/intent_select_element_test.py",
+      28,
+      "test_click__set_the_canvas_selection"
+    ],
+    "keywords": {
+      "test_click__set_the_canvas_selection": 1,
+      "asyncio": 1,
+      "intent_select_element_test.py": 1,
+      "tests/remote/designer/ui/__init__.py": 1,
+      "wwwpy_bundle": 1
+    },
+    "outcome": "failed",
+    "longrepr": {
+      "reprcrash": {
+        "path": "/wwwpy_bundle/tests/remote/designer/ui/intent_select_element_test.py",
+        "lineno": 51,
+        "message": "assert None is not None"
+      },
+      "reprtraceback": {
+        "reprentries": [
+          {
+            "type": "ReprEntry",
+            "data": {
+              "lines": [
+                "    async def test_click__set_the_canvas_selection():",
+                "        on_exit(injector._clear)",
+                "        canvas_selection = CanvasSelection()",
+                "        injector.bind(canvas_selection)",
+                "    ",
+                "        intent_manager = IntentManager()",
+                "        intent_manager.install()",
+                "        on_exit(intent_manager.uninstall)",
+                "    ",
+                "        target = SelectElementIntent()",
+                "        intent_manager.current_selection = target",
+                "    ",
+                "        c1 = Comp1()",
+                "    ",
+                "        js.document.body.appendChild(c1.element)",
+                "        assert canvas_selection.current_selection is None",
+                "    ",
+                "        # WHEN",
+                "        await rpctst_exec(\"page.locator('#div1').click()\")",
+                "    ",
+                "        # THEN",
+                "        canvas_selection = canvas_selection.current_selection",
+                ">       assert canvas_selection is not None",
+                "E       assert None is not None"
+              ],
+              "reprfuncargs": {
+                "args": []
+              },
+              "reprlocals": null,
+              "reprfileloc": {
+                "path": "designer/ui/intent_select_element_test.py",
+                "lineno": 51,
+                "message": "AssertionError"
+              },
+              "style": "long"
+            }
+          }
+        ],
+        "extraline": null,
+        "style": "long"
+      },
+      "sections": [],
+      "chain": [
+        [
+          {
+            "reprentries": [
+              {
+                "type": "ReprEntry",
+                "data": {
+                  "lines": [
+                    "    async def test_click__set_the_canvas_selection():",
+                    "        on_exit(injector._clear)",
+                    "        canvas_selection = CanvasSelection()",
+                    "        injector.bind(canvas_selection)",
+                    "    ",
+                    "        intent_manager = IntentManager()",
+                    "        intent_manager.install()",
+                    "        on_exit(intent_manager.uninstall)",
+                    "    ",
+                    "        target = SelectElementIntent()",
+                    "        intent_manager.current_selection = target",
+                    "    ",
+                    "        c1 = Comp1()",
+                    "    ",
+                    "        js.document.body.appendChild(c1.element)",
+                    "        assert canvas_selection.current_selection is None",
+                    "    ",
+                    "        # WHEN",
+                    "        await rpctst_exec(\"page.locator('#div1').click()\")",
+                    "    ",
+                    "        # THEN",
+                    "        canvas_selection = canvas_selection.current_selection",
+                    ">       assert canvas_selection is not None",
+                    "E       assert None is not None"
+                  ],
+                  "reprfuncargs": {
+                    "args": []
+                  },
+                  "reprlocals": null,
+                  "reprfileloc": {
+                    "path": "designer/ui/intent_select_element_test.py",
+                    "lineno": 51,
+                    "message": "AssertionError"
+                  },
+                  "style": "long"
+                }
+              }
+            ],
+            "extraline": null,
+            "style": "long"
+          },
+          {
+            "path": "/wwwpy_bundle/tests/remote/designer/ui/intent_select_element_test.py",
+            "lineno": 51,
+            "message": "assert None is not None"
+          },
+          null
+        ]
+      ]
+    },
+    "when": "call",
+    "user_properties": [],
+    "sections": [
+      [
+        "Captured stdout call",
+        "conftest method=POST len(data)=171 url=`/xvirt_notify` data=`{\"node_ids\": [\"tests/remote/designer/ui/intent_select_element_test.py::test_click__set_the_canvas_se`\n2025-05-28 11:51:30,223 🌎 D wwwpy.remote.eventlib:118 - target=PointerApi has no event listeners installed, adding\n2025-05-28 11:51:30,224 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=143287126 event_type=click\n2025-05-28 11:51:30,224 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__click\n2025-05-28 11:51:30,224 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`\n2025-05-28 11:51:30,225 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=143287126 event_type=pointerdown\n2025-05-28 11:51:30,225 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointerdown\n2025-05-28 11:51:30,225 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`\n2025-05-28 11:51:30,225 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=143287126 event_type=pointermove\n2025-05-28 11:51:30,226 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointermove\n2025-05-28 11:51:30,226 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=143287126 event_type=pointermove\n2025-05-28 11:51:30,226 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`\n2025-05-28 11:51:30,226 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=143287126 event_type=pointerup\n2025-05-28 11:51:30,227 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointerup\n2025-05-28 11:51:30,227 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`\n2025-05-28 11:51:30,227 🌎 D wwwpy.remote.designer.ui.intent_manager:125 -  (selecting SelectElementIntent(label='Select', selected=False, icon='select_element_icon'))\n2025-05-28 11:51:30,228 🌎 D tests.remote.rpc4tests_helper:34 - rpctst_exec: `page.locator('#div1').click()` (timeout_secs=1)\n2025-05-28 11:51:30,228 🌎 D wwwpy.common.http_transport:32 - send_async payload: `\"wwwpy.server.rpc4tests\"\\n\"rpctst_exec\"\\n\"page.locator('#div1').click()\"\\n1`\n2025-05-28 11:51:30,281 🌎 D wwwpy.remote.designer.ui.intent_manager:61 - _on_pointer_move None state=IDLE ready_item=None drag_started=False\n2025-05-28 11:51:30,286 🌎 D wwwpy.remote.designer.ui.intent_manager:48 - _on_pointer_down None state=IDLE\n2025-05-28 11:51:30,287 🌎 D wwwpy.remote.designer.ui.drag_manager:62 - pointerup was=IDLE now=IDLE\n2025-05-28 11:51:30,288 🌎 D wwwpy.remote.designer.ui.pointer_api:131 - _js_window__pointerup: no event to notify fsm=IDLE\n2025-05-28 11:51:30,288 🌎 D wwwpy.remote.designer.ui.pointer_api:93 - _js_window__click _stop_next_click=False _stopped=False state=IDLE\n"
+      ],
+      [
+        "Captured stderr call",
+        "Traceback (most recent call last):\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py\", line 113, in _js_window__pointermove\n    self._notify(e)\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py\", line 89, in _notify\n    self._listeners.notify(ev)\n  File \"/wwwpy_bundle/wwwpy/common/type_listener.py\", line 41, in notify\n    listeners.notify(ev)\n  File \"/wwwpy_bundle/wwwpy/common/type_listener.py\", line 23, in notify\n    h(event)\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/intent_manager.py\", line 72, in _on_pointer_move\n    se.on_hover_js(event.js_event)\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/intent.py\", line 68, in on_hover_js\n    event = self.to_locator_event(js_event)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: js_event_to_locator_event_default() takes 1 positional argument but 2 were given\nTraceback (most recent call last):\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py\", line 102, in _js_window__pointerdown\n    self._notify(e)\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py\", line 89, in _notify\n    self._listeners.notify(ev)\n  File \"/wwwpy_bundle/wwwpy/common/type_listener.py\", line 41, in notify\n    listeners.notify(ev)\n  File \"/wwwpy_bundle/wwwpy/common/type_listener.py\", line 23, in notify\n    h(event)\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/intent_manager.py\", line 55, in _on_pointer_down\n    if se.on_submit_js(event.js_event):\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/wwwpy_bundle/wwwpy/remote/designer/ui/intent.py\", line 74, in on_submit_js\n    event = self.to_locator_event(js_event)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: js_event_to_locator_event_default() takes 1 positional argument but 2 were given\nTraceback (most recent call last):\n  File \"/wwwpy_bundle/tests/remote/designer/ui/intent_select_element_test.py\", line 51, in test_click__set_the_canvas_selection\n    assert canvas_selection is not None\nAssertionError: assert None is not None\n"
+      ],
+      [
+        "Captured log call",
+        "DEBUG    wwwpy.remote.eventlib:eventlib.py:118 target=PointerApi has no event listeners installed, adding\nDEBUG    wwwpy.remote.eventlib:eventlib.py:59 target_name=window target_obj.js_id=143287126 event_type=click\nDEBUG    wwwpy.remote.eventlib:eventlib.py:91 calling install for _js_window__click\nINFO     wwwpy.remote.eventlib:eventlib.py:98 EVENT_LISTENERS=`{}`\nDEBUG    wwwpy.remote.eventlib:eventlib.py:59 target_name=window target_obj.js_id=143287126 event_type=pointerdown\nDEBUG    wwwpy.remote.eventlib:eventlib.py:91 calling install for _js_window__pointerdown\nINFO     wwwpy.remote.eventlib:eventlib.py:98 EVENT_LISTENERS=`{}`\nDEBUG    wwwpy.remote.eventlib:eventlib.py:59 target_name=window target_obj.js_id=143287126 event_type=pointermove\nDEBUG    wwwpy.remote.eventlib:eventlib.py:91 calling install for _js_window__pointermove\nDEBUG    wwwpy.remote.eventlib:eventlib.py:59 target_name=window target_obj.js_id=143287126 event_type=pointermove\nINFO     wwwpy.remote.eventlib:eventlib.py:98 EVENT_LISTENERS=`{}`\nDEBUG    wwwpy.remote.eventlib:eventlib.py:59 target_name=window target_obj.js_id=143287126 event_type=pointerup\nDEBUG    wwwpy.remote.eventlib:eventlib.py:91 calling install for _js_window__pointerup\nINFO     wwwpy.remote.eventlib:eventlib.py:98 EVENT_LISTENERS=`{}`\nDEBUG    wwwpy.remote.designer.ui.intent_manager:intent_manager.py:125  (selecting SelectElementIntent(label='Select', selected=False, icon='select_element_icon'))\nDEBUG    tests.remote.rpc4tests_helper:rpc4tests_helper.py:34 rpctst_exec: `page.locator('#div1').click()` (timeout_secs=1)\nDEBUG    wwwpy.common.http_transport:http_transport.py:32 send_async payload: `\"wwwpy.server.rpc4tests\"\\n\"rpctst_exec\"\\n\"page.locator('#div1').click()\"\\n1`\nDEBUG    wwwpy.remote.designer.ui.intent_manager:intent_manager.py:61 _on_pointer_move None state=IDLE ready_item=None drag_started=False\nDEBUG    wwwpy.remote.designer.ui.intent_manager:intent_manager.py:48 _on_pointer_down None state=IDLE\nDEBUG    wwwpy.remote.designer.ui.drag_manager:drag_manager.py:62 pointerup was=IDLE now=IDLE\nDEBUG    wwwpy.remote.designer.ui.pointer_api:pointer_api.py:131 _js_window__pointerup: no event to notify fsm=IDLE\nDEBUG    wwwpy.remote.designer.ui.pointer_api:pointer_api.py:93 _js_window__click _stop_next_click=False _stopped=False state=IDLE"
+      ]
+    ],
+    "duration": 0.17370000100000027,
+    "$report_type": "TestReport"
+  },
+  "class=": "xvirt.events.EvtRuntestLogreport",
+  "__index=": 2
+}

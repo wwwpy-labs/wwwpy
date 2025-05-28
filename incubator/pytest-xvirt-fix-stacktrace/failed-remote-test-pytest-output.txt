@@ -1,0 +1,86 @@
+conftest method=POST len(data)=171 url=`/xvirt_notify` data=`{"node_ids": ["tests/remote/designer/ui/intent_select_element_test.py::test_click__set_the_canvas_se`
+2025-05-28 12:27:18,595 🌎 D wwwpy.remote.eventlib:118 - target=PointerApi has no event listeners installed, adding
+2025-05-28 12:27:18,595 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=857730757 event_type=click
+2025-05-28 12:27:18,595 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__click
+2025-05-28 12:27:18,595 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`
+2025-05-28 12:27:18,595 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=857730757 event_type=pointerdown
+2025-05-28 12:27:18,595 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointerdown
+2025-05-28 12:27:18,595 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`
+2025-05-28 12:27:18,596 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=857730757 event_type=pointermove
+2025-05-28 12:27:18,596 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointermove
+2025-05-28 12:27:18,596 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=857730757 event_type=pointermove
+2025-05-28 12:27:18,596 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`
+2025-05-28 12:27:18,598 🌎 D wwwpy.remote.eventlib:59 - target_name=window target_obj.js_id=857730757 event_type=pointerup
+2025-05-28 12:27:18,598 🌎 D wwwpy.remote.eventlib:91 - calling install for _js_window__pointerup
+2025-05-28 12:27:18,598 🌎 I wwwpy.remote.eventlib:98 - EVENT_LISTENERS=`{}`
+2025-05-28 12:27:18,598 🌎 D wwwpy.remote.designer.ui.intent_manager:125 -  (selecting SelectElementIntent(label='Select', selected=False, icon='select_element_icon'))
+2025-05-28 12:27:18,598 🌎 D tests.remote.rpc4tests_helper:34 - rpctst_exec: `page.locator('#div1').click()` (timeout_secs=1)
+2025-05-28 12:27:18,598 🌎 D wwwpy.common.http_transport:32 - send_async payload: `"wwwpy.server.rpc4tests"\n"rpctst_exec"\n"page.locator('#div1').click()"\n1`
+2025-05-28 12:27:18,644 🌎 D wwwpy.remote.designer.ui.intent_manager:61 - _on_pointer_move None state=IDLE ready_item=None drag_started=False
+2025-05-28 12:27:18,648 🌎 D wwwpy.remote.designer.ui.intent_manager:48 - _on_pointer_down None state=IDLE
+2025-05-28 12:27:18,648 🌎 D wwwpy.remote.designer.ui.drag_manager:62 - pointerup was=IDLE now=IDLE
+2025-05-28 12:27:18,648 🌎 D wwwpy.remote.designer.ui.pointer_api:131 - _js_window__pointerup: no event to notify fsm=IDLE
+2025-05-28 12:27:18,648 🌎 D wwwpy.remote.designer.ui.pointer_api:93 - _js_window__click _stop_next_click=False _stopped=False state=IDLE
+Traceback (most recent call last):
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py", line 113, in _js_window__pointermove
+    self._notify(e)
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py", line 89, in _notify
+    self._listeners.notify(ev)
+  File "/wwwpy_bundle/wwwpy/common/type_listener.py", line 41, in notify
+    listeners.notify(ev)
+  File "/wwwpy_bundle/wwwpy/common/type_listener.py", line 23, in notify
+    h(event)
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/intent_manager.py", line 72, in _on_pointer_move
+    se.on_hover_js(event.js_event)
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/intent.py", line 68, in on_hover_js
+    event = self.to_locator_event(js_event)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: js_event_to_locator_event_default() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py", line 102, in _js_window__pointerdown
+    self._notify(e)
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/pointer_api.py", line 89, in _notify
+    self._listeners.notify(ev)
+  File "/wwwpy_bundle/wwwpy/common/type_listener.py", line 41, in notify
+    listeners.notify(ev)
+  File "/wwwpy_bundle/wwwpy/common/type_listener.py", line 23, in notify
+    h(event)
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/intent_manager.py", line 55, in _on_pointer_down
+    if se.on_submit_js(event.js_event):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/wwwpy_bundle/wwwpy/remote/designer/ui/intent.py", line 74, in on_submit_js
+    event = self.to_locator_event(js_event)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: js_event_to_locator_event_default() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/wwwpy_bundle/tests/remote/designer/ui/intent_select_element_test.py", line 51, in test_click__set_the_canvas_selection
+    assert canvas_selection is not None
+AssertionError: assert None is not None
+
+['tests/remote/designer/ui/intent_select_element_test.py', 28, 'test_click__set_the_canvas_selection']
+async def test_click__set_the_canvas_selection():
+        on_exit(injector._clear)
+        canvas_selection = CanvasSelection()
+        injector.bind(canvas_selection)
+
+        intent_manager = IntentManager()
+        intent_manager.install()
+        on_exit(intent_manager.uninstall)
+
+        target = SelectElementIntent()
+        intent_manager.current_selection = target
+
+        c1 = Comp1()
+
+        js.document.body.appendChild(c1.element)
+        assert canvas_selection.current_selection is None
+
+        # WHEN
+        await rpctst_exec("page.locator('#div1').click()")
+
+        # THEN
+        canvas_selection = canvas_selection.current_selection
+>       assert canvas_selection is not None
+E       assert None is not None
+
+designer/ui/intent_select_element_test.py:51: AssertionError
