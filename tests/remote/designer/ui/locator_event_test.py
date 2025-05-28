@@ -86,12 +86,7 @@ def test_locator_event_from_element(comp1, xy):
 
 async def test_position(comp1):
     # GIVEN
-    el = comp1.span1
-    el.style.position = 'absolute'
-    el.style.left = f'30px'
-    el.style.top = f'40px'
-    el.style.width = f'100px'
-    el.style.height = f'50px'
+    _set_absolute_position(comp1.span1)
 
     # WHEN
     locator = LocatorEvent.from_element(comp1.span1, (31, 41))
@@ -110,12 +105,7 @@ async def test_position(comp1):
 
 
 def test_locator_on_body__should_select_first_component(comp1):
-    el = comp1.span1
-    el.style.position = 'absolute'
-    el.style.left = f'30px'
-    el.style.top = f'40px'
-    el.style.width = f'100px'
-    el.style.height = f'50px'
+    _set_absolute_position(comp1.span1)
 
     js_event = js.PointerEvent.new('pointerdown', dict_to_js({'clientX': 10, 'clientY': 15}))
 
@@ -140,3 +130,12 @@ def test_find_first_user_component(comp1):
     assert result is not None
     assert isinstance(result, Component)
     assert result is comp1
+
+
+def _set_absolute_position(element):
+    el = element
+    el.style.position = 'absolute'
+    el.style.left = f'30px'
+    el.style.top = f'40px'
+    el.style.width = f'100px'
+    el.style.height = f'50px'
