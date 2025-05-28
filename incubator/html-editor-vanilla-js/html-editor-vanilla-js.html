@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        #toolbar button {
+            margin: 0 2px
+        }
+
+        #editor {
+            border: 1px solid #ccc;
+            min-height: 200px;
+            padding: 5px
+        }
+
+        table {
+            border-collapse: collapse
+        }
+
+        td, th {
+            border: 1px solid #000;
+            padding: 4px
+        }
+    </style>
+</head>
+<body>
+<div id="toolbar">
+    <button data-cmd="bold"><b>B</b></button>
+    <button data-cmd="italic"><i>I</i></button>
+    <button data-cmd="underline"><u>U</u></button>
+    <button data-cmd="insertUnorderedList">• List</button>
+    <button data-cmd="insertOrderedList">1. List</button>
+    <button data-cmd="createLink">Link</button>
+    <button data-cmd="insertImage">Image</button>
+    <button data-cmd="insertTable">Table</button>
+</div>
+
+<div id="editor" contenteditable="true"></div>
+<button id="save">Save HTML</button>
+
+<script>
+    const editor = document.getElementById('editor')
+    const toolbar = document.getElementById('toolbar')
+
+    toolbar.querySelectorAll('button').forEach(btn =>
+        btn.addEventListener('click', () => {
+            const cmd = btn.dataset.cmd
+            if (cmd === 'createLink') {
+                const url = prompt('Enter URL')
+                document.execCommand(cmd, false, url)
+                return
+            }
+            if (cmd === 'insertImage') {
+                const url = prompt('Enter image URL')
+                document.execCommand(cmd, false, url)
+                return
+            }
+            if (cmd === 'insertTable') {
+                const rows = prompt('Rows') | 0
+                const cols = prompt('Cols') | 0
+                let tbl = '<table>'
+                for (let i = 0; i < rows; i++) {
+                    tbl += '<tr>'
+                    for (let j = 0; j < cols; j++)
+                        tbl += '<td>&nbsp;</td>'
+                    tbl += '</tr>'
+                }
+                tbl += '</table>'
+                document.execCommand('insertHTML', false, tbl)
+                return
+            }
+            document.execCommand(cmd, false, null)
+        })
+    )
+
+    document.getElementById('save').addEventListener('click', () => {
+        const blob = new Blob([editor.innerHTML], {type: 'text/html'})
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = 'content.html'
+        a.click()
+    })
+</script>
+</body>
+</html>
