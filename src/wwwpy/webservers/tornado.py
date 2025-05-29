@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from threading import Thread
 from typing import Awaitable, Union
 from typing import Optional
@@ -73,6 +72,7 @@ class TornadoHandler(tornado.web.RequestHandler):
         request = HttpRequest(verb, body, self.request.headers.get('Content-Type', ''))
 
         def response_fun(response):
+            self.set_default_headers()
             self.set_header("Content-Type", response.content_type)
             return self.write(response.content)
 
