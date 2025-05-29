@@ -118,8 +118,8 @@ def html_attribute_remove(html: str, node_path: NodePath, attr_name: str) -> str
     left = left.rstrip()
     right = right.lstrip()
 
-    is_leftmost = cst_attr.child_index == 0
-    space = ' ' if is_leftmost else ''
+    is_last_attr = cst_attr == node.attributes_list[-1]
+    space = '' if is_last_attr else ' '
 
     return left + space + right
 

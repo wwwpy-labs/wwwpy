@@ -1,6 +1,6 @@
 from wwwpy.common.designer.html_edit import Position, html_edit, html_attribute_set, html_attribute_remove, \
     html_content_set, html_remove_indexed, html_add_indexed
-from wwwpy.common.designer.html_locator import Node
+from wwwpy.common.designer.html_locator import Node, html_to_node_path
 
 # language=html
 html_simple = "<div><br></div>"
@@ -188,6 +188,16 @@ class TestAttributeRemove:
         actual = html_attribute_remove("<div class='bar' id='foo'></div>", path, 'id')
         # language=html
         assert actual == "<div class='bar'></div>"
+
+    def test_remove_attribute_issue20250529(self):
+        # language=html
+        html = '''<div id="editor" data-name='_editor' contenteditable="true"></div>'''
+        path = html_to_node_path(html, [0])
+
+        actual = html_attribute_remove(html, path, 'data-name')
+
+        # language=html
+        assert actual == '''<div id="editor" contenteditable="true"></div>'''
 
 
 class TestContentSet:
