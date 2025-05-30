@@ -17,8 +17,7 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
 
     def init_component(self):
         # language=html
-        self.element.innerHTML = """
-<pushable-sidebar data-name="_sidebar" position="right" width="300px">
+        self.element.innerHTML = """<pushable-sidebar data-name="_sidebar" position="right" width="300px">
     <wwwpy-accordion-section expanded>
         <div slot="header">Add Components</div>
         <wwwpy-palette data-name="_palette" style="height: 300px; display: flex"></wwwpy-palette>
@@ -26,6 +25,7 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
     <wwwpy-accordion-section expanded>
         <div slot="header">Structure</div>
         <wwwpy-comp-structure style="height: 250px; display: flex; overflow: scroll"></wwwpy-comp-structure>
+    </wwwpy-accordion-section>
 </pushable-sidebar>
         """
         self._palette.add_intent(SelectElementIntent())
