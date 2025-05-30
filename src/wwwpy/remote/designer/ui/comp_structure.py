@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-# todo rename to comp_structure.py
 import logging
 from enum import Enum
 from functools import cached_property

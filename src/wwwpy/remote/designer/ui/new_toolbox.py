@@ -2,7 +2,7 @@ import logging
 
 import wwwpy.remote.component as wpc
 import wwwpy.remote.designer.ui.accordion_components  # noqa
-import wwwpy.remote.designer.ui.comp_tree  # noqa
+import wwwpy.remote.designer.ui.comp_structure  # noqa
 from wwwpy.common.designer.element_library import element_library
 from wwwpy.remote.designer.ui import pushable_sidebar, palette
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
