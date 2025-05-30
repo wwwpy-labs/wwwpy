@@ -252,43 +252,66 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
 class AddUserComponentIntentUI(wpc.Component):
     intent: Intent
     _intent_manager: IntentManager = injector.field()
-
+    _span: js.Element = wpc.element()
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
         self.element.shadowRoot.innerHTML = """
+        
+<style>
+ :host {
+        --primary-color: #6366f1;
+        --primary-hover: #818cf8;
+        --secondary-color: #4f46e5;
+        --border-color: #4b5563;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --workspace-bg: #1e1e2e;
+        --palette-bg: #27293d;
+        --text-color: #e2e8f0;
+        --item-bg: #2d3748;
+        --item-hover-bg: #3a4358;
+        --selected-bg: #4c1d95;
+        --selected-border: #8b5cf6;
+    }
+    .intent-ui {
+        align-items: center;
+        justify-content: center;
+        vertical-align: center;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        background-color: var(--item-bg);
+        color: var(--text-color);
+        touch-action: none;
+    }
 
- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+    .intent-ui:hover {
+       transform: translateY(-2px);
+        box-shadow: 0 3px 5px var(--shadow-color);
+        background-color: var(--item-hover-bg);
+    }
+
+    .intent-ui.selected {
+        background-color: var(--selected-bg);
+        border: 1px solid var(--selected-border);
+        box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
+        position: relative;
+        transform: scale(1.05);
+    }
+</style>
+ <svg data-name="_span" class='intent-ui' xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor" stroke-width="2" stroke-linecap="round"
       stroke-linejoin="round">
      <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
      <line x1="12" y1="12" x2="12" y2="12"></line>
  </svg>
- 
 """
         self.intent: Intent = None
 
-    # <style>
-    # :host {
-    #     box-shadow: 0 3px 5px var(--shadow-color);
-    #     background-color: var(--item-hover-bg);
-    # }
-    #
-    # :host(:hover) {
-    #    transform: translateY(-2px);
-    #         box-shadow: 0 3px 5px var(--shadow-color);
-    #         background-color: var(--item-hover-bg);
-    # }
-    #
-    # .selected {
-    #     background-color: var(--selected-bg);
-    #     border: 1px solid var(--selected-border);
-    #     box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
-    #     position: relative;
-    #     transform: scale(1.05);
-    # }
-    # </style>
+
     def connectedCallback(self):
         self._intent_manager.on(IntentChangedEvent).add(self._on_intent_changed_event)
 
@@ -305,11 +328,11 @@ class AddUserComponentIntentUI(wpc.Component):
 
     @property
     def selected(self) -> bool:
-        return self.element.classList.contains('selected')
+        return self._span.classList.contains('selected')
 
     @selected.setter
     def selected(self, value: bool):
         if value:
-            self.element.classList.add('selected')
+            self._span.classList.add('selected')
         else:
-            self.element.classList.remove('selected')
+            self._span.classList.remove('selected')
