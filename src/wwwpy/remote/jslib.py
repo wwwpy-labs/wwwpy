@@ -182,3 +182,15 @@ def _pretty(node: js.Element):
         identifier = node.dataset.name if node.hasAttribute('data-name') else node.id
         return f'{node.tagName.lower()}#{identifier}.{node.className}[{node.innerHTML.strip()[:20]}…]'
     return str(node)
+
+
+def closest_across_shadow(el, selector):
+    current = el
+    while current:
+        match = current.closest(selector)
+        if match:
+            return match
+        root = current.getRootNode()
+        if not is_instance_of(root, js.ShadowRoot):
+            return None
+        current = root.host

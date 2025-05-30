@@ -22,7 +22,7 @@ from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEv
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
 from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.locator_event import LocatorEvent
-from wwwpy.remote.jslib import get_deepest_element
+from wwwpy.remote.jslib import get_deepest_element, closest_across_shadow
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +35,18 @@ class HeaderClick(Enum):
 class _DesignAware(DesignAware):
 
     def find_intent(self, hover_event: IntentEvent) -> Intent | None:
-
         target = hover_event.deep_target
+        # def is_container(element: js.Element) -> bool:
+        #     return element.tagName.lower() == AddUserComponentIntentUI.component_metadata.tag_name.lower()
+        #
+        # is_cont = is_contained(target, is_container)
+        # if is_cont:
+        #     logger.warning(f'find_intent: is_contained {target.tagName} {target.className}')
+        # return
+
         if not target: return None
-        res = target.closest(AddUserComponentIntentUI.component_metadata.tag_name)
+        # res = target.closest(AddUserComponentIntentUI.component_metadata.tag_name)
+        res = closest_across_shadow(target, AddUserComponentIntentUI.component_metadata.tag_name)
         if not res: return None
         comp = get_component(res, AddUserComponentIntentUI)
         if not comp: return None
@@ -60,8 +68,9 @@ class _DesignAware(DesignAware):
             return None
         struct_item = _get_comp_structure_item(locator_event.main_element)
         if struct_item:
-            # if locator_event.main_element == struct_item._summary:
-            #     return None
+            if locator_event.main_element == struct_item._summary:
+                logger.warning(f'is_selectable_le: click on summary')
+                return None
             l = locator_event.locator
             logger.warning(f'is_selectable_le: {l.tag_name} {l.class_name}')
             left = locator_event.main_element.getBoundingClientRect().left
@@ -245,9 +254,9 @@ class AddUserComponentIntentUI(wpc.Component):
     _intent_manager: IntentManager = injector.field()
 
     def init_component(self):
-        # self.element.attachShadow( dict_to_js({'mode': 'open'}))
+        self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
-        self.element.innerHTML = """
+        self.element.shadowRoot.innerHTML = """
 
  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
       fill="none"
@@ -260,6 +269,26 @@ class AddUserComponentIntentUI(wpc.Component):
 """
         self.intent: Intent = None
 
+    # <style>
+    # :host {
+    #     box-shadow: 0 3px 5px var(--shadow-color);
+    #     background-color: var(--item-hover-bg);
+    # }
+    #
+    # :host(:hover) {
+    #    transform: translateY(-2px);
+    #         box-shadow: 0 3px 5px var(--shadow-color);
+    #         background-color: var(--item-hover-bg);
+    # }
+    #
+    # .selected {
+    #     background-color: var(--selected-bg);
+    #     border: 1px solid var(--selected-border);
+    #     box-shadow: 0 0 0 2px var(--selected-border), 0 0 12px rgba(139, 92, 246, 0.5);
+    #     position: relative;
+    #     transform: scale(1.05);
+    # }
+    # </style>
     def connectedCallback(self):
         self._intent_manager.on(IntentChangedEvent).add(self._on_intent_changed_event)
 
@@ -269,8 +298,10 @@ class AddUserComponentIntentUI(wpc.Component):
     def _on_intent_changed_event(self, event: IntentChangedEvent):
         if not self.intent:
             return
+        old = self.selected
         self.selected = event.new == self.intent
-        logger.warning(f'_on_intent_changed_event: {event} selected: {self.selected}')
+        if old != self.selected:
+            logger.warning(f'_on_intent_changed_event: {event} selected: {self.selected}')
 
     @property
     def selected(self) -> bool:
