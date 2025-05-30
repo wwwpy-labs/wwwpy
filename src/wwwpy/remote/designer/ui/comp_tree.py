@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# todo rename to comp_structure.py
 import logging
 from enum import Enum
 from functools import cached_property
@@ -16,10 +17,11 @@ from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
 from wwwpy.remote.designer.dev_mode_events import AfterDevModeShow
-from wwwpy.remote.designer.ui.design_aware import DesignAware, Support, _default_to_locator_event
+from wwwpy.remote.designer.ui.design_aware import DesignAware
 from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
 from wwwpy.remote.designer.ui.locator_event import LocatorEvent
+from wwwpy.remote.jslib import get_deepest_element
 
 logger = logging.getLogger(__name__)
 
@@ -37,43 +39,42 @@ class _DesignAware(DesignAware):
         # where = _click_where(hover_event)
         target = hover_event.deep_target
         if not target: return None
-        res = target.closest(CompTreeItem.component_metadata.tag_name)
+        res = target.closest(CompStructureItem.component_metadata.tag_name)
         if not res: return None
 
-        comp_tree_item: CompTreeItem = wpc.get_component(res)
+        comp_tree_item: CompStructureItem = wpc.get_component(res)
         x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
         if x < 20: return None
         return comp_tree_item.add_intent
 
-    def is_selectable(self, hover_event: IntentEvent) -> bool | None:
-        w = _click_where(hover_event)
-        # if w is None:
-        #     return None
-        # if w == HeaderClick.MARKER:
-        #     return False
-        if w == HeaderClick.TEXT:
-            return True
+    # def is_selectable_js(self, js_event: js.PointerEvent) -> bool | None:
+    #     w = _click_where(js_event)
+    #     if w == HeaderClick.TEXT:
+    #         return True
+    #     return None
+    def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
+        l = locator_event.locator
+        if l.match_component_type(CompStructureItem):
+            logger.warning(f'is_selectable_le: {l.tag_name} {l.class_name}')
+            left = locator_event.main_element.getBoundingClientRect().left
+            return locator_event.main_xy[0] - left > 20
         return None
-        # target = hover_event.deep_target
-        # if not target: return None
-        # res = target.closest(CompTreeItem.component_metadata.tag_name)
-        # if not res: return None
-        #
-        # return True
 
-    def location_attempt(self, hover_event: IntentEvent) -> LocatorEvent | Support | None:
-        le = _default_to_locator_event(hover_event)
-        return super().location_attempt(hover_event)
+    def locator_event_transformer(self, locator_event: LocatorEvent) -> LocatorEvent | None:
+        l = locator_event.locator
+        if l.match_component_type(CompStructureItem):
+            logger.warning(f'locator_event_transformer: {l.tag_name} {l.class_name}')
+        return None
 
 
-def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
-    target = hover_event.deep_target
+def _click_where(js_event: js.PointerEvent) -> HeaderClick | None:
+    target = get_deepest_element(js_event.clientX, js_event.clientY)
     if not target: return None
-    res = target.closest(CompTreeItem.component_metadata.tag_name)
+    res = target.closest(CompStructureItem.component_metadata.tag_name)
     if not res: return None
 
-    comp_tree_item: CompTreeItem = wpc.get_component(res)
-    x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
+    comp_tree_item: CompStructureItem = wpc.get_component(res)
+    x = js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
     # if x < 20:
     #     return HeaderClick.MARKER
     # else:
@@ -84,7 +85,7 @@ def _click_where(hover_event: IntentEvent) -> HeaderClick | None:
 _design_aware = _DesignAware()
 
 
-class CompTree(wpc.Component, tag_name='wwwpy-comp-tree'):
+class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
     _div: js.HTMLDivElement = wpc.element()
     _eventbus: EventBus = injector.field()
 
@@ -128,12 +129,12 @@ class CompTree(wpc.Component, tag_name='wwwpy-comp-tree'):
         if not rem:
             return
         for ci in iter_comp_info_folder(rem, 'remote'):
-            cti = CompTreeItem()
+            cti = CompStructureItem()
             cti.set_comp_info(ci)
             self._div.appendChild(cti.element)
 
 
-class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
+class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
     comp_info: CompInfo
     _details: js.HTMLElement = wpc.element()
     _summary: js.HTMLElement = wpc.element()
@@ -152,27 +153,37 @@ class CompTreeItem(wpc.Component, tag_name='wwwpy-comp-tree-item'):
 
         def rec(cst_tree: CstTree, elem: js.HTMLElement):
             for cst_node in cst_tree:
-                summary = cst_node.tag_name
-                dn = cst_node.attributes.get('data-name', None)
-                if dn:
-                    summary += f' / {dn}'
+                data_name = cst_node.attributes.get('data-name', None) or ''
+                dn = '' if not data_name else f' - {data_name} '
+                content = cst_node.content or ''
+
+                if content:
+                    escape_table = str.maketrans({
+                        '\r': ' ',
+                        '\n': ' ',
+                        '\t': ' ',
+                    })
+                    content = content.translate(escape_table)
+                    max_content = 15
+                    if len(content) > max_content:
+                        content = content[:max_content] + '…'
+                    content = f' / {content}'
+
+                summary_text = f'{cst_node.tag_name}{dn}{content}'
 
                 # language=html
-                html = f"""
-<details open>
-  <summary>{summary}</summary>              
-</details>                
-"""
+                html = """<details open><summary></summary></details>"""
 
                 ch = js.document.createRange().createContextualFragment(html)
 
                 elem.appendChild(ch)
                 details = elem.lastElementChild
-                # details._spec = _Spec(ci, )
                 if len(cst_node.children) == 0:
                     details.classList.add('no-marker')
                 else:
                     rec(cst_node.children, details)
+                summary = details.firstElementChild
+                summary.innerText = summary_text
 
         try:
             rec(ci.cst_tree, self._details)

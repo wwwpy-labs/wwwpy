@@ -58,6 +58,11 @@ class Locator:
     def rebase_to_origin(self) -> Locator | None:
         return rebase_to_origin(self)
 
+    def match_component_type(self, component_type) -> bool:
+        module = component_type.__module__
+        name = component_type.__name__
+        return module == self.class_module and name == self.class_name
+
 
 def rebase_to_origin(locator: Locator) -> Locator | None:
     """

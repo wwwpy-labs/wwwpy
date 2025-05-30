@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import dataclasses
 import inspect
 from dataclasses import field
-from typing import TypeVar, get_origin
+from typing import TypeVar, get_origin, Type
 
 
 class InjectorError(Exception):
@@ -78,8 +80,9 @@ class Injector:
         """Clear all registered dependencies."""
         self._registry.clear()
 
-    def field(self):  # todo test
-        return inject()
+    @property
+    def field(self) -> Type[inject]:  # todo test
+        return inject
 
 
 default_injector = Injector()
