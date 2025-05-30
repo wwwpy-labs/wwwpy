@@ -31,6 +31,7 @@ from wwwpy.server.designer import rpc
 from . import filesystem_tree
 from .help_icon import HelpIcon  # noqa
 from .mailto_component import MailtoComponent
+from .system_tools.logger_levels import LoggerLevelsComponent
 from ..locator_js import locator_from
 
 logger = logging.getLogger(__name__)
@@ -287,6 +288,14 @@ class ToolboxComponent(wpc.Component, tag_name='wwwpy-toolbox'):
         w1 = new_window('Python console')
         from wwwpy.remote.designer.ui.python_console import PythonConsoleComponent
         w1.element.append(PythonConsoleComponent().element)
+        DevModeComponent.instance.root_element().append(w1.element)
+
+    @menu(Help("Logger levels", ''))
+    async def _python_console(self, e: Event):
+        from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+        w1 = new_window('Logger levels')
+
+        w1.element.append(LoggerLevelsComponent().element)
         DevModeComponent.instance.root_element().append(w1.element)
 
     @menu(components_marker)
