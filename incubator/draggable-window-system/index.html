@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Window System Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #f5f5f5;
+            overflow-x: scroll;
+        }
+
+        #desktop {
+            width: 100%;
+            height: calc(100% - 40px);
+            position: relative;
+        }
+
+        .control-panel {
+            padding: 10px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            z-index: 99;
+        }
+
+        button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .window-content-sample {
+            padding: 0;
+        }
+
+        .window-content-sample h4 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+    </style>
+
+    <!-- Add our window system JS -->
+    <script src="draggable-window.js"></script>
+</head>
+<body>
+<div id="desktop">
+    <div class="control-panel">
+        <button id="createTextWindow">Create Text Window</button>
+        <button id="createFormWindow">Create Form Window</button>
+        <button id="createImageWindow">Create Image Window</button>
+    </div>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <p>lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum.</p>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <p>lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum.</p>
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <p>lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+        laborum.</p>
+
+</div>
+
+<!-- Taskbar for minimized windows -->
+<window-taskbar></window-taskbar>
+
+<!-- Template for form window content -->
+<template id="form-template">
+    <div class="window-content-sample">
+        <h4>User Information Form</h4>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="country">Country:</label>
+            <select id="country">
+                <option value="">Select your country</option>
+                <option value="us">United States</option>
+                <option value="ca">Canada</option>
+                <option value="uk">United Kingdom</option>
+                <option value="au">Australia</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="message">Message:</label>
+            <textarea id="message" placeholder="Enter your message"></textarea>
+        </div>
+        <button type="button">Submit</button>
+    </div>
+</template>
+
+<!-- Template for text window content -->
+<template id="text-template">
+    <div class="window-content-sample">
+        <h4>Sample Text Content</h4>
+        <p>This is a simple text window with some sample content. You can drag this window around by its title bar,
+            resize it using the handles on the edges and corners, or minimize, maximize, and close it using the buttons
+            in the top-right corner.</p>
+        <p>This window system is built using custom elements and vanilla JavaScript, making it lightweight and easy to
+            integrate into any web application.</p>
+        <p>Features include:</p>
+        <ul>
+            <li>Window dragging and resizing</li>
+            <li>Window minimize, maximize, and close</li>
+            <li>Proper z-index stacking</li>
+            <li>Taskbar for minimized windows</li>
+            <li>Custom event system</li>
+        </ul>
+    </div>
+</template>
+
+<!-- Template for image window content -->
+<template id="image-template">
+    <div class="window-content-sample">
+        <h4>Image Viewer</h4>
+        <div style="text-align: center; padding: 10px;">
+            <img src="https://picsum.photos/400/300" alt="Random Image"
+                 style="max-width: 100%; height: auto; border-radius: 4px;">
+            <p style="margin-top: 10px;">A sample image displayed in a draggable window.</p>
+        </div>
+    </div>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get references to buttons
+        const createTextBtn = document.getElementById('createTextWindow');
+        const createFormBtn = document.getElementById('createFormWindow');
+        const createImageBtn = document.getElementById('createImageWindow');
+
+        // Window counter for unique positioning
+        let windowCount = 0;
+
+        // Function to create a new window
+        function createWindow(title, templateId) {
+            // Create a new window element
+            const window = document.createElement('draggable-window');
+            window.setAttribute('window-title', title);
+
+            // Set initial position with offset based on count
+            const offset = 30 * (windowCount % 5); // Stagger windows
+            window.style.left = `${50 + offset}px`;
+            window.style.top = `${50 + offset}px`;
+            window.style.width = '400px';
+            window.style.height = '300px';
+
+            // Clone the template content and append to window
+            const template = document.getElementById(templateId);
+            if (template) {
+                const content = template.content.cloneNode(true);
+                window.appendChild(content);
+            }
+
+            // Add to desktop
+            document.getElementById('desktop').appendChild(window);
+
+            // Increment counter
+            windowCount++;
+
+            return window;
+        }
+
+        // Button click handlers
+        createTextBtn.addEventListener('click', function () {
+            createWindow('Text Window', 'text-template');
+        });
+
+        createFormBtn.addEventListener('click', function () {
+            createWindow('Form Window', 'form-template');
+        });
+
+        createImageBtn.addEventListener('click', function () {
+            createWindow('Image Viewer', 'image-template');
+        });
+
+        // Create an initial window
+        setTimeout(() => createWindow('Welcome Window', 'text-template'), 500);
+    });
+</script>
+</body>
+</html>
