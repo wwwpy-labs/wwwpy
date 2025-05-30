@@ -38,7 +38,7 @@ class AddElementIntent(Intent):
         self._tool = _tool
 
     def on_selected(self):
-        self._tool.show()
+        pass
 
     def on_deselected(self):
         self._tool.hide()

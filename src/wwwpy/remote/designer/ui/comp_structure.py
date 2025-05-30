@@ -15,10 +15,12 @@ from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
+from wwwpy.remote.component import get_component
 from wwwpy.remote.designer.dev_mode_events import AfterDevModeShow
 from wwwpy.remote.designer.ui.design_aware import DesignAware
-from wwwpy.remote.designer.ui.intent import IntentEvent, Intent
+from wwwpy.remote.designer.ui.intent import IntentEvent, Intent, IntentChangedEvent
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
+from wwwpy.remote.designer.ui.intent_manager import IntentManager
 from wwwpy.remote.designer.ui.locator_event import LocatorEvent
 from wwwpy.remote.jslib import get_deepest_element
 
@@ -32,19 +34,20 @@ class HeaderClick(Enum):
 
 class _DesignAware(DesignAware):
 
-    def find_intent(self, hover_event: IntentEvent):
+    def find_intent(self, hover_event: IntentEvent) -> Intent | None:
 
-        return None
-        # where = _click_where(hover_event)
         target = hover_event.deep_target
         if not target: return None
-        res = target.closest(CompStructureItem.component_metadata.tag_name)
+        res = target.closest(AddUserComponentIntentUI.component_metadata.tag_name)
         if not res: return None
+        comp = get_component(res, AddUserComponentIntentUI)
+        if not comp: return None
+        return comp.intent
 
-        comp_tree_item: CompStructureItem = wpc.get_component(res)
-        x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
-        if x < 20: return None
-        return comp_tree_item.add_intent
+        # comp_tree_item: CompStructureItem = wpc.get_component(res)
+        # x = hover_event.js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
+        # if x < 20: return None
+        # return comp_tree_item.add_intent
 
     # def is_selectable_js(self, js_event: js.PointerEvent) -> bool | None:
     #     w = _click_where(js_event)
@@ -52,32 +55,56 @@ class _DesignAware(DesignAware):
     #         return True
     #     return None
     def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
-        l = locator_event.locator
-        if l.match_component_type(CompStructureItem):
+        if locator_event.locator.match_component_type(AddUserComponentIntentUI):
+            logger.warning(f'is_selectable_le: click on summary')
+            return None
+        struct_item = _get_comp_structure_item(locator_event.main_element)
+        if struct_item:
+            # if locator_event.main_element == struct_item._summary:
+            #     return None
+            l = locator_event.locator
             logger.warning(f'is_selectable_le: {l.tag_name} {l.class_name}')
             left = locator_event.main_element.getBoundingClientRect().left
             return locator_event.main_xy[0] - left > 20
         return None
 
     def locator_event_transformer(self, locator_event: LocatorEvent) -> LocatorEvent | None:
-        l = locator_event.locator
-        if l.match_component_type(CompStructureItem):
-            if hasattr(locator_event.main_element, '_locator_node'):
-                locator_node: LocatorNode = locator_event.main_element._locator_node
-                # logger.warning(f'locator_event_transformer: {l.tag_name} {l.class_name}')
-                logger.warning(f'locator_event_transformer: {locator_node.locator}')
-                new_locator_event = dataclasses.replace(locator_event, locator=locator_node.locator)
-                return new_locator_event
+        if not isinstance(locator_event, LocatorEvent):
+            raise TypeError(f'Expected LocatorEvent, got {type(locator_event)}')
+        locator_node = _get_locator_node(locator_event)
+        if locator_node:
+            logger.warning(f'locator_event_transformer: {locator_node.locator}')
+            new_locator_event = dataclasses.replace(locator_event, locator=locator_node.locator)
+            return new_locator_event
         return None
+
+
+def _get_locator_node(locator_event: LocatorEvent) -> LocatorNode | None:
+    if locator_event.locator.match_component_type(CompStructureItem):
+        if hasattr(locator_event.main_element, '_locator_node'):
+            locator_node: LocatorNode = locator_event.main_element._locator_node
+            return locator_node
+    return None
+
+
+def _set_locator_node(element: js.Element, locator_node: LocatorNode):
+    element._locator_node = locator_node
+
+
+# class _PointerEventInfo:
+#     element: js.Element
+#     comp_tree_item: CompStructureItem
+def _get_comp_structure_item(contained_element: js.Element) -> CompStructureItem | None:
+    res = contained_element.closest(CompStructureItem.component_metadata.tag_name)
+    if not res: return None
+    comp_tree_item: CompStructureItem = wpc.get_component(res, CompStructureItem)
+    return comp_tree_item
 
 
 def _click_where(js_event: js.PointerEvent) -> HeaderClick | None:
     target = get_deepest_element(js_event.clientX, js_event.clientY)
     if not target: return None
-    res = target.closest(CompStructureItem.component_metadata.tag_name)
-    if not res: return None
-
-    comp_tree_item: CompStructureItem = wpc.get_component(res)
+    comp_tree_item = _get_comp_structure_item(target)
     x = js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
     # if x < 20:
     #     return HeaderClick.MARKER
@@ -153,7 +180,9 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
 
     def set_comp_info(self, ci: CompInfo):
         self.comp_info = ci
+
         self._summary.innerText = ci.path.name + ' / ' + ci.class_name
+        self._summary.appendChild(self.intent_ui.element)
 
         def rec(ln_list: list[LocatorNode], elem: js.Element, level):
             for child in ln_list:
@@ -186,7 +215,7 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
                 else:
                     rec(child.children, details, level + 1)
                 summary = details.firstElementChild
-                summary._locator_node = child
+                _set_locator_node(summary, child)
                 summary.innerText = summary_text
 
         try:
@@ -203,3 +232,53 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
         element_def_min: ElementDefBase = ElementDefBase(tag_name, self.comp_info.class_full_name)
         intent.element_def = element_def_min
         return intent
+
+    @cached_property
+    def intent_ui(self) -> AddUserComponentIntentUI:
+        intent_ui = AddUserComponentIntentUI()
+        intent_ui.intent = self.add_intent
+        return intent_ui
+
+
+class AddUserComponentIntentUI(wpc.Component):
+    intent: Intent
+    _intent_manager: IntentManager = injector.field()
+
+    def init_component(self):
+        # self.element.attachShadow( dict_to_js({'mode': 'open'}))
+        # language=html
+        self.element.innerHTML = """
+
+ <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+     <rect x="3" y="8" width="18" height="8" rx="2" ry="2"></rect>
+     <line x1="12" y1="12" x2="12" y2="12"></line>
+ </svg>
+ 
+"""
+        self.intent: Intent = None
+
+    def connectedCallback(self):
+        self._intent_manager.on(IntentChangedEvent).add(self._on_intent_changed_event)
+
+    def disconnectedCallback(self):
+        self._intent_manager.on(IntentChangedEvent).remove(self._on_intent_changed_event)
+
+    def _on_intent_changed_event(self, event: IntentChangedEvent):
+        if not self.intent:
+            return
+        self.selected = event.new == self.intent
+        logger.warning(f'_on_intent_changed_event: {event} selected: {self.selected}')
+
+    @property
+    def selected(self) -> bool:
+        return self.element.classList.contains('selected')
+
+    @selected.setter
+    def selected(self, value: bool):
+        if value:
+            self.element.classList.add('selected')
+        else:
+            self.element.classList.remove('selected')
