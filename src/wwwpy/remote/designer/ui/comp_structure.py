@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import logging
 from enum import Enum
 from functools import cached_property
@@ -9,9 +10,8 @@ import js
 import wwwpy.remote.component as wpc
 import wwwpy.remote.designer.ui.new_toolbox  # noqa
 from wwwpy.common import modlib
-from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo
+from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo, LocatorNode
 from wwwpy.common.designer.element_library import ElementDefBase
-from wwwpy.common.designer.html_parser import CstTree
 from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
 from wwwpy.remote import dict_to_js
@@ -62,7 +62,12 @@ class _DesignAware(DesignAware):
     def locator_event_transformer(self, locator_event: LocatorEvent) -> LocatorEvent | None:
         l = locator_event.locator
         if l.match_component_type(CompStructureItem):
-            logger.warning(f'locator_event_transformer: {l.tag_name} {l.class_name}')
+            if hasattr(locator_event.main_element, '_locator_node'):
+                locator_node: LocatorNode = locator_event.main_element._locator_node
+                # logger.warning(f'locator_event_transformer: {l.tag_name} {l.class_name}')
+                logger.warning(f'locator_event_transformer: {locator_node.locator}')
+                new_locator_event = dataclasses.replace(locator_event, locator=locator_node.locator)
+                return new_locator_event
         return None
 
 
@@ -150,8 +155,9 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
         self.comp_info = ci
         self._summary.innerText = ci.path.name + ' / ' + ci.class_name
 
-        def rec(cst_tree: CstTree, elem: js.HTMLElement):
-            for cst_node in cst_tree:
+        def rec(ln_list: list[LocatorNode], elem: js.Element, level):
+            for child in ln_list:
+                cst_node = child.cst_node
                 data_name = cst_node.attributes.get('data-name', None) or ''
                 dn = '' if not data_name else f' - {data_name} '
                 content = cst_node.content or ''
@@ -172,20 +178,19 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
 
                 # language=html
                 html = """<details open><summary></summary></details>"""
-
                 ch = js.document.createRange().createContextualFragment(html)
-
                 elem.appendChild(ch)
                 details = elem.lastElementChild
                 if len(cst_node.children) == 0:
                     details.classList.add('no-marker')
                 else:
-                    rec(cst_node.children, details)
+                    rec(child.children, details, level + 1)
                 summary = details.firstElementChild
+                summary._locator_node = child
                 summary.innerText = summary_text
 
         try:
-            rec(ci.cst_tree, self._details)
+            rec(ci.locator_root.children, self._details, 1)
         except:
             logger.exception('Error in CompTreeItem.set_comp_info')
             self._details.innerText = 'Error in CompTreeItem.set_comp_info'
