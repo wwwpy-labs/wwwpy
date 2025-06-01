@@ -163,7 +163,7 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
         DesignAware.EP_REGISTRY.unregister(_design_aware)
 
     def _scan_for_components(self, _):
-        logger.warning('scan_for_components')
+        logger.debug('scan_for_components')
         self._div.innerHTML = ''
         rem = modlib._find_package_directory('remote')
         if not rem:

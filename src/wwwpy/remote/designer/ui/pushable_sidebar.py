@@ -476,6 +476,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
     # Public API methods
     def set_state(self, state):
         """Set sidebar state ('hidden', 'collapsed', 'expanded')"""
+        logger.debug(f'set_state called with state: {state}, current state: {self._state}')
         if state not in ['hidden', 'collapsed', 'expanded']:
             logger.warning('Invalid state. Valid states are: hidden, collapsed, expanded')
             return self
@@ -501,6 +502,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         return self._state
 
     def toggle(self):
+        logger.debug(f'toggle called, current state: {self._state}')
         """Toggle sidebar state: expanded <-> collapsed, or hidden -> expanded"""
         if self._state == 'hidden':
             self.set_state('expanded')
