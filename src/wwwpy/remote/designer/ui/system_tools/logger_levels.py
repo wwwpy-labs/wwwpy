@@ -24,7 +24,7 @@ class LoggerLevelsComponent(wpc.Component):
 <div data-name="_row_container"><br></div>  
 
 <label>Component logs:</label>
-<textarea data-name="_ta_log" placeholder="textarea1" rows="8" wrap="off" style="width: 100%"></textarea> 
+<textarea data-name="_ta_log" placeholder="textarea1" rows="8" wrap="off" style="width: 98%"></textarea> 
 """
         self._list_all_logger()
 
@@ -61,7 +61,7 @@ class LoggerLevelsComponent(wpc.Component):
     async def _row_container__input_row(self, event):
         row: LogConfRow = event.detail.row
         logging.getLogger(row.logger_name).setLevel(row.level_select)
-        msg = f'Set {row.level_select:<10} logger {row.logger_name}'
+        msg = f'{row.level_select:<8} {row.logger_name}'
         logger.debug(msg)
         self._log(msg)
 
