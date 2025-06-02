@@ -633,3 +633,11 @@ class TestDispose:
         do()
 
         assert fin == [1]
+
+
+def test_class_full_name():
+    class Comp1(Component):
+        pass
+
+    logger.debug(f'class=`{Comp1}`')
+    assert Comp1.component_metadata.class_full_name == __name__ + '.' + Comp1.__qualname__

@@ -31,6 +31,10 @@ class Metadata:
         self.clazz: type[Component] = clazz
         self._custom_element_class_template = None
 
+    @property
+    def class_full_name(self) -> str:
+        return f'{self.clazz.__module__}.{self.clazz.__qualname__}'
+
     def __set_name__(self, owner, name):
         if not issubclass(owner, Component):
             raise Exception(f'attribute {name} must be in a subclass of {Component.__name__}')
