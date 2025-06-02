@@ -23,7 +23,7 @@ class Locator:
     """Contains the path to an element relative to a Component.
     This is intended to be serialized"""
 
-    class_module: str  # todo rename class_package
+    class_module: str
     """The module name of the Component."""
     class_name: str
     """The class name of the Component."""

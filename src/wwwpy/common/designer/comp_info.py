@@ -55,7 +55,7 @@ class LocatorNode:
 @dataclass
 class CompInfo:
     """If the html is not found, no instance of this class is created."""
-    class_package: str
+    class_package: str  # todo rename to class_module
     class_name: str
     tag_name: str
     path: Path
