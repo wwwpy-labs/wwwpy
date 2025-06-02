@@ -1,3 +1,5 @@
+import logging
+from functools import cached_property
 from textwrap import dedent
 
 import js
@@ -10,17 +12,44 @@ from wwwpy.remote.component import Component
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent, _tool
 from wwwpy.remote.designer.ui.locator_event import LocatorEvent
 
+logger = logging.getLogger(__name__)
+
+
 # todo refactor tests (dry)
 #  also add test when there is no internal html,
-
-def_base = ElementDefBase('button', 'js.HTMLButtonElement')
 
 
 class Comp1Fixture:
     comp1: Component
 
     def __init__(self, dyn_sys_path: DynSysPath):
-        dyn_sys_path.write_module2('comp1lib.py', dedent(
+        self.dyn_sys_path = dyn_sys_path
+
+    @cached_property
+    def div1_locator_event(self) -> LocatorEvent:
+        return LocatorEvent.from_element(self.comp1.div1)
+
+    @cached_property
+    def default_target(self) -> AddElementIntent:
+        t = AddElementIntent('add button label', element_def=ElementDefBase('button', 'js.HTMLButtonElement'))
+        self._setup_intent(t)
+        return t
+
+    @cached_property
+    def itself_target(self) -> AddElementIntent:
+        metadata = self.comp1.component_metadata
+        self_def_base = ElementDefBase(metadata.tag_name, metadata.class_full_name)
+        t = AddElementIntent('add comp1', element_def=self_def_base)
+        self._setup_intent(t)
+        return t
+
+    def _setup_intent(self, t):
+        t.add_element = lambda *args: self.add_calls.append(args)
+        t._tool.transition = False  # disable transition for tests
+
+    @cached_property
+    def comp1(self) -> Component:
+        self.dyn_sys_path.write_module2('comp1lib.py', dedent(
             """
         import js
         import wwwpy.remote.component as wpc
@@ -33,15 +62,19 @@ class Comp1Fixture:
         from comp1lib import Comp1  # noqa, import of dynamic component
         comp1: Component = Comp1()
         js.document.body.appendChild(comp1.element)
-        self.comp1 = comp1
-        self.target = AddElementIntent('add-label', element_def=def_base)
-        self.add_calls = []
-        self.target.add_element = lambda *args: self.add_calls.append(args)
-        self.locator_event = LocatorEvent.from_element(comp1.div1)
+        return comp1
+
+    @cached_property
+    def add_calls(self):
+        return []
 
     @property
     def xy(self):
         return element_xy_center(self.comp1.element)
+
+    def set_target_to_point_itself(self):
+        self_def_base = ElementDefBase(self.comp1.component_metadata.tag_name, 'wpc.Component')
+        self.target = AddElementIntent('some-label', element_def=self_def_base)
 
 
 @pytest.fixture
@@ -69,7 +102,7 @@ async def test_simple_submit(comp1, comp1_fixture):
     _tool.show()
 
     # WHEN
-    result = comp1_fixture.target.on_submit(comp1_fixture.locator_event)
+    result = comp1_fixture.default_target.on_submit(comp1_fixture.div1_locator_event)
 
     # THEN
     assert result is True
@@ -78,13 +111,28 @@ async def test_simple_submit(comp1, comp1_fixture):
 
 
 async def test_simple_hover(comp1, comp1_fixture):
-    _tool.transition = False
-
     # WHEN
-    comp1_fixture.target.on_hover(comp1_fixture.locator_event)
+    comp1_fixture.default_target.on_hover(comp1_fixture.div1_locator_event)
 
     # THEN
     assert _tool.visible is True
+
+
+async def test_recursive_hover__should_be_avoide(comp1, comp1_fixture):
+    # WHEN
+    comp1_fixture.itself_target.on_hover(comp1_fixture.div1_locator_event)
+
+    # THEN
+    assert _tool.visible is False
+
+
+async def test_recursive_submit__should_be_avoided(comp1, comp1_fixture):
+    # WHEN
+    result = comp1_fixture.itself_target.on_submit(comp1_fixture.div1_locator_event)
+
+    # THEN
+    assert result is False
+    assert _tool.visible is False
 
 # todo test
 #  hover, should move the SelectionIndicatorFloater to the target

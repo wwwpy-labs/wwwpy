@@ -33,6 +33,10 @@ class Locator:
     origin: Origin
 
     @property
+    def class_full_name(self) -> str:
+        return f'{self.class_module}.{self.class_name}'
+
+    @property
     def tag_name(self) -> str:
         """The tag name of the element in lowercase."""
         if len(self.path) == 0:

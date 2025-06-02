@@ -10,7 +10,7 @@ import js
 import wwwpy.remote.component as wpc
 import wwwpy.remote.designer.ui.new_toolbox  # noqa
 from wwwpy.common import modlib
-from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo, LocatorNode
+from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo, LocatorNode, ComponentDef
 from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.eventbus import EventBus
 from wwwpy.common.injectorlib import injector
@@ -238,7 +238,7 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
         tag_name = self.comp_info.tag_name
         label = f'Add {tag_name}'
         intent = AddElementIntent(label)
-        element_def_min: ElementDefBase = ElementDefBase(tag_name, self.comp_info.class_full_name)
+        element_def_min: ElementDefBase = ComponentDef(tag_name, self.comp_info.class_full_name, self.comp_info)
         intent.element_def = element_def_min
         return intent
 
@@ -253,6 +253,7 @@ class AddUserComponentIntentUI(wpc.Component):
     intent: Intent
     _intent_manager: IntentManager = injector.field()
     _span: js.Element = wpc.element()
+
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
         # language=html
@@ -310,7 +311,6 @@ class AddUserComponentIntentUI(wpc.Component):
  </svg>
 """
         self.intent: Intent = None
-
 
     def connectedCallback(self):
         self._intent_manager.on(IntentChangedEvent).add(self._on_intent_changed_event)

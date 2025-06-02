@@ -8,6 +8,7 @@ from typing import Iterator
 
 from wwwpy.common.designer import code_info
 from wwwpy.common.designer.code_strings import html_from_source
+from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.designer.html_locator import node_path_from_leaf
 from wwwpy.common.designer.html_parser import CstTree, html_to_tree, CstNode
 from wwwpy.common.designer.locator_lib import Locator, Origin
@@ -69,6 +70,11 @@ class CompInfo:
     @property
     def class_full_name(self) -> str:
         return f'{self.class_package}.{self.class_name}'
+
+
+@dataclass
+class ComponentDef(ElementDefBase):
+    comp_info: CompInfo
 
 
 def iter_comp_info_folder(folder: Path, package: str) -> Iterator[CompInfo]:
