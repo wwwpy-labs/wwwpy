@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import inspect
 import logging
 from enum import Enum
 from functools import cached_property
@@ -128,6 +129,7 @@ _design_aware = _DesignAware()
 class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
     _div: js.HTMLDivElement = wpc.element()
     _eventbus: EventBus = injector.field()
+    span1: js.HTMLElement = wpc.element()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -147,8 +149,10 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
       display: none;
     }
 </style>
-
+<div>
+<div data-name="span1">Create new Component</div>
 <div data-name="_div"></div>
+</div>
         """
         self._subscription = None
 
@@ -172,6 +176,14 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
             cti = CompStructureItem()
             cti.set_comp_info(ci)
             self._div.appendChild(cti.element)
+
+    async def span1__click(self, event):
+        logger.debug(f'{inspect.currentframe().f_code.co_name} event fired %s', event)
+        if js.window.confirm('Add new component file?\nIt will be added to your "remote" folder.'):
+            from wwwpy.server.designer import rpc
+            res = await rpc.add_new_component()
+            js.window.alert(res)
+    
 
 
 class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
