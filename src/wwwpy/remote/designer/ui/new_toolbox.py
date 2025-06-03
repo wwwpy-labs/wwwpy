@@ -60,3 +60,11 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
 
         canvas_selection = injector.get(CanvasSelection)
         canvas_selection.on_change.add(_csce)
+
+    @property
+    def visible(self) -> bool:
+        return self._sidebar.state != 'hidden'
+
+    @visible.setter
+    def visible(self, value: bool):
+        self._sidebar.state = 'expanded' if value else 'hidden'
