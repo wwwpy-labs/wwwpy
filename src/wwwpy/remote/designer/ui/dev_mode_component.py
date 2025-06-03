@@ -70,3 +70,9 @@ class DevModeComponent(wpc.Component, tag_name='wwwpy-dev-mode-component'):
 
     def connectedCallback(self):
         create_task_safe(self._connectedCallback_async())
+
+    def show_window(self, title: str, component: wpc.Component):
+        from wwwpy.remote.designer.ui.window_component import new_window
+        w1 = new_window(title)
+        w1.element.append(component.element)
+        self.root_element().append(w1.element)

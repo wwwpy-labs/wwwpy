@@ -106,3 +106,11 @@ async def _run_sync_in_thread(func: Callable[[], T]) -> T:
     """
     with concurrent.futures.ThreadPoolExecutor() as executor:
         return await asyncio.get_event_loop().run_in_executor(executor, func)
+
+
+async def server_python_version_string() -> str:
+    """
+    Get the Python version string from the server.
+    """
+    import platform
+    return platform.python_version()

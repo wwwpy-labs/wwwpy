@@ -11,6 +11,7 @@ class SystemToolsComponent(wpc.Component, tag_name='wwwpy-system-tools'):
     _explore_fs: js.HTMLElement = wpc.element()
     _logger_levels: js.HTMLElement = wpc.element()
     _python_console: js.HTMLButtonElement = wpc.element()
+    _system_versions: js.HTMLButtonElement = wpc.element()
 
     def init_component(self):
         # language=html
@@ -19,6 +20,7 @@ class SystemToolsComponent(wpc.Component, tag_name='wwwpy-system-tools'):
 <button data-name="_explore_fs">Explore Filesystem</button>
 <button data-name="_logger_levels">Logger Levels</button>
 <button data-name="_python_console">Python Console</button>
+<button data-name="_system_versions">System Versions</button>
 </div>
 """
 
@@ -43,3 +45,8 @@ class SystemToolsComponent(wpc.Component, tag_name='wwwpy-system-tools'):
         from wwwpy.remote.designer.ui.python_console import PythonConsoleComponent
         w1.element.append(PythonConsoleComponent().element)
         DevModeComponent.instance.root_element().append(w1.element)
+
+    async def _system_versions__click(self, event):
+        from wwwpy.remote.designer.ui.dev_mode_component import DevModeComponent
+        from wwwpy.remote.designer.ui.system_tools.system_versions import SystemVersions
+        DevModeComponent.instance.show_window('Show System Versions', SystemVersions())
