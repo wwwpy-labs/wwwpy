@@ -86,9 +86,11 @@ class PropertyEditor(wpc.Component, tag_name='wwwpy-property-editor'):
             font-size: 14px;
         }
     </style>
+    <div>
 <div data-name="message1div" style='color: white; margin: 0.3em'>&nbsp</div>
 <wwwpy-button-tab data-name="_tabs"></wwwpy-button-tab>
 <div  data-name='row_container' class="wwwpy-property-editor"></div>
+</div>
 
         """
 
