@@ -170,7 +170,8 @@ def _delete_element():
     from wwwpy.common.designer.canvas_selection import CanvasSelection
     from wwwpy.common.designer.code_edit import remove_element
     from wwwpy.common.designer.html_locator import path_to_index
-    el_path = injector.get(CanvasSelection).current_selection
+    canvas_selection = injector.get(CanvasSelection)
+    el_path = canvas_selection.current_selection
     if not el_path:
         return
     from wwwpy.common import modlib
@@ -188,6 +189,7 @@ def _delete_element():
     async def write_source_file():
         from wwwpy.server.designer import rpc
         write_res = await rpc.write_module_file(el_path.class_module, remove_result)
+        canvas_selection.current_selection = None
         logger.debug(f'write_module_file res={write_res}')
 
     create_task_safe((write_source_file()))
