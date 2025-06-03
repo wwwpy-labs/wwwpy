@@ -124,7 +124,7 @@ class PushableSidebar(wpc.Component, tag_name='pushable-sidebar'):
         self._config = {
             'width': '300px',
             'minWidth': '50px',
-            'maxWidth': '500px',
+            'maxWidth': '5000px',
             'collapsedWidth': '30px',
             'zIndex': 9999,
             'enable_animation': True,
