@@ -13,6 +13,7 @@ from wwwpy.common.asynclib import create_task_safe
 from wwwpy.common.files import zip_in_memory
 from wwwpy.remote.designer.ui.window_component import new_window
 from wwwpy.remote.files import download_bytes
+from wwwpy.remote.jslib import waitAnimationFrame
 
 
 class FilesystemTree(wpc.Component):
@@ -110,6 +111,7 @@ def show_explorer(parent: js.HTMLElement = js.document.body):
     parent.append(win.element)
 
     async def coro():
+        await waitAnimationFrame()
         tree = FilesystemTree()
         win.element.innerHTML = ''
         win.element.append(tree.element)

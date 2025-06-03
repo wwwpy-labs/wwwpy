@@ -10,6 +10,7 @@ from wwwpy.remote.designer.ui import pushable_sidebar, palette
 from wwwpy.remote.designer.ui.intent_add_element import AddElementIntent
 from wwwpy.remote.designer.ui.intent_select_element import SelectElementIntent
 from wwwpy.remote.designer.ui.property_editor import PropertyEditor
+from wwwpy.remote.designer.ui.system_tools.system_tools_component import SystemToolsComponent
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
     _sidebar: pushable_sidebar.PushableSidebar = wpc.element()
     _palette: palette.PaletteComponent = wpc.element()
     _property_editor: PropertyEditor = wpc.element()
+    _system_tools: SystemToolsComponent = wpc.element()
 
     def init_component(self):
         # language=html
@@ -34,6 +36,10 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
     <wwwpy-accordion-section expanded>
         <div slot="header">Attributes/Events</div>
         <wwwpy-property-editor data-name="_property_editor" style="height: 250px; display: flex; overflow: scroll"></wwwpy-property-editor>
+    </wwwpy-accordion-section>
+    <wwwpy-accordion-section expanded>
+        <div slot="header">System Tools</div>
+        <wwwpy-system-tools data-name="_system_tools"></wwwpy-system-tools>
     </wwwpy-accordion-section>
 </pushable-sidebar>
         """
