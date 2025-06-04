@@ -31,12 +31,12 @@ def zip_in_memory(path):
 
 
 def get_all_paths_with_hashes(path: str | Path) -> set[tuple[str, str | None]]:
-    path = Path(path)
+    base_path = Path(path)
     paths = set()
-    for path in path.rglob('*'):
-        relative_path = path.relative_to(path)
-        if path.is_file():
-            file_hash = get_file_hash(path)
+    for entry in base_path.rglob('*'):
+        relative_path = entry.relative_to(base_path)
+        if entry.is_file():
+            file_hash = get_file_hash(entry)
             paths.add((str(relative_path), file_hash))
         else:
             paths.add((str(relative_path), None))  # Directories don't need a hash
