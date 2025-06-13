@@ -114,26 +114,27 @@ class Widget:
             instance.append_to(element)
 
 
+from wwwpy.remote.component import Component
+
 class HolderWidget(Widget):
     def __init__(self, html: str = ''):
         super().__init__(html)
         self.stack = []
         self.on_show = lambda w: ...
 
-    def show(self, widget: Widget):
-        widget.holder = self
+    def show(self, item: Widget | Component):
+        item.holder = self
         c = self._custom_holder()
         while c.hasChildNodes():
             c.removeChild(c.firstChild)
 
-        self._remove(widget)
-        self.stack.append(widget)
-        from wwwpy.remote.component import Component
-        if isinstance(widget, Component):
-            c.append(widget.element)
+        self._remove(item)
+        self.stack.append(item)
+        if isinstance(item, Component):
+            c.append(item.element)
         else:
-            widget.append_to(c)
-        self.on_show(widget)
+            item.append_to(c)
+        self.on_show(item)
 
     def close(self, widget: Widget):
         self._remove(widget)
