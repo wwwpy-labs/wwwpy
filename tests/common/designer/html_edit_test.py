@@ -130,6 +130,13 @@ class TestAttributeSet:
         # language=html
         assert actual == """<some bar='yes' foo="xyz"></some>"""
 
+    def test_set_line_breaks(self):
+        path = [Node("div", 0, {'id': 'foo'})]
+        # language=html
+        actual = html_attribute_set("<div></div>", path, 'id', 'foo\r\nbar')
+        # language=html
+        assert actual == '<div id="foo\r\nbar"></div>'
+
 
 class TestAttributeRemove:
 
