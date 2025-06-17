@@ -151,6 +151,8 @@ class ElementEditor:
         for attribute_def in element_def.attributes:
             exists = attribute_def.name in node.attributes
             value = node.attributes.get(attribute_def.name, None)
+            if value is not None:
+                value = escape_string(value)
             attribute_editor = AttributeEditor(attribute_def, exists, value,
                                                self._attribute_set_value, self._attribute_remove)
             self.attributes.append(attribute_editor)
@@ -186,6 +188,8 @@ class ElementEditor:
         self._write_source(new_source)
 
     def _attribute_set_value(self, attribute_editor: AttributeEditor, value: str | None):
+        if value is not None:
+            value = unescape_string(value)
 
         def _html_manipulate(html: str) -> str:
             new_html = html_edit.html_attribute_set(

@@ -209,6 +209,37 @@ class Component2():
         # language=html
         assert """<button id='foo'>bar</button>""" == target_fixture.current_html
 
+    def test_value_get__when_cr(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def init_component(self):
+        self.element.innerHTML = """<button name="foo\nbar"></button>"""
+    '''
+        # WHEN
+        target = target_fixture.target
+        value = target.attributes.get('name').value
+
+        # THEN
+        # language=html
+        assert value == 'foo\\nbar'
+
+    def test_value_set__when_cr(self, target_fixture):
+        # GIVEN
+        target_fixture.source = '''
+class Component2():
+    def init_component(self):
+        self.element.innerHTML = """<button name=""></button>"""
+    '''
+        # WHEN
+        target = target_fixture.target
+        target.attributes.get('name').value = 'foo\\nbar'
+
+        # THEN
+        # language=html
+        assert """<button name="foo\nbar"></button>""" == target_fixture.current_html
+
+
 
 class TestContentAkaInnerHTML:
     """test the element content, aka innerHTML"""
@@ -455,14 +486,18 @@ class Component2():
         ci = code_info.class_info(target.current_python_source(), 'Component2')
         assert ci.attributes == []
 
+
 import unittest
+
 
 def escape_string(s: str) -> str:
     escape_table = str.maketrans({'\r': '\\r', '\n': '\\n', '\t': '\\t', '\\': '\\\\'})
     return s.translate(escape_table)
 
+
 def unescape_string(s: str) -> str:
     return s.encode('ascii', 'backslashreplace').decode('unicode_escape')
+
 
 class TestEscapeUnescape(unittest.TestCase):
     def test_examples(self):
@@ -549,5 +584,3 @@ def _node_path(source: str, class_name, indexed_path: list[int]) -> NodePath:
 def _remove_import(source: str) -> str:
     lines = source.split('\n')
     return '\n'.join([line for line in lines if not line.startswith('import ')])
-
-
