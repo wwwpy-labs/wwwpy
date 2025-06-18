@@ -263,7 +263,7 @@ class MyElement:
 
         assert _remove_import(add_result.source_code) == expected_source
 
-    def test_node_path__afterend(self):
+    def test_add__afterend(self):
         original_source = """
 class MyElement:
     def init_component(self):
@@ -276,7 +276,7 @@ class MyElement:
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
-    def test_node_path__beforebegin(self):
+    def test_add__beforebegin(self):
         original_source = """
 class MyElement:
     def init_component(self):
@@ -289,7 +289,7 @@ class MyElement:
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
-    def test_node_path__afterbegin(self):
+    def test_add__afterbegin(self):
         original_source = """
 class MyElement:
     def init_component(self):
@@ -304,7 +304,7 @@ class MyElement:
         expected_node_path = [Node("div", 0, {}), Node('btn', 0, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
 
-    def test_node_path__beforeend(self):
+    def test_add__beforeend(self):
         original_source = """
 class MyElement:
     def init_component(self):
@@ -320,7 +320,7 @@ class MyElement:
         assert add_result.html == '''<div><br><btn></btn></div>'''
         assert add_result.node_path == expected_node_path
 
-    def test_node_path__afterbegin_text_node(self):
+    def test_add__afterbegin_text_node(self):
         original_source = """
 class MyElement:
     def init_component(self):
@@ -336,7 +336,7 @@ class MyElement:
         expected_node_path = [Node("div", 0, {}), Node('btn', 0, {})]
         assert add_result.node_path == expected_node_path
 
-    def test_node_path__beforeend_text_node(self):
+    def test_add__beforeend_text_node(self):
         original_source = """
 class MyElement:
     def init_component(self):
