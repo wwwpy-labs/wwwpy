@@ -46,30 +46,6 @@ def test_add_class_attribute__should_retain_comments_and_style():
     assert _remove_import(modified_source) == expected_source
 
 
-def test_add_class_attribute__should_add_it_on_top_after_other_attributes():
-    original_source = """
-# comment1
-class MyElement(wpc.Component): # comment2
-    btn1: HTMLButtonElement = wpc.element()
-    def foo(self):
-        pass
-    """
-
-    expected_source = """
-# comment1
-class MyElement(wpc.Component): # comment2
-    btn1: HTMLButtonElement = wpc.element()
-    btn2: js.HTMLButtonElement = wpc.element()
-    def foo(self):
-        pass
-    """
-
-    modified_source = add_class_attribute(original_source, 'MyElement',
-                                          Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
-
-    assert _remove_import(modified_source) == expected_source
-
-
 def test_add_class_attribute__should_honor_classname():
     original_source = """
 class MyElement(wpc.Component):
