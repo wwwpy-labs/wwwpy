@@ -486,17 +486,32 @@ class _ElementDefBaseSimple(ElementDefBase):
         return f"""<{self.tag_name}></{self.tag_name}>"""
 
 
-def test_mk_comp():
-    inner_html = 'xyz'
-    original_source = dedent(f"""
-    class MyElement(wpc.Component):
-        def init_component(self):
-            self.element.innerHTML = '''{inner_html}'''
-        """)
+class Test_mk_comp:
 
-    res = _mk_comp(inner_html)
+    def test_mk_comp(self):
+        original_source = dedent(f"""
+        class MyElement(wpc.Component):
+            def init_component(self):
+                self.element.innerHTML = '''xyz'''
+            """)
 
-    assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+        res = _mk_comp('xyz')
+
+        assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+
+    def test_mk_comp_with_attrs(self):
+        attrs = ['attr1', 'attr2']
+        original_source = dedent(f"""
+        class MyElement(wpc.Component):
+            attr1
+            attr2
+            def init_component(self):
+                self.element.innerHTML = '''xyz'''
+            """)
+
+        res = _mk_comp('xyz', attrs)
+
+        assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
 
 def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
@@ -504,5 +519,6 @@ def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
     clazz = 'class MyElement(wpc.Component):'
     def_init = indent + 'def init_component(self):'
     inner_line = indent * 2 + f"""self.element.innerHTML = '''{inner_html}'''"""
-    res = '\n'.join(['', clazz, def_init, inner_line, ''])
+    attr_lines = [indent + attr for attr in attrs]
+    res = '\n'.join(['', clazz] + attr_lines + [def_init, inner_line, ''])
     return res
