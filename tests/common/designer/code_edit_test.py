@@ -58,15 +58,8 @@ def test_add_class_attribute__should_honor_classname():
 
 
 def test_remove_class_attribute__should_remove_the_line():
-    original_source = """
-class MyElement(wpc.Component):
-        ele1: HTMLElement = wpc.element()
-        ele2: HTMLElement = wpc.element()
-    """
-    expected_source = """
-class MyElement(wpc.Component):
-        ele2: HTMLElement = wpc.element()
-    """
+    original_source = _mk_comp(attrs=['ele1: HTMLElement = wpc.element()', 'ele2: HTMLElement = wpc.element()'])
+    expected_source = _mk_comp(attrs=['ele2: HTMLElement = wpc.element()'])
 
     modified_source = remove_class_attribute(original_source, 'MyElement', 'ele1')
 
