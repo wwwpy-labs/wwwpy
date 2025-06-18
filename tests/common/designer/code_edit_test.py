@@ -25,9 +25,9 @@ def test_add_class_attribute():
                                           Attribute('btn2', 'HTMLButtonElement', 'wpc.element()'))
 
     # THEN
-    modified_info = info(_remove_import(modified_source))
-    expected_info = info(expected_source)
-    assert modified_info == expected_info, "The attribute was not added correctly."
+    modified_source = _remove_import(modified_source)
+
+    assert modified_source == expected_source
 
 
 def test_add_class_attribute__should_retain_comments_and_style():
@@ -43,7 +43,9 @@ def test_add_class_attribute__should_retain_comments_and_style():
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    assert _remove_import(modified_source) == expected_source
+    modified_source = _remove_import(modified_source)
+
+    assert modified_source == expected_source
 
 
 def test_add_class_attribute__should_honor_classname():
@@ -54,7 +56,8 @@ def test_add_class_attribute__should_honor_classname():
     modified_source = add_class_attribute(original_source, 'FooBar',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    assert _remove_import(modified_source) == expected_source
+    modified_source = _remove_import(modified_source)
+    assert modified_source == expected_source
 
 
 def test_remove_class_attribute__should_remove_the_line():
@@ -63,7 +66,9 @@ def test_remove_class_attribute__should_remove_the_line():
 
     modified_source = remove_class_attribute(original_source, 'MyElement', 'ele1')
 
-    assert _remove_import(modified_source) == expected_source
+    modified_source = _remove_import(modified_source)
+
+    assert modified_source == expected_source
 
 
 def test_rename_class_attribute():
