@@ -210,8 +210,7 @@ class MyElement(wpc.Component):
         self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div><btn data-name="btn1"></btn></div>'''
     """
 
-        edb = ElementDefBase('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, path01, Position.afterend)
+        add_result = add_element(original_source, 'MyElement', _btn_some, path01, Position.afterend)
         actual = _remove_import(add_result.source_code)
 
         assert actual == expected_source
@@ -267,8 +266,7 @@ class MyElement:
     def test_add__afterend(self):
         original_source = _mk_comp('''<div id='foo'><div></div><div id='target'></div></div>''')
 
-        edb = ElementDefBase('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, path01, Position.afterend)
+        add_result = add_element(original_source, 'MyElement', _btn_some, path01, Position.afterend)
 
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 2, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
@@ -276,8 +274,7 @@ class MyElement:
     def test_add__beforebegin(self):
         original_source = _mk_comp('''<div id='foo'><div></div><div id='target'></div></div>''')
 
-        edb = ElementDefBase('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, path01, Position.beforebegin)
+        add_result = add_element(original_source, 'MyElement', _btn_some, path01, Position.beforebegin)
 
         expected_node_path = [Node("div", 0, {'id': 'foo'}), Node('btn', 1, {'data-name': 'btn1'})]
         assert add_result.node_path == expected_node_path
@@ -285,8 +282,7 @@ class MyElement:
     def test_add__afterbegin(self):
         original_source = _mk_comp('<div><br></div>')
 
-        edb = ElementDefBase('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
+        add_result = add_element(original_source, 'MyElement', _btn_some, [0], Position.afterbegin)
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
@@ -516,3 +512,4 @@ def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
 
 
 _btn_no_data_name = _ElementDefBaseSimple('btn', 'js.Some')
+_btn_some = ElementDefBase('btn', 'js.Some')
