@@ -103,6 +103,8 @@ class AddComponentExceptionReport:
 
 def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_path: IndexPath,
                 position: Position) -> AddResult | AddFailed:
+    logger.debug(f'Adding element `{edb.tag_name}` of type `{edb.python_type}` to class {class_name}'
+                 f' at index path {index_path} position {position}')
     source_code_orig = source_code
     try:
         imp_tuple = _required_imports_default
