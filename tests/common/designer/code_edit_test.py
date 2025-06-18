@@ -349,12 +349,12 @@ class MyElement(wpc.Component):
     btn1: js.Some = wpc.element()
     def init_component(self):
         self.element.innerHTML = '''<div></div><div data-name='btn1'></div>'''
-    """
+"""
         # original_source = _mk_comp('<div></div><div data-name="btn1"></div>', attrs=['btn1: js.Some = wpc.element()'])
-        expected_source = _mk_comp('<div></div>').strip()
+        expected_source = _mk_comp('<div></div>')
         result = remove_element(original_source, 'MyElement', [1])
 
-        assert _remove_import(result).strip() == expected_source
+        assert _remove_import(result) == expected_source
 
 
 def test_add_method():
@@ -486,10 +486,23 @@ class _ElementDefBaseSimple(ElementDefBase):
         return f"""<{self.tag_name}></{self.tag_name}>"""
 
 
+def test_mk_comp():
+    inner_html = 'xyz'
+    original_source = dedent(f"""
+    class MyElement(wpc.Component):
+        def init_component(self):
+            self.element.innerHTML = '''{inner_html}'''
+        """)
+
+    res = _mk_comp(inner_html)
+
+    assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+
+
 def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
-    original_source = f"""
-class MyElement(wpc.Component):
-    def init_component(self):
-        self.element.innerHTML = '''{inner_html}'''
-    """
-    return original_source.strip()
+    indent = ' ' * 4
+    clazz = 'class MyElement(wpc.Component):'
+    def_init = indent + 'def init_component(self):'
+    inner_line = indent * 2 + f"""self.element.innerHTML = '''{inner_html}'''"""
+    res = '\n'.join(['', clazz, def_init, inner_line, ''])
+    return res
