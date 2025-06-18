@@ -123,27 +123,21 @@ class TestAddElement:
         assert actual == expected_source
 
     def test_non_js_class(self):
-        original_source = dedent("""
-    class MyElement(wpc.Component):
-        def init_component(self):
-            self.element.innerHTML = '''<div></div>'''
-        """)
-
-        expected_source = dedent("""
-    from remote.comp1 import Comp1
-        
-    class MyElement(wpc.Component):
-        comp1a: Comp1 = wpc.element()
-        def init_component(self):
-            self.element.innerHTML = '''<div></div><comp-1 data-name="comp1a"></comp-1>'''
-        """)
+        # GIVEN
+        original_source = _mk_comp('''<div></div>''')
+        expected_source = 'from remote.comp1 import Comp1\n' + \
+                          _mk_comp(html='''<div></div><comp-1 data-name="comp1a"></comp-1>''',
+                                   attrs=['comp1a: Comp1 = wpc.element()'])
 
         edb = ElementDefBase('comp-1', 'remote.comp1.Comp1')
+
+        # WHEN
         add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterend)
+
+        # THEN
         assert isinstance(add_result, AddResult), f'add_result={add_result}'
         actual = _remove_import(add_result.source_code)
-
-        assert _no_empty_lines(actual) == _no_empty_lines(expected_source)
+        assert actual == expected_source
 
     def test_gen_html(self):
         original_source = """
