@@ -67,27 +67,14 @@ def test_remove_class_attribute__should_remove_the_line():
 
 
 def test_rename_class_attribute():
-    original_source = """
-import wwwpy.remote.component as wpc
+    original_source = _mk_comp(attrs=['btn1: HTMLButtonElement = wpc.element()'])
 
-class MyElement(wpc.Component):
-    btn1: HTMLButtonElement = wpc.element()
-    """
-
-    # Expected source after renaming the new attribute
-    expected_source = """
-import wwwpy.remote.component as wpc
-
-class MyElement(wpc.Component):
-    btnSend: HTMLButtonElement = wpc.element()
-        """
-
+    expected_source = _mk_comp(attrs=['btnSend: HTMLButtonElement = wpc.element()'])
     modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
 
-    modified_info = info(modified_source)
-    expected_info = info(expected_source)
+    modified_source = _remove_import(modified_source)
 
-    assert modified_info == expected_info, "The attribute was not renamed correctly."
+    assert expected_source == modified_source
 
 
 def test_rename_class_attribute__should_rename_events():
