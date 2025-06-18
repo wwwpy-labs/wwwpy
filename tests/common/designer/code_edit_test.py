@@ -204,13 +204,13 @@ class TestAddElement:
         assert add_result.node_path == expected_node_path
 
     def test_add__beforeend_text_node(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div>foo</div>'''
-    """
+        # GIVEN
+        original_source = _mk_comp(html='<div>foo</div>')
 
+        # WHEN
         add_result = add_element(original_source, 'MyElement', _btn_no_data_name, [0], Position.beforeend)
+
+        # THEN
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
