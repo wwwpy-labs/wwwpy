@@ -6,7 +6,6 @@ from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_
     remove_class_attribute, remove_element, ensure_import, AddResult
 from wwwpy.common.designer.code_edit import ensure_imports, AddComponentExceptionReport, AddFailed, \
     rename_class_attribute
-from wwwpy.common.designer.code_info import info
 from wwwpy.common.designer.element_library import element_library, ElementDefBase
 from wwwpy.common.designer.html_edit import Position
 from wwwpy.common.designer.html_locator import Node
@@ -83,25 +82,14 @@ def test_rename_class_attribute():
 
 
 def test_rename_class_attribute__should_rename_events():
-    original_source = """
-class MyElement(wpc.Component):
-    async def btn1__click(self, event):
-        pass
-    """
-
-    # Expected source after renaming the new attribute
-    expected_source = """
-class MyElement(wpc.Component):
-    async def btnSend__click(self, event):
-        pass
-        """
+    original_source = _mk_comp() + '\n    async def btn1__click(self, event):\n        pass\n'
+    expected_source = _mk_comp() + '\n    async def btnSend__click(self, event):\n        pass\n'
 
     modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
 
-    modified_info = info(_remove_import(modified_source))
-    expected_info = info(expected_source)
+    modified_source = _remove_import(modified_source)
 
-    assert modified_info == expected_info, "The event was not renamed correctly."
+    assert expected_source == modified_source
 
 
 def test_rename_class_attribute__should_honor_classname():
