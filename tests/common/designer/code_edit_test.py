@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from textwrap import dedent
+from typing import List
 
 from wwwpy.common.designer.code_edit import Attribute, add_class_attribute, add_element, add_method, \
     remove_class_attribute, remove_element, ensure_import, AddResult
@@ -349,16 +350,11 @@ class MyElement(wpc.Component):
     def init_component(self):
         self.element.innerHTML = '''<div></div><div data-name='btn1'></div>'''
     """
-
-        expected_source = """
-class MyElement(wpc.Component):
-    def init_component(self):
-        self.element.innerHTML = '''<div></div>'''
-    """
-
+        # original_source = _mk_comp('<div></div><div data-name="btn1"></div>', attrs=['btn1: js.Some = wpc.element()'])
+        expected_source = _mk_comp('<div></div>').strip()
         result = remove_element(original_source, 'MyElement', [1])
 
-        assert _remove_import(result) == expected_source
+        assert _remove_import(result).strip() == expected_source
 
 
 def test_add_method():
@@ -490,7 +486,7 @@ class _ElementDefBaseSimple(ElementDefBase):
         return f"""<{self.tag_name}></{self.tag_name}>"""
 
 
-def _mk_comp(inner_html: str) -> str:
+def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
     original_source = f"""
 class MyElement(wpc.Component):
     def init_component(self):
