@@ -48,21 +48,21 @@ def test_add_class_attribute__should_retain_comments_and_style():
 
 def test_add_class_attribute__should_honor_classname():
     original_source = """
-class MyElement(wpc.Component):
-        pass
 class MyElement2(wpc.Component):
+        pass
+class MyElement(wpc.Component):
         pass
     """
 
     expected_source = """
-class MyElement(wpc.Component):
-        pass
 class MyElement2(wpc.Component):
+        pass
+class MyElement(wpc.Component):
         btn1: js.HTMLButtonElement = wpc.element()
         pass
     """
 
-    modified_source = add_class_attribute(original_source, 'MyElement2',
+    modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
     assert _remove_import(modified_source) == expected_source
@@ -484,10 +484,20 @@ class Test_mk_comp:
         res = _mk_comp(html='xyz', class_comment=' # This is a comment')
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
+    def test_class_name(self):
+        original_source = dedent(f"""
+        class Foo(wpc.Component):
+            def init_component(self):
+                self.element.innerHTML = ''''''
+            """)
 
-def _mk_comp(html: str = '', attrs: List[str] = (), class_comment='') -> str:
+        res = _mk_comp(class_name='Foo')
+        assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+
+
+def _mk_comp(html: str = '', attrs: List[str] = (), class_comment='', class_name: str = 'MyElement') -> str:
     indent = ' ' * 4
-    clazz = 'class MyElement(wpc.Component):' + class_comment
+    clazz = f'class {class_name}(wpc.Component):' + class_comment
     def_init = indent + 'def init_component(self):'
     inner_line = indent * 2 + f"""self.element.innerHTML = '''{html}'''"""
     attr_lines = [indent + attr for attr in attrs]
