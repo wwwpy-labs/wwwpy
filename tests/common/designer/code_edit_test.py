@@ -47,29 +47,14 @@ def test_add_class_attribute__should_retain_comments_and_style():
 
 
 def test_add_class_attribute__should_honor_classname():
-    original_source = """
-class MyElement2(wpc.Component):
-        pass
-class MyElement(wpc.Component):
-        pass
-    """
+    original_source = _mk_comp() + '\n' + _mk_comp(class_name='FooBar')
+    expected_source = _mk_comp() + '\n' + _mk_comp(class_name='FooBar',
+                                                   attrs=['btn1: js.HTMLButtonElement = wpc.element()'])
 
-    expected_source = """
-class MyElement2(wpc.Component):
-        pass
-class MyElement(wpc.Component):
-        btn1: js.HTMLButtonElement = wpc.element()
-        pass
-    """
-
-    modified_source = add_class_attribute(original_source, 'MyElement',
+    modified_source = add_class_attribute(original_source, 'FooBar',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
     assert _remove_import(modified_source) == expected_source
-
-
-# def test_add_class_attribute__non_js_class():
-#     ...
 
 
 def test_remove_class_attribute__should_remove_the_line():
