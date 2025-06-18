@@ -140,19 +140,10 @@ class TestAddElement:
         assert actual == expected_source
 
     def test_gen_html(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
-    """
-
-        expected_source = """
-class MyElement:
-    btn1: js.Some = wpc.element()
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div>
-<btn data-name="btn1" attr1="bar"></btn></div>'''
-    """
+        original_source = _mk_comp(html='''<div id='foo'><div></div><div id='target'></div></div>''')
+        expected_source = _mk_comp(
+            html='''<div id='foo'><div></div><div id='target'></div>\n<btn data-name="btn1" attr1="bar"></btn></div>''',
+            attrs=['btn1: js.Some = wpc.element()'])
 
         @dataclass
         class MyElementDef(ElementDefBase):
