@@ -296,8 +296,7 @@ class MyElement:
     def test_add__beforeend(self):
         original_source = _mk_comp('<div><br></div>')
 
-        edb = _ElementDefBaseSimple('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, [0], Position.beforeend)
+        add_result = add_element(original_source, 'MyElement', _btn_no_data_name, [0], Position.beforeend)
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
@@ -308,8 +307,7 @@ class MyElement:
     def test_add__afterbegin_text_node(self):
         original_source = _mk_comp('<div>foo</div>')
 
-        edb = _ElementDefBaseSimple('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
+        add_result = add_element(original_source, 'MyElement', _btn_no_data_name, [0], Position.afterbegin)
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
@@ -324,8 +322,7 @@ class MyElement:
         self.element.innerHTML = '''<div>foo</div>'''
     """
 
-        edb = _ElementDefBaseSimple('btn', 'js.Some')
-        add_result = add_element(original_source, 'MyElement', edb, [0], Position.beforeend)
+        add_result = add_element(original_source, 'MyElement', _btn_no_data_name, [0], Position.beforeend)
         if not isinstance(add_result, AddResult):
             raise ValueError(f'unexpected type={add_result}')
 
@@ -516,3 +513,6 @@ def _mk_comp(inner_html: str, attrs: List[str] = ()) -> str:
     attr_lines = [indent + attr for attr in attrs]
     res = '\n'.join(['', clazz] + attr_lines + [def_init, inner_line, ''])
     return res
+
+
+_btn_no_data_name = _ElementDefBaseSimple('btn', 'js.Some')
