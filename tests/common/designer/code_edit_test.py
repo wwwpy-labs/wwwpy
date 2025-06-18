@@ -344,13 +344,7 @@ class TestRemoveElement:
         assert _remove_import(result) == expected_source
 
     def test_html_with_attr(self):
-        original_source = """
-class MyElement(wpc.Component):
-    btn1: js.Some = wpc.element()
-    def init_component(self):
-        self.element.innerHTML = '''<div></div><div data-name='btn1'></div>'''
-"""
-        # original_source = _mk_comp('<div></div><div data-name="btn1"></div>', attrs=['btn1: js.Some = wpc.element()'])
+        original_source = _mk_comp('<div></div><div data-name="btn1"></div>', attrs=['btn1: js.Some = wpc.element()'])
         expected_source = _mk_comp('<div></div>')
         result = remove_element(original_source, 'MyElement', [1])
 
