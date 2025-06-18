@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import partial
 from textwrap import dedent
 from typing import List
 
@@ -24,8 +25,6 @@ def test_add_class_attribute():
                                           Attribute('btn2', 'HTMLButtonElement', 'wpc.element()'))
 
     # THEN
-    modified_source = _remove_import(modified_source)
-
     assert modified_source == expected_source
 
 
@@ -42,8 +41,6 @@ def test_add_class_attribute__should_retain_comments_and_style():
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    modified_source = _remove_import(modified_source)
-
     assert modified_source == expected_source
 
 
@@ -55,7 +52,6 @@ def test_add_class_attribute__should_honor_classname():
     modified_source = add_class_attribute(original_source, 'FooBar',
                                           Attribute('btn1', 'js.HTMLButtonElement', 'wpc.element()'))
 
-    modified_source = _remove_import(modified_source)
     assert modified_source == expected_source
 
 
@@ -64,8 +60,6 @@ def test_remove_class_attribute__should_remove_the_line():
     expected_source = _mk_comp(attrs=['ele2: HTMLElement = wpc.element()'])
 
     modified_source = remove_class_attribute(original_source, 'MyElement', 'ele1')
-
-    modified_source = _remove_import(modified_source)
 
     assert modified_source == expected_source
 
@@ -76,8 +70,6 @@ def test_rename_class_attribute():
     expected_source = _mk_comp(attrs=['btnSend: HTMLButtonElement = wpc.element()'])
     modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
 
-    modified_source = _remove_import(modified_source)
-
     assert expected_source == modified_source
 
 
@@ -86,8 +78,6 @@ def test_rename_class_attribute__should_rename_events():
     expected_source = _mk_comp() + '\n    async def btnSend__click(self, event):\n        pass\n'
 
     modified_source = rename_class_attribute(original_source, 'MyElement', 'btn1', 'btnSend')
-
-    modified_source = _remove_import(modified_source)
 
     assert expected_source == modified_source
 
@@ -104,7 +94,7 @@ def test_rename_class_attribute__should_honor_classname():
     modified_source = rename_class_attribute(original_source, 'FooBar', 'btn1', 'btnSend')
 
     # THEN
-    assert _remove_import(modified_source) == expected_source
+    assert modified_source == expected_source
 
 
 path01 = [0, 1]
@@ -118,9 +108,8 @@ class TestAddElement:
             attrs=['btn1: js.Some = wpc.element()']
         )
         add_result = add_element(original_source, 'MyElement', _btn_some, path01, Position.afterend)
-        actual = _remove_import(add_result.source_code)
 
-        assert actual == expected_source
+        assert add_result.source_code == expected_source
 
     def test_non_js_class(self):
         # GIVEN
@@ -136,7 +125,7 @@ class TestAddElement:
 
         # THEN
         assert isinstance(add_result, AddResult), f'add_result={add_result}'
-        actual = _remove_import(add_result.source_code)
+        actual = add_result.source_code
         assert actual == expected_source
 
     def test_gen_html(self):
@@ -153,7 +142,7 @@ class TestAddElement:
         component_def = MyElementDef('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', component_def, path01, Position.afterend)
 
-        assert _remove_import(add_result.source_code) == expected_source
+        assert add_result.source_code == expected_source
 
     def test_add__afterend(self):
         original_source = _mk_comp(html='''<div id='foo'><div></div><div id='target'></div></div>''')
@@ -226,7 +215,7 @@ class TestRemoveElement:
 
         result = remove_element(original_source, 'MyElement', [1])
 
-        assert _remove_import(result) == expected_source
+        assert result == expected_source
 
     def test_html_with_attr(self):
         original_source = _mk_comp(html='<div></div><div data-name="btn1"></div>',
@@ -234,7 +223,7 @@ class TestRemoveElement:
         expected_source = _mk_comp(html='<div></div>')
         result = remove_element(original_source, 'MyElement', [1])
 
-        assert _remove_import(result) == expected_source
+        assert result == expected_source
 
 
 def test_add_method():
@@ -375,7 +364,7 @@ class Test_mk_comp:
                 self.element.innerHTML = '''xyz'''
             """)
 
-        res = _mk_comp(html='xyz')
+        res = _mk_comp_target(html='xyz')
 
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
@@ -389,7 +378,7 @@ class Test_mk_comp:
                 self.element.innerHTML = '''xyz'''
             """)
 
-        res = _mk_comp(html='xyz', attrs=attrs)
+        res = _mk_comp_target(html='xyz', attrs=attrs)
 
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
@@ -400,7 +389,7 @@ class Test_mk_comp:
                 self.element.innerHTML = ''''''
             """)
 
-        res = _mk_comp()
+        res = _mk_comp_target()
 
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
@@ -411,7 +400,7 @@ class Test_mk_comp:
                 self.element.innerHTML = '''xyz'''
             """)
 
-        res = _mk_comp(html='xyz', class_comment=' # This is a comment')
+        res = _mk_comp_target(html='xyz', class_comment=' # This is a comment')
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
     def test_class_name(self):
@@ -421,19 +410,24 @@ class Test_mk_comp:
                 self.element.innerHTML = ''''''
             """)
 
-        res = _mk_comp(class_name='Foo')
+        res = _mk_comp_target(class_name='Foo')
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
 
-def _mk_comp(html: str = '', attrs: List[str] = (), class_comment='', class_name: str = 'MyElement') -> str:
+def _mk_comp(html: str = '', attrs: List[str] = (), class_comment='', class_name: str = 'MyElement',
+             add_imports=True) -> str:
     indent = ' ' * 4
     clazz = f'class {class_name}(wpc.Component):' + class_comment
     def_init = indent + 'def init_component(self):'
     inner_line = indent * 2 + f"""self.element.innerHTML = '''{html}'''"""
     attr_lines = [indent + attr for attr in attrs]
     res = '\n'.join(['', clazz] + attr_lines + [def_init, inner_line, ''])
+    if add_imports:
+        res = ensure_imports(res)
     return res
 
+
+_mk_comp_target = partial(_mk_comp, add_imports=False)
 
 _btn_no_data_name = _ElementDefBaseSimple('btn', 'js.Some')
 _btn_some = ElementDefBase('btn', 'js.Some')
