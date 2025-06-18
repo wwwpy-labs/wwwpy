@@ -93,22 +93,17 @@ def test_rename_class_attribute__should_rename_events():
 
 
 def test_rename_class_attribute__should_honor_classname():
-    original_source = """
-class MyElement(wpc.Component):
-        btn1: js.HTMLButtonElement = wpc.element()
-class MyElement2(wpc.Component):
-        btn1: js.HTMLButtonElement = wpc.element()
-    """
+    # GIVEN
+    btn1 = 'btn1: js.HTMLButtonElement = wpc.element()'
 
-    expected_source = """
-class MyElement(wpc.Component):
-        btn1: js.HTMLButtonElement = wpc.element()
-class MyElement2(wpc.Component):
-        btnSend: js.HTMLButtonElement = wpc.element()
-    """
+    original_source = _mk_comp(attrs=[btn1]) + '\n' + _mk_comp(class_name='FooBar', attrs=[btn1])
+    btn_send = 'btnSend: js.HTMLButtonElement = wpc.element()'
+    expected_source = _mk_comp(attrs=[btn1]) + '\n' + _mk_comp(class_name='FooBar', attrs=[btn_send])
 
-    modified_source = rename_class_attribute(original_source, 'MyElement2', 'btn1', 'btnSend')
+    # WHEN
+    modified_source = rename_class_attribute(original_source, 'FooBar', 'btn1', 'btnSend')
 
+    # THEN
     assert _remove_import(modified_source) == expected_source
 
 
