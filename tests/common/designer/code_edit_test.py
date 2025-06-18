@@ -31,18 +31,14 @@ def test_add_class_attribute():
 
 
 def test_add_class_attribute__should_retain_comments_and_style():
-    original_source = """
-# comment1
-class MyElement(wpc.Component): # comment2
-    btn1: HTMLButtonElement = wpc.element()
-    """
+    original_source = '# comment1\n' + _mk_comp(
+        class_comment=' # comment2',
+        attrs=['btn1: HTMLButtonElement = wpc.element()'])
 
-    expected_source = """
-# comment1
-class MyElement(wpc.Component): # comment2
-    btn1: HTMLButtonElement = wpc.element()
-    btn2: js.HTMLButtonElement = wpc.element()
-    """
+    expected_source = '# comment1\n' + _mk_comp(
+        class_comment=' # comment2',
+        attrs=['btn1: HTMLButtonElement = wpc.element()',
+               'btn2: js.HTMLButtonElement = wpc.element()'])
 
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'js.HTMLButtonElement', 'wpc.element()'))
