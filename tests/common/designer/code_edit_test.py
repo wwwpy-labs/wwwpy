@@ -15,28 +15,18 @@ from wwwpy.common.rpc import serialization
 
 
 def test_add_class_attribute():
-    original_source = """
-import wwwpy.remote.component as wpc
+    # GIVEN
+    original_source = _mk_comp(attrs=['btn1: HTMLButtonElement = wpc.element()'])
+    expected_source = _mk_comp(attrs=['btn1: HTMLButtonElement = wpc.element()',
+                                      'btn2: HTMLButtonElement = wpc.element()'])
 
-class MyElement(wpc.Component):
-    btn1: HTMLButtonElement = wpc.element()
-    """
-
-    # Expected source after adding the new attribute
-    expected_source = """
-import wwwpy.remote.component as wpc
-
-class MyElement(wpc.Component):
-    btn1: HTMLButtonElement = wpc.element()
-    btn2: HTMLButtonElement = wpc.element()
-    """
-
+    # WHEN
     modified_source = add_class_attribute(original_source, 'MyElement',
                                           Attribute('btn2', 'HTMLButtonElement', 'wpc.element()'))
 
-    modified_info = info(modified_source)
+    # THEN
+    modified_info = info(_remove_import(modified_source))
     expected_info = info(expected_source)
-
     assert modified_info == expected_info, "The attribute was not added correctly."
 
 
@@ -501,10 +491,31 @@ class Test_mk_comp:
 
         assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
 
+    def test_mk_comp__with_empty_html(self):
+        original_source = dedent(f"""
+        class MyElement(wpc.Component):
+            def init_component(self):
+                self.element.innerHTML = ''''''
+            """)
 
-def _mk_comp(html: str, attrs: List[str] = ()) -> str:
+        res = _mk_comp()
+
+        assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+
+    def test_class_comment(self):
+        original_source = dedent(f"""
+        class MyElement(wpc.Component): # This is a comment
+            def init_component(self):
+                self.element.innerHTML = '''xyz'''
+            """)
+
+        res = _mk_comp(html='xyz', class_comment=' # This is a comment')
+        assert res == original_source, f'Expected:\n{original_source}\nGot:\n{res}'
+
+
+def _mk_comp(html: str = '', attrs: List[str] = (), class_comment='') -> str:
     indent = ' ' * 4
-    clazz = 'class MyElement(wpc.Component):'
+    clazz = 'class MyElement(wpc.Component):' + class_comment
     def_init = indent + 'def init_component(self):'
     inner_line = indent * 2 + f"""self.element.innerHTML = '''{html}'''"""
     attr_lines = [indent + attr for attr in attrs]
