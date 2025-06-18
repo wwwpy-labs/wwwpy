@@ -112,19 +112,11 @@ path01 = [0, 1]
 
 class TestAddElement:
     def test_simple(self):
-        original_source = """
-class MyElement(wpc.Component):
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
-    """
-
-        expected_source = """
-class MyElement(wpc.Component):
-    btn1: js.Some = wpc.element()
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div><btn data-name="btn1"></btn></div>'''
-    """
-
+        original_source = _mk_comp(html='''<div id='foo'><div></div><div id='target'></div></div>''')
+        expected_source = _mk_comp(
+            html='''<div id='foo'><div></div><div id='target'></div><btn data-name="btn1"></btn></div>''',
+            attrs=['btn1: js.Some = wpc.element()']
+        )
         add_result = add_element(original_source, 'MyElement', _btn_some, path01, Position.afterend)
         actual = _remove_import(add_result.source_code)
 
