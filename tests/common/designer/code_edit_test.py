@@ -264,11 +264,7 @@ class MyElement:
         assert _remove_import(add_result.source_code) == expected_source
 
     def test_add__afterend(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
-    """
+        original_source = _mk_comp('''<div id='foo'><div></div><div id='target'></div></div>''')
 
         edb = ElementDefBase('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, path01, Position.afterend)
@@ -277,11 +273,7 @@ class MyElement:
         assert add_result.node_path == expected_node_path
 
     def test_add__beforebegin(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div id='foo'><div></div><div id='target'></div></div>'''
-    """
+        original_source = _mk_comp('''<div id='foo'><div></div><div id='target'></div></div>''')
 
         edb = ElementDefBase('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, path01, Position.beforebegin)
@@ -290,11 +282,7 @@ class MyElement:
         assert add_result.node_path == expected_node_path
 
     def test_add__afterbegin(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div><br></div>'''
-    """
+        original_source = _mk_comp('<div><br></div>')
 
         edb = ElementDefBase('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
@@ -305,11 +293,7 @@ class MyElement:
         assert add_result.node_path == expected_node_path
 
     def test_add__beforeend(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div><br></div>'''
-    """
+        original_source = _mk_comp('<div><br></div>')
 
         edb = _ElementDefBaseSimple('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, [0], Position.beforeend)
@@ -321,11 +305,7 @@ class MyElement:
         assert add_result.node_path == expected_node_path
 
     def test_add__afterbegin_text_node(self):
-        original_source = """
-class MyElement:
-    def init_component(self):
-        self.element.innerHTML = '''<div>foo</div>'''
-    """
+        original_source = _mk_comp('<div>foo</div>')
 
         edb = _ElementDefBaseSimple('btn', 'js.Some')
         add_result = add_element(original_source, 'MyElement', edb, [0], Position.afterbegin)
@@ -355,17 +335,8 @@ class MyElement:
 
 class TestRemoveElement:
     def test_html_and_no_python_attribute(self):
-        original_source = """
-class MyElement(wpc.Component):
-    def init_component(self):
-        self.element.innerHTML = '''<div></div><div id='target'></div>'''
-    """
-
-        expected_source = """
-class MyElement(wpc.Component):
-    def init_component(self):
-        self.element.innerHTML = '''<div></div>'''
-    """
+        original_source = _mk_comp("<div></div><div id='target'></div>")
+        expected_source = _mk_comp('<div></div>')
 
         result = remove_element(original_source, 'MyElement', [1])
 
@@ -517,3 +488,12 @@ def _no_empty_lines(source: str) -> str:
 class _ElementDefBaseSimple(ElementDefBase):
     def new_html(self, data_name: str) -> str:
         return f"""<{self.tag_name}></{self.tag_name}>"""
+
+
+def _mk_comp(inner_html: str) -> str:
+    original_source = f"""
+class MyElement(wpc.Component):
+    def init_component(self):
+        self.element.innerHTML = '''{inner_html}'''
+    """
+    return original_source.strip()
