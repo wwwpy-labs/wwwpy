@@ -1,6 +1,6 @@
 import wwwpy.common.designer.html_locator as html_locator
 from wwwpy.common.designer import html_parser
-from wwwpy.common.designer.html_locator import Node
+from wwwpy.common.designer.html_locator import Node, locate_span_indexed
 
 
 def test_locate():
@@ -8,6 +8,22 @@ def test_locate():
     html = "<div id='foo'><div></div><div id='target'></div></div>"
     path = [Node("div", 0, {'id': 'foo'}), Node("div", 1, {'id': 'target'})]
     actual = html_locator.locate_span(html, path)
+    expect = (25, 48)
+    assert actual == expect
+
+
+def test_locate_indexed():
+    # language=html
+    html = "<div id='foo'><div></div><div id='target'></div></div>"
+    actual = locate_span_indexed(html, [0, 1])
+    expect = (25, 48)
+    assert actual == expect
+
+
+def test_locate_indexed_negative():
+    # language=html
+    html = "<div id='foo'><div></div><div id='target'></div></div><br>"
+    actual = locate_span_indexed(html, [-2, -1])
     expect = (25, 48)
     assert actual == expect
 

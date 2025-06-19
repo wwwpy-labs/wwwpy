@@ -60,7 +60,11 @@ def locate_node_indexed(html: str, index_path: IndexPath) -> CstNode | None:
             return None
 
         child_index = path[depth]
+        if child_index < 0:
+            child_index = len(nodes) + child_index
         if child_index < 0 or child_index >= len(nodes):
+            logger.warning(f'Child index {child_index} out of bounds for nodes'
+                           f' {len(nodes)} at depth {depth} in path {path}')
             return None
         node = nodes[child_index]
         if depth == len(path) - 1:
