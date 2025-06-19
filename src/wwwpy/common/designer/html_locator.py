@@ -36,6 +36,7 @@ def data_name(path: NodePath) -> str | None:
         return None
     return path[-1].attributes.get('data-name', None)
 
+
 def path_to_index(path: NodePath) -> IndexPath:
     return [node.child_index for node in path]
 
@@ -46,23 +47,8 @@ def check_node_path(node_path: IndexPath):
 
 
 def locate_node(html: str, path: NodePath) -> CstNode | None:
-    cst_tree = html_to_tree(html)
-    target_node = _locate_node_rec(cst_tree, path)
-    logger.debug(f'locate_node {path} -> {target_node} for html=```{html}```')
-    return target_node
-
-
-def _locate_node_rec(nodes: CstTree, path: NodePath, depth: int = 0) -> CstNode | None:
-    if depth >= len(path):
-        return None
-
-    target_node = path[depth]
-    if target_node.child_index < 0 or target_node.child_index >= len(nodes):
-        return None
-    node = nodes[target_node.child_index]
-    if depth == len(path) - 1:
-        return node
-    return _locate_node_rec(node.children, path, depth + 1)
+    index = path_to_index(path)
+    return locate_node_indexed(html, index)
 
 
 def locate_node_indexed(html: str, index_path: IndexPath) -> CstNode | None:
@@ -90,8 +76,8 @@ def locate_span(html: str, path: NodePath) -> Tuple[int, int] | None:
     """This function locates the position of the node specified by the path in the HTML string.
     The position is represented by the start and end indices of the node in the HTML string.
     """
-
-    node = locate_node(html, path)
+    index = path_to_index(path)
+    node = locate_node_indexed(html, index)
     return node.span if node else None
 
 
