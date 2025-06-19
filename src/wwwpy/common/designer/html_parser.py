@@ -69,9 +69,13 @@ class CstTree(UserList[CstNode]):
 
 
 def html_to_tree(html: str) -> CstTree:
+    cache = _html_tree_cache.get(html, None)
+    if cache is not None:
+        return cache
     parser = _PositionalHTMLParser(html)
     parse = parser.parse()
     _complete_tree_data(html, parse)
+    _html_tree_cache[html] = parse
     return parse
 
 
@@ -174,3 +178,29 @@ def _complete_tree_data(html: str, tree: CstTree, parent: CstNode | None = None,
         c_sp = node.content_span
         node.content = html[c_sp[0]:c_sp[1]] if c_sp else None
         _complete_tree_data(html, node.children, node, level + 1)
+
+
+from collections import OrderedDict
+
+
+class LRUCache(OrderedDict):
+    def __init__(self, capacity):
+        super().__init__()
+        self.capacity = capacity
+
+    def __getitem__(self, key):
+        value = super().__getitem__(key)
+        self.move_to_end(key)
+        return value
+
+    def __setitem__(self, key, value):
+        if key in self:
+            super().__setitem__(key, value)
+            self.move_to_end(key)
+        else:
+            if len(self) >= self.capacity:
+                self.popitem(last=False)
+            super().__setitem__(key, value)
+
+
+_html_tree_cache = LRUCache(200)
