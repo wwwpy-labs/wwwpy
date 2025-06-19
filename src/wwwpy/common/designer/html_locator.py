@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
@@ -44,15 +43,6 @@ def path_to_index(path: NodePath) -> IndexPath:
 def check_node_path(node_path: IndexPath):
     if len(node_path) > 0 and not isinstance(node_path[0], int):
         raise ValueError(f'Invalid node path: {node_path}')
-
-
-def node_path_serialize(path: NodePath) -> str:
-    return json.dumps([node.__dict__ for node in path])
-
-
-def node_path_deserialize(serialized: str) -> NodePath:
-    node_dicts = json.loads(serialized)
-    return [Node(**node_dict) for node_dict in node_dicts]
 
 
 def locate_node(html: str, path: NodePath) -> CstNode | None:
