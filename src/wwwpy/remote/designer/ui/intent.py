@@ -65,12 +65,14 @@ class Intent:
         """Handle hover event from JavaScript."""
         event = js_event_to_locator_event_default(js_event)
         if event:
+            logger.debug(f'Intent.on_hover_js: {event}')
             self.on_hover(event)
 
     def on_submit_js(self, js_event: js.PointerEvent) -> bool:
         """Handle submit event from JavaScript."""
         event = js_event_to_locator_event_default(js_event)
         if event:
+            logger.debug(f'Intent.on_submit_js: {event}')
             return self.on_submit(event)
         return False
 
