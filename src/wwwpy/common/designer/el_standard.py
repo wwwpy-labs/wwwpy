@@ -325,7 +325,8 @@ def _generateHtml(element_def: ElementDef, name: str) -> str:
         'input': lambda: f'<input data-name="{name}" placeholder="{name}">',
         'img': lambda: f'<img data-name="{name}" src="https://images.unsplash.com/photo-1517331156700-3c241d2b4d83?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=90" alt="{name}">',
         'progress': lambda: f'<progress data-name="{name}" value="70" max="100">70%</progress>',
-        'textarea': _def(placeHolder=True, inner='', add='rows="6" wrap="off" style="width: 100%"'),
+        'textarea': _def(placeHolder=True, inner='',
+                         add='rows="6" wrap="off" style="width: 100%; box-sizing: border-box"'),
         'select': _def(inner='''
             <option value="option1">Option 1</option>
             <option value="option2">Option 2</option>
