@@ -150,7 +150,7 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
     }
 </style>
 <div>
-<div data-name="span1">Create new Component</div>
+<button data-name="span1">Create new Component</button>
 <div data-name="_div"></div>
 </div>
         """
