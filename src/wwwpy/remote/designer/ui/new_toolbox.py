@@ -31,11 +31,11 @@ class NewToolbox(wpc.Component, tag_name='wwwpy-new-toolbox'):
     </wwwpy-accordion-section>
     <wwwpy-accordion-section expanded>
         <div slot="header">Structure</div>
-        <wwwpy-comp-structure style="height: 250px; display: flex; overflow: scroll"></wwwpy-comp-structure>
+        <wwwpy-comp-structure style="height: 150px; display: flex; overflow: auto"></wwwpy-comp-structure>
     </wwwpy-accordion-section>
     <wwwpy-accordion-section expanded>
         <div slot="header">Attributes/Events</div>
-        <wwwpy-property-editor data-name="_property_editor" style="height: 250px; display: flex; overflow: scroll"></wwwpy-property-editor>
+        <wwwpy-property-editor data-name="_property_editor" style="height: 250px; display: flex; overflow: auto"></wwwpy-property-editor>
     </wwwpy-accordion-section>
     <wwwpy-accordion-section expanded>
         <div slot="header">System Tools</div>
