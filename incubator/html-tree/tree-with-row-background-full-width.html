@@ -34,9 +34,8 @@
             display: flex;
             align-items: center;
             padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            width: 100%; /* ensure full width for background */
+            box-sizing: border-box; /* include padding in width */
         }
 
         .tree-node-content:hover {
@@ -90,7 +89,8 @@
         }
 
         .tree-node-children {
-            margin-left: 20px;
+            /* remove automatic indent, handled via padding on content */
+            margin-left: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
@@ -278,6 +278,9 @@ const tree = createTreeFromJSON(orgJSON, 'org');
             const textSpan = document.createElement('span');
             textSpan.className = 'tree-node-text';
             textSpan.textContent = treeElement.getPresentation().getPresentableText();
+
+            // apply dynamic indent based on level
+            contentDiv.style.paddingLeft = `${level * 20 + 8}px`;
 
             contentDiv.appendChild(toggleBtn);
             contentDiv.appendChild(textSpan);
