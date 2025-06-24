@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Tree</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+
+        .tree-container {
+            background: #161b22;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            border: 1px solid #30363d;
+        }
+
+        custom-tree {
+            display: block;
+        }
+
+        .tree-node {
+            margin: 2px 0;
+            user-select: none;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .tree-node-content:hover {
+            background-color: #21262d;
+        }
+
+        .tree-node-content[style*="background-color"]:hover {
+            filter: brightness(1.2);
+        }
+
+        .tree-node-content.selected {
+            background-color: #1f6feb !important;
+            border: 1px solid #58a6ff;
+            color: #ffffff;
+        }
+
+        .tree-node-toggle {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b949e;
+        }
+
+        .tree-node-toggle:hover {
+            color: #e6edf3;
+        }
+
+        .tree-node-toggle:before {
+            content: '▶';
+            transition: transform 0.2s;
+        }
+
+        .tree-node-toggle.expanded:before {
+            transform: rotate(90deg);
+        }
+
+        .tree-node-toggle.leaf {
+            visibility: hidden;
+        }
+
+        .tree-node-text {
+            flex: 1;
+            padding: 2px 4px;
+        }
+
+        .tree-node-children {
+            margin-left: 20px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .tree-node-children.collapsed {
+            max-height: 0;
+        }
+
+        .tree-node-children.expanded {
+            max-height: 1000px;
+        }
+
+        .demo-section {
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            color: #f0f6fc;
+            margin-bottom: 10px;
+        }
+
+        .demo-section pre {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            color: #e6edf3;
+            overflow-x: auto;
+        }
+
+        .demo-section h4 {
+            color: #58a6ff;
+            margin-bottom: 8px;
+        }
+
+        .demo-section > div[style*="background"] {
+            background: #161b22 !important;
+            border: 1px solid #30363d !important;
+        }
+    </style>
+</head>
+<body>
+<div class="demo-section">
+    <h2 class="demo-title">JSON Examples</h2>
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <h4>Simple JSON Structure:</h4>
+        <pre style="margin: 10px 0; font-size: 14px;">
+// Using default preset (text, icon, children)
+const simpleJSON = {
+  text: "Root",
+  icon: "📁",
+  children: [
+    { text: "File 1", icon: "📄" },
+    { text: "Folder", icon: "📁", children: [...] }
+  ]
+};
+const tree = createTreeFromJSON(simpleJSON);
+            <h4>Super Simple Structure:</h4>
+            <pre style="margin: 10px 0; font-size: 14px;">
+// For very basic trees
+const simpleData = {
+  "Root": [
+    "Item 1",
+    "Item 2",
+    { "Subfolder": ["Sub Item 1", "Sub Item 2"] }
+  ]
+};
+const tree = createSimpleTree(simpleData, "📁");
+            </pre>
+
+            <h4>Custom Field Names:</h4>
+            <pre style="margin: 10px 0; font-size: 14px;">
+// Using 'org' preset (title, role, reports)
+const orgJSON = {
+  title: "CEO",
+  role: "👑",
+  reports: [
+    { title: "CTO", role: "🔧" },
+    { title: "CMO", role: "📈" }
+  ]
+};
+const tree = createTreeFromJSON(orgJSON, 'org');
+            </pre>
+    </div>
+</div>
+
+<div class="demo-section">
+    <h2 class="demo-title">File System Tree Example</h2>
+    <div class="tree-container">
+        <custom-tree id="fileTree"></custom-tree>
+    </div>
+</div>
+
+<div class="demo-section">
+    <h2 class="demo-title">Organization Tree Example</h2>
+    <div class="tree-container">
+        <custom-tree id="orgTree"></custom-tree>
+    </div>
+</div>
+
+<script>
+    // ItemPresentation class - represents how an item should be displayed
+    class ItemPresentation {
+        constructor(text, icon = null, backgroundColor = null) {
+            this.text = text;
+            this.icon = icon;
+            this.backgroundColor = backgroundColor;
+        }
+
+        getPresentableText() {
+            return this.icon ? `${this.icon} ${this.text}` : this.text;
+        }
+
+        getBackgroundColor() {
+            return this.backgroundColor;
+        }
+    }
+
+    // TreeElement class - represents a node in the tree
+    class TreeElement {
+        constructor(presentation, children = []) {
+            this.presentation = presentation;
+            this.children = children;
+        }
+
+        getPresentation() {
+            return this.presentation;
+        }
+
+        getChildren() {
+            return this.children;
+        }
+
+        addChild(child) {
+            this.children.push(child);
+        }
+    }
+
+    // Tree Custom Element - responsible for rendering the tree
+    class Tree extends HTMLElement {
+        constructor() {
+            super();
+            this.root = null;
+            this.selectedNode = null;
+            this.expandedNodes = new Set();
+        }
+
+        setRoot(root) {
+            this.root = root;
+            this.render();
+        }
+
+        render() {
+            this.innerHTML = '';
+            if (this.root) {
+                this.renderNode(this.root, this);
+            }
+        }
+
+        renderNode(treeElement, container, level = 0) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node';
+            nodeDiv.dataset.level = level;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'tree-node-content';
+
+            const children = treeElement.getChildren();
+            const hasChildren = children && children.length > 0;
+            const nodeId = this.getNodeId(treeElement);
+            const isExpanded = this.expandedNodes.has(nodeId);
+
+            // Toggle button
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = `tree-node-toggle ${hasChildren ? (isExpanded ? 'expanded' : '') : 'leaf'}`;
+
+            if (hasChildren) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleNode(treeElement, nodeDiv);
+                });
+            }
+
+            // Text content
+            const textSpan = document.createElement('span');
+            textSpan.className = 'tree-node-text';
+            textSpan.textContent = treeElement.getPresentation().getPresentableText();
+
+            contentDiv.appendChild(toggleBtn);
+            contentDiv.appendChild(textSpan);
+
+            // Apply background color if specified
+            const backgroundColor = treeElement.getPresentation().getBackgroundColor();
+            if (backgroundColor) {
+                contentDiv.style.backgroundColor = backgroundColor;
+            }
+
+            // Click handler for selection
+            contentDiv.addEventListener('click', () => {
+                this.selectNode(contentDiv, treeElement);
+            });
+
+            nodeDiv.appendChild(contentDiv);
+
+            // Children container
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = `tree-node-children ${isExpanded ? 'expanded' : 'collapsed'}`;
+
+                children.forEach(child => {
+                    this.renderNode(child, childrenDiv, level + 1);
+                });
+
+                nodeDiv.appendChild(childrenDiv);
+            }
+
+            container.appendChild(nodeDiv);
+        }
+
+        getNodeId(treeElement) {
+            // Simple ID generation based on presentation text and level
+            return treeElement.getPresentation().getPresentableText();
+        }
+
+        toggleNode(treeElement, nodeDiv) {
+            const nodeId = this.getNodeId(treeElement);
+            const childrenDiv = nodeDiv.querySelector('.tree-node-children');
+            const toggleBtn = nodeDiv.querySelector('.tree-node-toggle');
+
+            if (this.expandedNodes.has(nodeId)) {
+                this.expandedNodes.delete(nodeId);
+                childrenDiv.classList.remove('expanded');
+                childrenDiv.classList.add('collapsed');
+                toggleBtn.classList.remove('expanded');
+            } else {
+                this.expandedNodes.add(nodeId);
+                childrenDiv.classList.remove('collapsed');
+                childrenDiv.classList.add('expanded');
+                toggleBtn.classList.add('expanded');
+            }
+
+            // Dispatch custom event
+            this.dispatchEvent(new CustomEvent('nodeToggle', {
+                detail: {treeElement, expanded: this.expandedNodes.has(nodeId)}
+            }));
+        }
+
+        selectNode(contentDiv, treeElement) {
+            // Remove previous selection
+            if (this.selectedNode) {
+                this.selectedNode.classList.remove('selected');
+            }
+
+            // Add selection to current node
+            contentDiv.classList.add('selected');
+            this.selectedNode = contentDiv;
+
+            // Dispatch custom event
+            this.dispatchEvent(new CustomEvent('nodeSelect', {
+                detail: {treeElement}
+            }));
+        }
+
+        expandAll() {
+            this.collectAllNodes(this.root).forEach(node => {
+                this.expandedNodes.add(this.getNodeId(node));
+            });
+            this.render();
+        }
+
+        collapseAll() {
+            this.expandedNodes.clear();
+            this.render();
+        }
+
+        collectAllNodes(node, result = []) {
+            if (!node) return result;
+            result.push(node);
+            node.getChildren().forEach(child => {
+                this.collectAllNodes(child, result);
+            });
+            return result;
+        }
+    }
+
+    // Register the custom element
+    customElements.define('custom-tree', Tree);
+
+    // Simple utility function to convert plain JSON to TreeElement
+    function createTreeFromJSON(jsonNode) {
+        // Get display text, icon, and background color
+        const displayText = jsonNode.text || 'Unnamed';
+        const icon = jsonNode.icon || null;
+        const backgroundColor = jsonNode.backgroundColor || null;
+
+        // Create presentation
+        const presentation = new ItemPresentation(displayText, icon, backgroundColor);
+
+        // Process children recursively
+        const jsonChildren = jsonNode.children || [];
+        const treeChildren = jsonChildren.map(child => createTreeFromJSON(child));
+
+        return new TreeElement(presentation, treeChildren);
+    }
+
+    // Demo setup
+    document.addEventListener('DOMContentLoaded', () => {
+        // File system tree example using simplified JSON
+        const fileSystemJSON = {
+            text: 'Project Root',
+            icon: '📁',
+            children: [
+                {
+                    text: 'src',
+                    icon: '📁',
+                    backgroundColor: '#2d4a22', // Green background for main source
+                    children: [
+                        {
+                            text: 'components',
+                            icon: '📁',
+                            children: [
+                                {text: 'Button.js', icon: '📄'},
+                                {text: 'Modal.js', icon: '📄'},
+                                {text: 'Tree.js', icon: '📄', backgroundColor: '#3d2817'} // Orange for current file
+                            ]
+                        },
+                        {
+                            text: 'utils',
+                            icon: '📁',
+                            children: [
+                                {text: 'helpers.js', icon: '📄'},
+                                {text: 'constants.js', icon: '📄'}
+                            ]
+                        },
+                        {text: 'index.js', icon: '📄', backgroundColor: '#1f2937'} // Blue-gray for entry point
+                    ]
+                },
+                {
+                    text: 'public',
+                    icon: '📁',
+                    children: [
+                        {text: 'index.html', icon: '🌐'},
+                        {text: 'favicon.ico', icon: '🖼️'}
+                    ]
+                },
+                {text: 'package.json', icon: '📦', backgroundColor: '#4c1d95'}, // Purple for config
+                {text: 'README.md', icon: '📝'}
+            ]
+        };
+
+        // Organization tree example using simplified JSON
+        const organizationJSON = {
+            text: 'TechCorp Inc.',
+            icon: '🏢',
+            backgroundColor: '#1e293b', // Dark blue for company
+            children: [
+                {
+                    text: 'Engineering',
+                    icon: '⚙️',
+                    backgroundColor: '#1f2937', // Blue-gray for engineering
+                    children: [
+                        {
+                            text: 'Frontend Team',
+                            icon: '💻',
+                            children: [
+                                {text: 'Alice Johnson - Lead', icon: '👤', backgroundColor: '#7c2d12'}, // Orange for team lead
+                                {text: 'Bob Smith - Developer', icon: '👤'},
+                                {text: 'Carol Williams - Developer', icon: '👤'}
+                            ]
+                        },
+                        {
+                            text: 'Backend Team',
+                            icon: '🔧',
+                            children: [
+                                {text: 'David Brown - Lead', icon: '👤', backgroundColor: '#7c2d12'}, // Orange for team lead
+                                {text: 'Eva Davis - Developer', icon: '👤'}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    text: 'Product',
+                    icon: '📊',
+                    backgroundColor: '#2d1b69', // Purple for product
+                    children: [
+                        {text: 'Sarah Wilson - Manager', icon: '👤', backgroundColor: '#7c2d12'}, // Orange for manager
+                        {text: 'Mike Chen - Designer', icon: '👤'}
+                    ]
+                },
+                {
+                    text: 'Sales',
+                    icon: '💼',
+                    backgroundColor: '#14532d', // Green for sales
+                    children: [
+                        {text: 'Tom Anderson - Director', icon: '👤', backgroundColor: '#7c2d12'}, // Orange for director
+                        {text: 'Lisa Garcia - Rep', icon: '👤'}
+                    ]
+                }
+            ]
+        };
+
+        // Convert JSON to TreeElement
+        const fileRoot = createTreeFromJSON(fileSystemJSON);
+        const orgRoot = createTreeFromJSON(organizationJSON);
+
+        // Set up trees
+        const fileTree = document.getElementById('fileTree');
+        const orgTree = document.getElementById('orgTree');
+
+        fileTree.setRoot(fileRoot);
+        orgTree.setRoot(orgRoot);
+
+        // Add event listeners for demonstration
+        fileTree.addEventListener('nodeSelect', (e) => {
+            console.log('File selected:', e.detail.treeElement.getPresentation().getPresentableText());
+        });
+
+        orgTree.addEventListener('nodeSelect', (e) => {
+            console.log('Person/Department selected:', e.detail.treeElement.getPresentation().getPresentableText());
+        });
+
+        fileTree.addEventListener('nodeToggle', (e) => {
+            console.log('Node toggled:', e.detail.treeElement.getPresentation().getPresentableText(), 'Expanded:', e.detail.expanded);
+        });
+    });
+</script>
+</body>
+</html>
