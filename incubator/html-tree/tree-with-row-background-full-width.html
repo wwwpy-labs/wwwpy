@@ -73,12 +73,15 @@
             color: #e6edf3;
         }
 
-        .tree-node-toggle:before {
-            content: '▶';
+        /* Explicit toggle icon element for better customization */
+        .tree-node-toggle .toggle-icon {
+            display: inline-block;
             transition: transform 0.2s;
+            font-size: 12px;
+            color: inherit;
         }
 
-        .tree-node-toggle.expanded:before {
+        .tree-node-toggle.expanded .toggle-icon {
             transform: rotate(90deg);
         }
 
@@ -281,6 +284,12 @@ const tree = createTreeFromJSON(orgJSON, 'org');
             const textSpan = document.createElement('span');
             textSpan.className = 'tree-node-text';
             textSpan.textContent = treeElement.getPresentation().getPresentableText();
+
+            // Toggle icon
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'toggle-icon';
+            iconSpan.textContent = '▶';
+            toggleBtn.appendChild(iconSpan);
 
             // apply dynamic indent based on level
             contentDiv.style.paddingLeft = `${level * 20 + 8}px`;
