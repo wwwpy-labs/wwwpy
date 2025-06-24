@@ -139,49 +139,6 @@
     </style>
 </head>
 <body>
-<div class="demo-section">
-    <h2 class="demo-title">JSON Examples</h2>
-    <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-        <h4>Simple JSON Structure:</h4>
-        <pre style="margin: 10px 0; font-size: 14px;">
-// Using default preset (text, icon, children)
-const simpleJSON = {
-  text: "Root",
-  icon: "📁",
-  children: [
-    { text: "File 1", icon: "📄" },
-    { text: "Folder", icon: "📁", children: [...] }
-  ]
-};
-const tree = createTreeFromJSON(simpleJSON);
-            <h4>Super Simple Structure:</h4>
-            <pre style="margin: 10px 0; font-size: 14px;">
-// For very basic trees
-const simpleData = {
-  "Root": [
-    "Item 1",
-    "Item 2",
-    { "Subfolder": ["Sub Item 1", "Sub Item 2"] }
-  ]
-};
-const tree = createSimpleTree(simpleData, "📁");
-            </pre>
-
-            <h4>Custom Field Names:</h4>
-            <pre style="margin: 10px 0; font-size: 14px;">
-// Using 'org' preset (title, role, reports)
-const orgJSON = {
-  title: "CEO",
-  role: "👑",
-  reports: [
-    { title: "CTO", role: "🔧" },
-    { title: "CMO", role: "📈" }
-  ]
-};
-const tree = createTreeFromJSON(orgJSON, 'org');
-            </pre>
-    </div>
-</div>
 
 <div class="demo-section">
     <h2 class="demo-title">File System Tree Example</h2>
