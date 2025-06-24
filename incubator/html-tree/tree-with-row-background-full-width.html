@@ -75,10 +75,12 @@
 
         /* Explicit toggle icon element for better customization */
         .tree-node-toggle .toggle-icon {
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
             transition: transform 0.2s;
-            font-size: 12px;
-            color: inherit;
         }
 
         .tree-node-toggle.expanded .toggle-icon {
