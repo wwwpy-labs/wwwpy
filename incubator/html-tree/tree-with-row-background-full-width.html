@@ -108,6 +108,11 @@
         addChild(child) {
             this.children.push(child);
         }
+
+        getNodeFragment(defaultTreeNodeTemplate) {
+            return defaultTreeNodeTemplate.content.cloneNode(true);
+        }
+
     }
 
     // Tree Custom Element - responsible for rendering the tree
@@ -163,8 +168,7 @@
         }
 
         renderNode(treeElement, container, level = 0) {
-            const tpl = this.defaultTreeNodeTemplate;
-            const fragment = tpl.content.cloneNode(true);
+            const fragment = treeElement.getNodeFragment(this.defaultTreeNodeTemplate);
             const nodeDiv = fragment.querySelector('[data-id="node"]');
             nodeDiv.dataset.level = level;
             const contentDiv = fragment.querySelector('[data-id="content"]');
