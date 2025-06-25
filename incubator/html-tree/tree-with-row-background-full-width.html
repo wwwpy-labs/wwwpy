@@ -94,17 +94,13 @@
     class TreeElement {
         /**
          * @param {ItemPresentation} presentation
+         * @param {function(): TreeElement[]} childLoader - function that returns this node's children
          */
-        constructor(presentation, childrenOrLoader = []) {
+        constructor(presentation, childLoader) {
             this.presentation = presentation;
             this.node = null;
-            if (typeof childrenOrLoader === 'function') {
-                this.childLoader = childrenOrLoader;
-                this.children = null;
-            } else {
-                this.childLoader = null;
-                this.children = childrenOrLoader;
-            }
+            this.childLoader = childLoader;
+            this.children = null;
         }
 
         getPresentation() {
@@ -112,15 +108,14 @@
         }
 
         getChildren() {
-            if (this.children === null) {
-                this.children = this.childLoader ? this.childLoader() : [];
-            }
+            if (this.children === null)
+                this.children = this.childLoader();
+
             return this.children;
         }
 
         hasChildren() {
-            // determine if node can have children
-            return this.childLoader !== null || (this.children && this.children.length > 0);
+            return this.getChildren().length > 0;
         }
 
         getNodeFragment(defaultTreeNodeTemplate) {
@@ -157,10 +152,10 @@
             const nodeDiv = this.nodeDiv;
             nodeDiv.dataset.level = level;
             const contentDiv = this.contentDiv;
-            const hasPotential = this.hasChildren();
+            const hasChildren = this.hasChildren();
             const toggleBtn = fragment.querySelector('[data-id="toggle-btn"]');
-            toggleBtn.classList.toggle('leaf', !hasPotential);
-            if (hasPotential) {
+            toggleBtn.classList.toggle('leaf', !hasChildren);
+            if (hasChildren) {
                 const childrenDiv = fragment.querySelector('[data-id="children-container"]');
                 childrenDiv.className = 'tree-node-children collapsed';
                 toggleBtn.addEventListener('click', (e) => {
@@ -264,7 +259,7 @@
         // Create presentation
         const presentation = new ItemPresentation(displayText, icon, backgroundColor);
 
-        // Lazy loader for children
+        // Always provide a loader function for children
         const jsonChildren = jsonNode.children || [];
         const loader = () => jsonChildren.map(child => createTreeFromJSON(child));
         return new TreeElement(presentation, loader);
