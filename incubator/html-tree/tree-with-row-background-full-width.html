@@ -141,7 +141,12 @@
                 <div class="tree-node" data-id="node" data-level="">
                     <div class="tree-node-content" data-id="content">
                         <button class="tree-node-toggle" data-id="toggle-btn">
-                            <span class="toggle-icon" data-id="toggle-icon"></span>
+                            <span class="toggle-icon" data-id="toggle-icon">
+                                <!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M6 11.5L9.5 8L6 4.5" stroke="#B4B8BF" stroke-linecap="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <span class="tree-node-text" data-id="text"></span>
                     </div>
@@ -186,10 +191,6 @@
             // Text content
             const textSpan = fragment.querySelector('[data-id="text"]');
             textSpan.textContent = treeElement.getPresentation().getPresentableText();
-
-            // Toggle icon
-            const iconSpan = fragment.querySelector('[data-id="toggle-icon"]');
-            iconSpan.innerHTML = chevronRightSvg;
 
             // apply dynamic indent based on level
             contentDiv.style.paddingLeft = `${level * 20 + 8}px`;
@@ -248,23 +249,6 @@
 
             // Dispatch custom event
             this.dispatchEvent(new CustomEvent('nodeSelect', {detail: {treeElement}}));
-        }
-
-        expandAll() {
-            this.collectAllNodes(this.root).forEach(node => this.expandedNodes.add(this.getNodeId(node)));
-            this.render();
-        }
-
-        collapseAll() {
-            this.expandedNodes.clear();
-            this.render();
-        }
-
-        collectAllNodes(node, result = []) {
-            if (!node) return result;
-            result.push(node);
-            node.getChildren().forEach(child => this.collectAllNodes(child, result));
-            return result;
         }
     }
 
