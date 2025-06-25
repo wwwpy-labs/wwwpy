@@ -206,9 +206,7 @@
 
 
             // Click handler for selection
-            contentDiv.addEventListener('click', () => {
-                this.selectNode(contentDiv, treeElement)
-            });
+            contentDiv.addEventListener('click', () => this.selectNode(contentDiv, treeElement));
 
             // Children container
             if (hasChildren) {
@@ -217,10 +215,6 @@
                 children.forEach(child => this.renderNode(child, childrenDiv, level + 1));
             }
             container.appendChild(fragment);
-        }
-
-        getNodeId(treeElement) {
-            return treeElement.getPresentation().getPresentableText(); // Simple ID generation based on presentation text and level
         }
 
         toggleNode(treeElement, nodeDiv) {
@@ -235,9 +229,7 @@
                 toggleBtn.classList.add('expanded');
             }
             // Dispatch custom event
-            this.dispatchEvent(new CustomEvent('nodeToggle', {
-                detail: {treeElement, expanded: !isExpanded}
-            }));
+            this.dispatchEvent(new CustomEvent('nodeToggle', {detail: {treeElement, expanded: !isExpanded}}));
         }
 
         selectNode(contentDiv, treeElement) {
