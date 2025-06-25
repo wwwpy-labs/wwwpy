@@ -115,6 +115,7 @@
 
         getNodeFragment(defaultTreeNodeTemplate) {
             this.node = defaultTreeNodeTemplate.content.cloneNode(true);
+            this.nodeDiv = this.node.querySelector('[data-id="node"]');
             return this.node;
         }
 
@@ -178,7 +179,7 @@
 
         renderNode(treeElement, container, level = 0) {
             const fragment = treeElement.getNodeFragment(this.defaultTreeNodeTemplate);
-            const nodeDiv = fragment.querySelector('[data-id="node"]');
+            const nodeDiv = treeElement.nodeDiv;
             nodeDiv.dataset.level = level;
             const contentDiv = fragment.querySelector('[data-id="content"]');
             const children = treeElement.getChildren();
