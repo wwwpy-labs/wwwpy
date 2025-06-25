@@ -92,9 +92,13 @@
 
     // TreeElement class - represents a node in the tree
     class TreeElement {
+        /**
+         * @param {ItemPresentation} presentation
+         */
         constructor(presentation, children = []) {
             this.presentation = presentation;
             this.children = children;
+            this.node = null; // Will be set when getNodeFragment
         }
 
         getPresentation() {
@@ -110,7 +114,8 @@
         }
 
         getNodeFragment(defaultTreeNodeTemplate) {
-            return defaultTreeNodeTemplate.content.cloneNode(true);
+            this.node = defaultTreeNodeTemplate.content.cloneNode(true);
+            return this.node;
         }
 
     }
