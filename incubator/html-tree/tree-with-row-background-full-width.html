@@ -114,7 +114,6 @@
     class Tree extends HTMLElement {
         constructor() {
             super();
-            // Attach shadow root and set up container via innerHTML
             this.attachShadow({mode: 'open'});
             this.shadowRoot.innerHTML = `
             <style id="tree-style">
@@ -133,6 +132,17 @@
                 .tree-node-children.collapsed { max-height: 0; }
                 .tree-node-children.expanded { max-height: 1000px; }
             </style>
+            <template id="tree-node-template">
+                <div class="tree-node" data-id="node" data-level="">
+                    <div class="tree-node-content" data-id="content">
+                        <button class="tree-node-toggle" data-id="toggle-btn">
+                            <span class="toggle-icon" data-id="toggle-icon"></span>
+                        </button>
+                        <span class="tree-node-text" data-id="text"></span>
+                    </div>
+                    <div class="tree-node-children" data-id="children-container"></div>
+                </div>
+            </template>
             <div id="tree-container"></div>
         `;
             this.container = this.shadowRoot.getElementById('tree-container');
@@ -152,41 +162,32 @@
         }
 
         renderNode(treeElement, container, level = 0) {
-            const nodeDiv = document.createElement('div');
-            nodeDiv.className = 'tree-node';
+            const tpl = this.shadowRoot.getElementById('tree-node-template');
+            const fragment = tpl.content.cloneNode(true);
+            const nodeDiv = fragment.querySelector('[data-id="node"]');
             nodeDiv.dataset.level = level;
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'tree-node-content';
-
+            const contentDiv = fragment.querySelector('[data-id="content"]');
             const children = treeElement.getChildren();
             const hasChildren = children && children.length > 0;
             const nodeId = this.getNodeId(treeElement);
             const isExpanded = this.expandedNodes.has(nodeId);
 
             // Toggle button
-            const toggleBtn = document.createElement('button');
-            toggleBtn.className = `tree-node-toggle ${hasChildren ? (isExpanded ? 'expanded' : '') : 'leaf'}`;
-
-            if (hasChildren)
-                toggleBtn.addEventListener('click', e => this.toggleNode(treeElement, nodeDiv));
+            const toggleBtn = fragment.querySelector('[data-id="toggle-btn"]');
+            toggleBtn.classList.toggle('leaf', !hasChildren);
+            toggleBtn.classList.toggle('expanded', hasChildren && isExpanded);
+            if (hasChildren) toggleBtn.addEventListener('click', e => this.toggleNode(treeElement, nodeDiv));
 
             // Text content
-            const textSpan = document.createElement('span');
-            textSpan.className = 'tree-node-text';
+            const textSpan = fragment.querySelector('[data-id="text"]');
             textSpan.textContent = treeElement.getPresentation().getPresentableText();
 
             // Toggle icon
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'toggle-icon';
+            const iconSpan = fragment.querySelector('[data-id="toggle-icon"]');
             iconSpan.innerHTML = chevronRightSvg;
-            toggleBtn.appendChild(iconSpan);
 
             // apply dynamic indent based on level
             contentDiv.style.paddingLeft = `${level * 20 + 8}px`;
-
-            contentDiv.appendChild(toggleBtn);
-            contentDiv.appendChild(textSpan);
 
             // Apply background color if specified
             const backgroundColor = treeElement.getPresentation().getBackgroundColor();
@@ -196,17 +197,13 @@
             // Click handler for selection
             contentDiv.addEventListener('click', () => this.selectNode(contentDiv, treeElement));
 
-            nodeDiv.appendChild(contentDiv);
-
             // Children container
             if (hasChildren) {
-                const childrenDiv = document.createElement('div');
+                const childrenDiv = fragment.querySelector('[data-id="children-container"]');
                 childrenDiv.className = `tree-node-children ${isExpanded ? 'expanded' : 'collapsed'}`;
                 children.forEach(child => this.renderNode(child, childrenDiv, level + 1));
-                nodeDiv.appendChild(childrenDiv);
             }
-
-            container.appendChild(nodeDiv);
+            container.appendChild(fragment);
         }
 
         getNodeId(treeElement) {
