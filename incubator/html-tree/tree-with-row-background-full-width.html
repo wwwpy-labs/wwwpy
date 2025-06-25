@@ -119,6 +119,21 @@
             return this.node;
         }
 
+        toggle() {
+            const treeElement = this;
+            const nodeDiv = this.nodeDiv;
+            const childrenDiv = nodeDiv.querySelector('.tree-node-children');
+            const toggleBtn = nodeDiv.querySelector('.tree-node-toggle');
+            const isExpanded = childrenDiv.classList.contains('expanded');
+            if (isExpanded) {
+                childrenDiv.classList.replace('expanded', 'collapsed');
+                toggleBtn.classList.remove('expanded');
+            } else {
+                childrenDiv.classList.replace('collapsed', 'expanded');
+                toggleBtn.classList.add('expanded');
+            }
+            // todo (maybe) Dispatch custom event nodeToggle
+        }
     }
 
     // Tree Custom Element - responsible for rendering the tree
@@ -191,7 +206,7 @@
 
             if (hasChildren) toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.toggleNode(treeElement, nodeDiv);
+                treeElement.toggle();
             });
 
             // Text content
@@ -216,21 +231,6 @@
                 children.forEach(child => this.renderNode(child, childrenDiv, level + 1));
             }
             container.appendChild(fragment);
-        }
-
-        toggleNode(treeElement, nodeDiv) {
-            const childrenDiv = nodeDiv.querySelector('.tree-node-children');
-            const toggleBtn = nodeDiv.querySelector('.tree-node-toggle');
-            const isExpanded = childrenDiv.classList.contains('expanded');
-            if (isExpanded) {
-                childrenDiv.classList.replace('expanded', 'collapsed');
-                toggleBtn.classList.remove('expanded');
-            } else {
-                childrenDiv.classList.replace('collapsed', 'expanded');
-                toggleBtn.classList.add('expanded');
-            }
-            // Dispatch custom event
-            this.dispatchEvent(new CustomEvent('nodeToggle', {detail: {treeElement, expanded: !isExpanded}}));
         }
 
         selectNode(contentDiv, treeElement) {
