@@ -164,7 +164,6 @@
             this.defaultTreeNodeTemplate = this.shadowRoot.getElementById('default-tree-node-template');
             this.root = null;
             this.selectedNode = null;
-            this.expandedNodes = new Set();
         }
 
         setRoot(root) {
@@ -184,13 +183,11 @@
             const contentDiv = fragment.querySelector('[data-id="content"]');
             const children = treeElement.getChildren();
             const hasChildren = children && children.length > 0;
-            const nodeId = this.getNodeId(treeElement);
-            const isExpanded = this.expandedNodes.has(nodeId);
 
             // Toggle button
             const toggleBtn = fragment.querySelector('[data-id="toggle-btn"]');
             toggleBtn.classList.toggle('leaf', !hasChildren);
-            toggleBtn.classList.toggle('expanded', hasChildren && isExpanded);
+
             if (hasChildren) toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.toggleNode(treeElement, nodeDiv);
@@ -216,7 +213,7 @@
             // Children container
             if (hasChildren) {
                 const childrenDiv = fragment.querySelector('[data-id="children-container"]');
-                childrenDiv.className = `tree-node-children ${isExpanded ? 'expanded' : 'collapsed'}`;
+                childrenDiv.className = 'tree-node-children collapsed';
                 children.forEach(child => this.renderNode(child, childrenDiv, level + 1));
             }
             container.appendChild(fragment);
@@ -227,25 +224,19 @@
         }
 
         toggleNode(treeElement, nodeDiv) {
-            const nodeId = this.getNodeId(treeElement);
             const childrenDiv = nodeDiv.querySelector('.tree-node-children');
             const toggleBtn = nodeDiv.querySelector('.tree-node-toggle');
-
-            if (this.expandedNodes.has(nodeId)) {
-                this.expandedNodes.delete(nodeId);
-                childrenDiv.classList.remove('expanded');
-                childrenDiv.classList.add('collapsed');
+            const isExpanded = childrenDiv.classList.contains('expanded');
+            if (isExpanded) {
+                childrenDiv.classList.replace('expanded', 'collapsed');
                 toggleBtn.classList.remove('expanded');
             } else {
-                this.expandedNodes.add(nodeId);
-                childrenDiv.classList.remove('collapsed');
-                childrenDiv.classList.add('expanded');
+                childrenDiv.classList.replace('collapsed', 'expanded');
                 toggleBtn.classList.add('expanded');
             }
-
             // Dispatch custom event
             this.dispatchEvent(new CustomEvent('nodeToggle', {
-                detail: {treeElement, expanded: this.expandedNodes.has(nodeId)}
+                detail: {treeElement, expanded: !isExpanded}
             }));
         }
 
