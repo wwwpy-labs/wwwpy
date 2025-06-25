@@ -95,12 +95,19 @@
         /**
          * @param {ItemPresentation} presentation
          * @param {function(): TreeElement[]} childLoader - function that returns this node's children
+         * @param {TreeElement|null} parent
          */
-        constructor(presentation, childLoader) {
+        constructor(presentation, childLoader, parent = null) {
             this.presentation = presentation;
             this.node = null;
             this.childLoader = childLoader;
             this.children = null;
+            this.parent = parent;
+        }
+
+        // compute level based on parent chain
+        get level() {
+            return this.parent ? this.parent.level + 1 : 0;
         }
 
         getPresentation() {
@@ -145,12 +152,11 @@
          * @param {HTMLTemplateElement} defaultTemplate
          * @param {Tree} treeInstance
          * @param {HTMLElement} container
-         * @param {number} level
          */
-        render(defaultTemplate, treeInstance, container, level = 0) {
+        render(defaultTemplate, treeInstance, container) {
             const fragment = this.getNodeFragment(defaultTemplate);
             const nodeDiv = this.nodeDiv;
-            nodeDiv.dataset.level = level;
+            nodeDiv.dataset.level = this.level;
             const contentDiv = this.contentDiv;
             const hasChildren = this.hasChildren();
             const toggleBtn = fragment.querySelector('[data-id="toggle-btn"]');
@@ -162,14 +168,14 @@
                     e.stopPropagation();
                     const children = this.getChildren();
                     if (!childrenDiv.hasChildNodes()) {
-                        children.forEach(child => child.render(defaultTemplate, treeInstance, childrenDiv, level + 1));
+                        children.forEach(child => child.render(defaultTemplate, treeInstance, childrenDiv));
                     }
                     this.toggle();
                 });
             }
             const textSpan = fragment.querySelector('[data-id="text"]');
             textSpan.textContent = this.getPresentation().getPresentableText();
-            contentDiv.style.paddingLeft = `${level * 20 + 8}px`;
+            contentDiv.style.paddingLeft = `${this.level * 20 + 8}px`;
             const backgroundColor = this.getPresentation().getBackgroundColor();
             if (backgroundColor) contentDiv.style.backgroundColor = backgroundColor;
             contentDiv.addEventListener('click', () => treeInstance.selectNode(contentDiv, this));
@@ -226,7 +232,7 @@
         setRoot(root) {
             this.root = root;
             this.container.innerHTML = '';
-            if (this.root) this.root.render(this.defaultTreeNodeTemplate, this, this.container, 0);
+            if (this.root) this.root.render(this.defaultTreeNodeTemplate, this, this.container);
         }
 
         selectNode(contentDiv, treeElement) {
@@ -245,8 +251,8 @@
     // Register the custom element
     customElements.define('custom-tree', Tree);
 
-    // Simple utility function to convert plain JSON to TreeElement
-    function createTreeFromJSON(jsonNode) {
+    // Simple utility function to convert plain JSON to TreeElement, linking parent
+    function createTreeFromJSON(jsonNode, parent = null) {
         // Get display text, icon, and background color
         const displayText = jsonNode.text || 'Unnamed';
         const icon = jsonNode.icon || null;
@@ -257,8 +263,10 @@
 
         // Always provide a loader function for children
         const jsonChildren = jsonNode.children || [];
-        const loader = () => jsonChildren.map(child => createTreeFromJSON(child));
-        return new TreeElement(presentation, loader);
+        let element;
+        const loader = () => jsonChildren.map(childJson => createTreeFromJSON(childJson, element));
+        element = new TreeElement(presentation, loader, parent);
+        return element;
     }
 
     // Demo setup
