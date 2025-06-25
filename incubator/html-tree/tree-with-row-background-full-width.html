@@ -225,10 +225,6 @@
 
         setRoot(root) {
             this.root = root;
-            this.render();
-        }
-
-        render() {
             this.container.innerHTML = '';
             if (this.root) this.root.render(this.defaultTreeNodeTemplate, this, this.container, 0);
         }
