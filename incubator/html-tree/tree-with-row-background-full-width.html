@@ -132,7 +132,7 @@
                 .tree-node-children.collapsed { max-height: 0; }
                 .tree-node-children.expanded { max-height: 1000px; }
             </style>
-            <template id="tree-node-template">
+            <template id="default-tree-node-template">
                 <div class="tree-node" data-id="node" data-level="">
                     <div class="tree-node-content" data-id="content">
                         <button class="tree-node-toggle" data-id="toggle-btn">
@@ -162,7 +162,7 @@
         }
 
         renderNode(treeElement, container, level = 0) {
-            const tpl = this.shadowRoot.getElementById('tree-node-template');
+            const tpl = this.shadowRoot.getElementById('default-tree-node-template');
             const fragment = tpl.content.cloneNode(true);
             const nodeDiv = fragment.querySelector('[data-id="node"]');
             nodeDiv.dataset.level = level;
