@@ -114,10 +114,10 @@
     class Tree extends HTMLElement {
         constructor() {
             super();
-            // Attach shadow root and set up container
+            // Attach shadow root and set up container via innerHTML
             this.attachShadow({mode: 'open'});
-            const style = document.createElement('style');
-            style.textContent = `
+            this.shadowRoot.innerHTML = `
+            <style id="tree-style">
                 :host { display: block; }
                 .tree-node { margin: 0; user-select: none; }
                 .tree-node-content { display: flex; align-items: center; padding: 2px; font-size: 12px; width: 100%; box-sizing: border-box; border-radius: 4px; }
@@ -132,10 +132,10 @@
                 .tree-node-children { margin-left: 0; overflow: hidden; }
                 .tree-node-children.collapsed { max-height: 0; }
                 .tree-node-children.expanded { max-height: 1000px; }
-            `;
-            const container = document.createElement('div');
-            this.shadowRoot.append(style, container);
-            this.container = container;
+            </style>
+            <div id="tree-container"></div>
+        `;
+            this.container = this.shadowRoot.getElementById('tree-container');
             this.root = null;
             this.selectedNode = null;
             this.expandedNodes = new Set();
