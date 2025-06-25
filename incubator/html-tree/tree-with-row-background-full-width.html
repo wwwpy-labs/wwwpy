@@ -68,6 +68,11 @@
 </div>
 
 <script>
+    const chevronRightSvg = `<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M6 11.5L9.5 8L6 4.5" stroke="#B4B8BF" stroke-linecap="round"/>
+</svg>`;
+
     // ItemPresentation class - represents how an item should be displayed
     class ItemPresentation {
         constructor(text, icon = null, backgroundColor = null) {
@@ -128,9 +133,9 @@
                 .tree-node-children.collapsed { max-height: 0; }
                 .tree-node-children.expanded { max-height: 1000px; }
             `;
-            const wrapper = document.createElement('div');
-            this.shadowRoot.append(style, wrapper);
-            this.container = wrapper;
+            const container = document.createElement('div');
+            this.shadowRoot.append(style, container);
+            this.container = container;
             this.root = null;
             this.selectedNode = null;
             this.expandedNodes = new Set();
@@ -143,9 +148,7 @@
 
         render() {
             this.container.innerHTML = '';
-            if (this.root) {
-                this.renderNode(this.root, this.container);
-            }
+            if (this.root) this.renderNode(this.root, this.container);
         }
 
         renderNode(treeElement, container, level = 0) {
@@ -165,12 +168,8 @@
             const toggleBtn = document.createElement('button');
             toggleBtn.className = `tree-node-toggle ${hasChildren ? (isExpanded ? 'expanded' : '') : 'leaf'}`;
 
-            if (hasChildren) {
-                toggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.toggleNode(treeElement, nodeDiv);
-                });
-            }
+            if (hasChildren)
+                toggleBtn.addEventListener('click', e => this.toggleNode(treeElement, nodeDiv));
 
             // Text content
             const textSpan = document.createElement('span');
@@ -180,10 +179,7 @@
             // Toggle icon
             const iconSpan = document.createElement('span');
             iconSpan.className = 'toggle-icon';
-            iconSpan.innerHTML = `<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M6 11.5L9.5 8L6 4.5" stroke="#B4B8BF" stroke-linecap="round"/>
-</svg>`;
+            iconSpan.innerHTML = chevronRightSvg;
             toggleBtn.appendChild(iconSpan);
 
             // apply dynamic indent based on level
@@ -194,14 +190,11 @@
 
             // Apply background color if specified
             const backgroundColor = treeElement.getPresentation().getBackgroundColor();
-            if (backgroundColor) {
-                contentDiv.style.backgroundColor = backgroundColor;
-            }
+            if (backgroundColor) contentDiv.style.backgroundColor = backgroundColor;
+
 
             // Click handler for selection
-            contentDiv.addEventListener('click', () => {
-                this.selectNode(contentDiv, treeElement);
-            });
+            contentDiv.addEventListener('click', () => this.selectNode(contentDiv, treeElement));
 
             nodeDiv.appendChild(contentDiv);
 
@@ -209,11 +202,7 @@
             if (hasChildren) {
                 const childrenDiv = document.createElement('div');
                 childrenDiv.className = `tree-node-children ${isExpanded ? 'expanded' : 'collapsed'}`;
-
-                children.forEach(child => {
-                    this.renderNode(child, childrenDiv, level + 1);
-                });
-
+                children.forEach(child => this.renderNode(child, childrenDiv, level + 1));
                 nodeDiv.appendChild(childrenDiv);
             }
 
@@ -221,8 +210,7 @@
         }
 
         getNodeId(treeElement) {
-            // Simple ID generation based on presentation text and level
-            return treeElement.getPresentation().getPresentableText();
+            return treeElement.getPresentation().getPresentableText(); // Simple ID generation based on presentation text and level
         }
 
         toggleNode(treeElement, nodeDiv) {
@@ -250,24 +238,18 @@
 
         selectNode(contentDiv, treeElement) {
             // Remove previous selection
-            if (this.selectedNode) {
-                this.selectedNode.classList.remove('selected');
-            }
+            if (this.selectedNode) this.selectedNode.classList.remove('selected');
 
             // Add selection to current node
             contentDiv.classList.add('selected');
             this.selectedNode = contentDiv;
 
             // Dispatch custom event
-            this.dispatchEvent(new CustomEvent('nodeSelect', {
-                detail: {treeElement}
-            }));
+            this.dispatchEvent(new CustomEvent('nodeSelect', {detail: {treeElement}}));
         }
 
         expandAll() {
-            this.collectAllNodes(this.root).forEach(node => {
-                this.expandedNodes.add(this.getNodeId(node));
-            });
+            this.collectAllNodes(this.root).forEach(node => this.expandedNodes.add(this.getNodeId(node)));
             this.render();
         }
 
@@ -279,9 +261,7 @@
         collectAllNodes(node, result = []) {
             if (!node) return result;
             result.push(node);
-            node.getChildren().forEach(child => {
-                this.collectAllNodes(child, result);
-            });
+            node.getChildren().forEach(child => this.collectAllNodes(child, result));
             return result;
         }
     }
@@ -414,17 +394,9 @@
         orgTree.setRoot(orgRoot);
 
         // Add event listeners for demonstration
-        fileTree.addEventListener('nodeSelect', (e) => {
-            console.log('File selected:', e.detail.treeElement.getPresentation().getPresentableText());
-        });
-
-        orgTree.addEventListener('nodeSelect', (e) => {
-            console.log('Person/Department selected:', e.detail.treeElement.getPresentation().getPresentableText());
-        });
-
-        fileTree.addEventListener('nodeToggle', (e) => {
-            console.log('Node toggled:', e.detail.treeElement.getPresentation().getPresentableText(), 'Expanded:', e.detail.expanded);
-        });
+        fileTree.addEventListener('nodeSelect', (e) => console.log('File selected:', e.detail.treeElement.getPresentation().getPresentableText()));
+        orgTree.addEventListener('nodeSelect', (e) => console.log('Person/Department selected:', e.detail.treeElement.getPresentation().getPresentableText()));
+        fileTree.addEventListener('nodeToggle', (e) => console.log('Node toggled:', e.detail.treeElement.getPresentation().getPresentableText(), 'Expanded:', e.detail.expanded));
     });
 </script>
 </body>
