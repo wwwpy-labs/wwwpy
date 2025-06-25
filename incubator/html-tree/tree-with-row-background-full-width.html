@@ -146,6 +146,7 @@
             <div id="tree-container"></div>
         `;
             this.container = this.shadowRoot.getElementById('tree-container');
+            this.defaultTreeNodeTemplate = this.shadowRoot.getElementById('default-tree-node-template');
             this.root = null;
             this.selectedNode = null;
             this.expandedNodes = new Set();
@@ -162,7 +163,7 @@
         }
 
         renderNode(treeElement, container, level = 0) {
-            const tpl = this.shadowRoot.getElementById('default-tree-node-template');
+            const tpl = this.defaultTreeNodeTemplate;
             const fragment = tpl.content.cloneNode(true);
             const nodeDiv = fragment.querySelector('[data-id="node"]');
             nodeDiv.dataset.level = level;
