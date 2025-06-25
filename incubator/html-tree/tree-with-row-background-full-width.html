@@ -191,7 +191,10 @@
             const toggleBtn = fragment.querySelector('[data-id="toggle-btn"]');
             toggleBtn.classList.toggle('leaf', !hasChildren);
             toggleBtn.classList.toggle('expanded', hasChildren && isExpanded);
-            if (hasChildren) toggleBtn.addEventListener('click', e => this.toggleNode(treeElement, nodeDiv));
+            if (hasChildren) toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleNode(treeElement, nodeDiv);
+            });
 
             // Text content
             const textSpan = fragment.querySelector('[data-id="text"]');
@@ -206,7 +209,9 @@
 
 
             // Click handler for selection
-            contentDiv.addEventListener('click', () => this.selectNode(contentDiv, treeElement));
+            contentDiv.addEventListener('click', () => {
+                this.selectNode(contentDiv, treeElement)
+            });
 
             // Children container
             if (hasChildren) {
