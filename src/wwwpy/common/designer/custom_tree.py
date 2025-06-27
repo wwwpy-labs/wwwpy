@@ -58,7 +58,7 @@ class TreeElement:
             childrenDiv.classList.replace('collapsed', 'expanded')
             toggleBtn.classList.add('expanded')
 
-    def render(self, default_template, tree_instance, container):
+    def render_fragment(self, default_template, tree_instance):
         frag = self.getNodeFragment(default_template)
         self.nodeDiv.dataset.level = self.level
         hasKids = self.hasChildren()
@@ -72,7 +72,8 @@ class TreeElement:
                 e.stopPropagation()
                 if not childrenDiv.hasChildNodes():
                     for c in self.getChildren():
-                        c.render(default_template, tree_instance, childrenDiv)
+                        fr = c.render_fragment(default_template, tree_instance)
+                        childrenDiv.appendChild(fr)
                 self.toggle()
 
             btn.addEventListener('click', create_proxy(on_toggle))
@@ -87,11 +88,14 @@ class TreeElement:
             tree_instance.selectNode(self.contentDiv, self)
 
         self.contentDiv.addEventListener('click', create_proxy(on_select))
-        container.appendChild(frag)
+        return frag
+        # container.appendChild(frag)
 
 
 # Web component for rendering a tree
 class CustomTree(wpc.Component, tag_name='custom-tree'):
+    _tree_container: js.HTMLDivElement = wpc.element()
+    _default_template: js.HTMLTemplateElement = wpc.element()
     def init_component(self):
         # attach shadow and template
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -112,7 +116,7 @@ class CustomTree(wpc.Component, tag_name='custom-tree'):
             .tree-node-children.collapsed { max-height: 0; }
             .tree-node-children.expanded { max-height: 1000px; }
         </style>
-        <template id="default-tree-node-template">
+        <template data-name="_default_template">
             <div class="tree-node" data-id="node" data-level="">
                 <div class="tree-node-content" data-id="content">
                     <button class="tree-node-toggle" data-id="toggle-btn">
@@ -128,18 +132,18 @@ class CustomTree(wpc.Component, tag_name='custom-tree'):
                 <div class="tree-node-children" data-id="children-container"></div>
             </div>
         </template>
-        <div id="tree-container"></div>
+        <div data-name="_tree_container"></div>
         """
-        self.container = self.element.shadowRoot.getElementById('tree-container')
-        self.default_template = self.element.shadowRoot.getElementById('default-tree-node-template')
+        # self.container = self.element.shadowRoot.getElementById('tree-container')
+        # self.default_template = self.element.shadowRoot.getElementById('default-tree-node-template')
         self.root = None
         self.selectedNode = None
 
     def setRoot(self, root: TreeElement):
         self.root = root
-        self.container.innerHTML = ''
+        self._tree_container.innerHTML = ''
         if root:
-            root.render(self.default_template, self, self.container)
+            self._tree_container.append(root.render_fragment(self._default_template, self, ))
 
     def selectNode(self, contentDiv, treeElement):
         if self.selectedNode:
