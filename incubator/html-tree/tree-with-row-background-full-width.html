@@ -114,6 +114,9 @@
             return this.presentation;
         }
 
+        /**
+         * @return {TreeElement[]}
+         */
         getChildren() {
             if (this.children === null)
                 this.children = this.childLoader();
