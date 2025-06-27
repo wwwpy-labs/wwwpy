@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import js
 from pyodide.ffi import create_proxy
 
@@ -58,7 +60,7 @@ class TreeElement:
             childrenDiv.classList.replace('collapsed', 'expanded')
             toggleBtn.classList.add('expanded')
 
-    def render_fragment(self, default_template, tree_instance):
+    def render_fragment(self, default_template: js.HTMLTemplateElement, tree_instance: CustomTree):
         frag = self.getNodeFragment(default_template)
         self.nodeDiv.dataset.level = self.level
         hasKids = self.hasChildren()
@@ -89,13 +91,13 @@ class TreeElement:
 
         self.contentDiv.addEventListener('click', create_proxy(on_select))
         return frag
-        # container.appendChild(frag)
 
 
 # Web component for rendering a tree
 class CustomTree(wpc.Component, tag_name='custom-tree'):
     _tree_container: js.HTMLDivElement = wpc.element()
     _default_template: js.HTMLTemplateElement = wpc.element()
+
     def init_component(self):
         # attach shadow and template
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -134,8 +136,6 @@ class CustomTree(wpc.Component, tag_name='custom-tree'):
         </template>
         <div data-name="_tree_container"></div>
         """
-        # self.container = self.element.shadowRoot.getElementById('tree-container')
-        # self.default_template = self.element.shadowRoot.getElementById('default-tree-node-template')
         self.root = None
         self.selectedNode = None
 
