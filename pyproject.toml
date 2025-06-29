@@ -54,9 +54,10 @@ dev = ["webtypy", "playwright", "setuptools", "pytest-asyncio"] # setuptools is 
 pypi = ["twine", "build"]
 # stubs = ["pyodide-stubs @ file://./pyodide-stubs"]
 #stubs = ["pyodide-stubs @ file:///${PWD}/pyodide-stubs"]
+stubs = ["pyodide-stubs"]
 # pip install -e ".[all]" or pip install -e ".[test,dev]"
-all = ["wwwpy[test,dev,pypi]"]
-#alls = ["wwwpy[test,dev,pypi,stubs]"]
+#all = ["wwwpy[test,dev,pypi]"]
+all = ["wwwpy[test,dev,pypi,stubs]"]
 
 
 [project.entry-points.pytest11]
@@ -71,3 +72,6 @@ wwwpy = "wwwpy.server.__main__:main"
 
 #[tool.mypy]
 #mypy_path = ["stubs"]
+
+[tool.uv.sources]
+pyodide-stubs = { path = "pyodide-stubs" }
