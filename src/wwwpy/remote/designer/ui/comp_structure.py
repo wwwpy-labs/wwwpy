@@ -7,10 +7,12 @@ from enum import Enum
 from functools import cached_property
 
 import js
+from pyodide.ffi import create_proxy
 
 import wwwpy.remote.component as wpc
 import wwwpy.remote.designer.ui.new_toolbox  # noqa
 from wwwpy.common import modlib
+from wwwpy.common.designer.canvas_selection import CanvasSelectionChangeEvent, CanvasSelection
 from wwwpy.common.designer.comp_info import iter_comp_info_folder, CompInfo, LocatorNode, ComponentDef
 from wwwpy.common.designer.element_library import ElementDefBase
 from wwwpy.common.eventbus import EventBus
@@ -36,6 +38,7 @@ class HeaderClick(Enum):
 class _DesignAware(DesignAware):
 
     def find_intent(self, hover_event: IntentEvent) -> Intent | None:
+        return None
         target = hover_event.deep_target
         # def is_container(element: js.Element) -> bool:
         #     return element.tagName.lower() == AddUserComponentIntentUI.component_metadata.tag_name.lower()
@@ -66,7 +69,7 @@ class _DesignAware(DesignAware):
     def is_selectable_le(self, locator_event: LocatorEvent) -> bool | None:
         if locator_event.locator.match_component_type(AddUserComponentIntentUI):
             logger.warning(f'is_selectable_le: click on summary')
-            return None
+            return True
         struct_item = _get_comp_structure_item(locator_event.main_element)
         if struct_item:
             if locator_event.main_element == struct_item._summary:
@@ -79,6 +82,7 @@ class _DesignAware(DesignAware):
         return None
 
     def locator_event_transformer(self, locator_event: LocatorEvent) -> LocatorEvent | None:
+        return None
         if not isinstance(locator_event, LocatorEvent):
             raise TypeError(f'Expected LocatorEvent, got {type(locator_event)}')
         locator_node = _get_locator_node(locator_event)
@@ -116,10 +120,6 @@ def _click_where(js_event: js.PointerEvent) -> HeaderClick | None:
     if not target: return None
     comp_tree_item = _get_comp_structure_item(target)
     x = js_event.clientX - comp_tree_item._summary.getBoundingClientRect().left
-    # if x < 20:
-    #     return HeaderClick.MARKER
-    # else:
-    #     return HeaderClick.TEXT
     return HeaderClick.TEXT if x > 20 else HeaderClick.MARKER
 
 
@@ -130,6 +130,7 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
     _div: js.HTMLDivElement = wpc.element()
     _eventbus: EventBus = injector.field()
     _new_component: js.HTMLElement = wpc.element()
+    _canvas_selection: CanvasSelection = injector.field()
 
     def init_component(self):
         self.element.attachShadow(dict_to_js({'mode': 'open'}))
@@ -156,12 +157,17 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
         """
         self._subscription = None
 
+    def _csce(self, event: CanvasSelectionChangeEvent):
+        logger.debug(f'canvas selection changed: {event}')
+
     def connectedCallback(self):
+        self._canvas_selection.on_change.add(self._csce)
         self._subscription = self._eventbus.subscribe(self._scan_for_components, on=AfterDevModeShow)
         DesignAware.EP_REGISTRY.unregister(_design_aware)
         DesignAware.EP_REGISTRY.register(_design_aware)
 
     def disconnectedCallback(self):
+        self._canvas_selection.on_change.remove(self._csce)
         self._subscription.unsubscribe()
         self._subscription = None
         DesignAware.EP_REGISTRY.unregister(_design_aware)
@@ -183,7 +189,6 @@ class CompStructure(wpc.Component, tag_name='wwwpy-comp-structure'):
             from wwwpy.server.designer import rpc
             res = await rpc.add_new_component()
             js.window.alert(res)
-    
 
 
 class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
@@ -198,6 +203,9 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
     <summary data-name="_summary"></summary>
 </details>
         """
+
+    # def _summary__click(self, event):
+    #     logger.debug(f'{inspect.currentframe().f_code.co_name} event fired %s', event)
 
     def set_comp_info(self, ci: CompInfo):
         self.comp_info = ci
@@ -238,6 +246,16 @@ class CompStructureItem(wpc.Component, tag_name='wwwpy-comp-structure-item'):
                 summary = details.firstElementChild
                 _set_locator_node(summary, child)
                 summary.innerText = summary_text
+
+                def summary_click(event):
+                    whe = _click_where(event)
+                    logger.warning(f'summary_click: {whe}')
+                    if whe == HeaderClick.TEXT:
+                        # we don't want the expand/collapse to happen
+                        event.preventDefault()
+                        event.stopPropagation()
+
+                summary.addEventListener('click', create_proxy(summary_click))
 
         try:
             rec(ci.locator_root.children, self._details, 1)
