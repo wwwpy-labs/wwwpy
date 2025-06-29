@@ -55,8 +55,8 @@ pypi = ["twine", "build"]
 # stubs = ["pyodide-stubs @ file://./pyodide-stubs"]
 stubs = ["pyodide-stubs @ file://${PWD}/pyodide-stubs"]
 # pip install -e ".[all]" or pip install -e ".[test,dev]"
-#all = ["wwwpy[test,dev,pypi]"]
-all = ["wwwpy[test,dev,pypi,stubs]"]
+all = ["wwwpy[test,dev,pypi]"]
+alls = ["wwwpy[test,dev,pypi,stubs]"]
 
 
 [project.entry-points.pytest11]
