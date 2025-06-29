@@ -1,0 +1,16 @@
+[project]
+name = "pyodide-stubs"
+version = "0.0.1"
+description = "Type stubs for Pyodide"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pyodide-stubs"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed", "*.pyi"]

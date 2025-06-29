@@ -49,11 +49,14 @@ where = ["src"]
 
 [project.optional-dependencies]
 # libcst==1.4.0 is the version available in pyodide 0.27.2
-test = ["tox", "pytest", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.4.0", "rope==1.13.0"]
+test = ["tox", "pytest", "pytest-asyncio", "playwright", "pytest-playwright", "pytest-xvirt", "libcst==1.4.0", "rope==1.13.0"]
 dev = ["webtypy", "playwright", "setuptools", "pytest-asyncio"] # setuptools is needed from PyCharm
 pypi = ["twine", "build"]
+# stubs = ["pyodide-stubs @ file://./pyodide-stubs"]
+stubs = ["pyodide-stubs @ file://${PWD}/pyodide-stubs"]
 # pip install -e ".[all]" or pip install -e ".[test,dev]"
-all = ["wwwpy[test,dev,pypi]"]
+#all = ["wwwpy[test,dev,pypi]"]
+all = ["wwwpy[test,dev,pypi,stubs]"]
 
 
 [project.entry-points.pytest11]
@@ -65,3 +68,6 @@ pytest_wwwpy = "wwwpy.server.pytestlib.pytest_plugin"
 
 [project.scripts]
 wwwpy = "wwwpy.server.__main__:main"
+
+#[tool.mypy]
+#mypy_path = ["stubs"]
