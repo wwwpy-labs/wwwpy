@@ -89,8 +89,5 @@ def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
     logger.debug(f'Iterating over components in {path}')
     source_code = path.read_text()
     ci = code_info.info(source_code)
-    return (c for c in (_to_comp_info(source_code, path, cl, package) for cl in ci.classes) if c is not None)
-
-
-def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo, package: str) -> CompInfo | None:
-    return CompInfo(package, cl.name, cl.tag_name, path, source_code)
+    return (c for c in (CompInfo(package, cl.name, cl.tag_name, path, source_code) for cl in ci.classes) if
+            c is not None)
