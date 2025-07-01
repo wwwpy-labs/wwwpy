@@ -7,18 +7,11 @@ import wwwpy.remote.component as wpc
 from wwwpy.remote import dict_to_js
 
 
-# Representation of item display properties
 class ItemPresentation:
     def __init__(self, text, icon=None, backgroundColor=None):
-        self.text = text
+        self.text = text if not icon else f"{icon} {text}"
         self.icon = icon
         self.backgroundColor = backgroundColor
-
-    def getPresentableText(self):
-        return f"{self.icon} {self.text}" if self.icon else self.text
-
-    def getBackgroundColor(self):
-        return self.backgroundColor
 
 
 # Tree node model with lazy child loading and rendering
@@ -80,9 +73,9 @@ class TreeElement:
 
             btn.addEventListener('click', create_proxy(on_toggle))
         textSpan = frag.querySelector('[data-id="text"]')
-        textSpan.textContent = self.presentation.getPresentableText()
+        textSpan.textContent = self.presentation.text
         self.contentDiv.style.paddingLeft = f"{self.level * 20 + 8}px"
-        bg = self.presentation.getBackgroundColor()
+        bg = self.presentation.backgroundColor
         if bg:
             self.contentDiv.style.backgroundColor = bg
 
