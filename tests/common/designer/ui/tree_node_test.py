@@ -39,3 +39,20 @@ class TestNodeList:
 
         # THEN
         assert sub_node in tree.selected_nodes()
+
+    def test_only_one_should_be_selected(self):
+        # GIVEN
+        tree = NodeList()
+        node = Node()
+        node2 = Node()
+        tree.children.append(node)
+        tree.children.append(node2)
+        sub_node = Node()
+        node.children.append(sub_node)
+
+        # WHEN
+        sub_node.selected = True
+        node2._perform_click()
+
+        # THEN
+        assert tree.selected_nodes() == {node2}
