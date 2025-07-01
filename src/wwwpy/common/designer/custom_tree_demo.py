@@ -1,5 +1,3 @@
-from pyodide.ffi import create_proxy
-
 import wwwpy.remote.component as wpc
 from wwwpy.common.designer.custom_tree import TreeElement, ItemPresentation, CustomTree
 from wwwpy.remote import dict_to_js
@@ -53,13 +51,13 @@ class CustomTreeDemo(wpc.Component, tag_name='custom-tree-demo'):
         fileSystemJSON = {
             'text': 'Project Root', 'icon': '📁',
             'children': [
-                {'text': 'src', 'icon': '📁', 'backgroundColor': '#2d4a22', 'children': [
+                {'text': 'src', 'icon': '📁', 'children': [
                     {'text': 'components', 'icon': '📁', 'children': [
                         {'text': 'Button.js', 'icon': '📄'},
                         {'text': 'Modal.js', 'icon': '📄'},
                         {'text': 'Tree.js', 'icon': '📄', 'backgroundColor': '#3d2817'}
                     ]},
-                    {'text': 'utils', 'icon': '📁', 'children': [
+                    {'text': 'utils', 'icon': '📁', 'backgroundColor': '#2d4a22', 'children': [
                         {'text': 'helpers.js', 'icon': '📄'},
                         {'text': 'constants.js', 'icon': '📄'}
                     ]},
@@ -67,9 +65,9 @@ class CustomTreeDemo(wpc.Component, tag_name='custom-tree-demo'):
                 ]},
                 {'text': 'public', 'icon': '📁', 'children': [
                     {'text': 'index.html', 'icon': '🌐'},
-                    {'text': 'favicon.ico', 'icon': '🖼️'}
+                    {'text': 'favicon.ico', 'icon': '🖼️', 'backgroundColor': '#4c1d95'}
                 ]},
-                {'text': 'package.json', 'icon': '📦', 'backgroundColor': '#4c1d95'},
+                {'text': 'package.json', 'icon': '📦'},
                 {'text': 'README.md', 'icon': '📝'}
             ]
         }

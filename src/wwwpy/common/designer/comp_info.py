@@ -17,9 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class LocatorNode:
-    # locator: Locator
-    # children: list[LocatorNode]
-    # cst_node: CstNode
     _cst_children: list[CstNode]
 
     def __init__(self, parent: CompInfo, cst: CstTree | CstNode):
@@ -40,15 +37,6 @@ class LocatorNode:
         return [LocatorNode(self._parent, c) for c in self._cst_children]
 
 
-# class LocatorTree(UserList[LocatorNode]):
-#     parent: CompInfo
-#     cst_tree: CstTree
-#
-#     def __init__(self, parent: CompInfo, cst: CstTree):
-#         nodes = (LocatorNode())
-#         super().__init__()
-
-
 # todo extend CompInfo such as it provides the means for CompStructure component to show
 #  the tree structure of the component's HTML.
 #  think about a couple of design patterns to achieve this.
@@ -59,7 +47,19 @@ class CompInfo:
     class_name: str
     tag_name: str
     path: Path
-    cst_tree: CstTree
+    source_code: str
+
+    @cached_property
+    def html(self) -> str:
+        html = html_from_source(self.source_code, self.class_name)
+        if html is None:
+            logger.warning(f'Cannot find html for {self.class_name} in {self.path}')
+            return ''
+        return html
+
+    @cached_property
+    def cst_tree(self) -> CstTree:
+        return html_to_tree(self.html)
 
     @cached_property
     def locator_root(self) -> LocatorNode:
@@ -93,12 +93,4 @@ def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
 
 
 def _to_comp_info(source_code: str, path: Path, cl: code_info.ClassInfo, package: str) -> CompInfo | None:
-    class_name = cl.name
-    html = html_from_source(source_code, class_name)
-    if html is None:
-        logger.warning(f'Cannot find html for {class_name} in {path}')
-        return None
-
-    cst_tree = html_to_tree(html)
-
-    return CompInfo(package, class_name, cl.tag_name, path, cst_tree)
+    return CompInfo(package, cl.name, cl.tag_name, path, source_code)
