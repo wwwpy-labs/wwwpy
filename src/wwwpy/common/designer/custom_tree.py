@@ -99,10 +99,8 @@ class CustomTree(wpc.Component, tag_name='custom-tree'):
             :host { display: block; }
             .tree-node { margin: 0; user-select: none; }
             .tree-node-content { display: flex; align-items: center; padding: 2px; font-size: 12px; width: 100%; box-sizing: border-box; border-radius: 4px; }
-            .tree-node-content:hover { background-color: #2E436E; }
             .tree-node-content.selected { background-color: #1f6feb !important; color: #ffffff; }
             .tree-node-toggle { width: 16px; height: 16px; margin-right: 4px; border: none; background: none; font-size: 12px; display: flex; align-items: center; justify-content: center; color: #8b949e; }
-            .tree-node-toggle:hover { color: #e6edf3; }
             .tree-node-toggle .toggle-icon { display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; }
             .tree-node-toggle.expanded .toggle-icon { transform: rotate(90deg); }
             .tree-node-toggle.leaf { visibility: hidden; }
