@@ -1,7 +1,7 @@
 from collections import defaultdict
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
-from contextlib import contextmanager
 
 
 class Monitorable:
@@ -85,7 +85,13 @@ def get_monitor_or_create(instance) -> Monitor:
 
         original_setattr = clazz.__setattr__  # Keep a reference to the original method
 
+        def is_attr_monitored(name: str) -> bool:
+            return not name.startswith("_")
+
         def new_setattr(self, name, value):
+            if not is_attr_monitored(name):
+                return original_setattr(self, name, value)
+
             old_value = getattr(self, name, None)
             original_setattr(self, name, value)
 

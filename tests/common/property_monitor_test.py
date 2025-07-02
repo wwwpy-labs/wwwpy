@@ -3,13 +3,11 @@ from typing import List
 
 from wwwpy.common import property_monitor as pm
 from wwwpy.common.property_monitor import PropertyChanged, monitor_changes, set_origin, Monitorable, Monitor
-import pytest
-
 from wwwpy.common.rpc import serialization
 
 
 @dataclass
-class TestClass:
+class DataclassStub:
     name: str = ""
     value: int = 0
 
@@ -20,7 +18,7 @@ def test_monitor_existing_property_change():
     def on_change(changes: List[PropertyChanged]):
         events.append(changes)
 
-    obj = TestClass("bob", 10)
+    obj = DataclassStub("bob", 10)
     monitor_changes(obj, on_change)
 
     obj.value = 20
@@ -38,9 +36,9 @@ def test_monitor_on_second_instance():
     def on_change2(change2: List[PropertyChanged]):
         events2.append(change2)
 
-    obj1 = TestClass("alice", 10)
+    obj1 = DataclassStub("alice", 10)
     monitor_changes(obj1, on_change1)
-    obj2 = TestClass("bob", 20)
+    obj2 = DataclassStub("bob", 20)
     monitor_changes(obj2, on_change2)
 
     obj1.value = 1
@@ -55,7 +53,7 @@ def test_monitor_on_second_instance():
 
 
 def test_event_should_fire_after_property_change():
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
 
     def on_change(_):
         assert obj.value == 1
@@ -69,7 +67,7 @@ def test_double_monitor__should_add_listener():
     events1: List[List[PropertyChanged]] = []
     events2: List[List[PropertyChanged]] = []
 
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
 
     monitor_changes(obj, lambda change: events1.append(change))
     monitor_changes(obj, lambda change: events2.append(change))
@@ -86,7 +84,7 @@ def test_group_changes():
     def on_change(changes: List[PropertyChanged]):
         events.append(changes)
 
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
     monitor_changes(obj, on_change)
 
     with pm.group_changes(obj):
@@ -107,17 +105,17 @@ def test_deserialize():
     def on_change(changes: List[PropertyChanged]):
         raise Exception("Should not be called")
 
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
     monitor_changes(obj, on_change)
 
-    serialized = serialization.serialize(obj, TestClass)
-    deserialized = serialization.deserialize(serialized, TestClass)
+    serialized = serialization.serialize(obj, DataclassStub)
+    deserialized = serialization.deserialize(serialized, DataclassStub)
 
     assert deserialized == obj
 
 
 def test_with_origin():
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
     events: List[List[PropertyChanged]] = []
     monitor_changes(obj, lambda changes: events.append(changes))
 
@@ -138,7 +136,6 @@ def test_get_monitor_should_honor_HasMonitor():
 
 
 def test_get_monitor_or_create():
-
     # needs to be local because the monitor changes the definition of the class!
     @dataclass
     class TestClass:
@@ -157,10 +154,8 @@ def test_get_monitor_or_create():
     assert events == [[PropertyChanged(obj, "value", 10, 123)]]
 
 
-
-
 def test_attr_listener():
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
     events: List[List[PropertyChanged]] = []
     pm.get_monitor_or_create(obj).add_attribute_listener('name', lambda change: events.append(change))
 
@@ -173,7 +168,7 @@ def test_attr_listener():
 
 
 def test_attr_listener_with_grouping():
-    obj = TestClass("alice", 10)
+    obj = DataclassStub("alice", 10)
     events: List[List[PropertyChanged]] = []
     m = pm.get_monitor_or_create(obj)
     m.add_attribute_listener('name', lambda change: events.append(change))
@@ -204,3 +199,61 @@ def todo_test_monitorable_inheritance_simple_class():
     obj.value = 123
 
     assert events == [[PropertyChanged(obj, "value", 10, 123)]]
+
+
+class GetterSetterStub:
+    def __init__(self, name: str = '', value: int = 0):
+        self._name = name
+        self._value = value
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+        self._name = value
+
+    @property
+    def value(self) -> int:
+        return self._value
+
+    @value.setter
+    def value(self, value: int):
+        self._value = value
+
+
+class TestOnGetterSetter:
+    def test_monitor_existing_property_change(self):
+        events: List[List[PropertyChanged]] = []
+
+        def on_change(changes: List[PropertyChanged]):
+            events.append(changes)
+
+        obj = GetterSetterStub("bob", 10)
+        monitor_changes(obj, on_change)
+
+        obj.value = 20
+
+        assert events == [[PropertyChanged(obj, "value", 10, 20)]]
+
+
+class PlainOldPythonObject:
+    def __init__(self, name: str = '', value: int = 0):
+        self.name = name
+        self.value = value
+
+
+class TestOnPlainOldPythonObject:
+    def test_monitor_existing_property_change(self):
+        events: List[List[PropertyChanged]] = []
+
+        def on_change(changes: List[PropertyChanged]):
+            events.append(changes)
+
+        obj = PlainOldPythonObject("bob", 10)
+        monitor_changes(obj, on_change)
+
+        obj.value = 20
+
+        assert events == [[PropertyChanged(obj, "value", 10, 20)]]
