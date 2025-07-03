@@ -1,6 +1,6 @@
 import wwwpy.remote.component as wpc
-from wwwpy.common.designer.custom_tree import TreeElement, ItemPresentation, CustomTree
 from wwwpy.remote import dict_to_js
+from wwwpy.remote.designer.ui.tree.custom_tree import TreeElement, ItemPresentation, CustomTree
 
 
 # Helper to build TreeElement hierarchy from JSON
