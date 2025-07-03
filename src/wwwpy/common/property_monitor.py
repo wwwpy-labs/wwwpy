@@ -104,7 +104,7 @@ def get_monitor_or_create(instance) -> Monitor:
         clazz.__setattr__ = new_setattr
 
     m = Monitor()
-    instance.__instance_monitor_attr = m
+    setattr(instance, __instance_monitor_attr, m)
     return m
 
 
@@ -123,6 +123,7 @@ def monitor_changes(instance, on_changed: Callable[[List[PropertyChanged]], None
     m.listeners.append(on_changed)
 
 
+# todo rename to group_notifications ?
 @contextmanager
 def group_changes(instance):
     # what happens with nested groupings?
