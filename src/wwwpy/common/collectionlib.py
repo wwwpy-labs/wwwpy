@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar, Collection
+from typing import Callable, TypeVar, Collection, Generic
 
 T = TypeVar('T')
 K = TypeVar('K')
@@ -40,7 +40,7 @@ class ListMap(list[T]):
 from collections import UserList
 
 
-class ObservableList(UserList):
+class ObservableList(UserList[T], Generic[T]):
     def _item_added(self, item, index):
         pass
 
