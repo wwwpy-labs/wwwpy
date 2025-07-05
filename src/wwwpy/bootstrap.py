@@ -1,3 +1,4 @@
+import json
 import textwrap
 from typing import List, Tuple
 
@@ -40,10 +41,14 @@ sys.path.insert(0, '{extract_dir}')
 
 
 def get_javascript_for(python_code: str) -> str:
-    loadPyodide_options = '{convertNullToNone: true}'  # see https://pyodide.org/en/stable/usage/api/js-api.html#globalThis.loadPyodide
+    # see https://pyodide.org/en/stable/usage/api/js-api.html#globalThis.loadPyodide
+    loadPyodide_options = {
+        'convertNullToNone': True,
+        # 'packages': ['pytest', 'pytest-asyncio'], # no performance benefit (tested using hyperfine)
+    }
     return (_js_content
             .replace('# python replace marker', python_code)
-            .replace('`# load option marker`', loadPyodide_options))
+            .replace('`# load option marker`', json.dumps(loadPyodide_options)))
 
 
 # language=javascript
