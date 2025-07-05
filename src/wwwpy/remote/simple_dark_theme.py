@@ -10,6 +10,9 @@ simple_dark_theme_header = """
 <link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+    html { box-sizing: border-box; }
+    *, *:before, *:after { box-sizing: inherit; }
+    
     :root {
         color-scheme: dark;
     }
