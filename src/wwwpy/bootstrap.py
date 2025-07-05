@@ -13,6 +13,7 @@ def bootstrap_routes(
         resources: List[ResourceIterable],
         python: str,
         zip_route_path: str = '/wwwpy/bundle.zip',
+        packages: list[str] | None = None,
         html: str = f'<!DOCTYPE html><h1>Loading...</h1><script>{bootstrap_javascript_placeholder}</script>',
 ) -> Tuple[HttpRoute, HttpRoute]:
     """Returns a tuple of two routes: (bootstrap_route, zip_route)"""
@@ -34,17 +35,17 @@ sys.path.insert(0, '{extract_dir}')
 {python}
     """
 
-    javascript = get_javascript_for(bootstrap_python)
+    javascript = get_javascript_for(bootstrap_python, packages=packages)
     html_replaced = html.replace(bootstrap_javascript_placeholder, javascript)
     bootstrap_route = HttpRoute('/', lambda request, resp: resp(HttpResponse.text_html(html_replaced)))
     return bootstrap_route, zip_route
 
 
-def get_javascript_for(python_code: str) -> str:
+def get_javascript_for(python_code: str, packages: list[str] = None) -> str:
     # see https://pyodide.org/en/stable/usage/api/js-api.html#globalThis.loadPyodide
     loadPyodide_options = {
         'convertNullToNone': True,
-        # 'packages': ['pytest', 'pytest-asyncio'], # no performance benefit (tested using hyperfine)
+        'packages': packages or [],
     }
     return (_js_content
             .replace('# python replace marker', python_code)

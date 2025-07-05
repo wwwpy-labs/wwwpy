@@ -24,8 +24,9 @@ async def main(rootpath, invocation_dir, args):
     Path('/wwwpy_bundle/pytest.ini').write_text("[pytest]\n"
                                                 "asyncio_mode = auto")
     from wwwpy.remote import micropip_install
-    await micropip_install('pytest')  # didn't work with update to 8.1.1
-    await micropip_install('pytest-asyncio')
+    # these two packages are loaded in loadPyodide, to get a performance boost
+    # await micropip_install('pytest')
+    # await micropip_install('pytest-asyncio')
     await micropip_install('pytest-xvirt')
     import wwwpy.common.designer as des
     for package in des.pypi_packages:
