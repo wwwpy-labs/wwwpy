@@ -44,7 +44,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"wwwpy" = ["**/*.json", "**/*.txt"]
+"wwwpy" = ["**/*.json", "**/*.txt", "**/*.svg"]
 
 
 [project.optional-dependencies]
