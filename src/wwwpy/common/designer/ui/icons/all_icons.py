@@ -20,7 +20,6 @@ class AllIcons:
         return _all_icons
 
 
-# Dynamically collect all Path attributes from AllIcons class
 _all_icons = tuple(
     value for name, value in vars(AllIcons).items()
     if isinstance(value, Path) and not name.startswith('_')
