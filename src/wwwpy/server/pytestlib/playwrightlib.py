@@ -51,7 +51,8 @@ def start_playwright_in_thread(url: str, headless: bool) -> PlaywrightArgs:
 
 def start_playwright(args: PlaywrightArgs) -> None:
     playwright = sync_playwright().start()
-    launch_args = ['--enable-features=WebAssemblyExperimentalJSPI']
+    # launch_args = ['--enable-features=WebAssemblyExperimentalJSPI']
+    launch_args = []
     browser = playwright.chromium.launch(headless=args.headless, args=launch_args)
     page = browser.new_page(has_touch=True)
     playwright_setup_page_logger(page)
