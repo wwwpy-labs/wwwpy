@@ -24,8 +24,10 @@ class SvgIcon(wpc.Component, tag_name='wwwpy-svg-icon'):
     border: int = 5
 
     @classmethod
-    def from_file(cls, file: Path) -> SvgIcon:
+    def from_file(cls, file: Path, border: int | None = None) -> SvgIcon:
         r = cls()
+        if border is not None:
+            r.border = border
         r.load_svg_str(file.read_text())
         r.element.setAttribute('title', file.name)
         return r
@@ -42,6 +44,7 @@ class SvgIcon(wpc.Component, tag_name='wwwpy-svg-icon'):
 
     def load_svg_str(self, svg: str):
         self._div.innerHTML = add_rounded_background2(svg, 'var(--svg-primary-color)')
+        self._set_style()
 
     @property
     def active(self) -> bool:
@@ -52,14 +55,14 @@ class SvgIcon(wpc.Component, tag_name='wwwpy-svg-icon'):
     @active.setter
     def active(self, value: bool):
         self._active = value
-        root, hover = (_BLUE, '') if value else (_BGRD, _GRAY)
-        self._set_style(root, hover)
+        self._set_style()
 
-    def _set_style(self, color: str, hover_color: str):
+    def _set_style(self):
+        color, hover_color = (_BLUE, '') if self.active else (_BGRD, _GRAY)
         # language=html
         hover_style = ":host(:hover) { --svg-primary-color: %s; }" % (hover_color,) if hover_color else ''
         s = ('svg { display: block }\n' +
-             ':host { border: %spx solid transparent }\n' % self.border +
+             ':host { display: flex; border: %spx solid transparent }\n' % self.border +
              ':host { --svg-primary-color: %s; }\n' % color + hover_style)
         logger.debug(f'set_style: `{s}`')
         self._style.innerHTML = s
