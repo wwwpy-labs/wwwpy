@@ -8,12 +8,17 @@ def _svg(filename: str) -> Path: return _parent / filename
 
 # you can control-click the icon filename to open it (at least in PyCharm)
 class AllIcons:
-    toolWindowComponents_dark = _svg("toolWindowComponents_dark.svg")
-    properties_dark = _svg("properties_dark.svg")
-    project_20x20_dark = _svg("project@20x20_dark.svg")
-    structure_20x20_dark = _svg("structure@20x20_dark.svg")
+    services_dark = _svg("jb/services_dark.svg")
+    todo_20x20_dark = _svg("jb/todo@20x20_dark.svg")
+    console_dark = _svg("jb/console_dark.svg")
+    pythonPackages_dark = _svg("jb/pythonPackages_dark.svg")
+    python_stroke = _svg("jb/python_stroke.svg")
+    toolWindowComponents_dark = _svg("jb/toolWindowComponents_dark.svg")
+    properties_dark = _svg("jb/properties_dark.svg")
+    project_20x20_dark = _svg("jb/project@20x20_dark.svg")
+    structure_20x20_dark = _svg("jb/structure@20x20_dark.svg")
     events = _svg("events.svg")
-    toolWindowComponents_20x20_dark = _svg("toolWindowComponents@20x20_dark.svg")
+    toolWindowComponents_20x20_dark = _svg("jb/toolWindowComponents@20x20_dark.svg")
 
     @classmethod
     def all_icons(cls) -> tuple[Path, ...]:
