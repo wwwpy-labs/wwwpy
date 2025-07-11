@@ -48,14 +48,21 @@ class CompInfo:
     tag_name: str
     path: Path
     source_code: str
+    _html_found: bool = None
 
     @cached_property
     def html(self) -> str:
         html = html_from_source(self.source_code, self.class_name)
+        self._html_found = html is not None
         if html is None:
-            logger.warning(f'Cannot find html for {self.class_name} in {self.path}')
+            logger.debug(f'Cannot find html for {self.class_name} in {self.path}')
             return ''
         return html
+
+    @property
+    def html_found(self) -> bool:
+        x = self.html
+        return self._html_found
 
     @cached_property
     def cst_tree(self) -> CstTree:
@@ -81,7 +88,10 @@ def iter_comp_info_folder(folder: Path, package: str) -> Iterator[CompInfo]:
     """Iterate over all components in the folder."""
     logger.debug(f'Iterating over components in {folder}')
     for path in sorted(folder.glob('*.py'), key=lambda p: p.stem):
-        yield from iter_comp_info(path, package + '.' + path.stem)
+        infos = iter_comp_info(path, package + '.' + path.stem)
+        for info in infos:
+            if info.html_found:
+                yield info
 
 
 def iter_comp_info(path: Path, package: str) -> Iterator[CompInfo]:
