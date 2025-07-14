@@ -7,142 +7,141 @@ plugins: base-url-2.1.0, asyncio-1.0.0, playwright-0.7.0, xvirt-0.3.1, repeat-0.
 asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
 
 ----------------------------- live log collection ------------------------------
-12:57:17.905 D tests.timeouts:timeouts.py:17 timeout_multiplier=1
+13:01:01.885 D tests.timeouts:timeouts.py:17 timeout_multiplier=1
 collected 1 item
 
 dev_mode_test.py::test_dev_mode_with_empty_project__should_show_quickstart_dialog[chromium-WsTornado] 
 -------------------------------- live log setup --------------------------------
-12:57:17.929 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:01.910 D asyncio:selector_events.py:54 Using selector: EpollSelector
 -------------------------------- live log call ---------------------------------
-12:57:18.187 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
-12:57:18.187 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmpzdr9io8v
-12:57:18.189 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
-12:57:18.195 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:18.197 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:21.900 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:21.901 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.302 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
-12:57:22.306 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
-12:57:22.307 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.308 I wwwpy.common.quickstart:__init__.py:22 Quickstart applying basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:22.309 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
-2025-07-14 12:57:22,308 🏛 I wwwpy.common.quickstart:22 - Quickstart applying basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:22.314 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
-12:57:22.314 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:22.316 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_MODIFY, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
-12:57:22.318 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:02.170 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
+13:01:02.170 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmpsytwqp0c
+13:01:02.171 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
+13:01:02.177 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:02.180 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:05.861 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:05.862 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.230 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
+13:01:06.234 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
+13:01:06.235 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.236 I wwwpy.common.quickstart:__init__.py:22 Quickstart applying basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:06.237 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
+13:01:06.241 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
+13:01:06.242 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:06.242 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
+13:01:06.245 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
+13:01:06.245 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
+13:01:06.246 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
+13:01:06.246 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
+13:01:06.248 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.420 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 10 events for `remote`. Summary: ['remote/__init__.py', 'remote/component1.py', 'remote']
-12:57:22.509 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.519 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.524 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.348 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 6 events for `remote`. Summary: ['remote', 'remote/component1.py', 'remote/__init__.py']
+13:01:06.403 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.449 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.455 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.724 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.731 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.656 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.662 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.931 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.937 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.862 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.868 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.137 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.144 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.068 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.076 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.345 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.349 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+2025-07-14 13:01:07,076 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.549 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.557 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.277 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.284 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.757 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.763 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.484 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.492 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.963 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.968 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.693 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.700 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.169 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.173 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.901 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.910 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.374 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.380 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.110 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.116 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.580 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.585 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.317 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.323 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.785 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.790 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.523 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.530 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.990 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.995 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.730 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.737 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.196 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.203 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.937 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.944 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.403 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.409 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.144 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.150 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.609 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.614 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.351 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.357 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.814 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.818 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.558 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.565 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.019 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.023 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.765 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.774 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.224 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.230 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.975 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.981 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.430 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.436 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.182 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.188 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.637 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.642 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.388 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.394 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.842 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.849 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.594 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.600 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.049 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:27.055 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.801 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.807 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.255 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:27.261 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:11.008 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:11.014 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.462 E tests.server.dev_mode_test:dev_mode_test.py:72 Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
+13:01:11.214 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:11.222 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
+    ├── __init__.py (232)
+    └── component1.py (279)
+13:01:11.422 E tests.server.dev_mode_test:dev_mode_test.py:72 Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
 assert False
-12:57:27.465 D tests.server.dev_mode_test:dev_mode_test.py:74 Body HTML content:
+13:01:11.425 D tests.server.dev_mode_test:dev_mode_test.py:74 Body HTML content:
 `Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>`
-12:57:27.469 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:11.430 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
 FAILED                                                                   [100%]
@@ -150,7 +149,7 @@ FAILED                                                                   [100%]
 =================================== FAILURES ===================================
 _ test_dev_mode_with_empty_project__should_show_quickstart_dialog[chromium-WsTornado] _
 
-fixture = <tests.server.page_fixture.PageFixture object at 0x7c19a4553400>
+fixture = <tests.server.page_fixture.PageFixture object at 0x731740a2f4c0>
 
     @for_all_webservers()
     def test_dev_mode_with_empty_project__should_show_quickstart_dialog(fixture: PageFixture):
@@ -209,21 +208,21 @@ E   AssertionError: html=[[[Importing the "remote" package...<wwwpy-dev-mode-com
 E   assert False
 
 body_html  = 'Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>'
-fixture    = <tests.server.page_fixture.PageFixture object at 0x7c19a4553400>
-print_server_fs = <function test_dev_mode_with_empty_project__should_show_quickstart_dialog.<locals>.print_server_fs at 0x7c19a4138b80>
+fixture    = <tests.server.page_fixture.PageFixture object at 0x731740a2f4c0>
+print_server_fs = <function test_dev_mode_with_empty_project__should_show_quickstart_dialog.<locals>.print_server_fs at 0x731740614b80>
 
 dev_mode_test.py:62: AssertionError
 ------------------------------ Captured log setup ------------------------------
-12:57:17.929 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:01.910 D asyncio:selector_events.py:54 Using selector: EpollSelector
 ----------------------------- Captured stdout call -----------------------------
-2025-07-14 12:57:18,187 🏛 D wwwpy.rpc:147 - generate_remote_stubs in /tmp/tmpzdr9io8v
-2025-07-14 12:57:18,189 🏛 D wwwpy.rpc:166 - Module `wwwpy.server.designer.rpc` len(stub_source)=1721
-2025-07-14 12:57:18,195 🏛 D wwwpy.server.filesystem_sync.any_observer:42 - Creating observer for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
+2025-07-14 13:01:02,170 🏛 D wwwpy.rpc:147 - generate_remote_stubs in /tmp/tmpsytwqp0c
+2025-07-14 13:01:02,171 🏛 D wwwpy.rpc:166 - Module `wwwpy.server.designer.rpc` len(stub_source)=1721
+2025-07-14 13:01:02,177 🏛 D wwwpy.server.filesystem_sync.any_observer:42 - Creating observer for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
 Available at (non-exhaustive list):
     http://10.2.2.16:10038
     http://127.0.0.1:10038
 
-2025-07-14 12:57:18,197 🏛 D asyncio:54 - Using selector: EpollSelector
+2025-07-14 13:01:02,180 🏛 D asyncio:54 - Using selector: EpollSelector
 console [log] ==== loading pyodide...
 console [log] ==== loading pyodide.runPythonAsync(...). See in the following lines for the code
 console [log] ==== -----------------------  START PYTHON CODE  -------------------------------
@@ -250,206 +249,201 @@ console [log] ==== Loading packaging, platformdirs
 console [log] ==== Loaded packaging, platformdirs
 console [log] ==== invoke_browser_main
 console [error] ==== Exception: No module named 'remote'
-2025-07-14 12:57:21,900 🏛 D asyncio:54 - Using selector: EpollSelector
-2025-07-14 12:57:21,901 🏛 D asyncio:54 - Using selector: EpollSelector
-2025-07-14 12:57:22,302 🏛 D tests.server.dev_mode_test:41 - accepting quickstart
-2025-07-14 12:57:22,306 🏛 D tests.server.dev_mode_test:48 - checking quickstart applied
-2025-07-14 12:57:22,307 🏛 D asyncio:54 - Using selector: EpollSelector
-2025-07-14 12:57:22,309 🏛 D tests.server.dev_mode_test:58 - Going to verify if component-1 is attached with a specific 42000ms timeout
-2025-07-14 12:57:22,314 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
-2025-07-14 12:57:22,314 🏛 I wwwpy.server.designer.rpc:75 - Quickstart applied basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-2025-07-14 12:57:22,316 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
+2025-07-14 13:01:05,861 🏛 D asyncio:54 - Using selector: EpollSelector
+2025-07-14 13:01:05,862 🏛 D asyncio:54 - Using selector: EpollSelector
+2025-07-14 13:01:06,230 🏛 D tests.server.dev_mode_test:41 - accepting quickstart
+2025-07-14 13:01:06,234 🏛 D tests.server.dev_mode_test:48 - checking quickstart applied
+2025-07-14 13:01:06,235 🏛 D asyncio:54 - Using selector: EpollSelector
+2025-07-14 13:01:06,236 🏛 I wwwpy.common.quickstart:22 - Quickstart applying basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+2025-07-14 13:01:06,237 🏛 D tests.server.dev_mode_test:58 - Going to verify if component-1 is attached with a specific 42000ms timeout
+2025-07-14 13:01:06,241 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
+2025-07-14 13:01:06,242 🏛 I wwwpy.server.designer.rpc:75 - Quickstart applied basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+2025-07-14 13:01:06,242 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
+2025-07-14 13:01:06,245 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
+2025-07-14 13:01:06,245 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
+2025-07-14 13:01:06,246 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
+2025-07-14 13:01:06,246 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
 
-2025-07-14 12:57:22,317 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_MODIFY, cookie=0, name='component1.py'>
-2025-07-14 12:57:22,317 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='component1.py'>
-2025-07-14 12:57:22,317 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
-2025-07-14 12:57:22,318 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
-2025-07-14 12:57:22,318 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
-2025-07-14 12:57:22,318 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
-2025-07-14 12:57:22,318 🏛 D watchdog.observers.inotify_buffer:52 - in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
-2025-07-14 12:57:22,318 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+2025-07-14 13:01:06,248 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:22,420 🏛 I wwwpy.server.designer.dev_mode:141 - Hotreload 10 events for `remote`. Summary: ['remote/__init__.py', 'remote/component1.py', 'remote']
-2025-07-14 12:57:22,509 🏛 D asyncio:54 - Using selector: EpollSelector
-2025-07-14 12:57:22,519 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
-console [log] ==== message:["wwwpy.remote.designer.rpc", "DesignerRpc.hotreload_notify_changes", [true, [{"event_type": "created", "is_directory": true, "src_path": "remote", "dest_path": "", "content": ["<class 'NoneType'>", null]}, {"event_type": "created", "is_directory": false, "src_path": "remote/__init__.py", "dest_path": "", "content": ["<class 'NoneType'>", null]}, {"event_type": "modified", "is_directory": false, "src_path": "remote/component1.py", "dest_path": "", "content": ["<class 'str'>", "import wwwpy.remote.component as wpc\nimport js\n\nimport logging\n\nlogger = logging.getLogger(__name__)\n\n\nclass Component1(wpc.Component, tag_name='component-1'):\n\n    def init_component(self):\n        # language=html\n        self.element.innerHTML = \"\"\"\n<div>component-1</div>\n\"\"\"\n"]}]]]
+2025-07-14 13:01:06,348 🏛 I wwwpy.server.designer.dev_mode:141 - Hotreload 6 events for `remote`. Summary: ['remote', 'remote/component1.py', 'remote/__init__.py']
+2025-07-14 13:01:06,403 🏛 D asyncio:54 - Using selector: EpollSelector
+2025-07-14 13:01:06,449 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+console [log] ==== message:["wwwpy.remote.designer.rpc", "DesignerRpc.hotreload_notify_changes", [true, [{"event_type": "created", "is_directory": true, "src_path": "remote", "dest_path": "", "content": ["<class 'NoneType'>", null]}, {"event_type": "created", "is_directory": false, "src_path": "remote/__init__.py", "dest_path": "", "content": ["<class 'NoneType'>", null]}, {"event_type": "created", "is_directory": false, "src_path": "remote/component1.py", "dest_path": "", "content": ["<class 'NoneType'>", null]}]]]
 console [log] ==== reloading
 console [log] ==== invoke_browser_main
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:22,524 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:06,455 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:22,724 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:06,656 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:22,731 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:06,662 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:22,931 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:06,862 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:22,937 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:06,868 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:23,137 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:07,068 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:23,144 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
-    ├── __init__.py (232)
-    └── component1.py (279)
-2025-07-14 12:57:23,345 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:07,277 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:23,349 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:07,284 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:23,549 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:07,484 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:23,557 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:07,492 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:23,757 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:07,693 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:23,763 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:07,700 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:23,963 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:07,901 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:23,968 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:07,910 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:24,169 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:08,110 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:24,173 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:08,116 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:24,374 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:08,317 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:24,380 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:08,323 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:24,580 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:08,523 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:24,585 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:08,530 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:24,785 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:08,730 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:24,790 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:08,737 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:24,990 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:08,937 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:24,995 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:08,944 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:25,196 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:09,144 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:25,203 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:09,150 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:25,403 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:09,351 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:25,409 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:09,357 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:25,609 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:09,558 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:25,614 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:09,565 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:25,814 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:09,765 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:25,818 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:09,774 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:26,019 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:09,975 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:26,023 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:09,981 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:26,224 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:10,182 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:26,230 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:10,188 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:26,430 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:10,388 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:26,436 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:10,394 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:26,637 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:10,594 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:26,642 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:10,600 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:26,842 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:10,801 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:26,849 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:10,807 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:27,049 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:11,008 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:27,055 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:11,014 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:27,255 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
+2025-07-14 13:01:11,214 🏛 W tests.server.page_fixture:72 - retrying assert_evaluate_retry
 console [log] ==== Filesystem tree for /wwwpy_bundle/remote:
 console [log] ====     ├── __init__.py (0)
-console [log] ====     └── component1.py (279)
-2025-07-14 12:57:27,261 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ====     └── component1.py (0)
+2025-07-14 13:01:11,222 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-2025-07-14 12:57:27,462 🏛 E tests.server.dev_mode_test:72 - Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
+2025-07-14 13:01:11,422 🏛 E tests.server.dev_mode_test:72 - Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
 assert False
-2025-07-14 12:57:27,465 🏛 D tests.server.dev_mode_test:74 - Body HTML content:
+2025-07-14 13:01:11,425 🏛 D tests.server.dev_mode_test:74 - Body HTML content:
 `Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>`
 console [log] ==== ├── __init__.py (0)
-console [log] ==== └── component1.py (279)
-2025-07-14 12:57:27,469 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+console [log] ==== └── component1.py (0)
+2025-07-14 13:01:11,430 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
 ----------------------------- Captured stderr call -----------------------------
@@ -459,136 +453,133 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'remote'
 
 ------------------------------ Captured log call -------------------------------
-12:57:18.187 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
-12:57:18.187 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmpzdr9io8v
-12:57:18.189 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
-12:57:18.195 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:18.197 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:21.900 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:21.901 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.302 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
-12:57:22.306 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
-12:57:22.307 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.308 I wwwpy.common.quickstart:__init__.py:22 Quickstart applying basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:22.309 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
-12:57:22.314 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
-12:57:22.314 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0
-12:57:22.316 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_MODIFY, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='component1.py'>
-12:57:22.317 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
-12:57:22.318 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
-12:57:22.318 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:02.170 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
+13:01:02.170 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmpsytwqp0c
+13:01:02.171 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
+13:01:02.177 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:02.180 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:05.861 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:05.862 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.230 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
+13:01:06.234 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
+13:01:06.235 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.236 I wwwpy.common.quickstart:__init__.py:22 Quickstart applying basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:06.237 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
+13:01:06.241 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
+13:01:06.242 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0
+13:01:06.242 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
+13:01:06.245 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
+13:01:06.245 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
+13:01:06.246 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
+13:01:06.246 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
+13:01:06.248 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.420 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 10 events for `remote`. Summary: ['remote/__init__.py', 'remote/component1.py', 'remote']
-12:57:22.509 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:57:22.519 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.524 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.348 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 6 events for `remote`. Summary: ['remote', 'remote/component1.py', 'remote/__init__.py']
+13:01:06.403 D asyncio:selector_events.py:54 Using selector: EpollSelector
+13:01:06.449 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.455 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.724 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.731 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.656 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.662 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:22.931 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:22.937 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:06.862 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:06.868 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.137 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.144 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.068 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.076 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.345 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.349 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.277 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.284 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.549 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.557 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.484 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.492 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.757 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.763 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.693 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.700 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:23.963 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:23.968 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:07.901 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:07.910 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.169 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.173 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.110 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.116 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.374 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.380 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.317 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.323 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.580 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.585 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.523 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.530 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.785 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.790 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.730 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.737 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:24.990 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:24.995 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:08.937 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:08.944 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.196 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.203 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.144 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.150 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.403 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.409 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.351 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.357 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.609 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.614 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.558 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.565 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:25.814 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:25.818 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.765 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.774 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.019 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.023 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:09.975 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:09.981 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.224 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.230 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.182 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.188 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.430 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.436 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.388 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.394 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.637 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.642 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.594 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.600 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:26.842 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:26.849 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:10.801 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:10.807 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.049 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:27.055 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:11.008 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:11.014 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.255 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
-12:57:27.261 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:11.214 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+13:01:11.222 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
-12:57:27.462 E tests.server.dev_mode_test:dev_mode_test.py:72 Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
+13:01:11.422 E tests.server.dev_mode_test:dev_mode_test.py:72 Assertion failed: component-1 not attached. Error: html=[[[Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>]]]
 assert False
-12:57:27.465 D tests.server.dev_mode_test:dev_mode_test.py:74 Body HTML content:
+13:01:11.425 D tests.server.dev_mode_test:dev_mode_test.py:74 Body HTML content:
 `Importing the "remote" package...<wwwpy-dev-mode-component></wwwpy-dev-mode-component>`
-12:57:27.469 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-158/test_dev_mode_with_empty_proje0/remote:
+13:01:11.430 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-175/test_dev_mode_with_empty_proje0/remote:
     ├── __init__.py (232)
     └── component1.py (279)
 =========================== short test summary info ============================
 FAILED dev_mode_test.py::test_dev_mode_with_empty_project__should_show_quickstart_dialog[chromium-WsTornado]
-============================== 1 failed in 9.63s ===============================
+============================== 1 failed in 9.61s ===============================
