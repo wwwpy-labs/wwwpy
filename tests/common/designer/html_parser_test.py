@@ -149,3 +149,54 @@ def test_autoclosing_void():
     actual = html_to_tree("""<br/>""")  # this is not valid but we support it
     expect = [CstNode(tag_name='br', span=(0, 5), attr_span=(3, 3))]
     assert actual == expect
+
+
+def test_autoclosing_void_extra_spaces_after():
+    # language=html
+    actual = html_to_tree("""<br  />""")  # this is not valid but we support it
+    expect = [CstNode(tag_name='br', span=(0, 7), attr_span=(3, 5))]
+    assert actual == expect
+
+
+def test_issue_20250711_unexpected_closing_and_style():
+    # language=html
+    actual = html_to_tree("""</hr ><style> .grid-item { } </style><div>div1</div>""")
+    expect = [
+        CstNode(tag_name='style', span=(6, 37), attr_span=(12, 12), content_span=(13, 29)),
+        CstNode(tag_name='div', span=(37, 52), attr_span=(41, 41), content_span=(42, 46), content='div1')
+    ]
+    assert actual == expect
+
+
+def test_issue_20250711_vod_unexpected_closing_with_extra_spaces_after():
+    # language=html
+    actual = html_to_tree("""</hr  ><br>""")
+    expect = [CstNode(tag_name='br', span=(7, 11), attr_span=(10, 10)), ]
+    assert actual == expect
+
+
+def test_issue_20250711_void_unexpected_closing_with_extra_spaces_before():
+    # language=html
+    actual = html_to_tree("""</  hr><br>""")
+    expect = [CstNode(tag_name='br', span=(7, 11), attr_span=(10, 10)), ]
+    assert actual == expect
+
+
+def test_issue_20250711_non_void_unexpected_closing_with_extra_spaces_before():
+    # language=html
+    actual = html_to_tree("""<p></ div></p><br>""")
+    expect = [
+        CstNode(tag_name='p', span=(0, 14), attr_span=(2, 2), content_span=(3, 10)),
+        CstNode(tag_name='br', span=(14, 18), attr_span=(17, 17)),
+    ]
+    assert actual == expect
+
+
+def test_redundant_closing_tag():
+    # language=html
+    actual = html_to_tree("""<hr></hr><br>""")
+    expect = [
+        CstNode(tag_name='hr', span=(0, 4), attr_span=(3, 3)),
+        CstNode(tag_name='br', span=(9, 13), attr_span=(12, 12)),
+    ]
+    assert actual == expect

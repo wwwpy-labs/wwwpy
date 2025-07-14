@@ -122,8 +122,15 @@ class _PositionalHTMLParser(HTMLParser):
 
         self.current_pos += len(text)
 
-    def handle_endtag_extended(self, tag, autoclosing):
+    def handle_endtag_extended(self, tag, autoclosing, match):
         if autoclosing:
+            return
+        if self._unexpected_endtag(tag):
+            if match is not None:
+                group0 = match.group(0)
+                self.handle_data(group0)
+            else:
+                self.handle_data(f'</{tag}>')
             return
         if tag in self.void_tags:  # a void tag with end tag
             return
@@ -167,6 +174,12 @@ class _PositionalHTMLParser(HTMLParser):
         self.current_pos = comment_end
         return comment_end
 
+    def _unexpected_endtag(self, tag: str) -> bool:
+        if not self.stack:
+            return True
+        if self.stack[-1].tag_name != tag:
+            return True
+        return False
 
 def _complete_tree_data(html: str, tree: CstTree, parent: CstNode | None = None, level: int = 0):
     for idx, node in enumerate(tree):
