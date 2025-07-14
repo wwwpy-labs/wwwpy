@@ -55,8 +55,9 @@ class Mutator:
         self.events.append(Event(event_type='moved', is_directory=fs_old.is_dir(), src_path=old, dest_path=new))
         shutil.move(fs_old, self.fs / new)
 
-    def write(self, path: str, content: AnyStr):
-        self.events.append(Event(event_type='modified', is_directory=False, src_path=path))
+    def write(self, path: str, content: AnyStr, append_event=True):
+        if append_event:
+            self.events.append(Event(event_type='modified', is_directory=False, src_path=path))
         p = self.fs / path
         if isinstance(content, bytes):
             p.write_bytes(content)

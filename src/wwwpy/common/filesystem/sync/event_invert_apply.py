@@ -53,6 +53,10 @@ def events_invert(fs: Path, events: List[Event]) -> List[Event]:
     for e in reversed(events):
         if e.event_type == 'closed':
             continue
+        if e.event_type == 'created' and not e.is_directory:
+            # treat created files as modified because sometimes we do not get 'modified' events
+            e = dataclasses.replace(e, event_type='modified')
+
         rel = e.relative_to(fs)
         if rel.src_path == '' or rel.src_path == '.':
             continue  # skip any event on the root

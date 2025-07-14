@@ -31,6 +31,21 @@ def test_new_file(fixture: FilesystemFixture):
     assert (fixture.initial_fs / 'new_file.txt').exists()
 
 
+def test_new_file_with_change_out_of_band(fixture: FilesystemFixture):
+    """Sometimes we don't receive the 'modified' event for a new file, so we need to treat 'crated' as 'modified'."""
+    # GIVEN
+    with fixture.source_mutator as m:
+        m.touch('new_file.txt')
+        m.write('new_file.txt', 'content', append_event=False)
+
+    # WHEN
+    fixture.invoke("""{"event_type": "created", "is_directory": false, "src_path": "new_file.txt"}""")
+
+    # THEN
+    fixture.assert_filesystem_are_equal()
+    assert (fixture.initial_fs / 'new_file.txt').exists()
+
+
 def test_delete_file(fixture: FilesystemFixture):
     # GIVEN
     with fixture.source_init as m:
@@ -56,9 +71,9 @@ def test_new_directory(fixture: FilesystemFixture):
     fixture.invoke("""{"event_type": "created", "is_directory": true, "src_path": "new_dir"}""")
 
     # THEN
-    fixture.assert_filesystem_are_equal()
     assert (fixture.initial_fs / 'new_dir').exists()
     assert (fixture.initial_fs / 'new_dir').is_dir()
+    fixture.assert_filesystem_are_equal()
 
 
 def test_delete_directory(fixture: FilesystemFixture):
@@ -283,7 +298,8 @@ class TestCompression:
         {"event_type": "created", "is_directory": false, "src_path": "f.txt"}""")
 
         # THEN
-        assert fixture.inverted_events[-1] == Event('created', False, 'f.txt')
+        # we treat 'created' as 'modified' because sometimes we do not receive 'modified' events
+        assert fixture.inverted_events[-1] == Event('modified', False, 'f.txt', content='')
         assert len(fixture.inverted_events) < 3
 
     def test_delete_folder_with_files(self, fixture):
