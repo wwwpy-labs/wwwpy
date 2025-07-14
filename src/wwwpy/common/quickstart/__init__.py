@@ -19,8 +19,8 @@ def setup_quickstart(directory: Path, quickstart_name: str):
     source = Path(__file__).parent / quickstart_name
     assert source.exists(), f'quickstart not found: {source}'
     # _delete_empty_project(directory)
+    logger.info(f'Quickstart applying {quickstart_name} to {directory}')
     shutil.copytree(source, directory, dirs_exist_ok=True)
-    logger.warning(f'Quickstart applied {quickstart_name} to {directory}')
     # print_tree(directory, logger.warning)
 
 

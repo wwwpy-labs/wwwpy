@@ -7,88 +7,83 @@ plugins: base-url-2.1.0, asyncio-1.0.0, playwright-0.7.0, xvirt-0.3.1, repeat-0.
 asyncio: mode=auto, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
 
 ----------------------------- live log collection ------------------------------
-12:40:29.121 D tests.timeouts:timeouts.py:17 timeout_multiplier=1
+12:57:12.295 D tests.timeouts:timeouts.py:17 timeout_multiplier=1
 collected 1 item
 
-dev_mode_test.py::test_dev_mode_with_empty_project__should_show_quickstart_dialog[chromium-WsTornado]
+dev_mode_test.py::test_dev_mode_with_empty_project__should_show_quickstart_dialog[chromium-WsTornado] 
 -------------------------------- live log setup --------------------------------
-12:40:29.147 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:12.319 D asyncio:selector_events.py:54 Using selector: EpollSelector
 -------------------------------- live log call ---------------------------------
-12:40:29.403 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
-12:40:29.404 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmppv_z03uy
-12:40:29.405 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
-12:40:29.412 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0
-12:40:29.412 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:29.412 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:29.414 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:40:29.574 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:29.575 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.643 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:40:33.645 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:40:33.645 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.646 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.758 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.758 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.761 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
-12:40:33.765 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:40:33.765 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.766 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
-12:40:33.766 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.766 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.766 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.767 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CREATE|IN_ISDIR, cookie=0, name='remote'>
-12:40:33.767 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='remote'>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='remote'>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
-12:40:33.768 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_MODIFY, cookie=0, name='__init__.py'>
-12:40:33.770 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
-12:40:33.770 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='__init__.py'>
-2025-07-14 12:40:33,770 🏛 D tests.server.dev_mode_test:58 - Going to verify if component-1 is attached with a specific 42000ms timeout
-12:40:33.770 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_ATTRIB, cookie=0, name='__init__.py'>
-12:40:33.770 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
-12:40:33.771 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_OPEN, cookie=0, name='component1.py'>
-12:40:33.771 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_MODIFY, cookie=0, name='component1.py'>
-12:40:33.771 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='component1.py'>
-12:40:33.771 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
-12:40:33.772 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
-12:40:33.772 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name='remote'>
-12:40:33.772 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
-12:40:33.773 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name='remote'>
-12:40:33.773 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
-12:40:33.773 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
-12:40:33.773 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_OPEN, cookie=0, name='readme.txt'>
-12:40:33.774 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
-12:40:33.774 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
-12:40:33.774 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
-12:40:33.774 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
-12:40:33.774 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
-12:40:33.775 W wwwpy.common.quickstart:__init__.py:23 Quickstart applied basic to /tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0
-12:40:33.775 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
-12:40:33.776 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0
-12:40:33.776 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='remote'>
-12:40:33.777 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.777 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote:
-    ├── __init__.py (232)
-    └── component1.py (279)
-12:40:33.777 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='remote'>
-2025-07-14 12:40:33,777 🏛 D tests.server.dev_mode_test:56 - Filesystem tree for /tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote:
-    ├── __init__.py (232)
-    └── component1.py (279)
-12:40:33.777 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.876 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 16 events for `remote`. Summary: ['remote/__init__.py', 'remote/component1.py', 'remote']
-12:40:33.877 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_OPEN, cookie=0, name='component1.py'>
-12:40:33.878 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='component1.py'>
-12:40:33.878 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
-12:40:33.878 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='__init__.py'>
-12:40:33.967 D asyncio:selector_events.py:54 Using selector: EpollSelector
-12:40:33.968 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
-12:40:33.968 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='__init__.py'>
-12:40:33.968 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
-12:40:33.969 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-133/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
-12:40:33.977 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
+12:57:12.575 I tests.server.dev_mode_test:dev_mode_test.py:20 test_dev_mode_with_empty_project__should_show_quickstart_dialog -- marker to separate logs
+12:57:12.575 D wwwpy.rpc:rpc.py:147 generate_remote_stubs in /tmp/tmp2sg0q3tc
+12:57:12.577 D wwwpy.rpc:rpc.py:166 Module `wwwpy.server.designer.rpc` len(stub_source)=1721
+12:57:12.583 D wwwpy.server.filesystem_sync.any_observer:any_observer.py:42 Creating observer for /tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0
+12:57:12.583 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:12.584 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:12.585 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:12.732 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:12.733 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.201 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:17.203 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:17.204 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.204 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.240 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.241 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.244 D tests.server.dev_mode_test:dev_mode_test.py:41 accepting quickstart
+12:57:17.247 D tests.server.dev_mode_test:dev_mode_test.py:48 checking quickstart applied
+12:57:17.247 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:17.248 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.249 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.249 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.250 I wwwpy.common.quickstart:__init__.py:22 Quickstart applying basic to /tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0
+12:57:17.250 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.250 D tests.server.dev_mode_test:dev_mode_test.py:58 Going to verify if component-1 is attached with a specific 42000ms timeout
+12:57:17.253 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CREATE|IN_ISDIR, cookie=0, name='remote'>
+12:57:17.253 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='remote'>
+12:57:17.253 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CREATE, cookie=0, name='__init__.py'>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='remote'>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_MODIFY, cookie=0, name='__init__.py'>
+12:57:17.254 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='__init__.py'>
+12:57:17.255 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_ATTRIB, cookie=0, name='__init__.py'>
+12:57:17.255 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_ATTRIB, cookie=0, name='__init__.py'>
+12:57:17.255 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name='remote'>
+12:57:17.256 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.256 D tests.server.dev_mode_test:dev_mode_test.py:56 Filesystem tree for /tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote:
+    └── __init__.py (232)
+12:57:17.256 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name='remote'>
+12:57:17.256 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.256 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CREATE, cookie=0, name='component1.py'>
+12:57:17.256 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_OPEN, cookie=0, name='component1.py'>
+12:57:17.257 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_MODIFY, cookie=0, name='component1.py'>
+12:57:17.257 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_WRITE, cookie=0, name='component1.py'>
+12:57:17.257 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
+12:57:17.257 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_ATTRIB, cookie=0, name='component1.py'>
+12:57:17.257 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name='remote'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name='remote'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote', wd=2, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CREATE, cookie=0, name='readme.txt'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_OPEN, cookie=0, name='readme.txt'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_MODIFY, cookie=0, name='readme.txt'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_CLOSE_WRITE, cookie=0, name='readme.txt'>
+12:57:17.258 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
+12:57:17.259 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/readme.txt', wd=1, mask=IN_ATTRIB, cookie=0, name='readme.txt'>
+12:57:17.259 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ATTRIB|IN_ISDIR, cookie=0, name=''>
+12:57:17.259 I wwwpy.server.designer.rpc:rpc.py:75 Quickstart applied basic to /tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0
+12:57:17.362 I wwwpy.server.designer.dev_mode:dev_mode.py:141 Hotreload 15 events for `remote`. Summary: ['remote/component1.py', 'remote/__init__.py', 'remote']
+12:57:17.363 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_OPEN, cookie=0, name='component1.py'>
+12:57:17.363 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/component1.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='component1.py'>
+12:57:17.364 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
+12:57:17.364 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='__init__.py'>
+12:57:17.455 D asyncio:selector_events.py:54 Using selector: EpollSelector
+12:57:17.455 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_OPEN, cookie=0, name='__init__.py'>
+12:57:17.456 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0/remote/__init__.py', wd=2, mask=IN_CLOSE_NOWRITE, cookie=0, name='__init__.py'>
+12:57:17.456 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_ISDIR|IN_OPEN, cookie=0, name=''>
+12:57:17.456 D watchdog.observers.inotify_buffer:inotify_buffer.py:52 in-event <InotifyEvent: src_path=b'/tmp/pytest-of-simone/pytest-157/test_dev_mode_with_empty_proje0', wd=1, mask=IN_CLOSE_NOWRITE|IN_ISDIR, cookie=0, name=''>
+12:57:17.457 W tests.server.page_fixture:page_fixture.py:72 retrying assert_evaluate_retry
 PASSED                                                                   [100%]
 
-============================== 1 passed in 4.90s ===============================
+============================== 1 passed in 5.22s ===============================
