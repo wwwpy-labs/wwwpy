@@ -39,23 +39,17 @@ class AddElementIntent(Intent):  # todo rename InsertElementIntent
 
     def on_hover(self, locator_event: LocatorEvent):
         assert isinstance(locator_event, LocatorEvent), f'Expected LocatorEvent, got {type(locator_event)}'
-        tool = self._tool
         if self._is_recursive(locator_event):
-            logger.debug(f'Ignoring hover on {locator_event} because it is recursive')
-            tool.hide()
             return
+
+        tool = self._tool
         if not tool.element.isConnected:
             js.document.body.appendChild(tool.element)
-        tool.set_reference_geometry2(
-            locator_event.main_element.getBoundingClientRect(),
-            locator_event.position()
-        )
+        tool.set_reference_geometry2(locator_event.main_element.getBoundingClientRect(), locator_event.position())
         tool.show()
 
     def on_submit(self, locator_event: LocatorEvent) -> bool:
         if self._is_recursive(locator_event):
-            logger.debug(f'Ignoring submit on {locator_event} because it is recursive')
-            self._tool.hide()
             return False
         self.add_element(locator_event.locator, locator_event.position(), self.element_def)
         self._tool.hide()
@@ -63,8 +57,12 @@ class AddElementIntent(Intent):  # todo rename InsertElementIntent
 
     def _is_recursive(self, locator_event: LocatorEvent) -> bool:
         rec = locator_event.locator.class_full_name == self.element_def.python_type
-        logger.debug(
-            f'Recursive: {rec} {locator_event.locator.class_full_name} is recursive against {self.element_def.python_type}')
+        if rec:
+            self._tool.hide()
+            logger.debug(f'Ignoring hover on {locator_event} because it is recursive')
+        else:
+            logger.debug(
+                f'Recursive: {rec} {locator_event.locator.class_full_name} is recursive against {self.element_def.python_type}')
         return rec
 
 
