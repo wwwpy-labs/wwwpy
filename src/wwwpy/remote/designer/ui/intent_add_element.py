@@ -41,12 +41,7 @@ class AddElementIntent(Intent):  # todo rename InsertElementIntent
         assert isinstance(locator_event, LocatorEvent), f'Expected LocatorEvent, got {type(locator_event)}'
         if self._is_recursive(locator_event):
             return
-
-        tool = self._tool
-        if not tool.element.isConnected:
-            js.document.body.appendChild(tool.element)
-        tool.set_reference_geometry2(locator_event.main_element.getBoundingClientRect(), locator_event.position())
-        tool.show()
+        self._setup_tool(locator_event)
 
     def on_submit(self, locator_event: LocatorEvent) -> bool:
         if self._is_recursive(locator_event):
@@ -54,6 +49,13 @@ class AddElementIntent(Intent):  # todo rename InsertElementIntent
         self.add_element(locator_event.locator, locator_event.position(), self.element_def)
         self._tool.hide()
         return True
+
+    def _setup_tool(self, locator_event: LocatorEvent):
+        tool = self._tool
+        if not tool.element.isConnected:
+            js.document.body.appendChild(tool.element)
+        tool.set_reference_geometry2(locator_event.main_element.getBoundingClientRect(), locator_event.position())
+        tool.show()
 
     def _is_recursive(self, locator_event: LocatorEvent) -> bool:
         rec = locator_event.locator.class_full_name == self.element_def.python_type
