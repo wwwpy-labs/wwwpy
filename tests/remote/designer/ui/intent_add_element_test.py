@@ -43,7 +43,7 @@ class Comp1Fixture:
         self._setup_intent(t)
         return t
 
-    def _setup_intent(self, t):
+    def _setup_intent(self, t: AddElementIntent):
         t.add_element = lambda *args: self.add_calls.append(args)
         t._tool.transition = False  # disable transition for tests
 
