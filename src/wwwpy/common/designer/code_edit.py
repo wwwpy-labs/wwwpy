@@ -12,7 +12,7 @@ from wwwpy.common.designer import code_info, html_parser, html_locator
 from wwwpy.common.designer.code_info import Attribute
 from wwwpy.common.designer.code_strings import html_string_edit
 from wwwpy.common.designer.element_library import ElementDefBase
-from wwwpy.common.designer.html_edit import Position, html_add_indexed, html_remove_indexed
+from wwwpy.common.designer.html_edit import Position, html_add_indexed, html_remove_indexed, HtmlAddResult
 from wwwpy.common.designer.html_locator import NodePath, IndexPath, data_name
 
 logger = logging.getLogger(__name__)
@@ -117,31 +117,25 @@ def add_element(source_code: str, class_name: str, edb: ElementDefBase, index_pa
         class_info = code_info.class_info(source_code, class_name)
         if class_info is None:
             print(f'Class {class_name} not found inside source ```{source_code}```')
-            return None
+            return AddFailed(Exception(f'Class not found `{class_name}`'), '', '')
 
         attr_name = class_info.next_attribute_name(edb.tag_name)
         named_html = edb.new_html(attr_name)
 
         source1 = add_class_attribute(source_code, class_name,
                                       Attribute(attr_name, type_name, 'wpc.element()'))
-        changed_html = []
+        html_add_res: HtmlAddResult | None = None
 
         def manipulate_html(html):
-            add = html_add_indexed(html, named_html, index_path, position)
-            changed_html.append(add)
-            return add
+            nonlocal html_add_res
+            html_add_res = html_add_indexed(html, named_html, index_path, position)
+            return html_add_res.html
 
         source2 = html_string_edit(source1, class_name, manipulate_html)
-        new_tree = html_parser.html_to_tree(source2)
-        if position == Position.afterbegin:
-            indexes = index_path + [0]
-        elif position == Position.beforeend:
-            indexes = index_path + [-1]
+        if html_add_res is None or not html_add_res.success:
+            result = AddFailed(Exception('Failed to add element'), '', '')
         else:
-            displacement = 0 if position == Position.beforebegin else 1
-            indexes = index_path[0:-1] + [index_path[-1] + displacement]
-        new_node_path = html_locator.tree_to_path(new_tree, indexes)
-        result = AddResult(source2, new_node_path, changed_html[0])
+            result = AddResult(source2, html_add_res.new_node_path, html_add_res.html)
     except Exception as e:
         import traceback
         from wwwpy.common.rpc import serialization

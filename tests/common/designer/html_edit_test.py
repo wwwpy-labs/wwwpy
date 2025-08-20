@@ -10,22 +10,22 @@ class TestAddSimple:
     def test_beforebegin(self):
         actual = html_add_indexed(html_simple, 'xyz', [0], Position.beforebegin)
         # language=html
-        assert actual == "xyz<div><br></div>"
+        assert actual.html == "xyz<div><br></div>"
 
     def test_afterend(self):
-        actual = html_add_indexed(html_simple, 'xyz', [0], Position.afterend)
+        actual = html_add_indexed(html_simple, '<hr>', [0], Position.afterend)
         # language=html
-        assert actual == "<div><br></div>xyz"
+        assert actual.html == "<div><br></div><hr>"
 
     def test_afterbegin(self):
         actual = html_add_indexed(html_simple, 'xyz', [0], Position.afterbegin)
         # language=html
-        assert actual == "<div>xyz<br></div>"
+        assert actual.html == "<div>xyz<br></div>"
 
     def test_beforeend(self):
         actual = html_add_indexed(html_simple, 'xyz', [0], Position.beforeend)
         # language=html
-        assert actual == "<div><br>xyz</div>"
+        assert actual.html == "<div><br>xyz</div>"
 
 
 # language=html
@@ -36,25 +36,25 @@ path = [Node("div", 0, {'id': 'foo'}), Node("div", 1, {'id': 'target'})]
 def test_add_beforebegin():
     actual = html_add_indexed(html, 'xyz', [0, 1], Position.beforebegin)
     # language=html
-    assert actual == "<div id='foo'><div></div>xyz<div id='target'></div></div>"
+    assert actual.html == "<div id='foo'><div></div>xyz<div id='target'></div></div>"
 
 
 def test_add_afterend():
-    actual = html_add_indexed(html, 'xyz', [0, 1], Position.afterend)
+    actual = html_add_indexed(html, '<hr>', [0, 1], Position.afterend)
     # language=html
-    assert actual == "<div id='foo'><div></div><div id='target'></div>xyz</div>"
+    assert actual.html == "<div id='foo'><div></div><div id='target'></div><hr></div>"
 
 
 def test_add_afterbegin():
-    actual = html_add_indexed(html, 'xyz', [0, 1], Position.afterbegin)
+    actual = html_add_indexed(html, '<hr>', [0, 1], Position.afterbegin)
     # language=html
-    assert actual == "<div id='foo'><div></div><div id='target'>xyz</div></div>"
+    assert actual.html == "<div id='foo'><div></div><div id='target'><hr></div></div>"
 
 
 def test_add_beforeend():
-    actual = html_add_indexed(html, 'xyz', [0, 1], Position.beforeend)
+    actual = html_add_indexed(html, '<hr>', [0, 1], Position.beforeend)
     # language=html
-    assert actual == "<div id='foo'><div></div><div id='target'>xyz</div></div>"
+    assert actual.html == "<div id='foo'><div></div><div id='target'><hr></div></div>"
 
 
 # def test_add_afterbegin_with_empty():

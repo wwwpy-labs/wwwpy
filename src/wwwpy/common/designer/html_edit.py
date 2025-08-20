@@ -1,6 +1,7 @@
 """This module contains the HTML string manipulator functions."""
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
 from html import escape
 
@@ -25,9 +26,22 @@ def html_add(html: str, add: str, node_path: NodePath, position: Position) -> st
     return html[:index] + add + html[index:]
 
 
-def html_add_indexed(html: str, add: str, index_path: IndexPath, position: Position) -> str:
+@dataclass
+class HtmlAddResult:
+    html: str
+    new_node_path: NodePath | None
+
+    @property
+    def success(self) -> bool:
+        return self.new_node_path is not None
+
+
+def html_add_indexed(html: str, add: str, index_path: IndexPath, position: Position) -> HtmlAddResult:
     check_node_path(index_path)
     """This function adds an HTML piece to the specified position in the HTML string."""
+
+    def fail() -> HtmlAddResult:
+        return HtmlAddResult(html, None)
 
     start, end = html_locator.locate_span_indexed(html, index_path)
 
@@ -39,18 +53,31 @@ def html_add_indexed(html: str, add: str, index_path: IndexPath, position: Posit
         # Insert just after the opening tag
         node = html_locator.locate_node_indexed(html, index_path)
         if node is None or node.content_span is None:
-            return html
+            return fail()
         index = node.content_span[0]
     elif position == Position.beforeend:
         # Insert just before the closing tag
         node = html_locator.locate_node_indexed(html, index_path)
         if node is None or node.content_span is None:
-            return html
+            return fail()
         index = node.content_span[1]
     else:
         raise ValueError(f"Unknown position: {position}")
 
-    return html[:index] + add + html[index:]
+    new_html = html[:index] + add + html[index:]
+
+    import wwwpy.common.designer.html_parser as html_parser
+    new_tree = html_parser.html_to_tree(new_html)
+    if position == Position.afterbegin:
+        indexes = index_path + [0]
+    elif position == Position.beforeend:
+        indexes = index_path + [-1]
+    else:
+        displacement = 0 if position == Position.beforebegin else 1
+        indexes = index_path[0:-1] + [index_path[-1] + displacement]
+    new_node_path = html_locator.tree_to_path(new_tree, indexes)
+
+    return HtmlAddResult(new_html, new_node_path)
 
 
 def html_edit(html: str, edit: str, node_path: NodePath) -> str:
@@ -106,7 +133,6 @@ def html_attribute_remove(html: str, node_path: NodePath, attr_name: str) -> str
         x = node.attr_span[0]
         y = node.attr_span[1]
         return html[:x] + html[y:]
-
 
     value_present = cst_attr.value_span is not None
     x = cst_attr.name_span[0]
